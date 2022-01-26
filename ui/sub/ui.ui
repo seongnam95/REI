@@ -1,0 +1,2001 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>uiform</class>
+ <widget class="QWidget" name="uiform">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>380</width>
+    <height>551</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>info</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: rgb(255, 255, 255);</string>
+  </property>
+  <widget class="QGroupBox" name="gb">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>361</width>
+     <height>181</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string/>
+   </property>
+   <widget class="QPushButton" name="bt_search">
+    <property name="geometry">
+     <rect>
+      <x>289</x>
+      <y>40</y>
+      <width>63</width>
+      <height>35</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton {
+	border: 1px solid rgb(45, 75, 134);
+	background-color: rgb(45, 75, 134, 230.0);
+	border-radius: 2px;
+}
+QPushButton::hover {
+	border: 1px solid rgb(45, 75, 134);
+	background-color: rgb(45, 75, 134, 150.0);
+	border-style: inset;
+}
+
+QPushButton:pressed {
+	border: 1px solid rgb(45, 75, 134);
+	background-color: rgb(45, 75, 134);
+	border-style: inset;
+}
+</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>E:/PyProject/Project/REI/building_info/image/bt_search.png</normaloff>E:/PyProject/Project/REI/building_info/image/bt_search.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>23</width>
+      <height>23</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lb_jusoinfo">
+    <property name="geometry">
+     <rect>
+      <x>11</x>
+      <y>77</y>
+      <width>281</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QLabel {
+	color: rgb(45, 75, 134, 200.0);
+	font: 11px;
+}</string>
+    </property>
+    <property name="text">
+     <string>(최근 지어진 신축 빌라는 조회 되지 않을 수 있습니다)</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lb_dong">
+    <property name="geometry">
+     <rect>
+      <x>12</x>
+      <y>113</y>
+      <width>81</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::LeftToRight</enum>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QLabel {
+	font: bold 12px;
+	color: rgb(45, 75, 134, 170.0);
+}</string>
+    </property>
+    <property name="text">
+     <string>건물명칭(동)</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lb_ho">
+    <property name="geometry">
+     <rect>
+      <x>12</x>
+      <y>148</y>
+      <width>81</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QLabel {
+	font: bold 12px;
+	color: rgb(45, 75, 134, 170.0);
+}</string>
+    </property>
+    <property name="text">
+     <string>상세주소(호)</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="cb_ho">
+    <property name="geometry">
+     <rect>
+      <x>97</x>
+      <y>142</y>
+      <width>255</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QComboBox {
+    border: 1px solid gray;
+    padding: 1px 18px 1px 3px;
+    min-width: 6em;
+    background: rgb(255, 255, 255);
+    font: 12px;
+    color: rgb(44, 62, 80);
+}
+
+QComboBox:focus {
+    color: rgb(127, 140, 141);
+}
+
+QComboBox:on { 
+    padding-top: 3px;
+    padding-left: 4px;
+}
+
+QComboBox QAbstractItemView::item { 
+	min-height: 30px; 
+}
+
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 25px;
+
+    border-left-width: 1px;
+    border-left-color: darkgray;
+    border-left-style: solid;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+}
+
+QComboBox::down-arrow {
+    image: url(./data/img/down_arrow.png);
+    width: 25px;
+    height: 25px;
+}
+
+QComboBox::down-arrow:hover {
+    image: url(./data/img/down_arrow.png);
+}
+
+QComboBox::down-arrow:on {
+    top: 1px;
+    left: 1px;
+}
+
+QListView::item:selected {
+    color: rgb(44, 62, 80);
+    background-color: lightblue
+}</string>
+    </property>
+    <item>
+     <property name="text">
+      <string> ( 상세주소 / 호 선택 )</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QComboBox" name="cb_dong">
+    <property name="geometry">
+     <rect>
+      <x>97</x>
+      <y>107</y>
+      <width>255</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QComboBox {
+    border: 1px solid gray;
+    padding: 1px 18px 1px 3px;
+    min-width: 6em;
+    background: rgb(255, 255, 255);
+    font: 12px;
+    color: rgb(44, 62, 80);
+}
+
+QComboBox:focus {
+    color: rgb(127, 140, 141);
+}
+
+QComboBox:on { 
+    padding-top: 3px;
+    padding-left: 4px;
+}
+
+QComboBox QAbstractItemView::item { 
+	min-height: 30px; 
+}
+
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 25px;
+
+    border-left-width: 1px;
+    border-left-color: darkgray;
+    border-left-style: solid;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+}
+
+QComboBox::down-arrow {
+    image: url(./data/img/down_arrow.png);
+    width: 25px;
+    height: 25px;
+}
+
+QComboBox::down-arrow:hover {
+    image: url(./data/img/down_arrow.png);
+}
+
+QComboBox::down-arrow:on {
+    top: 1px;
+    left: 1px;
+}
+QComboBox::setView {
+    color: rgb(44, 62, 80);
+    background-color: lightblue
+}
+comboBox-&gt;setView(view);
+QListView::item:selected {
+    color: rgb(44, 62, 80);
+    background-color: lightblue
+}
+</string>
+    </property>
+    <item>
+     <property name="text">
+      <string> ( 건물명칭 / 동 선택 )</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QComboBox" name="cb_juso">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>273</width>
+      <height>35</height>
+     </rect>
+    </property>
+    <property name="contextMenuPolicy">
+     <enum>Qt::DefaultContextMenu</enum>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QComboBox {
+	font: bold 12px;
+	color: rgb(45, 75, 134);
+	border: 2px solid rgb(45, 75, 134);
+	background-color: white;
+	border-radius: 2px;
+}
+
+QComboBox:focus {
+    color: rgb(127, 140, 141);
+}
+
+QComboBox:on { 
+    padding-top: 3px;
+    padding-left: 4px;
+}
+
+QComboBox QAbstractItemView::item { 
+	min-height: 30px; 
+}
+
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+
+    border-left-width: 0px;
+    border-left-color: darkgray;
+    border-left-style: solid;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+}
+
+QComboBox::down-arrow {
+    image: url(./data/img/down_arrow.png);
+    width: 25px;
+    height: 25px;
+}
+
+QComboBox::down-arrow:hover {
+    image: url(./data/img/down_arrow.png);
+}
+
+QComboBox::down-arrow:on {
+    top: 1px;
+    left: 1px;
+}
+QComboBox::setView {
+    color: rgb(44, 62, 80);
+    background-color: lightblue
+}
+comboBox-&gt;setView(view);
+QListView::item:selected {
+    color: rgb(44, 62, 80);
+    background-color: lightblue
+}
+</string>
+    </property>
+    <property name="editable">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="rb_set">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>15</y>
+      <width>165</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: bold 12px;
+color: rgb(45, 75, 134, 210.0);</string>
+    </property>
+    <property name="text">
+     <string>집합 (다세대, 연립 등)</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="rb_nomal">
+    <property name="geometry">
+     <rect>
+      <x>183</x>
+      <y>15</y>
+      <width>141</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: bold 12px;
+color: rgb(45, 75, 134, 210.0);</string>
+    </property>
+    <property name="text">
+     <string>일반 (단독, 다가구)</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="gb_info0">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>200</y>
+     <width>361</width>
+     <height>341</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string/>
+   </property>
+   <widget class="QWidget" name="gridLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>341</width>
+      <height>281</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetDefaultConstraint</enum>
+     </property>
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <item row="2" column="1" colspan="3">
+      <widget class="QLabel" name="lb_etcpurps1">
+       <property name="styleSheet">
+        <string notr="true">font: 12px;
+background-color: rgb(45, 75, 134, 40.0);
+color: rgb(63, 63, 63);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="2" colspan="2">
+      <widget class="QLabel" name="lb_hocnt1">
+       <property name="styleSheet">
+        <string notr="true">font: 12px;
+background-color: rgb(45, 75, 134, 40.0);
+color: rgb(63, 63, 63);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="lb_etcpurps0">
+       <property name="styleSheet">
+        <string notr="true">font: bold 12px;
+color: rgb(255, 255, 255);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+background-color: rgb(45, 75, 134, 200.0);
+</string>
+       </property>
+       <property name="text">
+        <string>주용도</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0" colspan="2">
+      <widget class="QLabel" name="lb_hocnt0">
+       <property name="styleSheet">
+        <string notr="true">font: bold 12px;
+color: rgb(255, 255, 255);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+background-color: rgb(45, 75, 134, 200.0);
+</string>
+       </property>
+       <property name="text">
+        <string>호/가구/세대수</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="0" colspan="2">
+      <widget class="QLabel" name="lb_useaprday0">
+       <property name="styleSheet">
+        <string notr="true">font: bold 12px;
+color: rgb(255, 255, 255);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+background-color: rgb(45, 75, 134, 200.0);
+</string>
+       </property>
+       <property name="text">
+        <string>사용승인일</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="2" colspan="2">
+      <widget class="QLabel" name="lb_useaprday1">
+       <property name="styleSheet">
+        <string notr="true">font: 12px;
+background-color: rgb(45, 75, 134, 40.0);
+color: rgb(63, 63, 63);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QLabel" name="lb_oudr0">
+       <property name="styleSheet">
+        <string notr="true">font: bold 12px;
+color: rgb(255, 255, 255);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+background-color: rgb(45, 75, 134, 200.0);
+</string>
+       </property>
+       <property name="text">
+        <string>주차장</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="3">
+      <widget class="QLabel" name="lb_grndflrcnt1">
+       <property name="styleSheet">
+        <string notr="true">font: 12px;
+background-color: rgb(45, 75, 134, 40.0);
+color: rgb(63, 63, 63);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="2">
+      <widget class="QLabel" name="lb_grndflrcnt0">
+       <property name="styleSheet">
+        <string notr="true">font: bold 12px;
+color: rgb(255, 255, 255);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+background-color: rgb(45, 75, 134, 200.0);
+</string>
+       </property>
+       <property name="text">
+        <string>총 층수</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="0" colspan="2">
+      <widget class="QLabel" name="lb_price0">
+       <property name="styleSheet">
+        <string notr="true">font: bold 12px;
+color: rgb(255, 255, 255);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+background-color: rgb(45, 75, 134, 200.0);
+</string>
+       </property>
+       <property name="text">
+        <string>공시가격</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="2" colspan="2">
+      <widget class="QLabel" name="lb_price1">
+       <property name="styleSheet">
+        <string notr="true">font: 12px;
+background-color: rgb(45, 75, 134, 40.0);
+color: rgb(63, 63, 63);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <widget class="QLabel" name="lb_oudr1">
+       <property name="styleSheet">
+        <string notr="true">font: 12px;
+background-color: rgb(45, 75, 134, 40.0);
+color: rgb(63, 63, 63);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="3">
+      <widget class="QLabel" name="lb_name1">
+       <property name="styleSheet">
+        <string notr="true">font: 12px;
+background-color: rgb(45, 75, 134, 40.0);
+color: rgb(63, 63, 63);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="2">
+      <widget class="QLabel" name="lb_area0">
+       <property name="styleSheet">
+        <string notr="true">font: bold 12px;
+color: rgb(255, 255, 255);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+background-color: rgb(45, 75, 134, 200.0);
+</string>
+       </property>
+       <property name="text">
+        <string>전용면적</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="2">
+      <widget class="QLabel" name="lb_name0">
+       <property name="styleSheet">
+        <string notr="true">font: bold 12px;
+color: rgb(255, 255, 255);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+background-color: rgb(45, 75, 134, 200.0);
+</string>
+       </property>
+       <property name="text">
+        <string>소유자</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QLabel" name="lb_totalarea1">
+       <property name="styleSheet">
+        <string notr="true">font: 12px;
+background-color: rgb(45, 75, 134, 40.0);
+color: rgb(63, 63, 63);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="lb_totalarea0">
+       <property name="styleSheet">
+        <string notr="true">font: bold 12px;
+color: rgb(255, 255, 255);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+background-color: rgb(45, 75, 134, 200.0);
+</string>
+       </property>
+       <property name="text">
+        <string>공용면적</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="3">
+      <widget class="QLabel" name="lb_area1">
+       <property name="styleSheet">
+        <string notr="true">font: 12px;
+background-color: rgb(45, 75, 134, 40.0);
+color: rgb(63, 63, 63);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0" colspan="4">
+      <widget class="QLabel" name="lb_info0">
+       <property name="styleSheet">
+        <string notr="true">font: bold 12px;
+color: rgb(255, 255, 255);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+background-color: rgb(45, 75, 134);</string>
+       </property>
+       <property name="text">
+        <string>건축물대장 정보</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="lb_elvtcnt0">
+       <property name="styleSheet">
+        <string notr="true">font: bold 12px;
+color: rgb(255, 255, 255);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+background-color: rgb(45, 75, 134, 200.0);
+</string>
+       </property>
+       <property name="text">
+        <string>승강기</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QLabel" name="lb_elvtcnt1">
+       <property name="styleSheet">
+        <string notr="true">font: 12px;
+background-color: rgb(45, 75, 134, 40.0);
+color: rgb(63, 63, 63);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" colspan="4">
+      <widget class="QLabel" name="lb_juso">
+       <property name="styleSheet">
+        <string notr="true">font: bold 12px;
+background-color: rgb(45, 75, 134, 40.0);
+color: rgb(63, 63, 63);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QPushButton" name="bt_viol">
+    <property name="geometry">
+     <rect>
+      <x>128</x>
+      <y>300</y>
+      <width>71</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton {
+	font: 12px;
+	color: white;
+	border: 1px solid rgb(45, 75, 134);
+	background-color: rgb(45, 75, 134, 230.0);
+	border-radius: 2px;
+}
+QPushButton::hover {
+	border: 1px solid rgb(45, 75, 134);
+	background-color: rgb(45, 75, 134, 150.0);
+	border-style: inset;
+}
+
+QPushButton:pressed {
+	border: 1px solid rgb(45, 75, 134);
+	background-color: rgb(45, 75, 134);
+	border-style: inset;
+}
+</string>
+    </property>
+    <property name="text">
+     <string>위반 조회</string>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>E:/PyProject/Project/REI/building_info/image/bt_search.png</normaloff>E:/PyProject/Project/REI/building_info/image/bt_search.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>23</width>
+      <height>23</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="bt_add">
+    <property name="geometry">
+     <rect>
+      <x>204</x>
+      <y>300</y>
+      <width>71</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton {
+	font: 12px;
+	color: white;
+	border: 1px solid rgb(45, 75, 134);
+	background-color: rgb(45, 75, 134, 230.0);
+	border-radius: 2px;
+}
+QPushButton::hover {
+	border: 1px solid rgb(45, 75, 134);
+	background-color: rgb(45, 75, 134, 150.0);
+	border-style: inset;
+}
+
+QPushButton:pressed {
+	border: 1px solid rgb(45, 75, 134);
+	background-color: rgb(45, 75, 134);
+	border-style: inset;
+}
+</string>
+    </property>
+    <property name="text">
+     <string>매물 등록</string>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>E:/PyProject/Project/REI/building_info/image/bt_search.png</normaloff>E:/PyProject/Project/REI/building_info/image/bt_search.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>23</width>
+      <height>23</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="bt_details">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>300</y>
+      <width>71</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton {
+	font: 12px;
+	color: white;
+	border: 1px solid rgb(45, 75, 134);
+	background-color: rgb(45, 75, 134, 230.0);
+	border-radius: 2px;
+}
+QPushButton::hover {
+	border: 1px solid rgb(45, 75, 134);
+	background-color: rgb(45, 75, 134, 150.0);
+	border-style: inset;
+}
+
+QPushButton:pressed {
+	border: 1px solid rgb(45, 75, 134);
+	background-color: rgb(45, 75, 134);
+	border-style: inset;
+}
+</string>
+    </property>
+    <property name="text">
+     <string>상세 정보</string>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>E:/PyProject/Project/REI/building_info/image/bt_search.png</normaloff>E:/PyProject/Project/REI/building_info/image/bt_search.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>23</width>
+      <height>23</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lb_viol">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>300</y>
+      <width>111</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="gb_info1">
+   <property name="geometry">
+    <rect>
+     <x>380</x>
+     <y>10</y>
+     <width>331</width>
+     <height>531</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string/>
+   </property>
+   <widget class="QWidget" name="gridLayoutWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>311</width>
+      <height>211</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_2">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetDefaultConstraint</enum>
+     </property>
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <item row="7" column="1">
+      <widget class="QLabel" name="lb_platArea0">
+       <property name="styleSheet">
+        <string notr="true">font: bold 12px;
+color: rgb(255, 255, 255);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+background-color: rgb(45, 75, 134, 200.0);
+</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string>대지면적</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::AutoText</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="2">
+      <widget class="QLabel" name="lb_platArea1">
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">font: 12px;
+background-color: rgb(45, 75, 134, 40.0);
+color: rgb(63, 63, 63);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="4">
+      <widget class="QLabel" name="lb_heit1">
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">font: 12px;
+background-color: rgb(45, 75, 134, 40.0);
+color: rgb(63, 63, 63);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="4">
+      <widget class="QLabel" name="lb_vlRat1">
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">font: 12px;
+background-color: rgb(45, 75, 134, 40.0);
+color: rgb(63, 63, 63);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="4">
+      <widget class="QLabel" name="lb_totArea1">
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">font: 12px;
+background-color: rgb(45, 75, 134, 40.0);
+color: rgb(63, 63, 63);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="3">
+      <widget class="QLabel" name="lb_vlRat0">
+       <property name="styleSheet">
+        <string notr="true">font: bold 12px;
+color: rgb(255, 255, 255);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+background-color: rgb(45, 75, 134, 200.0);
+</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string>용적률</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::AutoText</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="2">
+      <widget class="QLabel" name="lb_bcRat1">
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">font: 12px;
+background-color: rgb(45, 75, 134, 40.0);
+color: rgb(63, 63, 63);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2" colspan="3">
+      <widget class="QLabel" name="lb_etcStrct1">
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">font: 12px;
+background-color: rgb(45, 75, 134, 40.0);
+color: rgb(63, 63, 63);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Plain</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="midLineWidth">
+        <number>0</number>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" colspan="4">
+      <widget class="QLabel" name="lb_info1">
+       <property name="styleSheet">
+        <string notr="true">font: bold 12px;
+color: rgb(255, 255, 255);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+background-color: rgb(45, 75, 134);</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Plain</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="midLineWidth">
+        <number>0</number>
+       </property>
+       <property name="text">
+        <string>건축물대장 상세 정보</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::AutoText</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="1">
+      <widget class="QLabel" name="lb_archArea0">
+       <property name="styleSheet">
+        <string notr="true">font: bold 12px;
+color: rgb(255, 255, 255);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+background-color: rgb(45, 75, 134, 200.0);
+</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string>건축면적</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::AutoText</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLabel" name="lb_etcStrct0">
+       <property name="styleSheet">
+        <string notr="true">font: bold 12px;
+color: rgb(255, 255, 255);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+background-color: rgb(45, 75, 134, 200.0);
+</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Plain</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="midLineWidth">
+        <number>0</number>
+       </property>
+       <property name="text">
+        <string>주구조</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::AutoText</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="2">
+      <widget class="QLabel" name="lb_archArea1">
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">font: 12px;
+background-color: rgb(45, 75, 134, 40.0);
+color: rgb(63, 63, 63);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="3">
+      <widget class="QLabel" name="lb_totArea0">
+       <property name="styleSheet">
+        <string notr="true">font: bold 12px;
+color: rgb(255, 255, 255);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+background-color: rgb(45, 75, 134, 200.0);
+</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string>연면적</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::AutoText</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="3">
+      <widget class="QLabel" name="lb_heit0">
+       <property name="styleSheet">
+        <string notr="true">font: bold 12px;
+color: rgb(255, 255, 255);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+background-color: rgb(45, 75, 134, 200.0);
+</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string>높이</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::AutoText</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="1">
+      <widget class="QLabel" name="lb_bcRat0">
+       <property name="styleSheet">
+        <string notr="true">font: bold 12px;
+color: rgb(255, 255, 255);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+background-color: rgb(45, 75, 134, 200.0);</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string>건폐율</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::AutoText</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1" rowspan="2">
+      <widget class="QLabel" name="lb_jiji0">
+       <property name="styleSheet">
+        <string notr="true">font: bold 12px;
+color: rgb(255, 255, 255);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+background-color: rgb(45, 75, 134, 200.0);
+</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string>지역ㆍ지구</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::AutoText</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="2" rowspan="2" colspan="3">
+      <widget class="QLabel" name="lb_jiji1">
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">font: 12px;
+background-color: rgb(45, 75, 134, 40.0);
+color: rgb(63, 63, 63);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="gridLayoutWidget_3">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>330</y>
+      <width>311</width>
+      <height>191</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_3">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetDefaultConstraint</enum>
+     </property>
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <item row="7" column="2" rowspan="2" colspan="2">
+      <widget class="QLabel" name="lb_landetc1">
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">font: 12px;
+background-color: rgb(45, 75, 134, 40.0);
+color: rgb(63, 63, 63);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="1" rowspan="2">
+      <widget class="QLabel" name="lb_landetc0">
+       <property name="styleSheet">
+        <string notr="true">font: bold 12px;
+color: rgb(255, 255, 255);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+background-color: rgb(45, 75, 134, 200.0);
+</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string>기타 
+ 지역ㆍ지구</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::AutoText</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLabel" name="lb_landPrice0">
+       <property name="styleSheet">
+        <string notr="true">font: bold 12px;
+color: rgb(255, 255, 255);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+background-color: rgb(45, 75, 134, 200.0);
+</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Plain</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="midLineWidth">
+        <number>0</number>
+       </property>
+       <property name="text">
+        <string>공시지가</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::AutoText</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" colspan="3">
+      <widget class="QLabel" name="lb_info3">
+       <property name="styleSheet">
+        <string notr="true">font: bold 12px;
+color: rgb(255, 255, 255);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+background-color: rgb(45, 75, 134);</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Plain</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="midLineWidth">
+        <number>0</number>
+       </property>
+       <property name="text">
+        <string>토지 이용 계획</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::AutoText</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2" colspan="2">
+      <widget class="QLabel" name="lb_landPrice1">
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">font: 12px;
+background-color: rgb(45, 75, 134, 40.0);
+color: rgb(63, 63, 63);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Plain</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="midLineWidth">
+        <number>0</number>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="2" rowspan="2" colspan="2">
+      <widget class="QLabel" name="lb_landJiji1">
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">font: 12px;
+background-color: rgb(45, 75, 134, 40.0);
+color: rgb(63, 63, 63);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1" rowspan="2">
+      <widget class="QLabel" name="lb_landJiji0">
+       <property name="styleSheet">
+        <string notr="true">font: bold 12px;
+color: rgb(255, 255, 255);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+background-color: rgb(45, 75, 134, 200.0);
+</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string>지역ㆍ지구</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::AutoText</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="gridLayoutWidget_4">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>230</y>
+      <width>311</width>
+      <height>91</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_4">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetDefaultConstraint</enum>
+     </property>
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <item row="1" column="1">
+      <widget class="QLabel" name="lb_indrAuto1">
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">font: 12px;
+background-color: rgb(45, 75, 134, 40.0);
+color: rgb(63, 63, 63);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="lb_indrMech0">
+       <property name="styleSheet">
+        <string notr="true">font: bold 12px;
+color: rgb(255, 255, 255);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+background-color: rgb(45, 75, 134, 200.0);</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string>옥내기계식</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::AutoText</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLabel" name="lb_indrMech1">
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">font: 12px;
+background-color: rgb(45, 75, 134, 40.0);
+color: rgb(63, 63, 63);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QLabel" name="lb_oudrAuto0">
+       <property name="styleSheet">
+        <string notr="true">font: bold 12px;
+color: rgb(255, 255, 255);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+background-color: rgb(45, 75, 134, 200.0);</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string>옥외자주식</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::AutoText</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="lb_indrAuto0">
+       <property name="styleSheet">
+        <string notr="true">font: bold 12px;
+color: rgb(255, 255, 255);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+background-color: rgb(45, 75, 134, 200.0);</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string>옥내자주식</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::AutoText</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="3">
+      <widget class="QLabel" name="lb_oudrAuto1">
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">font: 12px;
+background-color: rgb(45, 75, 134, 40.0);
+color: rgb(63, 63, 63);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QLabel" name="lb_oudrMech0">
+       <property name="styleSheet">
+        <string notr="true">font: bold 12px;
+color: rgb(255, 255, 255);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+background-color: rgb(45, 75, 134, 200.0);</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string>옥외기계식</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::AutoText</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="3">
+      <widget class="QLabel" name="lb_oudrMech1">
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">font: 12px;
+background-color: rgb(45, 75, 134, 40.0);
+color: rgb(63, 63, 63);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0" colspan="4">
+      <widget class="QLabel" name="lb_info2">
+       <property name="styleSheet">
+        <string notr="true">font: bold 12px;
+color: rgb(255, 255, 255);
+border-width: 1px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+background-color: rgb(45, 75, 134);</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="text">
+        <string>주차장 상세</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::AutoText</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

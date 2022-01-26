@@ -1,0 +1,33 @@
+[2021-09-15-22:05]
+> 버그 내용
+ - 호수 콤보박스에 내용이 없음
+ (면목동 552-17, 면목동 542-22, 중화동 325-104)
+
+> 디버깅 내역
+ - 데이터 파싱 중 flrNo의 .0을 공백으로 변경
+ - 데이터 파싱 중 flrNoNm의 각, .0을 공백으로 변경
+
+[경고 발생]
+FutureWarning: The default value of regex will change from True to False in a future version.
+return_data['flrNo'] = return_data['flrNoNm'].str.replace('.0', '')
+
+
+[2021-09-24-17:23]
+> 버그 내용
+ - 동이 하나지만 동명이 있을 경우 조회 불가
+  (망우동 435-25)
+
+ > 디버깅 내역
+  - 동이 하나일 경우 동명을 ''로 지정
+
+
+[2021-09-24-17:29]
+> 버그 내용
+ - 동이 여러개일 경우 오류
+  (면목동 31-5, 면목동 142-13, 면목동 542-22)
+
+> 디버깅 내역
+ - 동이 2개 이상일 경우 동 필터링
+
+[경고 발생]
+ValueError: can only convert an array of size 1 to a Python scalar
