@@ -1,5 +1,3 @@
-from urllib.parse import quote_plus
-
 import bs4
 import requests
 import pandas as pd
@@ -17,7 +15,7 @@ class OpenApiRequest:
             xml_obj = bs4.BeautifulSoup(response, 'xml')
 
             rows = xml_obj.find_all(keyword)
-            if len(rows) == 0: return None
+            if not rows: return None
 
             row_list = []
             result = pd.DataFrame(columns=list(column))
@@ -27,8 +25,10 @@ class OpenApiRequest:
             for i in range(len(rows)):
                 for tag in column_values:
                     item = rows[i].find(tag)
-                    if item is None: list_append("")
-                    else: list_append(item.text.strip())
+                    if item is None:
+                        list_append("")
+                    else:
+                        list_append(item.text.strip())
                 result.loc[i] = row_list
                 row_list.clear()
             return result
@@ -49,7 +49,8 @@ class OpenApiRequest:
             if '-' in address:
                 bunji = address.split(' ')[-1].split('-')
                 re_result = result[(result["번"].item() == bunji[0]) & (result["지"].item() == bunji[1])]
-                if len(re_result) != 0: return re_result
+                if re_result: return re_result
+
         finally: return result
 
     # 상세 주소 조회
@@ -72,7 +73,7 @@ class OpenApiRequest:
 
         val = xmlobj.find('VIOL_BLD_YN')
         if val is None: return None
-        if len(val) == 0: return None
+        if not val: return None
 
         return val.get_text()
 
@@ -91,6 +92,7 @@ class OpenApiRequest:
 
 class ThreadSignal(QObject):
     workerThreadDone = Signal(object)
+
 
 class BuildingRegisterThread(QThread):
     def __init__(self, binfo, parsing_type_list, parent=None):
@@ -190,6 +192,7 @@ class BuildingRegisterThread(QThread):
         for n, _ in enumerate(result_data):
             result_data[n] = result_data[n].get()
         pool.close()
+
         self.threadEvent.workerThreadDone.emit(result_data)
 
 

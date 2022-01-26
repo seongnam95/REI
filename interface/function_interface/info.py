@@ -13,14 +13,14 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
     def __init__(self, *args, **kwargs):
         super(BuildingInfo, self).__init__(*args, **kwargs)
 
-        self.details_on = False
+        self.activation, self.opened = False, False
         self.data_basic, self.data_basic_all = None, None
         self.base_list = []
 
         self.binfo, self.address = None, None
         self.select_building, self.total_buildings = None, None
-        self.detail, self.exact_detail = None, None    # 상세 (호, 층)
-        self.owners, self.prices = None, None   # 소유자, 공시가격
+        self.detail, self.exact_detail = None, None  # 상세 (호, 층)
+        self.owners, self.prices = None, None  # 소유자, 공시가격
 
         self._init_ui()
         self._init_interaction()
@@ -57,6 +57,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
     # UI 세팅
     def _init_ui(self):
         self._setupUi(self)
+        self.font()
         self.show()
 
     # 상호작용 세팅
@@ -75,20 +76,22 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
     # 상세정보 버튼 클릭
     def clicked_details_btn(self):
+        if not self.activation: return
+
         # 상세정보가 활성화 된 경우
-        if self.details_on:
+        if self.opened:
             self.setMinimumWidth(430)
             self.setMaximumWidth(430)
             self.btn_details.setText("상세정보  >")
-            self.insert_detail_info()
-            self.details_on = False
+            self.opened = False
 
         # 상세정보가 비활성화인 경우
         else:
             self.setMinimumWidth(840)
             self.setMaximumWidth(840)
+            self.insert_detail_info()
             self.btn_details.setText("접 기  <")
-            self.details_on = True
+            self.opened = True
 
         self.title_bar_set()
         x = (self.width() - self.btn_details.width()) - 10
@@ -110,6 +113,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.cbx_rooms.addItems(dialog.detail_list)
         self.cbx_rooms.setCurrentIndex(dialog.select_index)
 
+        self.activation = True
         self.insert_base_info()
 
     # 기본 데이터 입력
@@ -145,16 +149,19 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             room_area, public_area = detail['층면적'], detail['층면적']
             room = "%s층" % detail['층명칭'].rstrip("층")
 
-        elif self.binfo['타입'] == '집합':   # 집합일 경우
+        elif self.binfo['타입'] == '집합':  # 집합일 경우
             detail = self.exact_detail.iloc[self.cbx_rooms.currentIndex()]
 
             room_area = detail['전용면적']
             public_area = round(pd.to_numeric(detail['전용면적']).sum(), 2)
 
             room = "%s호" % detail['호명칭'].rstrip("호")
-            if len(detail['동명칭']) > 0: room = "%s동 " % (detail['동명칭'].rstrip("동")) + room
+            if not detail['동명칭'].empty:
+                room = "%s동 " % (detail['동명칭'].rstrip("동")) + room
 
-        if address['건물명칭'] != "": room = "%s (%s)" % (room, address['건물명칭'])
+        # 건물 명칭이 있을 경우
+        if address['건물명칭']:
+            room = "%s (%s)" % (room, address['건물명칭'])
 
         base = {'상세주소': room, '주용도': detail['기타용도'], '공급면적': str(public_area) + " ㎡",
                 '전용면적': str(room_area) + " ㎡"}
@@ -181,12 +188,15 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         base = {'주구조': building['주구조'], '주용도': building['주용도'],
                 '대지면적': building['대지면적'], '건축면적': building['건축면적'], '건폐율': building['건폐율'],
                 '연면적': building['연면적'], '높이': building['높이'], '용적률': building['용적률'],
-                '옥내자주식': building['옥내자주식대수'], '옥내기계식': building['옥내기계식대수'], 
+                '옥내자주식': building['옥내자주식대수'], '옥내기계식': building['옥내기계식대수'],
                 '옥외자주식': building['옥외자주식대수'], '옥외기계식': building['옥외기계식대수']}
 
         for i in base:
-            if i in self.labels_detail: self.labels_detail[i](base[i])
-            if i in self.labels_park: self.labels_park[i](base[i])
+            if i in self.labels_detail:
+                self.labels_detail[i](base[i])
+            if i in self.labels_park:
+                self.labels_park[i](base[i])
+
 
 # 예외 오류 처리
 def my_exception_hook(exctype, value, traceback):

@@ -365,6 +365,7 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
             event.accept()
         else: super(AddressDetails, self).keyPressEvent(event)
 
+
 # 정확한 전유 호수 찾기
 def get_exact_value(data):
     try:
@@ -389,6 +390,7 @@ def get_exact_value(data):
 
     except ValueError: return data
 
+
 # 호수 INT 정렬
 def convert_ho(data):
 
@@ -405,6 +407,7 @@ def convert_ho(data):
 
     result = pd.concat([under, top], ignore_index=True)
     return result
+
 
 # 호수 정규식
 def mask_ho(un, val):
