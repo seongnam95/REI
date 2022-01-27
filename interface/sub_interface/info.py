@@ -237,7 +237,7 @@ class InfoMain(QDialog, FROM_CLASS):
 
         self.loading_img(True)
 
-        self.th = f.BuildingRegisterThread(pnu, ['표제부', '총괄표제부'])
+        self.th = f.DataRequestThread(pnu, ['표제부', '총괄표제부'])
         self.th.threadEvent.connect(self.input_dong)
         self.th.start()
 
@@ -408,7 +408,7 @@ class InfoMain(QDialog, FROM_CLASS):
                 price_day = '공 시 가 격'
             else:
                 price = data_each.pblntfPc
-                price = "{:,}".format(int(price)*1.5)
+                price = "{:,}".format(int(price))
                 price = str(price + ' 원')
                 day = data_each.lastUpdtDt.split('-')[0]
                 price_day = '공 시 가 격 (' + day + '년)'
@@ -517,7 +517,7 @@ class InfoMain(QDialog, FROM_CLASS):
                 return
 
             self.loading_img(True)
-            self.th = f.BuildingRegisterThread(self.pnu, ['토지', '지역지구', '공시지가'])
+            self.th = f.DataRequestThread(self.pnu, ['토지', '지역지구', '공시지가'])
             self.th.threadEvent.connect(self.input_detail)
             self.th.start()
 
@@ -556,124 +556,3 @@ class InfoMain(QDialog, FROM_CLASS):
         self.detail = True
         self.loading_img(False)
 
-    # 위반 조회 버튼
-    def clicked_viol_bt(self):
-        if not self.lb_viol.text() == '':
-            return
-
-        pnu, viol = self.pnu, ''
-        if not self.cbx_ho.currentText() == ' ( 상세주소 / 호 선택 )':
-            # 집합일 경우
-            if pnu[8] == '1':
-                index_ho = self.cbx_ho.currentIndex() - 1
-                data_each = self.data_each.iloc[index_ho]
-                pk = data_each.mgmBldrgstPk
-                viol = self.ld.get_viol(self.gisKey, pk)
-
-            # 일반일 경우
-            elif pnu[8] == '0':
-                pk = self.data_head.mgmBldrgstPk.item()
-                viol = self.ld.get_viol(self.gisKey, pk)
-
-            if viol is None:
-                self.lb_viol.setText('조회 불가')
-                self.lb_viol.setStyleSheet('''color: rgb(127, 140, 141);
-                                            font: bold 13px;
-                                            border-style: solid;
-                                            border-width: 3px;
-                                            border-radius: 3px;
-                                            border-color: rgb(127, 140, 141)''')
-            elif viol == '0':
-                self.lb_viol.setText('위반 없음')
-                self.lb_viol.setStyleSheet('''color: rgb(46, 204, 113);
-                                            font: bold 13px;
-                                            border-style: solid;
-                                            border-width: 3px;
-                                            border-radius: 3px;
-                                            border-color: rgb(46, 204, 113)''')
-            elif viol == '1':
-                self.lb_viol.setText('위반 건축물')
-                self.lb_viol.setStyleSheet('''color: rgb(192, 57, 43);
-                                            font: bold 13px;
-                                            border-style: solid;
-                                            border-width: 3px;
-                                            border-radius: 3px;
-                                            border-color: rgb(192, 57, 43)''')
-
-    # 종료 버튼
-    def clicked_exit_bt(self):
-        self.hide()
-
-    # 최소화 버튼
-    def clicked_mini(self):
-        self.showMinimized()
-        return
-
-    # 메세지 함수
-    def msg(self, title, msg):
-        QMessageBox.information(self, title, msg, QMessageBox.Ok);
-
-    # 폼 이동 이벤트
-    def mousePressEvent(self, event):
-        if event.btn_modify() == Qt.LeftButton:
-            self.offset = event.pos()
-        else:
-            super().mousePressEvent(event)
-
-    def mouseMoveEvent(self, event):
-        try:
-            desktop_height = QDesktopWidget().availableGeometry().height()
-            desktop_width = QDesktopWidget().availableGeometry().width()
-
-            if self.offset is not None and event.buttons() == Qt.LeftButton:
-                pos = self.pos() + event.pos() - self.offset
-
-                # 우측
-                if (desktop_width - self.width() + 15) > pos.x() > (desktop_width - self.width() - 15):
-                    if pos.y() < 10:
-                        self.move(desktop_width - self.width(), 0)
-                    elif (desktop_height - self.height() + 15) > pos.y() > (desktop_height - self.height() - 15):
-                        self.move(desktop_width - self.width(), desktop_height - self.height())
-                    else:
-                        self.move(desktop_width - self.width(), pos.y())
-                    return
-
-                # 좌측
-                if -15 < pos.x() < 15:
-                    if pos.y() < 10:
-                        self.move(0, 0)
-                    elif (desktop_height - self.height() + 15) > pos.y() > (desktop_height - self.height() - 15):
-                        self.move(0, desktop_height - self.height())
-                    else:
-                        self.move(0, pos.y())
-                    return
-
-                # 상단
-                if (desktop_height - self.height() + 15) > pos.y() > (desktop_height - self.height() - 15):
-                    self.move(pos.x(), desktop_height - self.height())
-                    return
-
-                # 하단
-                if pos.y() < 15:
-                    self.move(pos.x(), 0)
-                    return
-
-                self.move(pos)
-            else:
-                super().mouseMoveEvent(event)
-        except AttributeError:
-            return
-
-    def mouseReleaseEvent(self, event):
-        self.offset = None
-        super().mouseReleaseEvent(event)
-
-    # 예외 오류 처리
-    def my_exception_hook(exctype, value, traceback):
-        print(exctype, value, traceback)
-        msg = '[ ' + value + ' ] :: ' + traceback
-        InfoMain.msg(InfoMain(), 'err', msg)
-        sys._excepthook(exctype, value, traceback)
-
-    sys._excepthook = sys.excepthook
-    sys.excepthook = my_exception_hook

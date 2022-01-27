@@ -393,47 +393,6 @@ class Ui_BuildingInfo(object):
 
         self.gridLayout.addWidget(self.base_item_4, 3, 1, 1, 3)
 
-        self.base_item_10 = QComboBox(self.gridLayoutWidget)
-        self.base_item_10.setObjectName(u"base_item_10")
-        self.base_item_10.setMinimumSize(QSize(57, 30))
-        self.base_item_10.setMaximumSize(QSize(16777215, 30))
-        self.base_item_10.setStyleSheet(u"QComboBox {\n"
-"	border: none;\n"
-"    min-width: 3em;\n"
-"	padding-left: 8px;\n"
-"    background: rgb(240, 240, 240);\n"
-"	border-right: 1px solid;\n"
-"	border-bottom: 1px solid;\n"
-"	border-color: rgb(210, 210, 210);\n"
-"	border-radius: 5px;\n"
-"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: rgb(54,72,90);\n"
-"}\n"
-"\n"
-"QComboBox:hover {\n"
-"	color: rgb(84,102,120);\n"
-"}\n"
-"\n"
-"QComboBox QAbstractItemView::item { \n"
-"	min-height: 30px; \n"
-"}\n"
-"\n"
-"QComboBox::drop-down {\n"
-"    width: 0px;\n"
-"}\n"
-"\n"
-"QComboBox::down-arrow:on {\n"
-"    top: 1px;\n"
-"    left: 1px;\n"
-"}\n"
-"\n"
-"QListView::item:selected {\n"
-"    color: #2c3e50;\n"
-"    background-color: lightblue\n"
-"}")
-
-        self.gridLayout.addWidget(self.base_item_10, 6, 3, 1, 1)
-
         self.base_name_6 = QLabel(self.gridLayoutWidget)
         self.base_name_6.setObjectName(u"base_name_6")
         self.base_name_6.setMinimumSize(QSize(0, 30))
@@ -636,6 +595,18 @@ class Ui_BuildingInfo(object):
         self.base_item_3.setAlignment(Qt.AlignCenter)
 
         self.gridLayout.addWidget(self.base_item_3, 2, 1, 1, 3)
+
+        self.base_item_10 = QLabel(self.gridLayoutWidget)
+        self.base_item_10.setObjectName(u"base_item_10")
+        self.base_item_10.setMinimumSize(QSize(0, 30))
+        self.base_item_10.setMaximumSize(QSize(16777215, 30))
+        self.base_item_10.setStyleSheet(u"QLabel { \n"
+"	padding-left: 5px;\n"
+"	background-color: rgb(240, 240, 240); \n"
+"}")
+        self.base_item_10.setAlignment(Qt.AlignCenter)
+
+        self.gridLayout.addWidget(self.base_item_10, 6, 3, 1, 1)
 
         self.widget_4 = QWidget(BuildingInfo)
         self.widget_4.setObjectName(u"widget_4")
@@ -1069,8 +1040,7 @@ class Ui_BuildingInfo(object):
         self.lb_hint_3.raise_()
         self.lb_sub_title_2.raise_()
         QWidget.setTabOrder(self.edt_address, self.cbx_rooms)
-        QWidget.setTabOrder(self.cbx_rooms, self.base_item_10)
-        QWidget.setTabOrder(self.base_item_10, self.btn_viol)
+        QWidget.setTabOrder(self.cbx_rooms, self.btn_viol)
         QWidget.setTabOrder(self.btn_viol, self.btn_details)
 
         self.retranslateUi(BuildingInfo)
@@ -1121,6 +1091,7 @@ class Ui_BuildingInfo(object):
         self.base_item_1.setText("")
         self.base_name_3.setText(QCoreApplication.translate("BuildingInfo", u"\uc0c1\uc138\uc8fc\uc18c", None))
         self.base_item_3.setText("")
+        self.base_item_10.setText("")
         self.detail_name_7.setText(QCoreApplication.translate("BuildingInfo", u"\uc5f0 \uba74 \uc801", None))
         self.detail_name_4.setText(QCoreApplication.translate("BuildingInfo", u"\ub300\uc9c0\uba74\uc801", None))
         self.detail_item_6.setText("")

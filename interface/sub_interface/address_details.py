@@ -105,7 +105,7 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
             elif self.binfo['타입'] == '집합':
                 dong = self.select_detail['동명칭'].rstrip('동')
                 ho = self.select_detail['호명칭'].rstrip('호')
-                if len(dong) == 0: self.edt_result_address.setText("%s, %s호 %s" % (old, ho, "일부"))
+                if not dong == 0: self.edt_result_address.setText("%s, %s호 %s" % (old, ho, "일부"))
                 else: self.edt_result_address.setText("%s, %s동 %s호 %s" % (old, dong, ho, "일부"))
 
         else: self.edt_result_address.setText(self.edt_result_address.text().replace("일부", ""))
@@ -122,7 +122,7 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
         # 주소 불러온 다음
         self.lb_notfind.hide()
         if self.address is None: self.lb_notfind.show(); return
-        if len(self.address) == 0: self.lb_notfind.show(); return
+        if self.address.empty: self.lb_notfind.show(); return
 
         # 불러온 주소 리스트에 추가
         for i in range(len(self.address)):
@@ -162,7 +162,7 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
         self.clear_cbx()
 
         # 표제부, 총괄표제부 파싱 쓰레드
-        self.get_building_thread = pars.BuildingRegisterThread(self.binfo, ['표제부', '총괄표제부'])
+        self.get_building_thread = pars.DataRequestThread(self.binfo, ['표제부', '총괄표제부'])
         self.get_building_thread.start()
         self.get_building_thread.threadEvent.workerThreadDone.connect(self.add_building_list)
 
@@ -180,7 +180,7 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
             return
 
         if self.binfo['타입'] == '일반':
-            if len(buildings[buildings['대장구분'] == '일반']) == 0:
+            if buildings[buildings['대장구분'] == '일반'].empty:
                 buildings = buildings[buildings['대장구분'] == '집합']
                 self.msg('정보', 'ADDRESS', MsgContext.no_gen_msg)
 
@@ -190,7 +190,7 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
             else: buildings = buildings[buildings['대장구분'] == '일반']
 
         elif self.binfo['타입'] == '집합':
-            if len(buildings[buildings['대장구분'] == '집합']) == 0:
+            if buildings[buildings['대장구분'] == '집합'].empty:
                 buildings = buildings[buildings['대장구분'] == '일반']
                 self.msg('정보', 'ADDRESS', MsgContext.no_set_msg)
 
@@ -202,7 +202,7 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
         buildings.reset_index(drop=True, inplace=True)
 
         self.cbx_buildings.clear()
-        print(buildings)
+
         for i in range(len(buildings)):
             result = buildings.iloc[i]
             if result['건물명칭'] == '':
@@ -237,16 +237,18 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
 
         # 일반일 경우
         if self.binfo['타입'] == '일반':
-            if self.call_type == 0: self.get_building_thread = pars.BuildingRegisterThread(self.binfo, ['층별'])
-            if self.call_type == 1: self.get_building_thread = pars.BuildingRegisterThread(self.binfo, ['층별', '소유자', '개별주택가격'])
+            if self.call_type == 0:
+                self.get_building_thread = pars.DataRequestThread(self.binfo, ['층별'])
+            if self.call_type == 1:
+                self.get_building_thread = pars.DataRequestThread(self.binfo, ['층별', '소유자', '개별주택가격'])
             self.get_building_thread.start()
             self.get_building_thread.threadEvent.workerThreadDone.connect(self.add_layer_list)
 
         # 건물 타입이 집합일 경우
         if self.binfo['타입'] == '집합':
             self.binfo['동명칭'] = self.select_building['동명칭']
-            if self.call_type == 0: self.get_building_thread = pars.BuildingRegisterThread(self.binfo, ['전유부'])
-            if self.call_type == 1: self.get_building_thread = pars.BuildingRegisterThread(self.binfo, ['전유부', '소유자', '공동주택가격'])
+            if self.call_type == 0: self.get_building_thread = pars.DataRequestThread(self.binfo, ['전유부'])
+            if self.call_type == 1: self.get_building_thread = pars.DataRequestThread(self.binfo, ['전유부', '소유자', '공동주택가격'])
             self.get_building_thread.start()
             self.get_building_thread.threadEvent.workerThreadDone.connect(self.add_room_list)
 
@@ -256,7 +258,7 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
             self.owners = val[1]
             if val[2] is not None: self.prices = val[2]
         self.detail = convert_ho(val[0])
-        print(self.binfo)
+
         self.exact_detail = details = get_exact_value(self.detail)
 
         self.cbx_rooms.clear()
@@ -278,7 +280,7 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
             self.owners = val[1]
             if val[2] is not None: self.prices = val[2]
 
-        self.detail = val[0].sort_values(by='층번호', ascending=True)
+        self.detail = sort_value_layer(val[0])
 
         self.cbx_rooms.clear()
         for i in range(len(self.detail)):
@@ -313,7 +315,7 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
             dong = self.select_detail['동명칭'].rstrip('동')
             ho = self.select_detail['호명칭'].rstrip('호')
 
-            if len(dong) == 0: self.edt_result_address.setText("%s, %s호" % (old, ho))
+            if not dong: self.edt_result_address.setText("%s, %s호" % (old, ho))
             else: self.edt_result_address.setText("%s, %s동 %s호" % (old, dong, ho))
 
     # 소재지 입력 버튼
@@ -375,20 +377,32 @@ def get_exact_value(data):
         items = items[items['전유공용구분'] == '전유']
 
         hos = set(items['호명칭'])
-        if len(hos) == len(items): return items
+        if len(hos) == len(items):
+            items.reset_index(drop=True, inplace=True)
+            return items
 
         # 같은 층, 전유 항목이 2개 이상일 경우 면적 넓은 항목만 남기기
         items = items.astype({'전용면적': 'float'})
 
         for i in hos:
             res = items[items['호명칭'] == i]
-            if len(res) == 1: continue
+            if not res == 1: continue
             items[items['호명칭'] == i] = res.nlargest(1, '전용면적', keep='first')
 
         items = items.astype({'전용면적': 'str'}).dropna(axis=0)
+        items.reset_index(drop=True, inplace=True)
         return items
 
     except ValueError: return data
+
+
+def sort_value_layer(data):
+    low = data[data['층구분'] == '지하'].sort_values(by=['층번호'], axis=0)
+    mid = data[data['층구분'] == '지상'].sort_values(by=['층번호'], axis=0)
+    top = data[data['층구분'] == '옥탑'].sort_values(by=['층번호'], axis=0)
+    result = pd.concat([low, mid, top])
+    result.reset_index(drop=True, inplace=True)
+    return result
 
 
 # 호수 INT 정렬
@@ -406,6 +420,7 @@ def convert_ho(data):
     top = top.sort_values(by=['호명칭(RE)'], axis=0)
 
     result = pd.concat([under, top], ignore_index=True)
+    result.reset_index(drop=True, inplace=True)
     return result
 
 

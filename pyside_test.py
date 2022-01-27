@@ -1,28 +1,73 @@
 import sys
-
-from PySide6.QtWidgets import QApplication, QMainWindow
-
-from ui.main.tt import Ui_MainWindow
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QWidget, QApplication, QGridLayout, QToolTip
 
 
-class MainLease(QMainWindow, Ui_MainWindow):
-    def __init__(self, *args, obj=None, **kwargs):
-        super(MainLease, self).__init__(*args, **kwargs)
+class MyWidget(QWidget):
 
-        self.ui = Ui_MainWindow()
-        self.ui.show()
+    def __init__(self, parent):
+        super().__init__()
+
+        self.setAttribute(Qt.WA_StyledBackground, True)
+        self.setStyleSheet('QWidget { background: #007AA5; border-radius: 3px; }')
+        self.setMouseTracking(True)
+
+        self.toolTip()
+
+    def mouseMoveEvent(self, e):
+        x = e.x()
+        y = e.y()
+
+        p = self.mapToGlobal(e.pos())
+        QToolTip.showText(p, f'{x}:{y}')
+
+class tooltip(QToolTip):
+    def __init__(self):
+        super(tooltip, self).__init__(QToolTip)
 
 
-# 예외 오류 처리
-def my_exception_hook(exctype, value, traceback):
-    print(exctype, value, traceback)
-    sys.excepthook(exctype, value, traceback)
+class Example(QWidget):
+
+    def __init__(self):
+        super().__init__()
+
+        self.initUI()
+
+    def initUI(self):
+        grid = QGridLayout()
+
+        self.w1 = MyWidget(self)
+        self.w2 = MyWidget(self)
+        self.w3 = MyWidget(self)
+        self.w4 = MyWidget(self)
+        self.w5 = MyWidget(self)
+        self.w6 = MyWidget(self)
+        self.w7 = MyWidget(self)
+        self.w8 = MyWidget(self)
+        self.w9 = MyWidget(self)
+
+        grid.addWidget(self.w1, 0, 0)
+        grid.addWidget(self.w2, 0, 1)
+        grid.addWidget(self.w3, 0, 2)
+        grid.addWidget(self.w4, 1, 0)
+        grid.addWidget(self.w5, 1, 1)
+        grid.addWidget(self.w6, 1, 2)
+        grid.addWidget(self.w7, 2, 0)
+        grid.addWidget(self.w8, 2, 1)
+        grid.addWidget(self.w9, 2, 2)
+
+        self.setLayout(grid)
+
+        self.setGeometry(300, 300, 500, 350)
+        self.setWindowTitle('Mouse positions')
+        self.show()
 
 
-sys._excepthook = sys.excepthook
-sys.excepthook = my_exception_hook
+def main():
+    app = QApplication(sys.argv)
+    ex = Example()
+    sys.exit(app.exec_())
 
-app = QApplication()
-window = MainLease()
-window.show()
-app.exec()
+
+if __name__ == '__main__':
+    main()

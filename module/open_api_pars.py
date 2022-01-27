@@ -94,7 +94,7 @@ class ThreadSignal(QObject):
     workerThreadDone = Signal(object)
 
 
-class BuildingRegisterThread(QThread):
+class DataRequestThread(QThread):
     def __init__(self, binfo, parsing_type_list, parent=None):
         super().__init__()
         self.main = parent
@@ -102,6 +102,8 @@ class BuildingRegisterThread(QThread):
         self.parsing_type_list = parsing_type_list
 
         self.key = 'sfSPRX+xNEExRUqE4cdhNjBSk4uXIv8F1CfLen06hdPGn5cflLJqy/nxmh48uF8fvdGk68k6Z5jWsU1n6BeNPA=='
+        self.pnu = binfo['주소코드'] + '1' + binfo['번'] + binfo['지']
+
         self.sigungu = binfo['주소코드'][:5]
         self.bjdong = binfo['주소코드'][5:10]
         self.bun, self.ji = binfo['번'], binfo['지']
@@ -110,84 +112,83 @@ class BuildingRegisterThread(QThread):
     def run(self):
         result_data = []
         parsing_type, column = None, None
-        pnu = self.sigungu + self.bjdong + '1' + self.bun + self.ji
 
-        year = datetime.now().year
         pool = ThreadPool(processes=4)
 
         for ty in self.parsing_type_list:
             keyword = 'field'
-            if ty == '토지':
-                url = 'http://apis.data.go.kr/1611000/nsdi/LandUseService/attr/getLandUseAttr'
-                column = {'용도지역지구명': 'prposAreaDstrcCodeNm'}
-                params = {'serviceKey': self.key, 'pnu': pnu, 'cnflcAt': '1', 'format': 'xml', 'numOfRows': '10'}
-
-            elif ty == '공동주택가격':
+            if ty == '공동주택가격':
                 url = 'http://apis.data.go.kr/1611000/nsdi/ApartHousingPriceService/attr/getApartHousingPriceAttr'
                 column = {'동명칭': 'dongNm', '호명칭': 'hoNm', '공동주택가격': 'pblntfPc', '공시일자': 'lastUpdtDt'}
-                params = {'serviceKey': self.key, 'pnu': pnu, 'stdrYear': year, 'format': 'xml', 'numOfRows': '1000'}
+                result_data.append(pool.apply_async(self.get_price, (url, column,)))
 
             elif ty == '개별주택가격':
                 url = 'http://apis.data.go.kr/1611000/nsdi/IndvdHousingPriceService/attr/getIndvdHousingPriceAttr'
                 column = {'개별주택가격': 'housePc', '공시일자': 'lastUpdtDt'}
-                params = {'serviceKey': self.key, 'pnu': pnu, 'stdrYear': year, 'format': 'xml', 'numOfRows': '10'}
+                result_data.append(pool.apply_async(self.get_price, (url, column,)))
 
             elif ty == '공시지가':
                 url = 'http://apis.data.go.kr/1611000/nsdi/IndvdLandPriceService/attr/getIndvdLandPriceAttr'
                 column = {'공시지가': 'pblntfPclnd', '공시일자': 'pblntfDe'}
-                params = {'serviceKey': self.key, 'pnu': pnu, 'stdrYear': year, 'format': 'xml', 'numOfRows': '10'}
-
-            elif ty == '소유자':
-                keyword = 'item'
-                url = 'http://apis.data.go.kr/1611000/OwnerInfoService/getArchitecturePossessionInfo'
-                column = {'동명칭': 'dong_nm', '호명칭': 'ho_nm', '소유자명': 'nm', '소유구분명': 'own_gb_nm',
-                          '주민구분명': 'jm_gb_nm', '소유권지분': 'ownsh_quota', '지분1': 'quota1', '지분2': 'quota2'}
-                params = {'serviceKey': self.key, 'sigungu_cd': self.sigungu, 'bjdong_cd': self.bjdong,
-                          'bun': self.bun, 'ji': self.ji, 'plat_gb_cd': '0', 'numOfRows': '1000'}
+                result_data.append(pool.apply_async(self.get_price, (url, column,)))
 
             else:
-                keyword = 'item'
-                if ty == '표제부':
-                    parsing_type = 'getBrTitleInfo'
-                    column = {'대장종류': 'regstrKindCdNm', '대장구분': 'regstrGbCdNm', '주부속구분': 'mainAtchGbCdNm',
-                              '주용도': 'mainPurpsCdNm', '기타용도': 'etcPurps', '주구조': 'strctCdNm', '기타구조': 'etcStrct',
-                              '대지면적': 'platArea', '연면적': 'totArea', '건축면적': 'archArea', '높이': 'heit',
-                              '건폐율': 'bcRat', '용적률': 'vlRat', '내진설계적용여부': 'rserthqkDsgnApplyYn', '내진능력': 'rserthqkAblty',
-                              '지상층수': 'grndFlrCnt', '지하층수': 'ugrndFlrCnt',
-                              '옥내기계식대수': 'indrMechUtcnt', '옥외기계식대수': 'oudrMechUtcnt',
-                              '옥내자주식대수': 'indrAutoUtcnt', '옥외자주식대수': 'oudrAutoUtcnt',
-                              '승강기': 'rideUseElvtCnt', '비상용승강기': 'emgenUseElvtCnt',
-                              '사용승인일': 'useAprDay', '건축물대장PK': 'mgmBldrgstPk',
-                              '건물명칭': 'bldNm', '동명칭': 'dongNm',
-                              '호수': 'hoCnt', '가구수': 'fmlyCnt', '세대수': 'hhldCnt'}
+                if ty == '토지':
+                    url = 'http://apis.data.go.kr/1611000/nsdi/LandUseService/attr/getLandUseAttr'
+                    column = {'용도지역지구명': 'prposAreaDstrcCodeNm'}
+                    params = {'serviceKey': self.key, 'pnu':  self.pnu, 'cnflcAt': '1', 'format': 'xml', 'numOfRows': '10'}
 
-                elif ty == '총괄표제부':
-                    parsing_type = 'getBrRecapTitleInfo'
-                    column = {'옥내기계식대수': 'indrMechUtcnt', '옥외기계식대수': 'oudrMechUtcnt',
-                              '옥내자주식대수': 'indrAutoUtcnt', '옥외자주식대수': 'oudrAutoUtcnt',
-                              '총주차수': 'totPkngCnt'}
+                elif ty == '소유자':
+                    keyword = 'item'
+                    url = 'http://apis.data.go.kr/1611000/OwnerInfoService/getArchitecturePossessionInfo'
+                    column = {'건축물대장PK': 'mgm_bldrgst_pk', '동명칭': 'dong_nm', '호명칭': 'ho_nm', '소유자명': 'nm', '소유구분명': 'own_gb_nm',
+                              '주민구분명': 'jm_gb_nm', '소유권지분': 'ownsh_quota', '지분1': 'quota1', '지분2': 'quota2'}
+                    params = {'serviceKey': self.key, 'sigungu_cd': self.sigungu, 'bjdong_cd': self.bjdong,
+                              'bun': self.bun, 'ji': self.ji, 'dong_nm': self.dong, 'plat_gb_cd': '0', 'numOfRows': '10000'}
 
-                elif ty == '전유부':
-                    parsing_type = 'getBrExposPubuseAreaInfo'
-                    column = {'동명칭': 'dongNm', '호명칭': 'hoNm', '전용면적': 'area', '전유공용구분': 'exposPubuseGbCdNm',
-                              '주구조': 'strctCdNm', '기타구조': 'etcStrct', '주용도': 'mainPurpsCdNm', '기타용도': 'etcPurps',
-                              '건축물대장PK': 'mgmBldrgstPk', '층구분': 'flrGbCdNm', '층번호': 'flrNo', '층번호명': 'flrNoNm'}
+                else:
+                    keyword = 'item'
+                    if ty == '표제부':
+                        parsing_type = 'getBrTitleInfo'
+                        column = {'대장종류': 'regstrKindCdNm', '대장구분': 'regstrGbCdNm', '주부속구분': 'mainAtchGbCdNm',
+                                  '주용도': 'mainPurpsCdNm', '기타용도': 'etcPurps', '주구조': 'strctCdNm', '기타구조': 'etcStrct',
+                                  '대지면적': 'platArea', '연면적': 'totArea', '건축면적': 'archArea', '높이': 'heit',
+                                  '건폐율': 'bcRat', '용적률': 'vlRat', '내진설계적용여부': 'rserthqkDsgnApplyYn', '내진능력': 'rserthqkAblty',
+                                  '지상층수': 'grndFlrCnt', '지하층수': 'ugrndFlrCnt',
+                                  '옥내기계식대수': 'indrMechUtcnt', '옥외기계식대수': 'oudrMechUtcnt',
+                                  '옥내자주식대수': 'indrAutoUtcnt', '옥외자주식대수': 'oudrAutoUtcnt',
+                                  '승강기': 'rideUseElvtCnt', '비상용승강기': 'emgenUseElvtCnt',
+                                  '사용승인일': 'useAprDay', '건축물대장PK': 'mgmBldrgstPk',
+                                  '건물명칭': 'bldNm', '동명칭': 'dongNm',
+                                  '호수': 'hoCnt', '가구수': 'fmlyCnt', '세대수': 'hhldCnt'}
 
-                elif ty == '층별':
-                    parsing_type = 'getBrFlrOulnInfo'
-                    column = {'층구분': 'flrGbCdNm', '층번호': 'flrNo', '층명칭': 'flrNoNm', '층면적': 'area',
-                              '주구조': 'strctCdNm', '기타구조': 'etcStrct', '주용도': 'mainPurpsCdNm', '기타용도': 'etcPurps'}
+                    elif ty == '총괄표제부':
+                        parsing_type = 'getBrRecapTitleInfo'
+                        column = {'옥내기계식대수': 'indrMechUtcnt', '옥외기계식대수': 'oudrMechUtcnt',
+                                  '옥내자주식대수': 'indrAutoUtcnt', '옥외자주식대수': 'oudrAutoUtcnt',
+                                  '총주차수': 'totPkngCnt'}
 
-                elif ty == '지역지구':
-                    parsing_type = 'getBrJijiguInfo'
-                    column = {'기타지역지구구역': 'etcJijigu'}
+                    elif ty == '전유부':
+                        parsing_type = 'getBrExposPubuseAreaInfo'
+                        column = {'동명칭': 'dongNm', '호명칭': 'hoNm', '전용면적': 'area', '전유공용구분': 'exposPubuseGbCdNm',
+                                  '주구조': 'strctCdNm', '기타구조': 'etcStrct', '주용도': 'mainPurpsCdNm', '기타용도': 'etcPurps',
+                                  '건축물대장PK': 'mgmBldrgstPk', '층구분': 'flrGbCdNm', '층번호': 'flrNo', '층번호명': 'flrNoNm'}
 
-                url = 'http://apis.data.go.kr/1613000/BldRgstService_v2/' + parsing_type
-                params = {'serviceKey': self.key, 'sigunguCd': self.sigungu, 'bjdongCd': self.bjdong,
-                          'bun': self.bun, 'ji': self.ji, 'platGbCd': '0', 'format': 'xml', 'numOfRows': '10000'}
-                if ty == '전유부': params['dongNm'] = self.dong
+                    elif ty == '층별':
+                        parsing_type = 'getBrFlrOulnInfo'
+                        column = {'층구분': 'flrGbCdNm', '층번호': 'flrNo', '층명칭': 'flrNoNm', '층면적': 'area',
+                                  '주구조': 'strctCdNm', '기타구조': 'etcStrct', '주용도': 'mainPurpsCdNm', '기타용도': 'etcPurps'}
 
-            result_data.append(pool.apply_async(OpenApiRequest.request_data, (url, params, column, keyword, )))
+                    elif ty == '지역지구':
+                        parsing_type = 'getBrJijiguInfo'
+                        column = {'기타지역지구구역': 'etcJijigu'}
+
+                    url = 'http://apis.data.go.kr/1613000/BldRgstService_v2/' + parsing_type
+                    params = {'serviceKey': self.key, 'sigunguCd': self.sigungu, 'bjdongCd': self.bjdong,
+                              'bun': self.bun, 'ji': self.ji, 'platGbCd': '0', 'format': 'xml', 'numOfRows': '10000'}
+                    if ty == '전유부': params['dongNm'] = self.dong
+
+                result_data.append(pool.apply_async(OpenApiRequest.request_data, (url, params, column, keyword, )))
 
         for n, _ in enumerate(result_data):
             result_data[n] = result_data[n].get()
@@ -195,6 +196,15 @@ class BuildingRegisterThread(QThread):
 
         self.threadEvent.workerThreadDone.emit(result_data)
 
+    def get_price(self, url, column):
+        # 현재, 작년, 재작년
+        years = [datetime.now().year, datetime.now().year - 1, datetime.now().year - 2]
+        for y in years:
+            params = {'serviceKey': self.key, 'pnu': self.pnu, 'stdrYear': y, 'format': 'xml', 'numOfRows': '1000'}
+            result_data = OpenApiRequest.request_data(url, params, column, 'field')
+            if result_data is not None:
+                return result_data
+        return None
 
 class SetParsingThread(QThread):
     def __init__(self, binfo, key, dong_count, dong='', parent=None):
