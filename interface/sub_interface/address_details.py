@@ -19,16 +19,22 @@ class MsgContext:
 
 
 class AddressDetails(QDialog, Ui_Address_Detaile):
-    def __init__(self, call_type):
+    def __init__(self, call_type, content=None):
         super().__init__()
 
         self.setupUi(self)
-        self.result_data = None
 
+        # 데이터 호출출
+       # 0: 기본 데이터만 호출, 1: 모든 데이터 호출
+        self.call_type = call_type
+        self.content = content
+
+        # OPEN API KEY
         self.BULIDING_API_KEY = 'sfSPRX+xNEExRUqE4cdhNjBSk4uXIv8F1CfLen06hdPGn5cflLJqy/nxmh48uF8fvdGk68k6Z5jWsU1n6BeNPA=='
         self.ADDRESS_API_KEY = 'U01TX0FVVEgyMDIxMTIwMjEzNTc0MzExMTk4Mjc='
         self.DETAIL_ADDRESS_API_KEY = 'U01TX0FVVEgyMDIxMTIyMzEzMTE1NzExMjA2MTU='
 
+        # 변수 선언
         self.address, self.select_address, self.binfo = None, None, None    # 주소
         self.buildings, self.select_building, self.total_buildings = None, None, None   # 건물 (동)
         self.detail, self.select_detail, self.exact_detail = None, None, None    # 상세 (호, 층)
@@ -38,11 +44,12 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
 
         self.detail_list = []
 
-        # 0: 기본 데이터만 호출, 1: 모든 데이터 호출
-        self.call_type = call_type
-
         self._init_ui()
         self._init_interaction()
+
+        if self.content:
+            self.edt_address.setText(self.content)
+            self.get_address_request()
 
     # init UI
     def _init_ui(self):
@@ -257,7 +264,7 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
         if self.call_type == 1:
             self.owners = val[1]
             if val[2] is not None: self.prices = val[2]
-        self.detail = convert_ho(val[0])
+        self.detail = sort_value_ho(val[0])
 
         self.exact_detail = details = get_exact_value(self.detail)
 
@@ -329,9 +336,9 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
     def clear_cbx(self):
         self.detail_list.clear()
         self.cbx_buildings.clear()
-        self.cbx_buildings.addItem(" ( 건물명칭 / 동 선택 )")
+        self.cbx_buildings.addItem("( 건물명칭 / 동 선택 )")
         self.cbx_rooms.clear()
-        self.cbx_rooms.addItem(" ( 상세주소 / 호 선택 )")
+        self.cbx_rooms.addItem("( 상세주소 / 호 선택 )")
         self.edt_result_address.clear()
 
     # 메세지 함수
@@ -406,21 +413,19 @@ def sort_value_layer(data):
 
 
 # 호수 INT 정렬
-def convert_ho(data):
-
-    data['호명칭(RE)'] = data['호명칭'].str.rstrip('호')
+def sort_value_ho(data):
 
     under = data[data['층구분'] == '지하'].copy()
     top = data[data['층구분'] == '지상'].copy()
 
-    under['호명칭(RE)'] = mask_ho('-', under['호명칭(RE)'].values.tolist())
-    top['호명칭(RE)'] = mask_ho('', top['호명칭(RE)'].values.tolist())
+    rooms = [top['호명칭']]
 
     under = under.sort_values(by=['호명칭(RE)'], axis=0, ascending=False)
     top = top.sort_values(by=['호명칭(RE)'], axis=0)
 
     result = pd.concat([under, top], ignore_index=True)
     result.reset_index(drop=True, inplace=True)
+
     return result
 
 

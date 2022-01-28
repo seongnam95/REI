@@ -240,7 +240,7 @@ class Ui_BuildingInfo(object):
         self.bot_bar = QWidget(BuildingInfo)
         self.bot_bar.setObjectName(u"bot_bar")
         self.bot_bar.setGeometry(QRect(0, 690, 840, 71))
-        self.bot_bar.setStyleSheet(u"QWidget {\n"
+        self.bot_bar.setStyleSheet(u"#bot_bar {\n"
 "	background-color: rgb(245, 245, 245);\n"
 "	border-top: 1px solid;\n"
 "	border-color: rgb(230, 230, 230);\n"
@@ -299,12 +299,8 @@ class Ui_BuildingInfo(object):
 "")
         self.lb_viol = QLabel(self.bot_bar)
         self.lb_viol.setObjectName(u"lb_viol")
-        self.lb_viol.setGeometry(QRect(180, 20, 121, 30))
-        self.lb_viol.setStyleSheet(u"QLabel {\n"
-"	font: 15px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: #2c3e50;\n"
-"	border: none;\n"
-"}")
+        self.lb_viol.setGeometry(QRect(170, 20, 91, 31))
+        self.lb_viol.setStyleSheet(u"#lb_viol { background-color: rgb(245, 245, 245); }")
         self.lb_viol.setAlignment(Qt.AlignCenter)
         self.widget_3 = QWidget(BuildingInfo)
         self.widget_3.setObjectName(u"widget_3")
@@ -1050,7 +1046,7 @@ class Ui_BuildingInfo(object):
 
     def retranslateUi(self, BuildingInfo):
         BuildingInfo.setWindowTitle(QCoreApplication.translate("BuildingInfo", u"\ub808\uc774 - Real estate Information", None))
-        self.cbx_rooms.setItemText(0, QCoreApplication.translate("BuildingInfo", u" ( \uc0c1\uc138\uc8fc\uc18c / \ud638 \uc120\ud0dd )", None))
+        self.cbx_rooms.setItemText(0, QCoreApplication.translate("BuildingInfo", u"( \uc0c1\uc138\uc8fc\uc18c / \ud638 \uc120\ud0dd )", None))
 
         self.lb_sub_title_2.setText(QCoreApplication.translate("BuildingInfo", u"\uac74\ubb3c \uc815\ubcf4", None))
         self.edt_address.setText("")

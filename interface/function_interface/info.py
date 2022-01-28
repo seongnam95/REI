@@ -14,6 +14,10 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
     def __init__(self, *args, **kwargs):
         super(BuildingInfo, self).__init__(*args, **kwargs)
 
+        self.DATA_KEY = 'sfSPRX+xNEExRUqE4cdhNjBSk4uXIv8F1CfLen06hdPGn5cflLJqy/nxmh48uF8fvdGk68k6Z5jWsU1n6BeNPA=='
+        self.ADDRESS_KEY = 'devU01TX0FVVEgyMDIxMTAxMzEwNDgyMzExMTc1MjU='
+        self.VIOL_KEY = '68506e6c486a736e35377562445658'
+
         self.activation, self.opened = False, False
         self.data_basic, self.data_basic_all = None, None
         self.base_list = []
@@ -22,6 +26,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.select_building, self.total_buildings = None, None
         self.detail, self.exact_detail = None, None  # 상세 (호, 층)
         self.owners, self.prices = None, None  # 소유자, 공시가격
+        self.pk = None
 
         self._init_ui()
         self._init_interaction()
@@ -65,6 +70,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
     # 상호작용 세팅
     def _init_interaction(self):
         self.edt_address.mousePressEvent = self.clicked_address_edit
+        self.edt_address.returnPressed.connect(self.clicked_address_edit)
         self.btn_details.clicked.connect(self.clicked_details_btn)
         self.cbx_rooms.activated.connect(self.select_rooms_cbx)
         self.btn_viol.clicked.connect(self.clicked_viol_btn)
@@ -101,8 +107,8 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.btn_details.move(x, self.btn_details.y())
 
     # 소재지 찾기 에디트 클릭
-    def clicked_address_edit(self, e):
-        dialog = address_details.AddressDetails(1)
+    def clicked_address_edit(self, e=None):
+        dialog = address_details.AddressDetails(1, self.edt_address.text())
         dialog.exec()
 
         if dialog.result is False: return
@@ -146,14 +152,18 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
     # 상세주소 데이터 입력
     def insert_room_info(self):
         address = self.address
-        room, public_area, room_area, detail, pk, price, price_day = None, None, None, None, None, None, None
+        room, public_area, room_area, detail, price, price_day = None, None, None, None, None, None
+
+        # 위반 건축물 라벨 초기화
+        self.lb_viol.setText('')
+        self.lb_viol.setStyleSheet('#lb_viol { background-color: rgb(245, 245, 245); }')
 
         #### 일반일 경우
         if self.binfo['타입'] == '일반':
             detail = self.detail.loc[self.cbx_rooms.currentIndex()]
             room_area, public_area = detail['층면적'], detail['층면적']
             room = "%s층" % detail['층명칭'].rstrip("층")
-            pk = self.select_building['건축물대장PK']
+            self.pk = self.select_building['건축물대장PK']
 
             try:
                 price = str("{:,}".format(int(self.prices['개별주택가격'])) + ' 원')
@@ -169,7 +179,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         elif self.binfo['타입'] == '집합':  
             detail = self.exact_detail.loc[self.cbx_rooms.currentIndex()]
             all_detail = self.detail[self.detail['호명칭'] == detail['호명칭']]
-            pk = detail['건축물대장PK']
+            self.pk = detail['건축물대장PK']
 
             room_area = detail['전용면적']
             public_area = round(pd.to_numeric(all_detail['전용면적']).sum(), 2)
@@ -192,8 +202,15 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         if address['건물명칭']:
             room = "%s (%s)" % (room, address['건물명칭'])
 
-        owners = self.owners[self.owners['건축물대장PK'] == pk]
-        owner = "%s 외 %s명" % (owners.iloc[0]['소유자명'], str(len(owners)))
+        try:
+            owners = self.owners[self.owners['건축물대장PK'] == self.pk]
+            owner_count = len(owners)
+            if owner_count == 1:
+                owner = owners.iloc[0]['소유자명']
+            else:
+                owner = "%s 외 %s명" % (owners.iloc[0]['소유자명'], str(len(owners)-1))
+        except (ValueError, TypeError, IndexError):
+            owner = "소유자 확인 불가"
 
         base = {'상세주소': room, '주용도': detail['기타용도'], '공급면적': str(public_area) + " ㎡",
                 '전용면적': str(room_area) + " ㎡", '소유자': owner, '공시가격': price}
@@ -218,9 +235,9 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         # 소유자 항목 추가
         # 공시가격 항목 추가
 
+    # 상세 정보 리드
     def insert_detail_info(self):
         building = self.select_building
-        print(building)
         base = {'주구조': building['주구조'], '주용도': building['주용도'],
                 '대지면적': building['대지면적'] + ' ㎡', '건축면적': building['건축면적'] + ' ㎡', '건폐율': building['건폐율'] + ' %',
                 '연면적': building['연면적'] + ' %', '높이': building['높이'], '용적률': building['용적률'] + ' %',
@@ -234,47 +251,45 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
                 self.labels_park[i](base[i])
 
     # 위반 조회 버튼
-    def clicked_viol_btn(self):
-        if not self.lb_viol.text():
+    def clicked_viol_btn(self, viol=None):
+        if self.lb_viol.text():
             return
-
-        pnu, viol = self.pnu, None
-        if not self.cbx_rooms.currentText() == ' ( 상세주소 / 호 선택 )':
-
+        if not self.cbx_rooms.currentText() == '( 상세주소 / 호 선택 )':
             # 집합일 경우
             if self.binfo['타입'] == '집합':
-                pk = self.exact_detail.loc[self.cbx_rooms.currentIndex()]['건축물대장PK']
-                viol = OpenApiRequest.get_viol(pk)
+                viol = OpenApiRequest.get_viol(self.VIOL_KEY, self.pk)
 
             # 일반일 경우
             elif self.binfo['타입'] == '일반':
-                pk = self.data_head.mgmBldrgstPk.item()
-                viol = self.ld.get_viol(self.gisKey, pk)
+                viol = OpenApiRequest.get_viol(self.VIOL_KEY, self.pk)
 
-            if viol is None:
-                self.lb_viol.setText('조회 불가')
-                self.lb_viol.setStyleSheet('''color: rgb(127, 140, 141);
-                                            font: bold 13px;
-                                            border-style: solid;
-                                            border-width: 3px;
-                                            border-radius: 3px;
-                                            border-color: rgb(127, 140, 141)''')
-            elif viol == '0':
+            if viol == '0':
                 self.lb_viol.setText('위반 없음')
-                self.lb_viol.setStyleSheet('''color: rgb(46, 204, 113);
-                                            font: bold 13px;
-                                            border-style: solid;
-                                            border-width: 3px;
-                                            border-radius: 3px;
-                                            border-color: rgb(46, 204, 113)''')
+                self.lb_viol.setStyleSheet("""#lb_viol {
+                                            background-color: rgb(245, 245, 245);
+                                            font: 15px "웰컴체 Regular";
+                                            color: rgb(46, 204, 113);
+                                            padding-top: 2px;
+                                            border: 2px solid rgb(46, 204, 113);
+                                            border-radius: 3px; }""")
             elif viol == '1':
                 self.lb_viol.setText('위반 건축물')
-                self.lb_viol.setStyleSheet('''color: rgb(192, 57, 43);
-                                            font: bold 13px;
-                                            border-style: solid;
-                                            border-width: 3px;
-                                            border-radius: 3px;
-                                            border-color: rgb(192, 57, 43)''')
+                self.lb_viol.setStyleSheet("""#lb_viol {
+                                            background-color: rgb(245, 245, 245);
+                                            font: 15px "웰컴체 Regular";
+                                            color: rgb(192, 57, 43);
+                                            padding-top: 2px;
+                                            border: 2px solid rgb(192, 57, 43);
+                                            border-radius: 3px; }""")
+            else:
+                self.lb_viol.setText('조회 불가')
+                self.lb_viol.setStyleSheet("""#lb_viol {
+                                            background-color: rgb(245, 245, 245);
+                                            font: 15px "웰컴체 Regular";
+                                            color: rgb(127, 140, 141);
+                                            padding-top: 2px;
+                                            border: 2px solid rgb(127, 140, 141);
+                                            border-radius: 3px; }""")
 
 # 예외 오류 처리
 def my_exception_hook(exctype, value, traceback):

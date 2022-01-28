@@ -66,16 +66,16 @@ class OpenApiRequest:
 
     # 위반 건축물 조회
     @classmethod
-    def get_viol(cls, key, pk):
-        xml_url = "http://openapi.seoul.go.kr:8088/%s/xml/bigDjyBldRgstInfo/1/5/%s" % (key, pk)
-        response = requests.get(xml_url).text.encode('utf-8')
-        xmlobj = bs4.BeautifulSoup(response, 'xml')
+    def get_viol(cls, key, pk, result=None):
+        try:
+            xml_url = "http://openapi.seoul.go.kr:8088/%s/xml/bigDjyBldRgstInfo/1/5/%s" % (key, pk)
+            response = requests.get(xml_url).text.encode('utf-8')
+            xmlobj = bs4.BeautifulSoup(response, 'xml')
+            val = xmlobj.find('VIOL_BLD_YN')
 
-        val = xmlobj.find('VIOL_BLD_YN')
-        if val is None: return None
-        if not val: return None
-
-        return val.get_text()
+            result = val.get_text()
+        finally:
+            return result
 
     # 사무소 조회
     @classmethod
@@ -283,7 +283,7 @@ class SetParsingThread(QThread):
         df['convert_ho'] = df['convert_ho'].str.replace('층', '0').str.replace('지', 'B') \
             .str.replace('비', 'B').str.replace('B', '-')
         regex = r"([-+]?\d*\.*\d+|\d+)"
-        df['convert_ho'] = df.convert_ho.astype('str').str.extract(regex, expand=False)
+        df['convert_ho'] = df.sort_value_ho.astype('str').str.extract(regex, expand=False)
         df['convert_ho'] = df['convert_ho'].astype(int)
         df = df.sort_values(by=['convert_ho'], axis=0)
 

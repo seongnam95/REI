@@ -392,7 +392,7 @@ class InfoMain(QDialog, FROM_CLASS):
                 juso = data_head.platPlc.split(' ')[1:]
                 juso = " ".join(juso) + ' ' + dong + '동 ' + ho + '호'
 
-            expos_public = data_each_all[data_each_all.convert_ho == data_each.convert_ho]         # 전유 + 공용
+            expos_public = data_each_all[data_each_all.convert_ho == data_each.sort_value_ho]         # 전유 + 공용
             total_area = str(round(pd.to_numeric(expos_public['area']).sum(), 2)) + ' m²'
 
             purps = data_each.etcPurps
