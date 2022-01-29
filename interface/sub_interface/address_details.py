@@ -25,7 +25,7 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
         self.setupUi(self)
 
         # 데이터 호출출
-       # 0: 기본 데이터만 호출, 1: 모든 데이터 호출
+        # 0: 기본 데이터만 호출, 1: 모든 데이터 호출
         self.call_type = call_type
         self.content = content
 
@@ -176,6 +176,7 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
     # 건물명칭(동) 콤보박스 추가
     def add_building_list(self, val):
         self.loading(False)
+        print(val[0])
         buildings = val[0][val[0]['주부속구분'] == '주건축물']
         self.total_buildings = val[1]
 
@@ -264,9 +265,9 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
         if self.call_type == 1:
             self.owners = val[1]
             if val[2] is not None: self.prices = val[2]
-        self.detail = sort_value_ho(val[0])
 
-        self.exact_detail = details = get_exact_value(self.detail)
+        self.detail = val[0]
+        self.exact_detail = details = sorted_rooms_len(get_exact_value(self.detail))
 
         self.cbx_rooms.clear()
         for i in range(len(details)):
@@ -384,6 +385,7 @@ def get_exact_value(data):
         items = items[items['전유공용구분'] == '전유']
 
         hos = set(items['호명칭'])
+
         if len(hos) == len(items):
             items.reset_index(drop=True, inplace=True)
             return items
@@ -393,7 +395,7 @@ def get_exact_value(data):
 
         for i in hos:
             res = items[items['호명칭'] == i]
-            if not res == 1: continue
+            if len(res) == 1: continue
             items[items['호명칭'] == i] = res.nlargest(1, '전용면적', keep='first')
 
         items = items.astype({'전용면적': 'str'}).dropna(axis=0)
@@ -412,22 +414,30 @@ def sort_value_layer(data):
     return result
 
 
-# 호수 INT 정렬
-def sort_value_ho(data):
+# 호수 정렬
+def sorted_rooms_len(data):
+    existing = data.sort_values(by=['호명칭'], axis=0)
+    try:
+        # 호명칭의 길이를 len 키에 담기
+        data['len'] = data['호명칭']
+        for i in range(len(data)):
+            data['len'].iloc[i] = len(data['len'].iloc[i])
 
-    under = data[data['층구분'] == '지하'].copy()
-    top = data[data['층구분'] == '지상'].copy()
+        # 호명칭 길이 중복 제거 후 리스트에 담기
+        name_len = list(set(data['len']))
+        name_len.sort()
 
-    rooms = [top['호명칭']]
+        # 명칭이 짧은 순서대로, 호수명대로 정렬
+        rooms = []
+        for i in name_len:
+            value = data[data['len'] == i].sort_values(by=['호명칭'], axis=0)
+            rooms.append(value)
+        result = pd.concat(rooms, ignore_index=True)
 
-    under = under.sort_values(by=['호명칭(RE)'], axis=0, ascending=False)
-    top = top.sort_values(by=['호명칭(RE)'], axis=0)
+        return result
 
-    result = pd.concat([under, top], ignore_index=True)
-    result.reset_index(drop=True, inplace=True)
-
-    return result
-
+    except (ValueError, IndexError, TypeError):
+        return existing
 
 # 호수 정규식
 def mask_ho(un, val):

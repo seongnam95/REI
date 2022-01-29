@@ -42,10 +42,10 @@ def sorted_rooms_len(data):
             rooms.append(value)
         result = pd.concat(rooms, ignore_index=True)
 
-        return True, result
+        return result
 
     except (ValueError, IndexError, TypeError):
-        return False, existing
+        return existing
 
 
 def sorted_rooms_flr(data):

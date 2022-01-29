@@ -136,8 +136,16 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
         layer = "-%s 층 / %s 층" % (building['지하층수'], building['지상층수'])
         elevator = "%s대 (비상 %s대)" % (building['승강기'], building['비상용승강기'])
+
         parking = int(building['옥내자주식대수']) + int(building['옥내기계식대수']) + \
-                  int(building['옥내자주식대수']) + int(building['옥외기계식대수'])
+                  int(building['옥외자주식대수']) + int(building['옥외기계식대수'])
+
+        if self.total_buildings is not None:
+            if parking == 0:
+                total = self.total_buildings
+                parking = int(total['옥내자주식대수'].values[0]) + int(total['옥내기계식대수'].values[0]) + \
+                          int(total['옥외자주식대수'].values[0]) + int(total['옥외기계식대수'].values[0])
+
         room_count = "%s 호 / %s 가구 / %s 세대" % (building['호수'], building['가구수'], building['세대수'])
         day = "%s 년  %s 월  %s 일" % (building['사용승인일'][0:4], building['사용승인일'][4:6], building['사용승인일'][6:8])
 
@@ -176,7 +184,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
                 self.base_name_13.setText("공 시 가 격")
 
         #### 집합일 경우
-        elif self.binfo['타입'] == '집합':  
+        elif self.binfo['타입'] == '집합':
             detail = self.exact_detail.loc[self.cbx_rooms.currentIndex()]
             all_detail = self.detail[self.detail['호명칭'] == detail['호명칭']]
             self.pk = detail['건축물대장PK']
@@ -206,9 +214,9 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             owners = self.owners[self.owners['건축물대장PK'] == self.pk]
             owner_count = len(owners)
             if owner_count == 1:
-                owner = owners.iloc[0]['소유자명']
+                owner = "%s | %s" % (owners.iloc[0]['소유자명'], owners.iloc[0]['소유구분명'])
             else:
-                owner = "%s 외 %s명" % (owners.iloc[0]['소유자명'], str(len(owners)-1))
+                owner = "%s | %s 외 %s명" % (owners.iloc[0]['소유자명'], owners.iloc[0]['소유구분명'], str(len(owners) - 1))
         except (ValueError, TypeError, IndexError):
             owner = "소유자 확인 불가"
 
@@ -238,11 +246,27 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
     # 상세 정보 리드
     def insert_detail_info(self):
         building = self.select_building
+
+        in_land = int(building['옥내자주식대수'])
+        in_mechanical = int(building['옥내기계식대수'])
+
+        out_land = int(building['옥외자주식대수'])
+        out_mechanical = int(building['옥외기계식대수'])
+
+        if self.total_buildings is not None:
+            total = self.total_buildings
+
+            in_land += int(total['옥내자주식대수'])
+            in_mechanical += int(total['옥내기계식대수'])
+
+            out_land += int(total['옥외자주식대수'])
+            out_mechanical += int(total['옥외기계식대수'])
+
         base = {'주구조': building['주구조'], '주용도': building['주용도'],
                 '대지면적': building['대지면적'] + ' ㎡', '건축면적': building['건축면적'] + ' ㎡', '건폐율': building['건폐율'] + ' %',
                 '연면적': building['연면적'] + ' %', '높이': building['높이'], '용적률': building['용적률'] + ' %',
-                '옥내자주식': building['옥내자주식대수'] + ' 대', '옥내기계식': building['옥내기계식대수'] + ' 대',
-                '옥외자주식': building['옥외자주식대수'] + ' 대', '옥외기계식': building['옥외기계식대수'] + ' 대'}
+                '옥내자주식': str(in_land) + ' 대', '옥내기계식': str(in_mechanical) + ' 대',
+                '옥외자주식': str(out_land) + ' 대', '옥외기계식': str(out_mechanical) + ' 대'}
 
         for i in base:
             if i in self.labels_detail:
@@ -290,6 +314,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
                                             padding-top: 2px;
                                             border: 2px solid rgb(127, 140, 141);
                                             border-radius: 3px; }""")
+
 
 # 예외 오류 처리
 def my_exception_hook(exctype, value, traceback):
