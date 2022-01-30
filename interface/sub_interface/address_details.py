@@ -176,7 +176,7 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
     # 건물명칭(동) 콤보박스 추가
     def add_building_list(self, val):
         self.loading(False)
-        print(val[0])
+
         buildings = val[0][val[0]['주부속구분'] == '주건축물']
         self.total_buildings = val[1]
 
@@ -209,7 +209,7 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
         buildings = buildings.sort_values(by=['동명칭'], axis=0)
         buildings.reset_index(drop=True, inplace=True)
 
-        self.cbx_buildings.clear()
+        self.clear_cbx()
 
         for i in range(len(buildings)):
             result = buildings.iloc[i]
@@ -240,8 +240,10 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
 
     # 건물명칭 콤보박스 선택
     def select_building_event(self):
+        if self.cbx_buildings.currentIndex() == 0: return
+
         self.loading(True)
-        self.select_building = self.buildings.iloc[self.cbx_buildings.currentIndex()]
+        self.select_building = self.buildings.iloc[self.cbx_buildings.currentIndex() - 1]
 
         # 일반일 경우
         if self.binfo['타입'] == '일반':
@@ -269,7 +271,6 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
         self.detail = val[0]
         self.exact_detail = details = sorted_rooms_len(get_exact_value(self.detail))
 
-        self.cbx_rooms.clear()
         for i in range(len(details)):
             ho = details.iloc[i]['호명칭'].rstrip('호')
             purps = details.iloc[i]['기타용도']
@@ -291,6 +292,7 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
         self.detail = sort_value_layer(val[0])
 
         self.cbx_rooms.clear()
+        self.cbx_rooms.addItem("( 상세주소 / 호 선택 )")
         for i in range(len(self.detail)):
             layer = self.detail.loc[i]['층명칭']
             purps = self.detail.loc[i]['기타용도']
@@ -305,9 +307,12 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
 
     # 상세주소 콤보박스 선택
     def select_room_event(self):
+        if self.cbx_rooms.currentIndex() == 0:
+            self.edt_result_address.clear()
+            return
         if self.call_type == 0: self.ckb_part.setEnabled(True)
 
-        select_index = self.cbx_rooms.currentIndex()
+        select_index = self.cbx_rooms.currentIndex() - 1
         result = self.select_address
 
         old = "%s %s %s %s-%s" % (result['시도'], result['시군구'], result['읍면동'], result['번'], result['지'])
@@ -329,7 +334,7 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
     # 소재지 입력 버튼
     def address_input_event(self):
         if self.edt_result_address.text() != "":
-            self.select_index = self.cbx_rooms.currentIndex()
+            self.select_index = self.cbx_rooms.currentIndex() - 1
             self.result = True
             self.hide()
 

@@ -72,7 +72,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.edt_address.mousePressEvent = self.clicked_address_edit
         self.edt_address.returnPressed.connect(self.clicked_address_edit)
         self.btn_details.clicked.connect(self.clicked_details_btn)
-        self.cbx_rooms.activated.connect(self.select_rooms_cbx)
+        self.cbx_rooms.activated.connect(self.insert_room_info)
         self.btn_viol.clicked.connect(self.clicked_viol_btn)
 
     # 타이틀바 라벨 위치 세팅
@@ -111,19 +111,18 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         dialog = address_details.AddressDetails(1, self.edt_address.text())
         dialog.exec()
 
-        if dialog.result is False: return
+        if dialog.result:
+            self.binfo, self.address = dialog.binfo, dialog.select_address
+            self.detail, self.exact_detail = dialog.detail, dialog.exact_detail
+            self.select_building, self.total_buildings = dialog.select_building, dialog.total_buildings
+            self.owners, self.prices = dialog.owners, dialog.prices
 
-        self.binfo, self.address = dialog.binfo, dialog.select_address
-        self.detail, self.exact_detail = dialog.detail, dialog.exact_detail
-        self.select_building, self.total_buildings = dialog.select_building, dialog.total_buildings
-        self.owners, self.prices = dialog.owners, dialog.prices
+            self.cbx_rooms.clear()
+            self.cbx_rooms.addItems(dialog.detail_list)
+            self.cbx_rooms.setCurrentIndex(dialog.select_index)
 
-        self.cbx_rooms.clear()
-        self.cbx_rooms.addItems(dialog.detail_list)
-        self.cbx_rooms.setCurrentIndex(dialog.select_index)
-
-        self.activation = True
-        self.insert_base_info()
+            self.activation = True
+            self.insert_base_info()
 
     # 기본 데이터 입력
     def insert_base_info(self):
@@ -235,13 +234,6 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         # new_width = self.base_item_2.fontMetrics().boundingRect(self.base_item_2.text()).width()
         #
         # print(old_width, new_width)
-
-    # 상세주소 콤보박스 클릭
-    def select_rooms_cbx(self):
-        self.insert_room_info()
-
-        # 소유자 항목 추가
-        # 공시가격 항목 추가
 
     # 상세 정보 리드
     def insert_detail_info(self):
