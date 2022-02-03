@@ -11,11 +11,11 @@ exclusive2 = pd.DataFrame({'층번호': ['2.0', '2.0', '3.0', '10.0', '21.0', '2
                            '층번호명': ['2층', '2층', '3층', '10층', '21층', '2층', '3층', '1층'],
                            '호명칭': ['201호', '202호', '301호', '1001호', '2001호', '203호', '301호', '101호']})
 
-exclusive3 = pd.DataFrame({'층번호': ['1.0', '1.0', '1.0', '1.0'],
-                           '층번호명': ['1층', '각층', '2층', '각층'],
+exclusive3 = pd.DataFrame({'층번호': ['1.0', '1.0', '2.0', '1.0'],
+                           '층번호명': ['101', '103', '201', '102'],
                            '전유공용구분': ['전유', '공용', '전유', '공용'],
                            '호명칭': ['1001호', '1002호', '101호', '102호'],
-                           '전용면적': ['45.3', '8.3', '12.3', '8.3']})
+                           '전용면적': ['45.3', '8.3', '12.3', '15.3']})
 
 exclusive4 = pd.DataFrame({'호명칭': ['1002호', '1001호', '102호', '101호', '10001호', '10002호']})
 
@@ -47,7 +47,6 @@ def sorted_rooms_len(data):
     except (ValueError, IndexError, TypeError):
         return existing
 
-
 def sorted_rooms_flr(data):
     existing = data.sort_values(by=['호명칭'], axis=0)
 
@@ -73,10 +72,6 @@ def sorted_rooms_flr(data):
     except (ValueError, IndexError, TypeError) as e:
         print(e)
         return False, existing
-
-
-print(sorted_rooms_flr(exclusive2))
-
 
 # 정확한 전유 호수 찾기
 def get_exact_value(data):

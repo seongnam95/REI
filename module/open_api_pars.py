@@ -15,6 +15,7 @@ class OpenApiRequest:
             xml_obj = bs4.BeautifulSoup(response, 'xml')
 
             rows = xml_obj.find_all(keyword)
+
             if not rows: return None
 
             row_list = []
@@ -33,7 +34,9 @@ class OpenApiRequest:
                 row_list.clear()
             return result
 
-        except: return None
+        except (ValueError, TypeError, IndexError) as e:
+            print(e)
+            return None
 
     # 주소 조회
     @classmethod
@@ -95,13 +98,13 @@ class ThreadSignal(QObject):
 
 
 class DataRequestThread(QThread):
-    def __init__(self, binfo, parsing_type_list, parent=None):
+    def __init__(self, binfo, key, parsing_type_list, parent=None):
         super().__init__()
         self.main = parent
         self.threadEvent = ThreadSignal()
         self.parsing_type_list = parsing_type_list
 
-        self.key = 'sfSPRX+xNEExRUqE4cdhNjBSk4uXIv8F1CfLen06hdPGn5cflLJqy/nxmh48uF8fvdGk68k6Z5jWsU1n6BeNPA=='
+        self.key = key
         self.pnu = binfo['주소코드'] + '1' + binfo['번'] + binfo['지']
 
         self.sigungu = binfo['주소코드'][:5]

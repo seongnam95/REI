@@ -1,5 +1,6 @@
 import sys
 import pandas as pd
+import module.open_api_pars as pars
 
 from PySide6.QtWidgets import QMainWindow, QApplication
 from PySide6.QtGui import QFontMetrics
@@ -14,14 +15,14 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
     def __init__(self, *args, **kwargs):
         super(BuildingInfo, self).__init__(*args, **kwargs)
 
-        self.DATA_KEY = 'sfSPRX+xNEExRUqE4cdhNjBSk4uXIv8F1CfLen06hdPGn5cflLJqy/nxmh48uF8fvdGk68k6Z5jWsU1n6BeNPA=='
-        self.ADDRESS_KEY = 'devU01TX0FVVEgyMDIxMTAxMzEwNDgyMzExMTc1MjU='
+        self.BULIDING_API_KEY = 'sfSPRX+xNEExRUqE4cdhNjBSk4uXIv8F1CfLen06hdPGn5cflLJqy/nxmh48uF8fvdGk68k6Z5jWsU1n6BeNPA=='
         self.VIOL_KEY = '68506e6c486a736e35377562445658'
 
         self.activation, self.opened = False, False
         self.data_basic, self.data_basic_all = None, None
         self.base_list = []
 
+        self.get_building_thread = None
         self.binfo, self.address = None, None
         self.select_building, self.total_buildings = None, None
         self.detail, self.exact_detail = None, None  # 상세 (호, 층)
@@ -58,8 +59,8 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
                             '옥외자주식': self.park_item_3.setText,
                             '옥외기계식': self.park_item_4.setText}
         self.labels_land = {'공시지가': self.land_item_1.setText,
-                            '지역지구': self.land_item_2.setText,
-                            '기타지역지구': self.land_item_3.setText}
+                            '토지지역지구': self.land_item_2.setText,
+                            '토지기타지역지구': self.land_item_3.setText}
 
     # UI 세팅
     def _init_ui(self):
@@ -83,28 +84,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         sub_title_x = (self.width() / 2) - (self.lb_sub_title.width() / 2)
         self.lb_sub_title.move(sub_title_x, self.lb_sub_title.y())
 
-    # 상세정보 버튼 클릭
-    def clicked_details_btn(self):
-        if not self.activation: return
-
-        # 상세정보가 활성화 된 경우
-        if self.opened:
-            self.setMinimumWidth(430)
-            self.setMaximumWidth(430)
-            self.btn_details.setText("상세정보  >")
-            self.opened = False
-
-        # 상세정보가 비활성화인 경우
-        else:
-            self.setMinimumWidth(840)
-            self.setMaximumWidth(840)
-            self.insert_detail_info()
-            self.btn_details.setText("접 기  <")
-            self.opened = True
-
-        self.title_bar_set()
-        x = (self.width() - self.btn_details.width()) - 10
-        self.btn_details.move(x, self.btn_details.y())
+########################################################################################################
 
     # 소재지 찾기 에디트 클릭
     def clicked_address_edit(self, e=None):
@@ -123,6 +103,78 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
             self.activation = True
             self.insert_base_info()
+
+            if self.opened: self.clicked_details_btn()
+
+    # 위반 조회 버튼
+    def clicked_viol_btn(self, viol=None):
+        if self.lb_viol.text():
+            return
+        if not self.cbx_rooms.currentText() == '( 상세주소 / 호 선택 )':
+            # 집합일 경우
+            if self.binfo['타입'] == '집합':
+                viol = OpenApiRequest.get_viol(self.VIOL_KEY, self.pk)
+
+            # 일반일 경우
+            elif self.binfo['타입'] == '일반':
+                viol = OpenApiRequest.get_viol(self.VIOL_KEY, self.pk)
+
+            if viol == '0':
+                self.lb_viol.setText('위반 없음')
+                self.lb_viol.setStyleSheet("""#lb_viol {
+                                            background-color: rgb(245, 245, 245);
+                                            font: 15px "웰컴체 Regular";
+                                            color: rgb(46, 204, 113);
+                                            padding-top: 2px;
+                                            border: 2px solid rgb(46, 204, 113);
+                                            border-radius: 3px; }""")
+            elif viol == '1':
+                self.lb_viol.setText('위반 건축물')
+                self.lb_viol.setStyleSheet("""#lb_viol {
+                                            background-color: rgb(245, 245, 245);
+                                            font: 15px "웰컴체 Regular";
+                                            color: rgb(192, 57, 43);
+                                            padding-top: 2px;
+                                            border: 2px solid rgb(192, 57, 43);
+                                            border-radius: 3px; }""")
+            else:
+                self.lb_viol.setText('조회 불가')
+                self.lb_viol.setStyleSheet("""#lb_viol {
+                                            background-color: rgb(245, 245, 245);
+                                            font: 15px "웰컴체 Regular";
+                                            color: rgb(127, 140, 141);
+                                            padding-top: 2px;
+                                            border: 2px solid rgb(127, 140, 141);
+                                            border-radius: 3px; }""")
+
+    # 상세정보 버튼 클릭
+    def clicked_details_btn(self):
+        if not self.activation: return
+
+        # 상세정보가 활성화 된 경우
+        if self.opened:
+            self.setMinimumWidth(430)
+            self.setMaximumWidth(430)
+            self.btn_details.setText("상세정보  >")
+            self.opened = False
+
+        # 상세정보가 비활성화인 경우
+        else:
+            self.setMinimumWidth(840)
+            self.setMaximumWidth(840)
+            self.btn_details.setText("접 기  <")
+
+            self.get_building_thread = pars.DataRequestThread(self.binfo, self.BULIDING_API_KEY, ['토지', '지역지구', '공시지가'])
+            self.get_building_thread.start()
+            self.get_building_thread.threadEvent.workerThreadDone.connect(self.insert_detail_info)
+
+            self.opened = True
+
+        self.title_bar_set()
+        x = (self.width() - self.btn_details.width()) - 10
+        self.btn_details.move(x, self.btn_details.y())
+
+########################################################################################################
 
     # 기본 데이터 입력
     def insert_base_info(self):
@@ -156,7 +208,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             if i in self.labels: self.labels[i](base[i])
         self.edt_address.setText(old)
 
-    # 상세주소 데이터 입력
+    # 기본 데이터 룸/층별 입력
     def insert_room_info(self):
         address = self.address
         room, public_area, room_area, detail, price, price_day = None, None, None, None, None, None
@@ -235,9 +287,10 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         #
         # print(old_width, new_width)
 
-    # 상세 정보 리드
-    def insert_detail_info(self):
+    # 상세 정보 로드
+    def insert_detail_info(self, val):
         building = self.select_building
+        land = val[0], jiji = val[1], price = val[2]
 
         in_land = int(building['옥내자주식대수'])
         in_mechanical = int(building['옥내기계식대수'])
@@ -245,6 +298,11 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         out_land = int(building['옥외자주식대수'])
         out_mechanical = int(building['옥외기계식대수'])
 
+        # 용도지역지구
+        if val[1] is None: jiji = '조회 결과 없음'
+        else: jiji = ', '.join(val[1]['용도지역지구명'])
+
+        # 총괄 표제부 주차장
         if self.total_buildings is not None:
             total = self.total_buildings
 
@@ -254,11 +312,26 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             out_land += int(total['옥외자주식대수'])
             out_mechanical += int(total['옥외기계식대수'])
 
-        base = {'주구조': building['주구조'], '주용도': building['주용도'],
+        # 토지 이용
+        if land is None:
+            land_jj = '조회 결과 없음'
+            land_etc = '조회 결과 없음'
+
+        else:
+            land_jj, land_etc = [], []
+            for i in land.prposAreaDstrcCodeNm:
+                if (i[-2:] == '지구') or (i[-2:] == '지역'): land_jj.append(i)
+                else: land_etc.append(i)
+
+            land_jj = ', '.join(land_jiji)
+            land_etc = ', '.join(etc)
+
+        base = {'주구조': building['주구조'], '지역지구': jiji,'주용도': building['주용도'],
                 '대지면적': building['대지면적'] + ' ㎡', '건축면적': building['건축면적'] + ' ㎡', '건폐율': building['건폐율'] + ' %',
                 '연면적': building['연면적'] + ' %', '높이': building['높이'], '용적률': building['용적률'] + ' %',
                 '옥내자주식': str(in_land) + ' 대', '옥내기계식': str(in_mechanical) + ' 대',
-                '옥외자주식': str(out_land) + ' 대', '옥외기계식': str(out_mechanical) + ' 대'}
+                '옥외자주식': str(out_land) + ' 대', '옥외기계식': str(out_mechanical) + ' 대',
+                '공시지가': price, '토지지역지구': land_jj, '토지기타지역지구': land_etc}
 
         for i in base:
             if i in self.labels_detail:
@@ -266,47 +339,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             if i in self.labels_park:
                 self.labels_park[i](base[i])
 
-    # 위반 조회 버튼
-    def clicked_viol_btn(self, viol=None):
-        if self.lb_viol.text():
-            return
-        if not self.cbx_rooms.currentText() == '( 상세주소 / 호 선택 )':
-            # 집합일 경우
-            if self.binfo['타입'] == '집합':
-                viol = OpenApiRequest.get_viol(self.VIOL_KEY, self.pk)
-
-            # 일반일 경우
-            elif self.binfo['타입'] == '일반':
-                viol = OpenApiRequest.get_viol(self.VIOL_KEY, self.pk)
-
-            if viol == '0':
-                self.lb_viol.setText('위반 없음')
-                self.lb_viol.setStyleSheet("""#lb_viol {
-                                            background-color: rgb(245, 245, 245);
-                                            font: 15px "웰컴체 Regular";
-                                            color: rgb(46, 204, 113);
-                                            padding-top: 2px;
-                                            border: 2px solid rgb(46, 204, 113);
-                                            border-radius: 3px; }""")
-            elif viol == '1':
-                self.lb_viol.setText('위반 건축물')
-                self.lb_viol.setStyleSheet("""#lb_viol {
-                                            background-color: rgb(245, 245, 245);
-                                            font: 15px "웰컴체 Regular";
-                                            color: rgb(192, 57, 43);
-                                            padding-top: 2px;
-                                            border: 2px solid rgb(192, 57, 43);
-                                            border-radius: 3px; }""")
-            else:
-                self.lb_viol.setText('조회 불가')
-                self.lb_viol.setStyleSheet("""#lb_viol {
-                                            background-color: rgb(245, 245, 245);
-                                            font: 15px "웰컴체 Regular";
-                                            color: rgb(127, 140, 141);
-                                            padding-top: 2px;
-                                            border: 2px solid rgb(127, 140, 141);
-                                            border-radius: 3px; }""")
-
+########################################################################################################
 
 # 예외 오류 처리
 def my_exception_hook(exctype, value, traceback):
