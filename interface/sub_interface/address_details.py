@@ -273,7 +273,7 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
         if self.cbx_buildings.currentIndex() == 0: return
 
         self.cbx_rooms.clear()
-        self.cbx_rooms.addItem("(상세주소 / 호 선택")
+        self.cbx_rooms.addItem("( 상세주소 / 호 선택 )")
 
         self.loading(True)
         self.select_building = self.buildings.iloc[self.cbx_buildings.currentIndex() - 1]
@@ -449,9 +449,6 @@ def sorted_rooms_len(data):
             value = data[data['len'] == i].sort_values(by=['층번호', '호명칭'], axis=0)
             rooms.append(value)
         result = pd.concat(rooms, ignore_index=True)
-
-        print(result)
-
         return result
 
     except (ValueError, IndexError, TypeError) as e:

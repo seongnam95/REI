@@ -804,6 +804,7 @@ class Ui_BuildingInfo(object):
 "	background-color: rgb(240, 240, 240); \n"
 "}")
         self.detail_item_2.setAlignment(Qt.AlignCenter)
+        self.detail_item_2.setWordWrap(True)
 
         self.gridLayout_2.addWidget(self.detail_item_2, 1, 1, 2, 3)
 
@@ -952,6 +953,7 @@ class Ui_BuildingInfo(object):
 "	background-color: rgb(240, 240, 240); \n"
 "}")
         self.land_item_2.setAlignment(Qt.AlignCenter)
+        self.land_item_2.setWordWrap(True)
 
         self.gridLayout_4.addWidget(self.land_item_2, 1, 1, 2, 1)
 
@@ -994,6 +996,7 @@ class Ui_BuildingInfo(object):
 "	background-color: rgb(240, 240, 240); \n"
 "}")
         self.land_item_3.setAlignment(Qt.AlignCenter)
+        self.land_item_3.setWordWrap(True)
 
         self.gridLayout_4.addWidget(self.land_item_3, 3, 1, 2, 1)
 

@@ -1,9 +1,8 @@
-import sys
-from PyQt5.QtWidgets import *
-from PyQt5 import uic
-from PyQt5.QtGui import QIcon, QMovie
-from PyQt5.QtCore import QSize, Qt
 import pandas as pd
+from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtGui import QIcon, QMovie
+from PyQt5.QtWidgets import *
+
 import module.open_api_pars as f
 
 

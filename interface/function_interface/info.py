@@ -2,70 +2,76 @@ import sys
 import pandas as pd
 import module.open_api_pars as pars
 
-from PySide6.QtWidgets import QMainWindow, QApplication
-from PySide6.QtGui import QFontMetrics
-from PySide6.QtCore import QRect
-
+from PySide6.QtWidgets import QMainWindow, QApplication, QLabel, QGraphicsOpacityEffect
+from PySide6.QtGui import QFontMetrics, Qt
+from PySide6.QtCore import QRect, QObject, Signal, QEvent, QTimer, QPropertyAnimation
 from ui.main.ui_info import Ui_BuildingInfo
 from interface.sub_interface import address_details
 from module.open_api_pars import OpenApiRequest
 
 
 class BuildingInfo(QMainWindow, Ui_BuildingInfo):
-    def __init__(self, *args, **kwargs):
-        super(BuildingInfo, self).__init__(*args, **kwargs)
+    def __init__(self):
+        super(BuildingInfo, self).__init__()
 
         self.BULIDING_API_KEY = 'sfSPRX+xNEExRUqE4cdhNjBSk4uXIv8F1CfLen06hdPGn5cflLJqy/nxmh48uF8fvdGk68k6Z5jWsU1n6BeNPA=='
         self.VIOL_KEY = '68506e6c486a736e35377562445658'
 
-        self.activation, self.opened = False, False
+        self.activation, self.opened, self.first = False, False, False
         self.data_basic, self.data_basic_all = None, None
         self.base_list = []
 
-        self.get_building_thread = None
+        self.get_building_thread = None     # 토지, 지역지구, 공시지가 스레드
         self.binfo, self.address = None, None
         self.select_building, self.total_buildings = None, None
         self.detail, self.exact_detail = None, None  # 상세 (호, 층)
-        self.owners, self.prices = None, None  # 소유자, 공시가격
-        self.pk = None
+        self.owners, self.prices, self.pk = None, None, None  # 소유자, 공시가격, 건축물대장 PK
 
         self._init_ui()
-        self._init_interaction()
 
-        self.labels = {'소재지': self.base_item_1.setText,
-                       '도로명': self.base_item_2.setText,
-                       '상세주소': self.base_item_3.setText,
-                       '주용도': self.base_item_4.setText,
-                       '공급면적': self.base_item_5.setText,
-                       '승강기': self.base_item_6.setText,
-                       '주차장': self.base_item_7.setText,
-                       '전용면적': self.base_item_8.setText,
-                       '총층수': self.base_item_9.setText,
-                       '소유자': self.base_item_10.setText,
-                       '호가구세대': self.base_item_11.setText,
-                       '사용승인일': self.base_item_12.setText,
-                       '공시가격': self.base_item_13.setText}
-        self.labels_detail = {'주구조': self.detail_item_1.setText,
-                              '지역지구': self.detail_item_2.setText,
-                              '주용도': self.detail_item_3.setText,
-                              '대지면적': self.detail_item_4.setText,
-                              '건축면적': self.detail_item_5.setText,
-                              '건폐율': self.detail_item_6.setText,
-                              '연면적': self.detail_item_7.setText,
-                              '높이': self.detail_item_8.setText,
-                              '용적률': self.detail_item_9.setText}
-        self.labels_park = {'옥내자주식': self.park_item_1.setText,
-                            '옥내기계식': self.park_item_2.setText,
-                            '옥외자주식': self.park_item_3.setText,
-                            '옥외기계식': self.park_item_4.setText}
-        self.labels_land = {'공시지가': self.land_item_1.setText,
-                            '토지지역지구': self.land_item_2.setText,
-                            '토지기타지역지구': self.land_item_3.setText}
+        self.labels = {'소재지': self.base_item_1,
+                       '도로명': self.base_item_2,
+                       '상세주소': self.base_item_3,
+                       '주용도': self.base_item_4,
+                       '공급면적': self.base_item_5,
+                       '승강기': self.base_item_6,
+                       '주차장': self.base_item_7,
+                       '전용면적': self.base_item_8,
+                       '총층수': self.base_item_9,
+                       '소유자': self.base_item_10,
+                       '호가구세대': self.base_item_11,
+                       '사용승인일': self.base_item_12,
+                       '공시가격': self.base_item_13}
+        self.labels_detail = {'주구조': self.detail_item_1,
+                              '지역지구': self.detail_item_2,
+                              '주용도': self.detail_item_3,
+                              '대지면적': self.detail_item_4,
+                              '건축면적': self.detail_item_5,
+                              '건폐율': self.detail_item_6,
+                              '연면적': self.detail_item_7,
+                              '높이': self.detail_item_8,
+                              '용적률': self.detail_item_9}
+        self.labels_park = {'옥내자주식': self.park_item_1,
+                            '옥내기계식': self.park_item_2,
+                            '옥외자주식': self.park_item_3,
+                            '옥외기계식': self.park_item_4}
+        self.labels_land = {'공시지가': self.land_item_1,
+                            '토지지역지구': self.land_item_2,
+                            '토지기타지역지구': self.land_item_3}
+
+        self._init_interaction()
 
     # UI 세팅
     def _init_ui(self):
         self._setupUi(self)
-        self.font()
+
+        self.msg_background = QLabel(self)
+        self.msg_background.setAlignment(Qt.AlignCenter)
+        self.msg_background.setStyleSheet("QLabel{background-color: rgba(0,0,0,150);"
+                                          "font: 14px \uc6f0\ucef4\uccb4 Regular;"
+                                          "color: white;"
+                                          "padding-top: 3px;}")
+
         self.show()
 
     # 상호작용 세팅
@@ -76,15 +82,15 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.cbx_rooms.activated.connect(self.insert_room_info)
         self.btn_viol.clicked.connect(self.clicked_viol_btn)
 
-    # 타이틀바 라벨 위치 세팅
-    def title_bar_set(self):
-        title_x = (self.width() / 2) - (self.lb_title.width() / 2)
-        self.lb_title.move(title_x, self.lb_title.y())
+        for dic in [self.labels, self.labels_detail, self.labels_park, self.labels_land]:
+            for i in dic: mouse_double_clicked(dic[i]).connect(self.clicked_labels)
 
-        sub_title_x = (self.width() / 2) - (self.lb_sub_title.width() / 2)
-        self.lb_sub_title.move(sub_title_x, self.lb_sub_title.y())
+    ##### 시그널 이벤트
+    ########################################################################################################
 
-########################################################################################################
+    def clicked_labels(self, widget):
+
+        self.info_msg(1, "클립보드에 복사 되었습니다.\n( 단축키 Ctrl + V 로 붙혀넣기 가능)")
 
     # 소재지 찾기 에디트 클릭
     def clicked_address_edit(self, e=None):
@@ -101,15 +107,15 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             self.cbx_rooms.addItems(dialog.detail_list)
             self.cbx_rooms.setCurrentIndex(dialog.select_index)
 
-            self.activation = True
+            self.activation, self.first = True, True
             self.insert_base_info()
 
             if self.opened: self.clicked_details_btn()
 
     # 위반 조회 버튼
     def clicked_viol_btn(self, viol=None):
-        if self.lb_viol.text():
-            return
+        if self.lb_viol.text(): return
+
         if not self.cbx_rooms.currentText() == '( 상세주소 / 호 선택 )':
             # 집합일 경우
             if self.binfo['타입'] == '집합':
@@ -151,30 +157,17 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
     def clicked_details_btn(self):
         if not self.activation: return
 
-        # 상세정보가 활성화 된 경우
-        if self.opened:
-            self.setMinimumWidth(430)
-            self.setMaximumWidth(430)
-            self.btn_details.setText("상세정보  >")
-            self.opened = False
-
-        # 상세정보가 비활성화인 경우
-        else:
-            self.setMinimumWidth(840)
-            self.setMaximumWidth(840)
-            self.btn_details.setText("접 기  <")
-
-            self.get_building_thread = pars.DataRequestThread(self.binfo, self.BULIDING_API_KEY, ['토지', '지역지구', '공시지가'])
+        # 처음 열 경우 정보 불러오기
+        if self.first:
+            self.get_building_thread = pars.DataRequestThread(self.binfo, self.BULIDING_API_KEY, ['지역지구', '토지', '공시지가'])
             self.get_building_thread.start()
             self.get_building_thread.threadEvent.workerThreadDone.connect(self.insert_detail_info)
+            self.first = False
 
-            self.opened = True
+        self.resize_form(self.opened)
 
-        self.title_bar_set()
-        x = (self.width() - self.btn_details.width()) - 10
-        self.btn_details.move(x, self.btn_details.y())
-
-########################################################################################################
+    ##### 데이터 입력
+    ########################################################################################################
 
     # 기본 데이터 입력
     def insert_base_info(self):
@@ -198,18 +191,20 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
                           int(total['옥외자주식대수'].values[0]) + int(total['옥외기계식대수'].values[0])
 
         room_count = "%s 호 / %s 가구 / %s 세대" % (building['호수'], building['가구수'], building['세대수'])
-        day = "%s 년  %s 월  %s 일" % (building['사용승인일'][0:4], building['사용승인일'][4:6], building['사용승인일'][6:8])
+        day = "%s년 %s월 %s일" % (building['사용승인일'][0:4], building['사용승인일'][4:6], building['사용승인일'][6:8])
 
         base = {'소재지': old, '도로명': address['도로명주소'], '승강기': elevator, '주차장': str(parking) + " 대",
                 '총층수': layer, '호가구세대': str(room_count), '사용승인일': day}
 
         # 같은 키에 값 입력
         for i in base:
-            if i in self.labels: self.labels[i](base[i])
+            if i in self.labels: self.labels[i].setText(base[i])
         self.edt_address.setText(old)
 
     # 기본 데이터 룸/층별 입력
     def insert_room_info(self):
+        if not self.activation: return
+
         address = self.address
         room, public_area, room_area, detail, price, price_day = None, None, None, None, None, None
 
@@ -227,8 +222,8 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             try:
                 price = str("{:,}".format(int(self.prices['개별주택가격'])) + ' 원')
                 price_day = self.prices['공시일자'].values[0].split('-')
-                price_day = "%s년 %s월 %s일" % (price_day[0], price_day[1], price_day[2])
-                self.base_name_13.setText(f"공시가격 {price_day})")
+                price_day = "(%s년 %s월)" % (price_day[0], price_day[1])
+                self.base_name_13.setText(f"공시가격 {price_day}")
 
             except (ValueError, IndexError, TypeError):
                 price = "조회 결과 없음"
@@ -250,8 +245,8 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
                 prices = self.prices[self.prices['호명칭'] == detail['호명칭']]
                 price = str("{:,}".format(int(prices['공동주택가격'].values[0])) + ' 원')
                 price_day = prices['공시일자'].values[0].split('-')
-                price_day = "%s년 %s월 %s일" % (price_day[0], price_day[1], price_day[2])
-                self.base_name_13.setText(f"공시가격 {price_day})")
+                price_day = "(%s년 %s월)" % (price_day[0], price_day[1])
+                self.base_name_13.setText(f"공시가격 {price_day}")
 
             except (ValueError, IndexError, TypeError):
                 price = "조회 결과 없음"
@@ -277,10 +272,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         # 같은 키에 값 입력
         for i in base:
             if i in self.labels:
-                self.labels[i](base[i])
-
-        # print(self.owners)
-        # print(self.prices)
+                self.labels[i].setText(base[i])
 
         # old_width = self.base_item_1.fontMetrics().boundingRect(self.base_item_1.text()).width()
         # new_width = self.base_item_2.fontMetrics().boundingRect(self.base_item_2.text()).width()
@@ -290,7 +282,6 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
     # 상세 정보 로드
     def insert_detail_info(self, val):
         building = self.select_building
-        land = val[0], jiji = val[1], price = val[2]
 
         in_land = int(building['옥내자주식대수'])
         in_mechanical = int(building['옥내기계식대수'])
@@ -299,8 +290,8 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         out_mechanical = int(building['옥외기계식대수'])
 
         # 용도지역지구
-        if val[1] is None: jiji = '조회 결과 없음'
-        else: jiji = ', '.join(val[1]['용도지역지구명'])
+        if val[0] is None: jiji = '조회 결과 없음'
+        else: jiji = ', '.join(val[0]['기타지역지구구역'])
 
         # 총괄 표제부 주차장
         if self.total_buildings is not None:
@@ -313,18 +304,21 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             out_mechanical += int(total['옥외기계식대수'])
 
         # 토지 이용
-        if land is None:
+        if val[1] is None:
             land_jj = '조회 결과 없음'
             land_etc = '조회 결과 없음'
 
         else:
             land_jj, land_etc = [], []
-            for i in land.prposAreaDstrcCodeNm:
+            for i in val[1]['용도지역지구명']:
                 if (i[-2:] == '지구') or (i[-2:] == '지역'): land_jj.append(i)
                 else: land_etc.append(i)
 
-            land_jj = ', '.join(land_jiji)
-            land_etc = ', '.join(etc)
+            land_jj = ', '.join(land_jj)
+            land_etc = ', '.join(land_etc)
+
+        if val[0] is None: price = "조회 결과 없음"
+        else: price = str("{:,}".format(int(val[2]['공시지가'])) + ' 원')
 
         base = {'주구조': building['주구조'], '지역지구': jiji,'주용도': building['주용도'],
                 '대지면적': building['대지면적'] + ' ㎡', '건축면적': building['건축면적'] + ' ㎡', '건폐율': building['건폐율'] + ' %',
@@ -335,11 +329,105 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
         for i in base:
             if i in self.labels_detail:
-                self.labels_detail[i](base[i])
+                self.labels_detail[i].setText(base[i])
             if i in self.labels_park:
-                self.labels_park[i](base[i])
+                self.labels_park[i].setText(base[i])
+            if i in self.labels_land:
+                self.labels_land[i].setText(base[i])
 
-########################################################################################################
+    ##### UI 세팅
+    ########################################################################################################
+
+    # 타이틀바 라벨 위치 세팅
+    def resize_title_bar(self):
+        title_x = (self.width() / 2) - (self.lb_title.width() / 2)
+        self.lb_title.move(title_x, self.lb_title.y())
+
+        sub_title_x = (self.width() / 2) - (self.lb_sub_title.width() / 2)
+        self.lb_sub_title.move(sub_title_x, self.lb_sub_title.y())
+
+    # 폼 사이즈 변경
+    def resize_form(self, opened):
+        if opened:  # 열려있을 경우
+            self.setMinimumWidth(430)   # 닫기
+            self.setMaximumWidth(430)
+            self.btn_details.setText("상세정보  >")
+            self.opened = False
+        else:
+            self.setMinimumWidth(840)   # 열기
+            self.setMaximumWidth(840)
+            self.btn_details.setText("접 기  <")
+            self.opened = True
+
+        self.resize_title_bar()
+        x = (self.width() - self.btn_details.width()) - 10
+        self.btn_details.move(x, self.btn_details.y())
+
+    def info_msg(self, sec, content):
+        print('진입')
+        self.msg_background.setText(content)
+        font_size = self.msg_background.fontMetrics().boundingRect(content)
+
+        if '\n' in content:
+            line_width = []
+            for i in content.split('\n'):
+                line_width.append(self.msg_background.fontMetrics().boundingRect(i).width())
+            w = max(line_width)
+        else: w = font_size.width()
+
+        h = font_size.height() * (content.count('\n') + 1)
+        self.msg_background.resize(w + 20, h + 14)
+
+        x = round((self.width() / 2) - (self.msg_background.width() / 2))
+        y = round((self.height() / 2) - (self.msg_background.height() / 2))
+
+        self.msg_background.move(x, y)
+
+        effect = QGraphicsOpacityEffect(self.msg_background)
+        self.msg_background.setGraphicsEffect(effect)
+
+        self.anim = QPropertyAnimation(effect, b"opacity")
+        self.anim.setStartValue(0)
+        self.anim.setEndValue(1)
+        self.anim.setDuration(100)
+        self.anim.start()
+
+        self.timer = QTimer(self)
+        self.timer.start(sec * 1000)
+        self.timer.timeout.connect(self.hide_msg)
+
+    def hide_msg(self):
+        print('타이머')
+        effect = QGraphicsOpacityEffect(self.msg_background)
+        self.msg_background.setGraphicsEffect(effect)
+
+        self.anim = QPropertyAnimation(effect, b"opacity")
+        self.anim.setStartValue(1)
+        self.anim.setEndValue(0)
+        self.anim.setDuration(500)
+        self.anim.start()
+
+
+        self.timer.stop()
+
+
+def mouse_double_clicked(widget):
+    class Filter(QObject):
+        clicked = Signal(QObject)
+
+        def eventFilter(self, obj, event):
+            if obj == widget:
+                if event.type() == QEvent.MouseButtonDblClick:
+                    if obj.rect().contains(event.position().toPoint()):
+                        self.clicked.emit(widget)
+                        return True
+            return False
+
+    evt_filter = Filter(widget)
+    widget.installEventFilter(evt_filter)
+    return evt_filter.clicked
+    ########################################################################################################
+
 
 # 예외 오류 처리
 def my_exception_hook(exctype, value, traceback):
