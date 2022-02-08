@@ -26,8 +26,13 @@ class Ui_BuildingInfo(object):
         BuildingInfo.resize(430, 760)
         BuildingInfo.setMinimumSize(QSize(430, 760))
         BuildingInfo.setMaximumSize(QSize(430, 760))
-        BuildingInfo.setStyleSheet(u"QWidget {\n"
+        BuildingInfo.setStyleSheet(u"#BuildingInfo {\n"
 "	background-color: white;\n"
+"}\n"
+"\n"
+"QLabel {\n"
+"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	color: rgb(127, 140, 141);\n"
 "}")
         self.cbx_rooms = QComboBox(BuildingInfo)
         self.cbx_rooms.addItem("")
@@ -114,10 +119,7 @@ class Ui_BuildingInfo(object):
         self.lb_sub_title_2 = QLabel(BuildingInfo)
         self.lb_sub_title_2.setObjectName(u"lb_sub_title_2")
         self.lb_sub_title_2.setGeometry(QRect(25, 225, 91, 16))
-        self.lb_sub_title_2.setStyleSheet(u"QLabel {\n"
-"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: rgb(127, 140, 141);\n"
-"}")
+        self.lb_sub_title_2.setStyleSheet(u"")
         self.edt_address = QLineEdit(BuildingInfo)
         self.edt_address.setObjectName(u"edt_address")
         self.edt_address.setEnabled(True)
@@ -128,6 +130,7 @@ class Ui_BuildingInfo(object):
 "	border: 2px solid #34495e;\n"
 "	padding-top: 3px;\n"
 "	padding-left: 10px;\n"
+"	padding-right: 70px;\n"
 "}\n"
 "\n"
 "QLineEdit::hover {\n"
@@ -142,10 +145,7 @@ class Ui_BuildingInfo(object):
         self.lb_sub_title_1 = QLabel(BuildingInfo)
         self.lb_sub_title_1.setObjectName(u"lb_sub_title_1")
         self.lb_sub_title_1.setGeometry(QRect(25, 87, 91, 16))
-        self.lb_sub_title_1.setStyleSheet(u"QLabel {\n"
-"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: rgb(127, 140, 141);\n"
-"}")
+        self.lb_sub_title_1.setStyleSheet(u"")
         self.line_sub_title_1 = QFrame(BuildingInfo)
         self.line_sub_title_1.setObjectName(u"line_sub_title_1")
         self.line_sub_title_1.setGeometry(QRect(20, 97, 391, 20))
@@ -164,17 +164,11 @@ class Ui_BuildingInfo(object):
         self.lb_sub_title_3 = QLabel(BuildingInfo)
         self.lb_sub_title_3.setObjectName(u"lb_sub_title_3")
         self.lb_sub_title_3.setGeometry(QRect(445, 87, 91, 16))
-        self.lb_sub_title_3.setStyleSheet(u"QLabel {\n"
-"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: rgb(127, 140, 141);\n"
-"}")
+        self.lb_sub_title_3.setStyleSheet(u"")
         self.lb_sub_title_4 = QLabel(BuildingInfo)
         self.lb_sub_title_4.setObjectName(u"lb_sub_title_4")
         self.lb_sub_title_4.setGeometry(QRect(445, 361, 91, 16))
-        self.lb_sub_title_4.setStyleSheet(u"QLabel {\n"
-"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: rgb(127, 140, 141);\n"
-"}")
+        self.lb_sub_title_4.setStyleSheet(u"")
         self.line_sub_title_4 = QFrame(BuildingInfo)
         self.line_sub_title_4.setObjectName(u"line_sub_title_4")
         self.line_sub_title_4.setGeometry(QRect(440, 371, 381, 20))
@@ -188,14 +182,11 @@ class Ui_BuildingInfo(object):
         self.lb_sub_title_5 = QLabel(BuildingInfo)
         self.lb_sub_title_5.setObjectName(u"lb_sub_title_5")
         self.lb_sub_title_5.setGeometry(QRect(445, 478, 91, 16))
-        self.lb_sub_title_5.setStyleSheet(u"QLabel {\n"
-"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: rgb(127, 140, 141);\n"
-"}")
+        self.lb_sub_title_5.setStyleSheet(u"")
         self.lb_hint_2 = QLabel(BuildingInfo)
         self.lb_hint_2.setObjectName(u"lb_hint_2")
         self.lb_hint_2.setGeometry(QRect(20, 607, 391, 61))
-        self.lb_hint_2.setStyleSheet(u"QLabel {\n"
+        self.lb_hint_2.setStyleSheet(u"#lb_hint_2 {\n"
 "	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	padding-top: 3px;\n"
 "	background-color: rgba(0, 0, 0, 50);\n"
@@ -205,7 +196,7 @@ class Ui_BuildingInfo(object):
         self.top_bar = QWidget(BuildingInfo)
         self.top_bar.setObjectName(u"top_bar")
         self.top_bar.setGeometry(QRect(0, 0, 840, 61))
-        self.top_bar.setStyleSheet(u"QWidget {\n"
+        self.top_bar.setStyleSheet(u"#top_bar {\n"
 "	background-color: rgb(245, 245, 245);\n"
 "	border-bottom: 1px solid;\n"
 "	border-top: 1px solid;\n"
@@ -214,7 +205,7 @@ class Ui_BuildingInfo(object):
         self.lb_title = QLabel(self.top_bar)
         self.lb_title.setObjectName(u"lb_title")
         self.lb_title.setGeometry(QRect(112, 4, 211, 30))
-        self.lb_title.setStyleSheet(u"QLabel{\n"
+        self.lb_title.setStyleSheet(u"#lb_title {\n"
 "	background-color: rgb(245, 245, 245);\n"
 "	font: 25px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	color: rgba(0, 0, 0, 120);\n"
@@ -226,7 +217,7 @@ class Ui_BuildingInfo(object):
         self.lb_sub_title = QLabel(self.top_bar)
         self.lb_sub_title.setObjectName(u"lb_sub_title")
         self.lb_sub_title.setGeometry(QRect(122, 29, 190, 25))
-        self.lb_sub_title.setStyleSheet(u"QLabel{\n"
+        self.lb_sub_title.setStyleSheet(u"#lb_sub_title {\n"
 "	background-color: rgb(245, 245, 245);\n"
 "	font: 15px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	color: rgba(0, 0, 0, 120);\n"
@@ -248,7 +239,7 @@ class Ui_BuildingInfo(object):
         self.btn_viol = QPushButton(self.bot_bar)
         self.btn_viol.setObjectName(u"btn_viol")
         self.btn_viol.setGeometry(QRect(20, 20, 141, 31))
-        self.btn_viol.setStyleSheet(u"QPushButton {\n"
+        self.btn_viol.setStyleSheet(u"#btn_viol {\n"
 "	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	color: white;\n"
 "	border: 0px;\n"
@@ -257,13 +248,13 @@ class Ui_BuildingInfo(object):
 "	border-radius: 15px;\n"
 "}\n"
 "\n"
-"QPushButton::hover {\n"
+"#btn_viol::hover {\n"
 "	border: 0px;\n"
 "	background-color: rgb(104,122,140);\n"
 "	border-style: inset;\n"
 "}\n"
 "\n"
-"QPushButton:pressed {\n"
+"#btn_viol:pressed {\n"
 "	border: 0px;\n"
 "	background-color: rgb(64,82,100);\n"
 "	border-style: inset;\n"
@@ -276,7 +267,7 @@ class Ui_BuildingInfo(object):
         self.btn_details = QPushButton(self.bot_bar)
         self.btn_details.setObjectName(u"btn_details")
         self.btn_details.setGeometry(QRect(340, 20, 81, 31))
-        self.btn_details.setStyleSheet(u"QPushButton {\n"
+        self.btn_details.setStyleSheet(u"#btn_details {\n"
 "	font: 15px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	color: rgb(125, 125, 125);\n"
 "	border: none;\n"
@@ -285,14 +276,14 @@ class Ui_BuildingInfo(object):
 "	border-radius: 20px;\n"
 "}\n"
 "\n"
-"QPushButton::hover {\n"
+"#btn_details::hover {\n"
 "	padding-left: 1px;\n"
 "	padding-top: 1px;\n"
 "	color: rgb(155, 155, 155);\n"
 "	border-style: inset;\n"
 "}\n"
 "\n"
-"QPushButton:pressed {\n"
+"#btn_details:pressed {\n"
 "	color: rgb(125, 125, 125);\n"
 "	border-style: inset;\n"
 "}\n"
@@ -1012,11 +1003,16 @@ class Ui_BuildingInfo(object):
         self.lb_hint_3 = QLabel(BuildingInfo)
         self.lb_hint_3.setObjectName(u"lb_hint_3")
         self.lb_hint_3.setGeometry(QRect(150, 225, 261, 16))
-        self.lb_hint_3.setStyleSheet(u"QLabel {\n"
-"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: rgb(127, 140, 141);\n"
-"}")
+        self.lb_hint_3.setStyleSheet(u"")
         self.lb_hint_3.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.btn_search = QPushButton(BuildingInfo)
+        self.btn_search.setObjectName(u"btn_search")
+        self.btn_search.setGeometry(QRect(359, 119, 50, 41))
+        self.btn_search.setStyleSheet(u"#btn_search {\n"
+"	background-color: white;\n"
+"	padding-top: 3px;\n"
+"	border: none;\n"
+"}")
         self.widget_3.raise_()
         self.line_sub_title_5.raise_()
         self.lb_detail_name_2.raise_()
@@ -1038,6 +1034,7 @@ class Ui_BuildingInfo(object):
         self.line_sub_title_2.raise_()
         self.lb_hint_3.raise_()
         self.lb_sub_title_2.raise_()
+        self.btn_search.raise_()
         QWidget.setTabOrder(self.edt_address, self.cbx_rooms)
         QWidget.setTabOrder(self.cbx_rooms, self.btn_viol)
         QWidget.setTabOrder(self.btn_viol, self.btn_details)
@@ -1119,11 +1116,12 @@ class Ui_BuildingInfo(object):
         self.park_name_2.setText(QCoreApplication.translate("BuildingInfo", u"\uc625\ub0b4\uae30\uacc4\uc2dd", None))
         self.land_item_2.setText("")
         self.land_name_2.setText(QCoreApplication.translate("BuildingInfo", u"\uc9c0\uc5ed\u318d\uc9c0\uad6c", None))
-        self.land_name_1.setText(QCoreApplication.translate("BuildingInfo", u"\uacf5\uc2dc\uc9c0\uac00", None))
+        self.land_name_1.setText(QCoreApplication.translate("BuildingInfo", u"\uac1c\ubcc4\uacf5\uc2dc\uc9c0\uac00", None))
         self.land_item_1.setText("")
         self.land_item_3.setText("")
         self.land_name_3.setText(QCoreApplication.translate("BuildingInfo", u" \uae30 \ud0c0 \n"
 " \uc9c0\uc5ed\u318d\uc9c0\uad6c", None))
         self.lb_hint_3.setText(QCoreApplication.translate("BuildingInfo", u"* \ud56d\ubaa9 \ub354\ube14 \ud074\ub9ad \uc2dc \ub0b4\uc6a9\uc774 \ud074\ub9bd\ubcf4\ub4dc\uc5d0 \ubcf5\uc0ac \ub429\ub2c8\ub2e4.", None))
+        self.btn_search.setText("")
     # retranslateUi
 

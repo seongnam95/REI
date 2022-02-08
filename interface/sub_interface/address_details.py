@@ -3,11 +3,12 @@ import sys
 import pandas as pd
 import module.open_api_pars as pars
 
-from PySide6.QtGui import QMovie
-from PySide6.QtWidgets import QDialog, QLabel, QListWidgetItem, QMessageBox, QWidget, QGridLayout, QApplication
-from PySide6.QtCore import Qt
+from PySide6.QtGui import QMovie, QIcon
+from PySide6.QtWidgets import QDialog, QLabel, QListWidgetItem, QMessageBox, QWidget, \
+    QGridLayout, QApplication, QGraphicsOpacityEffect
+from PySide6.QtCore import Qt, QPropertyAnimation, QTimer, QSize
 
-from ui.dialog.ui_address_detail import Ui_Address_Detaile
+from ui.dialog.ui_address import Ui_FindAddress
 
 
 class MsgContext:
@@ -16,13 +17,14 @@ class MsgContext:
     failed_to_search = "조회되지 않는 건물입니다. \n\n(신축 건물 또는 건축물대장에 등재되지 않은 건물은 \n조회되지 않을 수 있습니다.)"
     network_err = "데이터 서버가 원할하지 않습니다. \n불편을 드려 죄송합니다. 잠시 후 다시 시도해주세요.\n\n( 에러코드 : %s )"
     loading_msg = "건축물대장 정보를 불러오는 중입니다.\n통신 서버 및 네트워크 상태에 따라\n지연 될 수 있습니다."
+    failed_in_search = "정보를 불러오는 중 에러가 발생했습니다. 관리자에게 문의해주세요."
 
 
-class AddressDetails(QDialog, Ui_Address_Detaile):
+class AddressDetails(QDialog, Ui_FindAddress):
     def __init__(self, call_type, content=None):
         super().__init__()
 
-        self.setupUi(self)
+        self._setupUi(self)
 
         # 데이터 호출출
         # 0: 기본 데이터만 호출, 1: 모든 데이터 호출
@@ -41,8 +43,9 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
         self.owners, self.prices = None, None   # 소유자, 공시가격
         self.get_building_thread, self.get_rooms_thread, self.get_layers_thread = None, None, None
         self.select_index, self.result = None, False
-
         self.detail_list = []
+
+        self.msg_timer = False
 
         self._init_ui()
         self._init_interaction()
@@ -55,6 +58,18 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
     def _init_ui(self):
         self.setWindowTitle("Real estate Information")
         self.edt_address.setFocus()
+        
+        # 메세지
+        self.msg_background = QLabel(self)
+        self.msg_background.setAlignment(Qt.AlignCenter)
+        self.msg_background.setStyleSheet("QLabel{background-color: rgba(0,0,0,150);"
+                                          "font: 14px \uc6f0\ucef4\uccb4 Regular;"
+                                          "color: white;"
+                                          "padding-top: 3px;}")
+        self.msg_background.hide()
+
+        self.btn_search.setIcon(QIcon('../../data/img/button/search_icon.png'))
+        self.btn_search.setIconSize(QSize(30, 30))
 
         # 로딩 구성
         self.movie = QMovie("../../data/img/animation/loading.gif")
@@ -63,7 +78,7 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
         self.lb_back_txt = QLabel(self)
 
         self.lb_back.hide()
-        self.lb_back.setGeometry(10, 137, 441, 360)
+        self.lb_back.setGeometry(0, 61, 461, 469)
         self.lb_back.setStyleSheet("QLabel{background-color: rgba(0,0,0,40);}")
 
         self.lb_loading.resize(70, 100)
@@ -93,6 +108,7 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
         self.cbx_buildings.activated.connect(self.select_building_event)
         self.cbx_rooms.activated.connect(self.select_room_event)
         self.edt_address.returnPressed.connect(self.get_address_request)
+        self.btn_search.clicked.connect(self.get_address_request)
         self.list_address.itemDoubleClicked.connect(self.select_address_event)
         self.btn_input.clicked.connect(self.address_input_event)
         self.ckb_part.clicked.connect(self.part_check_event)
@@ -109,10 +125,10 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
         self.address = pars.OpenApiRequest.get_address(self.ADDRESS_API_KEY, txt)
 
         # 주소 불러온 다음
-        self.lb_notfind.hide()
-        if self.address is None: self.lb_notfind.show(); return
-        if self.address.empty: self.lb_notfind.show(); return
+        if self.address is None: self.info_msg(1, "검색 결과가 없습니다."); return
+        if self.address.empty: self.info_msg(1, "검색 결과가 없습니다."); return
 
+        self.lb_hint_2.hide()
         # 불러온 주소 리스트에 추가
         for i in range(len(self.address)):
             result = self.address.iloc[i]
@@ -134,7 +150,7 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
         self.loading(False)
 
         if val[0] is None: 
-            self.msg("정보", MsgContext.failed_to_search)
+            self.msg("정보", MsgContext.failed_in_search)
             return
         
         buildings = val[0][val[0]['주부속구분'] == '주건축물']
@@ -200,8 +216,12 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
 
     # 집합건물(호) 콤보박스 추가
     def add_room_list(self, val):
+        if val[0] is None:
+            self.msg('정보', MsgContext.failed_in_search)
+            return
+
         if self.call_type == 1:
-            self.owners = val[1]
+            if val[1] is not None: self.owners = val[1]
             if val[2] is not None: self.prices = val[2]
 
         self.detail = val[0]
@@ -221,8 +241,12 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
 
     # 일반건물(층) 콤보박스 추가
     def add_layer_list(self, val):
+        if val[0] is None:
+            self.msg("정보", MsgContext.failed_in_search)
+            return
+
         if self.call_type == 1:
-            self.owners = val[1]
+            if val[1] is not None: self.owners = val[1]
             if val[2] is not None: self.prices = val[2]
 
         self.detail = sort_value_layer(val[0])
@@ -289,7 +313,7 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
 
         # 건물 타입이 집합일 경우
         if self.binfo['타입'] == '집합':
-            if len(self.buildings) > 5: self.binfo['동명칭'] = self.select_building['동명칭']
+            if len(self.buildings) > 1: self.binfo['동명칭'] = self.select_building['동명칭']
             if self.call_type == 0: self.get_building_thread = pars.DataRequestThread(self.binfo, self.BULIDING_API_KEY, ['전유부'])
             if self.call_type == 1: self.get_building_thread = pars.DataRequestThread(self.binfo, self.BULIDING_API_KEY, ['전유부', '소유자', '공동주택가격'])
             self.get_building_thread.start()
@@ -393,6 +417,61 @@ class AddressDetails(QDialog, Ui_Address_Detaile):
                 (event.modifiers() == Qt.KeypadModifier)):
             event.accept()
         else: super(AddressDetails, self).keyPressEvent(event)
+        
+    # 알림 메세지
+    def info_msg(self, sec, content):
+        if self.msg_background.isHidden():
+            self.msg_background.show()
+
+        if self.msg_timer:
+            self.timer.stop()
+            self.msg_timer = False
+
+        self.msg_timer = True
+        self.msg_background.setText(content)
+        font_size = self.msg_background.fontMetrics().boundingRect(content)
+
+        if '\n' in content:
+            line_width = []
+            for i in content.split('\n'):
+                line_width.append(self.msg_background.fontMetrics().boundingRect(i).width())
+            w = max(line_width)
+        else: w = font_size.width()
+
+        h = font_size.height() * (content.count('\n') + 1)
+        self.msg_background.resize(w + 20, h + 14)
+
+        x = round((self.width() / 2) - (self.msg_background.width() / 2))
+        y = round((self.height() / 2) - (self.msg_background.height() / 2)) - 90
+
+        self.msg_background.move(x, y)
+
+        effect = QGraphicsOpacityEffect(self.msg_background)
+        self.msg_background.setGraphicsEffect(effect)
+
+        self.anim = QPropertyAnimation(effect, b"opacity")
+        self.anim.setStartValue(0)
+        self.anim.setEndValue(1)
+        self.anim.setDuration(100)
+        self.anim.start()
+
+        self.timer = QTimer(self)
+        self.timer.start(sec * 1300)
+        self.timer.timeout.connect(self.hide_msg)
+
+    # 메세지 타이머 종료
+    def hide_msg(self):
+        effect = QGraphicsOpacityEffect(self.msg_background)
+        self.msg_background.setGraphicsEffect(effect)
+
+        self.anim = QPropertyAnimation(effect, b"opacity")
+        self.anim.setStartValue(1)
+        self.anim.setEndValue(0)
+        self.anim.setDuration(500)
+        self.anim.start()
+
+        self.timer.stop()
+        self.msg_timer = False
 
     ########################################################################################################
 
@@ -449,6 +528,11 @@ def sorted_rooms_len(data):
             value = data[data['len'] == i].sort_values(by=['층번호', '호명칭'], axis=0)
             rooms.append(value)
         result = pd.concat(rooms, ignore_index=True)
+
+        low = result[result['층구분'] == '지하']
+        top = result[result['층구분'] == '지상']
+
+        result = pd.concat([low, top])
         return result
 
     except (ValueError, IndexError, TypeError) as e:

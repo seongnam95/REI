@@ -1,10 +1,11 @@
 import sys
 import pandas as pd
+import clipboard as clip
 import module.open_api_pars as pars
 
 from PySide6.QtWidgets import QMainWindow, QApplication, QLabel, QGraphicsOpacityEffect
-from PySide6.QtGui import QFontMetrics, Qt
-from PySide6.QtCore import QRect, QObject, Signal, QEvent, QTimer, QPropertyAnimation
+from PySide6.QtGui import QFontMetrics, Qt, QIcon
+from PySide6.QtCore import QRect, QObject, Signal, QEvent, QTimer, QPropertyAnimation, QSize
 from ui.main.ui_info import Ui_BuildingInfo
 from interface.sub_interface import address_details
 from module.open_api_pars import OpenApiRequest
@@ -17,7 +18,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.BULIDING_API_KEY = 'sfSPRX+xNEExRUqE4cdhNjBSk4uXIv8F1CfLen06hdPGn5cflLJqy/nxmh48uF8fvdGk68k6Z5jWsU1n6BeNPA=='
         self.VIOL_KEY = '68506e6c486a736e35377562445658'
 
-        self.activation, self.opened, self.first = False, False, False
+        self.activation, self.opened, self.first, self.msg_timer = False, False, False, False
         self.data_basic, self.data_basic_all = None, None
         self.base_list = []
 
@@ -65,12 +66,16 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
     def _init_ui(self):
         self._setupUi(self)
 
+        self.btn_search.setIcon(QIcon('../../data/img/button/search_icon.png'))
+        self.btn_search.setIconSize(QSize(30, 30))
+
         self.msg_background = QLabel(self)
         self.msg_background.setAlignment(Qt.AlignCenter)
         self.msg_background.setStyleSheet("QLabel{background-color: rgba(0,0,0,150);"
                                           "font: 14px \uc6f0\ucef4\uccb4 Regular;"
                                           "color: white;"
                                           "padding-top: 3px;}")
+        self.msg_background.hide()
 
         self.show()
 
@@ -78,6 +83,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
     def _init_interaction(self):
         self.edt_address.mousePressEvent = self.clicked_address_edit
         self.edt_address.returnPressed.connect(self.clicked_address_edit)
+        self.btn_search.clicked.connect(self.clicked_address_edit)
         self.btn_details.clicked.connect(self.clicked_details_btn)
         self.cbx_rooms.activated.connect(self.insert_room_info)
         self.btn_viol.clicked.connect(self.clicked_viol_btn)
@@ -88,9 +94,12 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
     ##### 시그널 이벤트
     ########################################################################################################
 
+    # 항목 클립보드에 복사
     def clicked_labels(self, widget):
-
-        self.info_msg(1, "클립보드에 복사 되었습니다.\n( 단축키 Ctrl + V 로 붙혀넣기 가능)")
+        item_text = widget.text().rstrip(' ㎡').rstrip(' %').rstrip(' 대')
+        if item_text != '':
+            clip.copy(item_text)
+            self.info_msg(1, "클립보드에 복사 되었습니다.\n( 단축키 Ctrl + V 로 붙혀넣기 가능)")
 
     # 소재지 찾기 에디트 클릭
     def clicked_address_edit(self, e=None):
@@ -274,11 +283,6 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             if i in self.labels:
                 self.labels[i].setText(base[i])
 
-        # old_width = self.base_item_1.fontMetrics().boundingRect(self.base_item_1.text()).width()
-        # new_width = self.base_item_2.fontMetrics().boundingRect(self.base_item_2.text()).width()
-        #
-        # print(old_width, new_width)
-
     # 상세 정보 로드
     def insert_detail_info(self, val):
         building = self.select_building
@@ -317,8 +321,8 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             land_jj = ', '.join(land_jj)
             land_etc = ', '.join(land_etc)
 
-        if val[0] is None: price = "조회 결과 없음"
-        else: price = str("{:,}".format(int(val[2]['공시지가'])) + ' 원')
+        if val[2] is None: price = "조회 결과 없음"
+        else: price = str("{:,}".format(int(val[2]['공시지가'])) + ' 원 (㎡당 기준')
 
         base = {'주구조': building['주구조'], '지역지구': jiji,'주용도': building['주용도'],
                 '대지면적': building['대지면적'] + ' ㎡', '건축면적': building['건축면적'] + ' ㎡', '건폐율': building['건폐율'] + ' %',
@@ -363,8 +367,16 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         x = (self.width() - self.btn_details.width()) - 10
         self.btn_details.move(x, self.btn_details.y())
 
+    # 알림 메세지
     def info_msg(self, sec, content):
-        print('진입')
+        if self.msg_background.isHidden():
+            self.msg_background.show()
+
+        if self.msg_timer:
+            self.timer.stop()
+            self.msg_timer = False
+
+        self.msg_timer = True
         self.msg_background.setText(content)
         font_size = self.msg_background.fontMetrics().boundingRect(content)
 
@@ -393,11 +405,11 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.anim.start()
 
         self.timer = QTimer(self)
-        self.timer.start(sec * 1000)
+        self.timer.start(sec * 1300)
         self.timer.timeout.connect(self.hide_msg)
 
+    # 메세지 타이머 종료
     def hide_msg(self):
-        print('타이머')
         effect = QGraphicsOpacityEffect(self.msg_background)
         self.msg_background.setGraphicsEffect(effect)
 
@@ -407,8 +419,8 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.anim.setDuration(500)
         self.anim.start()
 
-
         self.timer.stop()
+        self.msg_timer = False
 
 
 def mouse_double_clicked(widget):
