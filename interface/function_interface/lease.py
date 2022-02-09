@@ -4,13 +4,13 @@ import csv
 import pandas as pd
 
 from PySide6.QtWidgets import QApplication, QMainWindow, QButtonGroup, QWidget, QLabel, QLineEdit, QComboBox, \
-    QListWidgetItem, QMenu
-from PySide6.QtCore import QPropertyAnimation, Qt, QSize, QRegularExpression, QRect, QSize, QEvent
+    QListWidgetItem, QMenu, QGraphicsOpacityEffect
+from PySide6.QtCore import QPropertyAnimation, Qt, QSize, QRegularExpression, QRect, QEvent, QTimer
 from PySide6.QtGui import QIcon, QRegularExpressionValidator, QPixmap
 from urllib3.connectionpool import xrange
 
 from ui.main.ui_lease import Ui_MainWindow
-from interface.sub_interface import address_details, address, agr_edit
+from interface.sub_interface import address_details
 
 
 class MainLease(QMainWindow, Ui_MainWindow):
@@ -24,14 +24,20 @@ class MainLease(QMainWindow, Ui_MainWindow):
         self._init_ui()
         self._init_interaction()
 
-        self.a_count, self.b_count, self.c_count = 0, 0, 0
-        self.page, self.sales, self.address = 0, None, None
-        self.select_address, self.select_building, self.select_room = None, None, None
-        self.part_list = [self.part_0, self.part_1, self.part_2]
+        self.get_building_thread = None     # 토지, 지역지구, 공시지가 스레드
+        self.binfo, self.address = None, None   # 주소
+        self.select_detail, self.select_building, self.total_buildings = None, None, None    # 표제부, 총괄 표제부
+        self.owners, self.prices, self.pk = None, None, None  # 소유자, 공시가격, 건축물대장 PK
 
-        self.hide_move_frame, self.hide_opacity_frame, self.hide_animation_group = None, None, None
-        self.show_move_frame, self.show_opacity_frame, self.show_animation_group = None, None, None
-        self.show_animation_actived, self.hide_animation_actived = False, False
+        self.page, self.contract = None, None  # 페이지, 계약 종류
+        self.a_count, self.b_count, self.c_count = 0, 0, 0  # 계약자 카운트
+        self.part_list = [self.part_0, self.part_1, self.part_2]
+        self.contract_btn = {self.btn_contract_0: 0,
+                             self.btn_contract_1: 1,
+                             self.btn_contract_2: 2,
+                             self.btn_contract_3: 3}
+
+        self.msg_timer = False
 
         self.btn_contract_0.click()
         self.btn_provisions.hide()
@@ -56,7 +62,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
         self.btn_group.addButton(self.btn_contract_1)
         self.btn_group.addButton(self.btn_contract_2)
         self.btn_group.addButton(self.btn_contract_3)
-        self.btn_group.buttonClicked.connect(self.clicked_current_btn)
+        self.btn_group.buttonClicked.connect(self.clicked_contract_btn)
 
         # 콤보박스 아이템 추가
         self.cbx_contract.addItems(str_list.contract_list)
@@ -85,6 +91,14 @@ class MainLease(QMainWindow, Ui_MainWindow):
         self.btn_balance_cal.setIconSize(QSize(22, 22))
         self.lb_icon.setStyleSheet("QLabel { image: url(../../data/img/system/down_arrow_icon.png);}")
 
+        # 메세지
+        self.msg_background = QLabel(self)
+        self.msg_background.setAlignment(Qt.AlignCenter)
+        self.msg_background.setStyleSheet("QLabel{background-color: rgba(0,0,0,150);"
+                                          "font: 14px \uc6f0\ucef4\uccb4 Regular;"
+                                          "color: white;"
+                                          "padding-top: 3px;}")
+        self.msg_background.hide()
         self.load_keyword()
 
     # 상호작용 init
@@ -94,10 +108,13 @@ class MainLease(QMainWindow, Ui_MainWindow):
         # self.edt_c_company.mousePressEvent = self.find_company_event
 
         # 텍스트 체인지 이벤트
-        self.edt_amount.textChanged.connect(lambda: self.translation_into_kor("amount"))
+        self.edt_amount.textChanged.connect(self.changed_amount_edit)
+        self.edt_mid_pay_1st.textChanged.connect(self.insert_balance_edt)
         self.edt_mid_pay_1st.textChanged.connect(lambda: self.translation_into_kor("1st"))
+        self.edt_mid_pay_2st.textChanged.connect(self.insert_balance_edt)
         self.edt_mid_pay_2st.textChanged.connect(lambda: self.translation_into_kor("2st"))
         self.edt_balance_pay.textChanged.connect(lambda: self.translation_into_kor("balance"))
+        self.edt_down_pay.textChanged.connect(self.insert_balance_edt)
         self.edt_down_pay.textChanged.connect(lambda: self.format_num("down"))
         self.edt_sub_1.textChanged.connect(lambda: self.format_num("sub1"))
         self.edt_sub_2.textChanged.connect(lambda: self.format_num("sub2"))
@@ -106,7 +123,6 @@ class MainLease(QMainWindow, Ui_MainWindow):
         self.btn_next.clicked.connect(lambda: self.page_change_event("next"))
         self.btn_back.clicked.connect(lambda: self.page_change_event("back"))
         self.cbx_down_pay.activated.connect(self.activated_deposit_cbx)
-        self.btn_edit.clicked.connect()
 
         # 계약자 추가 이벤트
         self.btn_add_a.clicked.connect(lambda: self.insert_contractor(0))
@@ -161,8 +177,8 @@ class MainLease(QMainWindow, Ui_MainWindow):
     ################################################################################################
 
     # 계약 종류토글 선택
-    def clicked_current_btn(self, button):
-        if button.text() == self.sales: return
+    def clicked_contract_btn(self, button):
+        if self.contract == self.contract_btn[button]: return
 
         btn_style_on = """QPushButton {
                         font: 20px "웰컴체 Bold";
@@ -194,7 +210,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
 
         for i in self.btn_group.buttons(): i.setStyleSheet(btn_style_off)
         button.setStyleSheet(btn_style_on)
-        self.sales = bool(button.text() == "매매 계약")
+        self.contract = self.contract_btn[button]
 
     # 페이지 전환 이벤트
     def page_change_event(self, v):
@@ -204,21 +220,28 @@ class MainLease(QMainWindow, Ui_MainWindow):
                 self.btn_provisions.hide()
                 self.btn_back.hide()
             self.stackedWidget.slideInPrev()
+
         elif v == "next":
             if current_count == 0:
                 self.btn_back.show()
                 self.btn_provisions.show()
                 if self.lst_contractor.count() < 1:
                     [self.insert_contractor(i) for i in range(3)]   # 기본 계약자 추가
+                self.setting_ui_form()
             self.stackedWidget.slideInNext()
 
     # 소재지 찾기 에디트 클릭
     def clicked_address_edit(self, e):
-        dialog = address_details.AddressDetails()
+        dialog = address_details.AddressDetails(0, self.edt_address.text())
         dialog.exec()
 
-        if dialog.result_data is None: return
-        self.insert_address_event(dialog.result_data)
+        if dialog.result:
+            self.binfo, self.address = dialog.binfo, dialog.select_address
+            self.select_detail = dialog.select_detail
+            self.select_building, self.total_buildings = dialog.select_building, dialog.total_buildings
+            self.owners, self.prices = dialog.owners, dialog.prices
+
+            self.insert_address_event()
 
     # 사무소찾기 에디트 클릭
     def clicked_company_edit(self):
@@ -234,28 +257,62 @@ class MainLease(QMainWindow, Ui_MainWindow):
             #     self.edt_c_name.setText(self.company[3])
             #     self.edt_c_company.setText(self.company[2])
 
-    # 계약금 퍼센트 선택
-    def activated_deposit_cbx(self):
+    # 매매대금/보증금 입력 이벤트
+    def changed_amount_edit(self):
+        self.changed_down_pay_edit()
+        self.insert_balance_edt()
+        self.translation_into_kor("amount")
+    
+    # 계약금 입력 이벤트
+    def changed_down_pay_edit(self):
+        amount = self.edt_amount.text()
         select_item = self.cbx_down_pay.currentIndex()
-        num = self.edt_amount.text()
-        if num == "": return
-        amount = int(re.sub(r'[^0-9]', '', num))
 
         if amount == "":
-            self.edt_down_pay.setText("")
-            return
+            if select_item != 2:
+                self.edt_down_pay.clear()
+        else:
+            amount = int(re.sub(r'[^0-9]', '', amount))
 
-        if select_item == 2:
-            if self.edt_down_pay.text() == "":
+            if select_item == 0: down_pay = int(amount * 0.1)
+            elif select_item == 1: down_pay = int(amount * 0.05)
+            else: down_pay = self.edt_down_pay.text()
+
+            self.edt_down_pay.setText(str(down_pay))
+
+    # 계약금 퍼센트 선택
+    def activated_deposit_cbx(self):
+
+        select_item = self.cbx_down_pay.currentIndex()
+        if select_item == 0: self.edt_down_pay.setReadOnly(True)
+        elif select_item == 1: self.edt_down_pay.setReadOnly(True)
+        else:   # 직접 입력
+            self.edt_down_pay.setReadOnly(False)
+            self.edt_down_pay.setFocus()
+
+        self.changed_down_pay_edit()
+
+    # 잔금 계산 후 입력
+    def insert_balance_edt(self):
+
+        # 입력된 값이 있다면 int로 변환, 없다면 0
+        amount = int(re.sub(r'[^0-9]', '', self.edt_amount.text())) if self.edt_amount.text() != "" else 0
+        down_pay = int(re.sub(r'[^0-9]', '', self.edt_down_pay.text())) if self.edt_down_pay.text() != "" else 0
+        mid_pay_1st = int(re.sub(r'[^0-9]', '', self.edt_mid_pay_1st.text())) if self.edt_mid_pay_1st.text() != "" else 0
+        mid_pay_2st = int(re.sub(r'[^0-9]', '', self.edt_mid_pay_2st.text())) if self.edt_mid_pay_2st.text() != "" else 0
+        minus_pay = down_pay + mid_pay_1st + mid_pay_2st
+
+        if amount < minus_pay:
+            if self.focusWidget() == self.edt_amount:
+                self.edt_balance_pay.clear()
                 return
-            else:
-                amount = ""
-        elif select_item == 1:
-            amount = str(int(amount * 0.05))
-        elif select_item == 0:
-            amount = str(int(amount * 0.1))
+            if self.contract == 0: self.info_msg(2, "계약금과 중도금의 합은 매매대금 보다 많을 수 없습니다.")
+            else: self.info_msg(2, "계약금과 중도금의 합은 보증금 보다 많을 수 없습니다.")
+            self.focusWidget().clear()
 
-        self.edt_down_pay.setText(mask_money(amount))
+        else:
+            balance = amount - minus_pay
+            self.edt_balance_pay.setText(str(balance))
 
     # 소재지 찾기 에디트 클릭
     def clicked_agr_edit(self, e):
@@ -396,9 +453,10 @@ class MainLease(QMainWindow, Ui_MainWindow):
 
     # 계약종류 선택 후 라벨 세팅
     def setting_ui_form(self):
+
         self.lb_item_nm_8.setText("보 증 금")
 
-        if self.sales == "매매 계약":
+        if self.contract == 0:
             self.lb_item_nm_8.setText("매 매 대 금")
             self.lb_item_nm_12.setText("융 자 금")
 
@@ -412,7 +470,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
             self.edt_sub_2.show()
             self.lb_price_sub_2.show()
 
-        elif self.sales == "전세 계약":
+        elif self.contract == 1:
             # 서브 1
             self.lb_item_nm_12.hide()
             self.edt_sub_1.hide()
@@ -423,7 +481,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
             self.edt_sub_2.hide()
             self.lb_price_sub_2.hide()
 
-        elif (self.sales == "월세 계약") | (self.sales == "단기 계약"):
+        elif (self.contract == 2) | (self.contract == 3):
             self.lb_item_nm_12.setText("월 차 임")
 
             # 서브 1
@@ -440,7 +498,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
     def insert_contractor(self, cont):
         current_count = [self.a_count, self.b_count, self.c_count]
 
-        custom_item = ContractorItem(self.sales, cont, current_count)
+        custom_item = ContractorItem(self.contract, cont, current_count)
         item = QListWidgetItem(self.lst_contractor)
         item.setSizeHint(QSize(custom_item.width(), 80))
         self.lst_contractor.setItemWidget(item, custom_item)
@@ -456,65 +514,70 @@ class MainLease(QMainWindow, Ui_MainWindow):
         obj[category].setText(intent_data['도로명주소'])
 
     # 받아온 주소 데이터 입력
-    def insert_address_event(self, intent_data):
-        self.select_address, self.select_building, self.select_room = intent_data['주소'], intent_data['건물'], intent_data[
-            '방']
-        room, result = None, self.select_address
+    def insert_address_event(self):
         self.edt_area_rental.clear()
-        print(intent_data)
+        room = None
+        address, building, detail = self.address, self.select_building, self.select_detail
+
+        print(self.address)
+        print(self.binfo)
+        print(self.select_detail)
+        print(self.select_building)
 
         self.cbx_structure.setItemText(self.cbx_structure.count() - 1, "직접입력")
         self.cbx_purposes.setItemText(self.cbx_purposes.count() - 1, "직접입력")
 
-        old = "%s %s %s %s-%s" % (result['시도'], result['시군구'], result['읍면동'], result['번'], result['지'])
+        if address['지'] == "0":
+            old = "%s %s %s %s" % (address['시도'], address['시군구'], address['읍면동'], address['번'])
+        else: old = "%s %s %s %s-%s" % (address['시도'], address['시군구'], address['읍면동'], address['번'], address['지'])
 
-        if intent_data['타입'] == '일반':
-            room = "%s층" % self.select_room['층명칭'].rstrip("층")
-            if intent_data['일부']:
-                room = room + " 일부"
-            elif not intent_data['일부']:
-                self.edt_area_rental.setText(self.select_room['층면적'])
+        if self.binfo['타입'] == '일반':
+            room = "%s층" % detail['층명칭'].rstrip("층")
 
-        elif intent_data['타입'] == '집합':
-            room = "%s호" % self.select_room['호명칭'].rstrip("호")
-            if len(self.select_room['동명칭']) > 0: room = "%s동 " % (self.select_room['동명칭'].rstrip("동")) + room
-            if intent_data['일부']:
-                room = room + " 일부"
-            elif not intent_data['일부']:
-                self.edt_area_rental.setText(self.select_room['전용면적'])
+            if self.binfo['일부']: room = room + " 일부"
+            else: self.edt_area_rental.setText(detail['층면적'])
+
+        elif self.binfo['타입'] == '집합':
+            room = "%s호" % detail['호명칭'].rstrip("호")
+
+            if len(detail['동명칭']) > 0:
+                room = "%s동 " % (detail['동명칭'].rstrip("동")) + room
+
+            if self.binfo['일부']: room = room + " 일부"
+            else: self.edt_area_rental.setText(detail['전용면적'])
+
             old = "%s, %s" % (old, room)
 
-        if result['건물명칭'] != "": old = "%s (%s)" % (old, result['건물명칭'])
+        # 건물명칭 있으면 입력
+        if self.address['건물명칭'] != "": old = "%s (%s)" % (old, self.address['건물명칭'])
 
-        self.edt_address.setText(old)
-        self.edt_address_details.setText(room)
-        self.edt_area_land.setText(self.select_building['대지면적'])
-        self.edt_area_total.setText(self.select_building['연면적'])
+        self.edt_address.setText(old)   # 소재지
+        self.edt_address_details.setText(room)  # 임대부분
+        self.edt_area_land.setText(building['대지면적'])    # 대지면적 
+        self.edt_area_total.setText(building['연면적'])    # 연면적
 
-        structure_index, purposes_index = None, None
-        structure_list = [self.select_room['구조'], self.select_room['기타구조'],
-                          self.select_building['구조'], self.select_building['기타구조']]
-        purposes_list = [self.select_room['주용도'], self.select_room['기타용도'],
-                         self.select_building['주용도'], self.select_building['기타용도']]
-
+        structure_index, purposes_index = [], []
+        
+        # 구조 세팅
+        structure_list = [detail['주구조'], detail['기타구조'], building['주구조'], building['기타구조']]
         for i in structure_list:
             structure_index = self.cbx_structure.findText(i, Qt.MatchFixedString)
             if structure_index > -1:
                 self.cbx_structure.setCurrentIndex(structure_index)
                 break
-
+        if structure_index == -1:
+            self.cbx_structure.setItemText(self.cbx_structure.count() - 1, detail['기타구조'])
+            self.cbx_structure.setCurrentIndex(self.cbx_structure.count() - 1)
+            
+        # 용도 세팅
+        purposes_list = [detail['주용도'], detail['기타용도'], building['주용도'], building['기타용도']]
         for i in purposes_list:
             purposes_index = self.cbx_purposes.findText(i, Qt.MatchFixedString)
             if purposes_index > -1:
                 self.cbx_purposes.setCurrentIndex(purposes_index)
                 break
-
-        if structure_index == -1:
-            self.cbx_structure.setItemText(self.cbx_structure.count() - 1, self.select_room['기타구조'])
-            self.cbx_structure.setCurrentIndex(self.cbx_structure.count() - 1)
-
         if purposes_index == -1:
-            self.cbx_purposes.setItemText(self.cbx_purposes.count() - 1, self.select_room['기타용도'])
+            self.cbx_purposes.setItemText(self.cbx_purposes.count() - 1, detail['기타용도'])
             self.cbx_purposes.setCurrentIndex(self.cbx_purposes.count() - 1)
 
     ## 정규식, 텍스트 변환
@@ -522,8 +585,6 @@ class MainLease(QMainWindow, Ui_MainWindow):
 
     # 금액 한글로 변경
     def translation_into_kor(self, category):
-        if category == "amount": self.activated_deposit_cbx()
-
         pays = {"amount": self.edt_amount,
                 "1st": self.edt_mid_pay_1st,
                 "2st": self.edt_mid_pay_2st,
@@ -537,7 +598,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
         num = pays[category].text()
 
         if (num == "") | (num == "0"):
-            ko_pays[category].setText("")
+            ko_pays[category].clear()
             return
 
         num = re.sub(r'[^0-9]', '', num)
@@ -594,6 +655,60 @@ class MainLease(QMainWindow, Ui_MainWindow):
 
         obj_edt[category].setText(num)
 
+    # 알림 메세지
+    def info_msg(self, sec, content):
+        if self.msg_background.isHidden():
+            self.msg_background.show()
+
+        if self.msg_timer:
+            self.timer.stop()
+            self.msg_timer = False
+
+        self.msg_timer = True
+        self.msg_background.setText(content)
+        font_size = self.msg_background.fontMetrics().boundingRect(content)
+
+        if '\n' in content:
+            line_width = []
+            for i in content.split('\n'):
+                line_width.append(self.msg_background.fontMetrics().boundingRect(i).width())
+            w = max(line_width)
+        else: w = font_size.width()
+
+        h = font_size.height() * (content.count('\n') + 1)
+        self.msg_background.resize(w + 20, h + 14)
+
+        x = round((self.width() / 2) - (self.msg_background.width() / 2))
+        y = round((self.height() / 2) - (self.msg_background.height() / 2))
+
+        self.msg_background.move(x, y)
+
+        effect = QGraphicsOpacityEffect(self.msg_background)
+        self.msg_background.setGraphicsEffect(effect)
+
+        self.anim = QPropertyAnimation(effect, b"opacity")
+        self.anim.setStartValue(0)
+        self.anim.setEndValue(1)
+        self.anim.setDuration(60)
+        self.anim.start()
+
+        self.timer = QTimer(self)
+        self.timer.start(sec * 1300)
+        self.timer.timeout.connect(self.hide_msg)
+
+    # 메세지 타이머 종료
+    def hide_msg(self):
+        effect = QGraphicsOpacityEffect(self.msg_background)
+        self.msg_background.setGraphicsEffect(effect)
+
+        self.anim = QPropertyAnimation(effect, b"opacity")
+        self.anim.setStartValue(1)
+        self.anim.setEndValue(0)
+        self.anim.setDuration(500)
+        self.anim.start()
+
+        self.timer.stop()
+        self.msg_timer = False
 
 # 돈 정규식
 def mask_money(txt):
@@ -770,7 +885,7 @@ class ContractorItem(QWidget):
 
         if contractor == 0:
             if current_count[0] == 0:    # 매도/임대인이 아이템이 없을 경우
-                if contract: self.cbx_name.addItem("매 도 인")
+                if contract == 0: self.cbx_name.addItem("매 도 인")
                 else: self.cbx_name.addItem("임 대 인")
             else: self.cbx_name.addItems(names)
 
@@ -778,7 +893,7 @@ class ContractorItem(QWidget):
 
         elif contractor == 1:
             if current_count[1] == 0:  # 매도/임대인이 아이템이 없을 경우
-                if contract: self.cbx_name.addItem("매 수 인")
+                if contract == 0: self.cbx_name.addItem("매 수 인")
                 else: self.cbx_name.addItem("임 차 인")
             else: self.cbx_name.addItems(names)
 

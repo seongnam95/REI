@@ -184,8 +184,10 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         address = self.address
 
         self.insert_room_info()
-
-        old = "%s %s %s %s-%s" % (address['시도'], address['시군구'], address['읍면동'], address['번'], address['지'])
+        if address['지'] == "0":
+            old = "%s %s %s %s" % (address['시도'], address['시군구'], address['읍면동'], address['번'])
+        else:
+            old = "%s %s %s %s-%s" % (address['시도'], address['시군구'], address['읍면동'], address['번'], address['지'])
 
         layer = "-%s 층 / %s 층" % (building['지하층수'], building['지상층수'])
         elevator = "%s대 (비상 %s대)" % (building['승강기'], building['비상용승강기'])
@@ -300,7 +302,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         # 총괄 표제부 주차장
         if self.total_buildings is not None:
             total = self.total_buildings
-
+            print("[###%s###]" % total['옥내자주식대수'].Value[0])
             in_land += int(total['옥내자주식대수'])
             in_mechanical += int(total['옥내기계식대수'])
 
@@ -322,7 +324,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             land_etc = ', '.join(land_etc)
 
         if val[2] is None: price = "조회 결과 없음"
-        else: price = str("{:,}".format(int(val[2]['공시지가'])) + ' 원 (㎡당 기준')
+        else: price = str("{:,}".format(int(val[2]['공시지가'])) + ' 원 (㎡ 기준)')
 
         base = {'주구조': building['주구조'], '지역지구': jiji,'주용도': building['주용도'],
                 '대지면적': building['대지면적'] + ' ㎡', '건축면적': building['건축면적'] + ' ㎡', '건폐율': building['건폐율'] + ' %',

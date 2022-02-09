@@ -279,7 +279,7 @@ class AddressDetails(QDialog, Ui_FindAddress):
                       '건물본번': result['건물본번'],
                       '건물부번': result['건물부번'],
                       '지하여부': result['지하여부'],
-                      '동명칭': ''}
+                      '동명칭': '', '일부': False}
 
         if self.rbt_set.isChecked(): self.binfo['타입'] = '집합'
         elif self.rbt_solo.isChecked(): self.binfo['타입'] = '일반'
@@ -348,11 +348,12 @@ class AddressDetails(QDialog, Ui_FindAddress):
     # 소재지 입력 버튼
     def address_input_event(self):
         if self.edt_result_address.text() != "":
+            if self.ckb_part.isChecked(): self.binfo['일부'] = True
             self.select_index = self.cbx_rooms.currentIndex() - 1
             self.result = True
             self.hide()
 
-    ########################################################################################################
+########################################################################################################
 
     # 일부 체크
     def part_check_event(self):

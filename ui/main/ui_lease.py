@@ -26,14 +26,14 @@ class Ui_MainWindow(object):
     def _setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(720, 560)
+        MainWindow.resize(720, 630)
         sizePolicy = QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
         MainWindow.setSizePolicy(sizePolicy)
-        MainWindow.setMinimumSize(QSize(720, 560))
-        MainWindow.setMaximumSize(QSize(720, 700))
+        MainWindow.setMinimumSize(QSize(720, 630))
+        MainWindow.setMaximumSize(QSize(720, 630))
         MainWindow.setStyleSheet(u"QWidget {\n"
 "	background-color: white;\n"
 "}")
@@ -977,6 +977,7 @@ class Ui_MainWindow(object):
 "}")
         self.edt_down_pay = QLineEdit(self.part_1)
         self.edt_down_pay.setObjectName(u"edt_down_pay")
+        self.edt_down_pay.setReadOnly(True)
         self.edt_down_pay.setGeometry(QRect(200, 318, 181, 30))
         self.edt_down_pay.setStyleSheet(u"QLineEdit {\n"
 "	color: rgb(72,93,114);\n"
@@ -1021,6 +1022,7 @@ class Ui_MainWindow(object):
         self.edt_mid_pay_1st.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
         self.edt_balance_pay = QLineEdit(self.part_1)
         self.edt_balance_pay.setObjectName(u"edt_balance_pay")
+        self.edt_balance_pay.setReadOnly(True)
         self.edt_balance_pay.setGeometry(QRect(90, 429, 291, 30))
         self.edt_balance_pay.setStyleSheet(u"QLineEdit {\n"
 "	color: rgb(72,93,114);\n"
@@ -1591,7 +1593,6 @@ class Ui_MainWindow(object):
         self.lst_keyword.setStyleSheet(u"QListWidget:hover {\n"
 "    border: 1px solid #3498db;\n"
 "}\n"
-"\n"
 "\n"
 "QScrollBar:vertical {\n"
 "	width: 5px;\n"
