@@ -8,7 +8,7 @@ class SlidingStackedWidget(QStackedWidget):
     def __init__(self, *args, **kwargs):
         super(SlidingStackedWidget, self).__init__(*args, **kwargs)
         self._pnow = QPoint(0, 0)
-        self._speed = 200
+        self._speed = 150
         self._now = 0
         self._current = 0
         self._next = 0
@@ -113,7 +113,7 @@ class SlidingStackedWidget(QStackedWidget):
         self._animnow_opa = QPropertyAnimation(effect, b"opacity")
         self._animnow_opa.setStartValue(1)
         self._animnow_opa.setEndValue(0)
-        self._animnow_opa.setDuration(300)
+        self._animnow_opa.setDuration(100)
         self._animgroup.addAnimation(self._animnow_opa)
 
         effect = QGraphicsOpacityEffect(w_next)
@@ -121,7 +121,7 @@ class SlidingStackedWidget(QStackedWidget):
         self._animnext_opa = QPropertyAnimation(effect, b"opacity")
         self._animnext_opa.setStartValue(0)
         self._animnext_opa.setEndValue(1)
-        self._animnext_opa.setDuration(300)
+        self._animnext_opa.setDuration(170)
         self._animgroup.addAnimation(self._animnext_opa)
 
         if self.chan_event == "next":

@@ -314,31 +314,6 @@ class MainLease(QMainWindow, Ui_MainWindow):
             balance = amount - minus_pay
             self.edt_balance_pay.setText(str(balance))
 
-    # 소재지 찾기 에디트 클릭
-    def clicked_agr_edit(self, e):
-        dialog = address_details.AddressDetails()
-        dialog.exec()
-
-        if dialog.result_data is None: return
-        self.insert_address_event(dialog.result_data)
-
-    # 주소 찾기 에디트 클릭
-    def clicked_brief_address_edit(self, category):
-        dialog = address.Address()
-        dialog.exec()
-        print(dialog.result_data)
-        if dialog.result_data is None: return
-        self.insert_brief_event(category, dialog.result_data)
-
-    def clicked_a_address_edit(self, e):
-        self.clicked_brief_address_edit("a")
-
-    def clicked_b_address_edit(self, e):
-        self.clicked_brief_address_edit("b")
-
-    def clicked_c_address_edit(self, e):
-        self.clicked_brief_address_edit("c")
-
     # QMenu 이벤트
     def eventFilter(self, source, event):
 
@@ -456,11 +431,12 @@ class MainLease(QMainWindow, Ui_MainWindow):
 
         self.lb_item_nm_8.setText("보 증 금")
 
+        # 매매 계약일 경우
         if self.contract == 0:
             self.lb_item_nm_8.setText("매 매 대 금")
-            self.lb_item_nm_12.setText("융 자 금")
 
             # 서브 1
+            self.lb_item_nm_12.setText("융 자 금")
             self.lb_item_nm_12.show()
             self.edt_sub_1.show()
             self.lb_price_sub_1.show()
@@ -469,6 +445,16 @@ class MainLease(QMainWindow, Ui_MainWindow):
             self.lb_item_nm_13.show()
             self.edt_sub_2.show()
             self.lb_price_sub_2.show()
+
+            # 임대부분
+            self.lb_item_nm_2.setText("대지권종류")
+
+            # 임대면적
+            self.lb_item_nm_5.setText("대지권비율")
+
+            # 대지권종류
+            self.lb_item_nm_5.hide()
+            self.edt_land_type.hide()
 
         elif self.contract == 1:
             # 서브 1
@@ -881,8 +867,8 @@ class ContractorItem(QWidget):
         self.cbx_name.setStyleSheet(cbx_name_css)
 
         names = ["공동명의인", "대리인", "(수기 입력)"]
-        # contractor [ 0: 매도인/임대인, 1: 매수인/임차인, 2: 중개사 ]
 
+        # contractor [ 0: 매도인/임대인, 1: 매수인/임차인, 2: 중개사 ]
         if contractor == 0:
             if current_count[0] == 0:    # 매도/임대인이 아이템이 없을 경우
                 if contract == 0: self.cbx_name.addItem("매 도 인")
