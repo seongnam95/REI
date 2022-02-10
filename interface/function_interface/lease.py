@@ -430,7 +430,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
     def setting_ui_form(self):
 
         self.lb_item_nm_8.setText("보 증 금")
-
+        ##
         # 매매 계약일 경우
         if self.contract == 0:
             self.lb_item_nm_8.setText("매 매 대 금")
