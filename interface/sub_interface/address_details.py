@@ -338,6 +338,7 @@ class AddressDetails(QDialog, Ui_FindAddress):
 
         # 집합일 경우
         elif self.binfo['타입'] == '집합':
+            print(self.exact_detail)
             self.select_detail = self.exact_detail.iloc[select_index]
             dong = self.select_detail['동명칭'].rstrip('동')
             ho = self.select_detail['호명칭'].rstrip('호')
@@ -516,6 +517,7 @@ def sort_value_layer(data):
 def sorted_rooms_len(data):
     data = data.copy()
     existing = data.sort_values(by=['층번호', '호명칭'], axis=0)
+    existing.reset_index(drop=True, inplace=True)
 
     try:
         data['len'] = data.apply(lambda x: len(x['호명칭']), axis=1)
@@ -534,6 +536,7 @@ def sorted_rooms_len(data):
         top = result[result['층구분'] == '지상']
 
         result = pd.concat([low, top])
+        result.reset_index(drop=True, inplace=True)
         return result
 
     except (ValueError, IndexError, TypeError) as e:

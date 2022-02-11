@@ -26,137 +26,72 @@ class Ui_MainWindow(object):
     def _setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(720, 630)
+        MainWindow.resize(720, 650)
         sizePolicy = QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
         MainWindow.setSizePolicy(sizePolicy)
-        MainWindow.setMinimumSize(QSize(720, 630))
-        MainWindow.setMaximumSize(QSize(720, 630))
-        MainWindow.setStyleSheet(u"QWidget {\n"
-"	background-color: white;\n"
-"}")
+        MainWindow.setMinimumSize(QSize(720, 650))
+        MainWindow.setMaximumSize(QSize(720, 650))
+        MainWindow.setStyleSheet(u"QWidget { background-color: white; }")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.stackedWidget = SlidingStackedWidget(self.centralwidget)
         self.stackedWidget.setObjectName(u"stackedWidget")
-        self.stackedWidget.setGeometry(QRect(10, 70, 701, 481))
+        self.stackedWidget.setGeometry(QRect(10, 70, 701, 501))
         self.page_1 = QWidget()
         self.page_1.setObjectName(u"page_1")
         self.part_0 = QFrame(self.page_1)
         self.part_0.setObjectName(u"part_0")
-        self.part_0.setGeometry(QRect(0, 0, 701, 481))
-        self.part_0.setStyleSheet(u"QFrame{\n"
+        self.part_0.setGeometry(QRect(0, 0, 701, 501))
+        self.part_0.setStyleSheet(u"QLabel {\n"
+"	font: 25px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	color: rgb(127, 140, 141);\n"
+"}\n"
+"\n"
+"QPushButton {\n"
+"	font: 20px \"\uc6f0\ucef4\uccb4 Bold\";\n"
+"	color: rgb(44,62,80);\n"
+"	border: 2px solid rgb(44,62,80);\n"
+"	padding-top: 3px;\n"
 "	background-color: white;\n"
-"}")
+"	border-radius: 5px;\n"
+"}\n"
+"\n"
+"QPushButton::hover {\n"
+"	border: 0px;\n"
+"	color: white;\n"
+"	background-color: rgb(64,82,100);\n"
+"	border-style: inset;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"	border: 0px;\n"
+"	color: white;\n"
+"	background-color: rgb(24,42,60);\n"
+"	border-style: inset;\n"
+"}\n"
+"")
         self.btn_contract_0 = QPushButton(self.part_0)
         self.btn_contract_0.setObjectName(u"btn_contract_0")
-        self.btn_contract_0.setGeometry(QRect(60, 180, 141, 81))
-        self.btn_contract_0.setStyleSheet(u"QPushButton {\n"
-"	font: 20px \"\uc6f0\ucef4\uccb4 Bold\";\n"
-"	color: rgb(44,62,80);\n"
-"	border: 2px solid rgb(44,62,80);\n"
-"	padding-top: 3px;\n"
-"	background-color: white;\n"
-"	border-radius: 5px;\n"
-"}\n"
-"\n"
-"QPushButton::hover {\n"
-"	border: 0px;\n"
-"	color: white;\n"
-"	background-color: rgb(64,82,100);\n"
-"	border-style: inset;\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"	border: 0px;\n"
-"	color: white;\n"
-"	background-color: rgb(24,42,60);\n"
-"	border-style: inset;\n"
-"}\n"
-"")
+        self.btn_contract_0.setGeometry(QRect(60, 190, 141, 81))
+        self.btn_contract_0.setStyleSheet(u"")
         self.btn_contract_1 = QPushButton(self.part_0)
         self.btn_contract_1.setObjectName(u"btn_contract_1")
-        self.btn_contract_1.setGeometry(QRect(210, 180, 141, 81))
-        self.btn_contract_1.setStyleSheet(u"QPushButton {\n"
-"	font: 20px \"\uc6f0\ucef4\uccb4 Bold\";\n"
-"	color: rgb(44,62,80);\n"
-"	border: 2px solid rgb(44,62,80);\n"
-"	padding-top: 3px;\n"
-"	background-color: white;\n"
-"	border-radius: 5px;\n"
-"}\n"
-"\n"
-"QPushButton::hover {\n"
-"	border: 0px;\n"
-"	color: white;\n"
-"	background-color: rgb(64,82,100);\n"
-"	border-style: inset;\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"	border: 0px;\n"
-"	color: white;\n"
-"	background-color: rgb(24,42,60);\n"
-"	border-style: inset;\n"
-"}\n"
-"")
+        self.btn_contract_1.setGeometry(QRect(210, 190, 141, 81))
+        self.btn_contract_1.setStyleSheet(u"")
         self.btn_contract_2 = QPushButton(self.part_0)
         self.btn_contract_2.setObjectName(u"btn_contract_2")
-        self.btn_contract_2.setGeometry(QRect(360, 180, 141, 81))
-        self.btn_contract_2.setStyleSheet(u"QPushButton {\n"
-"	font: 20px \"\uc6f0\ucef4\uccb4 Bold\";\n"
-"	color: rgb(44,62,80);\n"
-"	border: 2px solid rgb(44,62,80);\n"
-"	padding-top: 3px;\n"
-"	background-color: white;\n"
-"	border-radius: 5px;\n"
-"}\n"
-"\n"
-"QPushButton::hover {\n"
-"	border: 0px;\n"
-"	color: white;\n"
-"	background-color: rgb(64,82,100);\n"
-"	border-style: inset;\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"	border: 0px;\n"
-"	color: white;\n"
-"	background-color: rgb(24,42,60);\n"
-"	border-style: inset;\n"
-"}\n"
-"")
+        self.btn_contract_2.setGeometry(QRect(360, 190, 141, 81))
+        self.btn_contract_2.setStyleSheet(u"")
         self.btn_contract_3 = QPushButton(self.part_0)
         self.btn_contract_3.setObjectName(u"btn_contract_3")
-        self.btn_contract_3.setGeometry(QRect(510, 180, 141, 81))
-        self.btn_contract_3.setStyleSheet(u"QPushButton {\n"
-"	font: 20px \"\uc6f0\ucef4\uccb4 Bold\";\n"
-"	color: rgb(44,62,80);\n"
-"	border: 2px solid rgb(44,62,80);\n"
-"	padding-top: 3px;\n"
-"	background-color: white;\n"
-"	border-radius: 5px;\n"
-"}\n"
-"\n"
-"QPushButton::hover {\n"
-"	border: 0px;\n"
-"	color: white;\n"
-"	background-color: rgb(64,82,100);\n"
-"	border-style: inset;\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"	border: 0px;\n"
-"	color: white;\n"
-"	background-color: rgb(24,42,60);\n"
-"	border-style: inset;\n"
-"}\n"
-"")
+        self.btn_contract_3.setGeometry(QRect(510, 190, 141, 81))
+        self.btn_contract_3.setStyleSheet(u"")
         self.cbx_contract = QComboBox(self.part_0)
         self.cbx_contract.setObjectName(u"cbx_contract")
-        self.cbx_contract.setGeometry(QRect(180, 290, 351, 41))
+        self.cbx_contract.setGeometry(QRect(180, 300, 351, 41))
         self.cbx_contract.setMinimumSize(QSize(51, 0))
         self.cbx_contract.setMaximumSize(QSize(1677, 16777215))
         self.cbx_contract.setStyleSheet(u"QComboBox {\n"
@@ -241,26 +176,25 @@ class Ui_MainWindow(object):
 "")
         self.label = QLabel(self.part_0)
         self.label.setObjectName(u"label")
-        self.label.setGeometry(QRect(280, 130, 151, 31))
-        self.label.setStyleSheet(u"QLabel {\n"
-"	font: 25px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: rgb(127, 140, 141);\n"
-"}")
+        self.label.setGeometry(QRect(280, 140, 151, 31))
+        self.label.setStyleSheet(u"")
         self.stackedWidget.addWidget(self.page_1)
         self.page_2 = QWidget()
         self.page_2.setObjectName(u"page_2")
         self.part_1 = QFrame(self.page_2)
         self.part_1.setObjectName(u"part_1")
-        self.part_1.setGeometry(QRect(0, 0, 701, 481))
-        self.part_1.setStyleSheet(u"QFrame{\n"
-"	background-color: white;\n"
+        self.part_1.setGeometry(QRect(0, 0, 701, 501))
+        self.part_1.setStyleSheet(u"QLabel {\n"
+"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	color: #2c3e50;\n"
+"	padding-top: 2px;\n"
 "}")
         self.cbx_down_pay = QComboBox(self.part_1)
         self.cbx_down_pay.addItem("")
         self.cbx_down_pay.addItem("")
         self.cbx_down_pay.addItem("")
         self.cbx_down_pay.setObjectName(u"cbx_down_pay")
-        self.cbx_down_pay.setGeometry(QRect(90, 318, 100, 30))
+        self.cbx_down_pay.setGeometry(QRect(90, 340, 100, 30))
         self.cbx_down_pay.setMinimumSize(QSize(45, 0))
         self.cbx_down_pay.setMaximumSize(QSize(100, 16777215))
         self.cbx_down_pay.setStyleSheet(u"QComboBox {\n"
@@ -342,100 +276,430 @@ class Ui_MainWindow(object):
 "    color: rgb(44, 62, 80);\n"
 "    background-color: lightblue\n"
 "}")
-        self.cbx_structure = QComboBox(self.part_1)
-        self.cbx_structure.setObjectName(u"cbx_structure")
-        self.cbx_structure.setGeometry(QRect(160, 154, 221, 30))
-        self.cbx_structure.setMinimumSize(QSize(109, 0))
-        self.cbx_structure.setMaximumSize(QSize(1666, 16777215))
-        self.cbx_structure.setStyleSheet(u"QComboBox {\n"
-"    border: 1px solid gray;\n"
-"    padding: 3px 1px 1px 10px;\n"
-"    min-width: 6em;\n"
-"    background: rgb(255, 255, 255);\n"
-"    font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"    color: rgb(44, 62, 80);\n"
-"}\n"
-"\n"
-"QComboBox:focus {\n"
-"    padding: 3px 1px 1px 10px;\n"
-"    color: rgb(127, 140, 141);\n"
-"}\n"
-"\n"
-"QComboBox:hover {\n"
-"    border: 1px solid #3498db;\n"
-"}\n"
-"\n"
-"QComboBox:on { \n"
-"    padding-top: 3px;\n"
-"    padding-left: 4px;\n"
-"}\n"
-"\n"
-"QComboBox QAbstractItemView::item { \n"
-"	min-height: 30px; \n"
-"}\n"
-"\n"
-"QComboBox::drop-down {\n"
-"    subcontrol-origin: padding;\n"
-"    subcontrol-position: top right;\n"
-"    width: 30px;\n"
-"\n"
-"    border-left-width: 1px;\n"
-"    border-left-style: solid;\n"
-"    border-left-color: darkgray;\n"
-"    border-top-right-radius: 3px;\n"
-"    border-bottom-right-radius: 3px;\n"
-"}\n"
-"\n"
-"QComboBox::down-arrow {\n"
-"    image: url(../../data/img/system/down_arrow_icon.png);\n"
-"    width: 22px;\n"
-"    height: 22px;\n"
-""
-                        "}\n"
-"\n"
-"QComboBox::down-arrow:on {\n"
-"    top: 1px;\n"
-"    left: 1px;\n"
-"}\n"
-"QComboBox::setView {\n"
-"    color: rgb(44, 62, 80);\n"
-"    background-color: lightblue\n"
-"}\n"
-"\n"
-"QScrollBar:vertical {\n"
-"	width: 5px;\n"
-"	border-radius: 2px;\n"
-"	background: rgb(220,220,220);\n"
-"}\n"
-"\n"
-"QScrollBar::handle:vertical  {\n"
-"	border-radius: 2px;\n"
-"	background: rgba(84,102,120, 120);\n"
-"	min-height: 0px;\n"
-"}\n"
-"\n"
-"QScrollBar::handle:vertical:hover  {\n"
-"	border-radius: 2px;\n"
-"	background: rgba(134,152,170, 120);\n"
-"	min-height: 0px;\n"
-"}\n"
-"\n"
-"comboBox->setView(view);\n"
-"QListView::item:selected {\n"
-"    color: rgb(44, 62, 80);\n"
-"    background-color: lightblue\n"
-"}")
         self.lb_sub_title_2 = QLabel(self.part_1)
         self.lb_sub_title_2.setObjectName(u"lb_sub_title_2")
-        self.lb_sub_title_2.setGeometry(QRect(3, 241, 91, 16))
+        self.lb_sub_title_2.setGeometry(QRect(3, 270, 91, 16))
         self.lb_sub_title_2.setStyleSheet(u"QLabel {\n"
 "	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	color: rgb(127, 140, 141);\n"
 "}")
-        self.edt_area_rental = QLineEdit(self.part_1)
+        self.line_3 = QFrame(self.part_1)
+        self.line_3.setObjectName(u"line_3")
+        self.line_3.setGeometry(QRect(0, 10, 691, 20))
+        self.line_3.setFrameShape(QFrame.HLine)
+        self.line_3.setFrameShadow(QFrame.Sunken)
+        self.lb_item_nm_9 = QLabel(self.part_1)
+        self.lb_item_nm_9.setObjectName(u"lb_item_nm_9")
+        self.lb_item_nm_9.setGeometry(QRect(10, 340, 81, 30))
+        font = QFont()
+        font.setFamilies([u"\uc6f0\ucef4\uccb4 Regular"])
+        font.setBold(False)
+        font.setItalic(False)
+        self.lb_item_nm_9.setFont(font)
+        self.lb_item_nm_9.setStyleSheet(u"")
+        self.lb_price_2 = QLabel(self.part_1)
+        self.lb_price_2.setObjectName(u"lb_price_2")
+        self.lb_price_2.setGeometry(QRect(346, 344, 31, 22))
+        self.lb_price_2.setStyleSheet(u"QLabel {\n"
+"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	color: rgb(127, 140, 141);\n"
+"	padding-top: 3px;\n"
+"}")
+        self.lb_price_2.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.edt_balance_day = QLineEdit(self.part_1)
+        self.edt_balance_day.setObjectName(u"edt_balance_day")
+        self.edt_balance_day.setEnabled(True)
+        self.edt_balance_day.setGeometry(QRect(500, 460, 151, 30))
+        self.edt_balance_day.setStyleSheet(u"QLineEdit {\n"
+"	color: rgb(72,93,114);\n"
+"    font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	border: 1px solid #34495e;\n"
+"	padding-right: 5px;\n"
+"	padding-top: 2px;\n"
+"}\n"
+"\n"
+"QLineEdit::hover {\n"
+"	border: 1px solid #3498db;\n"
+"}\n"
+"\n"
+"QLineEdit:focus {\n"
+"	border: 2px solid #3498db;\n"
+"}\n"
+"")
+        self.edt_balance_day.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.lb_item_nm_11 = QLabel(self.part_1)
+        self.lb_item_nm_11.setObjectName(u"lb_item_nm_11")
+        self.lb_item_nm_11.setGeometry(QRect(10, 460, 60, 30))
+        self.lb_item_nm_11.setFont(font)
+        self.lb_item_nm_11.setStyleSheet(u"")
+        self.lb_price_4 = QLabel(self.part_1)
+        self.lb_price_4.setObjectName(u"lb_price_4")
+        self.lb_price_4.setGeometry(QRect(346, 424, 31, 22))
+        self.lb_price_4.setStyleSheet(u"QLabel {\n"
+"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	color: rgb(127, 140, 141);\n"
+"	padding-top: 3px;\n"
+"}")
+        self.lb_price_4.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.lb_item_nm_10 = QLabel(self.part_1)
+        self.lb_item_nm_10.setObjectName(u"lb_item_nm_10")
+        self.lb_item_nm_10.setGeometry(QRect(10, 400, 60, 30))
+        self.lb_item_nm_10.setFont(font)
+        self.lb_item_nm_10.setStyleSheet(u"")
+        self.lb_item_nm_15 = QLabel(self.part_1)
+        self.lb_item_nm_15.setObjectName(u"lb_item_nm_15")
+        self.lb_item_nm_15.setGeometry(QRect(420, 420, 60, 30))
+        self.lb_item_nm_15.setFont(font)
+        self.lb_item_nm_15.setStyleSheet(u"")
+        self.lb_price_3 = QLabel(self.part_1)
+        self.lb_price_3.setObjectName(u"lb_price_3")
+        self.lb_price_3.setGeometry(QRect(346, 384, 31, 22))
+        self.lb_price_3.setStyleSheet(u"QLabel {\n"
+"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	color: rgb(127, 140, 141);\n"
+"	padding-top: 3px;\n"
+"}")
+        self.lb_price_3.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.line_4 = QFrame(self.part_1)
+        self.line_4.setObjectName(u"line_4")
+        self.line_4.setGeometry(QRect(0, 280, 691, 20))
+        self.line_4.setFrameShape(QFrame.HLine)
+        self.line_4.setFrameShadow(QFrame.Sunken)
+        self.edt_1st_day = QLineEdit(self.part_1)
+        self.edt_1st_day.setObjectName(u"edt_1st_day")
+        self.edt_1st_day.setEnabled(True)
+        self.edt_1st_day.setGeometry(QRect(500, 380, 151, 30))
+        self.edt_1st_day.setStyleSheet(u"QLineEdit {\n"
+"	color: rgb(72,93,114);\n"
+"    font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	border: 1px solid #34495e;\n"
+"	padding-right: 5px;\n"
+"	padding-top: 2px;\n"
+"}\n"
+"\n"
+"QLineEdit::hover {\n"
+"	border: 1px solid #3498db;\n"
+"}\n"
+"\n"
+"QLineEdit:focus {\n"
+"	border: 2px solid #3498db;\n"
+"}\n"
+"")
+        self.edt_1st_day.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.lb_item_nm_8 = QLabel(self.part_1)
+        self.lb_item_nm_8.setObjectName(u"lb_item_nm_8")
+        self.lb_item_nm_8.setGeometry(QRect(10, 300, 60, 30))
+        self.lb_item_nm_8.setFont(font)
+        self.lb_item_nm_8.setStyleSheet(u"")
+        self.lb_item_nm_14 = QLabel(self.part_1)
+        self.lb_item_nm_14.setObjectName(u"lb_item_nm_14")
+        self.lb_item_nm_14.setGeometry(QRect(420, 380, 60, 30))
+        self.lb_item_nm_14.setFont(font)
+        self.lb_item_nm_14.setStyleSheet(u"")
+        self.lb_sub_title_1 = QLabel(self.part_1)
+        self.lb_sub_title_1.setObjectName(u"lb_sub_title_1")
+        self.lb_sub_title_1.setGeometry(QRect(0, 0, 91, 16))
+        self.lb_sub_title_1.setStyleSheet(u"QLabel {\n"
+"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	color: rgb(127, 140, 141);\n"
+"}")
+        self.edt_down_pay = QLineEdit(self.part_1)
+        self.edt_down_pay.setObjectName(u"edt_down_pay")
+        self.edt_down_pay.setGeometry(QRect(200, 340, 181, 30))
+        self.edt_down_pay.setStyleSheet(u"QLineEdit {\n"
+"	color: rgb(72,93,114);\n"
+"    font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	border: 1px solid #34495e;\n"
+"	padding-left: 10px;\n"
+"	padding-right: 33px;\n"
+"	padding-top: 3px;\n"
+"}\n"
+"\n"
+"QLineEdit::hover {\n"
+"	border: 1px solid #3498db;\n"
+"}\n"
+"\n"
+"QLineEdit:focus {\n"
+"	border: 2px solid #3498db;\n"
+"}\n"
+"")
+        self.edt_down_pay.setMaxLength(15)
+        self.edt_down_pay.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.edt_down_pay.setReadOnly(True)
+        self.edt_mid_pay_1st = QLineEdit(self.part_1)
+        self.edt_mid_pay_1st.setObjectName(u"edt_mid_pay_1st")
+        self.edt_mid_pay_1st.setGeometry(QRect(90, 380, 291, 30))
+        self.edt_mid_pay_1st.setStyleSheet(u"QLineEdit {\n"
+"	color: rgb(72,93,114);\n"
+"    font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	border: 1px solid #34495e;\n"
+"	padding-left: 10px;\n"
+"	padding-right: 33px;\n"
+"	padding-top: 3px;\n"
+"}\n"
+"\n"
+"QLineEdit::hover {\n"
+"	border: 1px solid #3498db;\n"
+"}\n"
+"\n"
+"QLineEdit:focus {\n"
+"	border: 2px solid #3498db;\n"
+"}\n"
+"")
+        self.edt_mid_pay_1st.setMaxLength(15)
+        self.edt_mid_pay_1st.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.edt_balance_pay = QLineEdit(self.part_1)
+        self.edt_balance_pay.setObjectName(u"edt_balance_pay")
+        self.edt_balance_pay.setGeometry(QRect(90, 460, 291, 30))
+        self.edt_balance_pay.setStyleSheet(u"QLineEdit {\n"
+"	color: rgb(72,93,114);\n"
+"    font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	border: 1px solid #34495e;\n"
+"	padding-left: 10px;\n"
+"	padding-right: 33px;\n"
+"	padding-top: 3px;\n"
+"}\n"
+"\n"
+"QLineEdit::hover {\n"
+"	border: 1px solid #3498db;\n"
+"}\n"
+"\n"
+"QLineEdit:focus {\n"
+"	border: 2px solid #3498db;\n"
+"}\n"
+"")
+        self.edt_balance_pay.setMaxLength(15)
+        self.edt_balance_pay.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.edt_balance_pay.setReadOnly(True)
+        self.edt_amount = QLineEdit(self.part_1)
+        self.edt_amount.setObjectName(u"edt_amount")
+        self.edt_amount.setGeometry(QRect(90, 300, 291, 30))
+        self.edt_amount.setStyleSheet(u"QLineEdit {\n"
+"	color: rgb(72,93,114);\n"
+"    font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	border: 1px solid #34495e;\n"
+"	padding-left: 10px;\n"
+"	padding-right: 33px;\n"
+"	padding-top: 3px;\n"
+"}\n"
+"\n"
+"QLineEdit::hover {\n"
+"	border: 1px solid #3498db;\n"
+"}\n"
+"\n"
+"QLineEdit:focus {\n"
+"	border: 2px solid #3498db;\n"
+"}\n"
+"")
+        self.edt_amount.setMaxLength(15)
+        self.edt_amount.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.edt_2st_day = QLineEdit(self.part_1)
+        self.edt_2st_day.setObjectName(u"edt_2st_day")
+        self.edt_2st_day.setEnabled(True)
+        self.edt_2st_day.setGeometry(QRect(500, 420, 151, 30))
+        self.edt_2st_day.setStyleSheet(u"QLineEdit {\n"
+"	color: rgb(72,93,114);\n"
+"    font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	border: 1px solid #34495e;\n"
+"	padding-right: 5px;\n"
+"	padding-top: 2px;\n"
+"}\n"
+"\n"
+"QLineEdit::hover {\n"
+"	border: 1px solid #3498db;\n"
+"}\n"
+"\n"
+"QLineEdit:focus {\n"
+"	border: 2px solid #3498db;\n"
+"}\n"
+"")
+        self.edt_2st_day.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.lb_item_nm_16 = QLabel(self.part_1)
+        self.lb_item_nm_16.setObjectName(u"lb_item_nm_16")
+        self.lb_item_nm_16.setGeometry(QRect(420, 460, 60, 30))
+        self.lb_item_nm_16.setFont(font)
+        self.lb_item_nm_16.setStyleSheet(u"")
+        self.lb_price_5 = QLabel(self.part_1)
+        self.lb_price_5.setObjectName(u"lb_price_5")
+        self.lb_price_5.setGeometry(QRect(346, 464, 31, 22))
+        self.lb_price_5.setStyleSheet(u"QLabel {\n"
+"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	color: rgb(127, 140, 141);\n"
+"	padding-top: 3px;\n"
+"}")
+        self.lb_price_5.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.edt_mid_pay_2st = QLineEdit(self.part_1)
+        self.edt_mid_pay_2st.setObjectName(u"edt_mid_pay_2st")
+        self.edt_mid_pay_2st.setGeometry(QRect(90, 420, 291, 30))
+        self.edt_mid_pay_2st.setStyleSheet(u"QLineEdit {\n"
+"	color: rgb(72,93,114);\n"
+"    font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	border: 1px solid #34495e;\n"
+"	padding-left: 10px;\n"
+"	padding-right: 33px;\n"
+"	padding-top: 3px;\n"
+"}\n"
+"\n"
+"QLineEdit::hover {\n"
+"	border: 1px solid #3498db;\n"
+"}\n"
+"\n"
+"QLineEdit:focus {\n"
+"	border: 2px solid #3498db;\n"
+"}\n"
+"")
+        self.edt_mid_pay_2st.setMaxLength(15)
+        self.edt_mid_pay_2st.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.lb_price_1 = QLabel(self.part_1)
+        self.lb_price_1.setObjectName(u"lb_price_1")
+        self.lb_price_1.setGeometry(QRect(346, 304, 31, 22))
+        self.lb_price_1.setStyleSheet(u"QLabel {\n"
+"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	color: rgb(127, 140, 141);\n"
+"	padding-top: 3px;\n"
+"}")
+        self.lb_price_1.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.btn_1st_cal = QPushButton(self.part_1)
+        self.btn_1st_cal.setObjectName(u"btn_1st_cal")
+        self.btn_1st_cal.setGeometry(QRect(659, 381, 28, 28))
+        self.btn_1st_cal.setStyleSheet(u"QPushButton {\n"
+"	background-color: rgba(0,0,0,0);\n"
+"	border-radius: 4px;\n"
+"}\n"
+"\n"
+"QPushButton::hover {\n"
+"	background-color: rgba(44,62,80,50)\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"	background-color: rgba(44,62,80,80)\n"
+"}")
+        self.btn_2st_cal = QPushButton(self.part_1)
+        self.btn_2st_cal.setObjectName(u"btn_2st_cal")
+        self.btn_2st_cal.setGeometry(QRect(659, 421, 28, 28))
+        self.btn_2st_cal.setStyleSheet(u"QPushButton {\n"
+"	background-color: rgba(0,0,0,0);\n"
+"	border-radius: 4px;\n"
+"}\n"
+"\n"
+"QPushButton::hover {\n"
+"	background-color: rgba(44,62,80,50)\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"	background-color: rgba(44,62,80,80)\n"
+"}")
+        self.btn_balance_cal = QPushButton(self.part_1)
+        self.btn_balance_cal.setObjectName(u"btn_balance_cal")
+        self.btn_balance_cal.setGeometry(QRect(659, 461, 28, 28))
+        self.btn_balance_cal.setStyleSheet(u"QPushButton {\n"
+"	background-color: rgba(0,0,0,0);\n"
+"	border-radius: 4px;\n"
+"}\n"
+"\n"
+"QPushButton::hover {\n"
+"	background-color: rgba(44,62,80,50)\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"	background-color: rgba(44,62,80,80)\n"
+"}")
+        self.lb_korean_amount = QLineEdit(self.part_1)
+        self.lb_korean_amount.setObjectName(u"lb_korean_amount")
+        self.lb_korean_amount.setGeometry(QRect(94, 304, 141, 22))
+        self.lb_korean_amount.setStyleSheet(u"QLineEdit {\n"
+"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	color: rgb(67, 80, 81);\n"
+"	background-color: rgba(127, 140, 141, 50);\n"
+"	padding-top: 3px;\n"
+"	padding-right: 8px;\n"
+"	border: 0px;\n"
+"}")
+        self.lb_korean_amount.setReadOnly(True)
+        self.lb_korean_1st = QLineEdit(self.part_1)
+        self.lb_korean_1st.setObjectName(u"lb_korean_1st")
+        self.lb_korean_1st.setGeometry(QRect(94, 384, 141, 22))
+        self.lb_korean_1st.setStyleSheet(u"QLineEdit {\n"
+"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	color: rgb(67, 80, 81);\n"
+"	background-color: rgba(127, 140, 141, 50);\n"
+"	padding-top: 3px;\n"
+"	padding-right: 8px;\n"
+"	border: 0px;\n"
+"}")
+        self.lb_korean_1st.setReadOnly(True)
+        self.lb_korean_2st = QLineEdit(self.part_1)
+        self.lb_korean_2st.setObjectName(u"lb_korean_2st")
+        self.lb_korean_2st.setGeometry(QRect(94, 424, 141, 22))
+        self.lb_korean_2st.setStyleSheet(u"QLineEdit {\n"
+"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	color: rgb(67, 80, 81);\n"
+"	background-color: rgba(127, 140, 141, 50);\n"
+"	padding-top: 3px;\n"
+"	padding-right: 8px;\n"
+"	border: 0px;\n"
+"}")
+        self.lb_korean_2st.setReadOnly(True)
+        self.lb_korean_balance = QLineEdit(self.part_1)
+        self.lb_korean_balance.setObjectName(u"lb_korean_balance")
+        self.lb_korean_balance.setGeometry(QRect(94, 464, 141, 22))
+        self.lb_korean_balance.setStyleSheet(u"QLineEdit {\n"
+"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	color: rgb(67, 80, 81);\n"
+"	background-color: rgba(127, 140, 141, 50);\n"
+"	padding-top: 3px;\n"
+"	padding-right: 8px;\n"
+"	border: 0px;\n"
+"}")
+        self.lb_korean_balance.setReadOnly(True)
+        self.set_rantal = QWidget(self.part_1)
+        self.set_rantal.setObjectName(u"set_rantal")
+        self.set_rantal.setGeometry(QRect(0, 70, 699, 31))
+        self.set_rantal.setMinimumSize(QSize(0, 31))
+        self.set_rantal.setMaximumSize(QSize(16777215, 31))
+        self.edt_address_details = QLineEdit(self.set_rantal)
+        self.edt_address_details.setObjectName(u"edt_address_details")
+        self.edt_address_details.setEnabled(True)
+        self.edt_address_details.setGeometry(QRect(90, 0, 291, 30))
+        self.edt_address_details.setStyleSheet(u"QLineEdit {\n"
+"	color: rgb(72,93,114);\n"
+"    font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	border: 1px solid #34495e;\n"
+"	padding-left: 10px;\n"
+"}\n"
+"\n"
+"QLineEdit::hover {\n"
+"	border: 1px solid #3498db;\n"
+"}\n"
+"\n"
+"QLineEdit:focus {\n"
+"	border: 2px solid #3498db;\n"
+"}\n"
+"")
+        self.edt_address_details.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.lb_item_nm_2 = QLabel(self.set_rantal)
+        self.lb_item_nm_2.setObjectName(u"lb_item_nm_2")
+        self.lb_item_nm_2.setGeometry(QRect(10, 1, 60, 29))
+        self.lb_item_nm_2.setFont(font)
+        self.lb_item_nm_2.setStyleSheet(u"")
+        self.lb_item_nm_5 = QLabel(self.set_rantal)
+        self.lb_item_nm_5.setObjectName(u"lb_item_nm_5")
+        self.lb_item_nm_5.setGeometry(QRect(420, 1, 60, 29))
+        self.lb_item_nm_5.setFont(font)
+        self.lb_item_nm_5.setStyleSheet(u"")
+        self.lb_unit_1 = QLabel(self.set_rantal)
+        self.lb_unit_1.setObjectName(u"lb_unit_1")
+        self.lb_unit_1.setGeometry(QRect(667, 4, 20, 22))
+        self.lb_unit_1.setStyleSheet(u"QLabel {\n"
+"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	color: rgb(127, 140, 141);\n"
+"	padding-top: 3px;\n"
+"}")
+        self.lb_unit_1.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.edt_area_rental = QLineEdit(self.set_rantal)
         self.edt_area_rental.setObjectName(u"edt_area_rental")
         self.edt_area_rental.setEnabled(True)
-        self.edt_area_rental.setGeometry(QRect(500, 78, 191, 30))
+        self.edt_area_rental.setGeometry(QRect(500, 0, 191, 30))
         self.edt_area_rental.setStyleSheet(u"QLineEdit {\n"
 "	color: rgb(72,93,114);\n"
 "    font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
@@ -454,15 +718,24 @@ class Ui_MainWindow(object):
 "}\n"
 "")
         self.edt_area_rental.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
-        self.edt_address_details = QLineEdit(self.part_1)
-        self.edt_address_details.setObjectName(u"edt_address_details")
-        self.edt_address_details.setEnabled(True)
-        self.edt_address_details.setGeometry(QRect(90, 78, 291, 30))
-        self.edt_address_details.setStyleSheet(u"QLineEdit {\n"
+        self.edt_address_details.raise_()
+        self.lb_item_nm_2.raise_()
+        self.lb_item_nm_5.raise_()
+        self.edt_area_rental.raise_()
+        self.lb_unit_1.raise_()
+        self.set_area = QWidget(self.part_1)
+        self.set_area.setObjectName(u"set_area")
+        self.set_area.setGeometry(QRect(0, 110, 699, 31))
+        self.set_area.setMinimumSize(QSize(0, 31))
+        self.set_area.setMaximumSize(QSize(16777215, 31))
+        self.edt_address_details_2 = QLineEdit(self.set_area)
+        self.edt_address_details_2.setObjectName(u"edt_address_details_2")
+        self.edt_address_details_2.setEnabled(True)
+        self.edt_address_details_2.setGeometry(QRect(90, 0, 121, 30))
+        self.edt_address_details_2.setStyleSheet(u"QLineEdit {\n"
 "	color: rgb(72,93,114);\n"
 "    font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	border: 1px solid #34495e;\n"
-"	padding-left: 10px;\n"
 "}\n"
 "\n"
 "QLineEdit::hover {\n"
@@ -473,199 +746,31 @@ class Ui_MainWindow(object):
 "	border: 2px solid #3498db;\n"
 "}\n"
 "")
-        self.edt_address_details.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
-        self.line_3 = QFrame(self.part_1)
-        self.line_3.setObjectName(u"line_3")
-        self.line_3.setGeometry(QRect(0, 10, 691, 20))
-        self.line_3.setFrameShape(QFrame.HLine)
-        self.line_3.setFrameShadow(QFrame.Sunken)
-        self.lb_item_nm_6 = QLabel(self.part_1)
-        self.lb_item_nm_6.setObjectName(u"lb_item_nm_6")
-        self.lb_item_nm_6.setGeometry(QRect(420, 116, 60, 30))
-        font = QFont()
-        font.setFamilies([u"\uc6f0\ucef4\uccb4 Regular"])
-        font.setBold(False)
-        font.setItalic(False)
-        self.lb_item_nm_6.setFont(font)
-        self.lb_item_nm_6.setStyleSheet(u"QLabel {\n"
-"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: #2c3e50;\n"
-"	padding-top: 2px;\n"
-"}")
-        self.lb_item_nm_9 = QLabel(self.part_1)
-        self.lb_item_nm_9.setObjectName(u"lb_item_nm_9")
-        self.lb_item_nm_9.setGeometry(QRect(10, 318, 81, 30))
-        self.lb_item_nm_9.setFont(font)
-        self.lb_item_nm_9.setStyleSheet(u"QLabel {\n"
-"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: #2c3e50;\n"
-"	padding-top: 2px;\n"
-"}")
-        self.lb_price_2 = QLabel(self.part_1)
-        self.lb_price_2.setObjectName(u"lb_price_2")
-        self.lb_price_2.setGeometry(QRect(346, 322, 31, 22))
-        self.lb_price_2.setStyleSheet(u"QLabel {\n"
+        self.edt_address_details_2.setAlignment(Qt.AlignCenter)
+        self.lb_item_nm_22 = QLabel(self.set_area)
+        self.lb_item_nm_22.setObjectName(u"lb_item_nm_22")
+        self.lb_item_nm_22.setGeometry(QRect(10, 1, 71, 29))
+        self.lb_item_nm_22.setFont(font)
+        self.lb_item_nm_22.setStyleSheet(u"")
+        self.lb_item_nm_23 = QLabel(self.set_area)
+        self.lb_item_nm_23.setObjectName(u"lb_item_nm_23")
+        self.lb_item_nm_23.setGeometry(QRect(420, 1, 60, 29))
+        self.lb_item_nm_23.setFont(font)
+        self.lb_item_nm_23.setStyleSheet(u"")
+        self.lb_unit_4 = QLabel(self.set_area)
+        self.lb_unit_4.setObjectName(u"lb_unit_4")
+        self.lb_unit_4.setGeometry(QRect(667, 4, 20, 22))
+        self.lb_unit_4.setStyleSheet(u"QLabel {\n"
 "	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	color: rgb(127, 140, 141);\n"
 "	padding-top: 3px;\n"
 "}")
-        self.lb_price_2.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
-        self.edt_balance_day = QLineEdit(self.part_1)
-        self.edt_balance_day.setObjectName(u"edt_balance_day")
-        self.edt_balance_day.setEnabled(True)
-        self.edt_balance_day.setGeometry(QRect(500, 429, 151, 30))
-        self.edt_balance_day.setStyleSheet(u"QLineEdit {\n"
-"	color: rgb(72,93,114);\n"
-"    font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	border: 1px solid #34495e;\n"
-"	padding-right: 5px;\n"
-"}\n"
-"\n"
-"QLineEdit::hover {\n"
-"	border: 1px solid #3498db;\n"
-"}\n"
-"\n"
-"QLineEdit:focus {\n"
-"	border: 2px solid #3498db;\n"
-"}\n"
-"")
-        self.edt_balance_day.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
-        self.cbx_land_details = QComboBox(self.part_1)
-        self.cbx_land_details.setObjectName(u"cbx_land_details")
-        self.cbx_land_details.setGeometry(QRect(200, 116, 181, 30))
-        self.cbx_land_details.setMinimumSize(QSize(109, 0))
-        self.cbx_land_details.setMaximumSize(QSize(1677, 16777215))
-        self.cbx_land_details.setStyleSheet(u"QComboBox {\n"
-"    border: 1px solid gray;\n"
-"    padding: 3px 1px 1px 10px;\n"
-"    min-width: 6em;\n"
-"    background: rgb(255, 255, 255);\n"
-"    font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"    color: rgb(44, 62, 80);\n"
-"}\n"
-"\n"
-"QComboBox:focus {\n"
-"    padding: 3px 1px 1px 10px;\n"
-"    color: rgb(127, 140, 141);\n"
-"}\n"
-"\n"
-"QComboBox:hover {\n"
-"    border: 1px solid #3498db;\n"
-"}\n"
-"\n"
-"QComboBox:on { \n"
-"    padding-top: 3px;\n"
-"    padding-left: 4px;\n"
-"}\n"
-"\n"
-"QComboBox QAbstractItemView::item { \n"
-"	min-height: 30px; \n"
-"}\n"
-"\n"
-"QComboBox::drop-down {\n"
-"    subcontrol-origin: padding;\n"
-"    subcontrol-position: top right;\n"
-"    width: 30px;\n"
-"\n"
-"    border-left-width: 1px;\n"
-"    border-left-style: solid;\n"
-"    border-left-color: darkgray;\n"
-"    border-top-right-radius: 3px;\n"
-"    border-bottom-right-radius: 3px;\n"
-"}\n"
-"\n"
-"QComboBox::down-arrow {\n"
-"    image: url(../../data/img/system/down_arrow_icon.png);\n"
-"    width: 22px;\n"
-"    height: 22px;\n"
-""
-                        "}\n"
-"\n"
-"QComboBox::down-arrow:on {\n"
-"    top: 1px;\n"
-"    left: 1px;\n"
-"}\n"
-"QComboBox::setView {\n"
-"    color: rgb(44, 62, 80);\n"
-"    background-color: lightblue\n"
-"}\n"
-"\n"
-"QScrollBar:vertical {\n"
-"	width: 5px;\n"
-"	border-radius: 2px;\n"
-"	background: rgb(220,220,220);\n"
-"}\n"
-"\n"
-"QScrollBar::handle:vertical  {\n"
-"	border-radius: 2px;\n"
-"	background: rgba(84,102,120, 120);\n"
-"	min-height: 0px;\n"
-"}\n"
-"\n"
-"QScrollBar::handle:vertical:hover  {\n"
-"	border-radius: 2px;\n"
-"	background: rgba(134,152,170, 120);\n"
-"	min-height: 0px;\n"
-"}\n"
-"\n"
-"comboBox->setView(view);\n"
-"QListView::item:selected {\n"
-"    color: rgb(44, 62, 80);\n"
-"    background-color: lightblue\n"
-"}")
-        self.lb_item_nm_11 = QLabel(self.part_1)
-        self.lb_item_nm_11.setObjectName(u"lb_item_nm_11")
-        self.lb_item_nm_11.setGeometry(QRect(10, 429, 60, 30))
-        self.lb_item_nm_11.setFont(font)
-        self.lb_item_nm_11.setStyleSheet(u"QLabel {\n"
-"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: #2c3e50;\n"
-"	padding-top: 2px;\n"
-"}")
-        self.lb_price_4 = QLabel(self.part_1)
-        self.lb_price_4.setObjectName(u"lb_price_4")
-        self.lb_price_4.setGeometry(QRect(346, 396, 31, 22))
-        self.lb_price_4.setStyleSheet(u"QLabel {\n"
-"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: rgb(127, 140, 141);\n"
-"	padding-top: 3px;\n"
-"}")
-        self.lb_price_4.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
-        self.lb_unit_1 = QLabel(self.part_1)
-        self.lb_unit_1.setObjectName(u"lb_unit_1")
-        self.lb_unit_1.setGeometry(QRect(667, 82, 20, 22))
-        self.lb_unit_1.setStyleSheet(u"QLabel {\n"
-"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: rgb(127, 140, 141);\n"
-"	padding-top: 3px;\n"
-"}")
-        self.lb_unit_1.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
-        self.label_6 = QLabel(self.part_1)
-        self.label_6.setObjectName(u"label_6")
-        self.label_6.setGeometry(QRect(90, 192, 71, 30))
-        self.label_6.setFont(font)
-        self.label_6.setStyleSheet(u"QLabel {\n"
-"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: #2c3e50;\n"
-"    border: 1px solid gray;\n"
-"	padding-top: 3px;\n"
-"	background-color: rgb(234, 234, 234);\n"
-"}")
-        self.label_6.setAlignment(Qt.AlignCenter)
-        self.lb_item_nm_10 = QLabel(self.part_1)
-        self.lb_item_nm_10.setObjectName(u"lb_item_nm_10")
-        self.lb_item_nm_10.setGeometry(QRect(10, 375, 60, 30))
-        self.lb_item_nm_10.setFont(font)
-        self.lb_item_nm_10.setStyleSheet(u"QLabel {\n"
-"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: #2c3e50;\n"
-"	padding-top: 2px;\n"
-"}")
-        self.edt_area_land = QLineEdit(self.part_1)
-        self.edt_area_land.setObjectName(u"edt_area_land")
-        self.edt_area_land.setEnabled(True)
-        self.edt_area_land.setGeometry(QRect(500, 116, 191, 30))
-        self.edt_area_land.setStyleSheet(u"QLineEdit {\n"
+        self.lb_unit_4.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.edt_area_rental_2 = QLineEdit(self.set_area)
+        self.edt_area_rental_2.setObjectName(u"edt_area_rental_2")
+        self.edt_area_rental_2.setEnabled(True)
+        self.edt_area_rental_2.setGeometry(QRect(500, 0, 191, 30))
+        self.edt_area_rental_2.setStyleSheet(u"QLineEdit {\n"
 "	color: rgb(72,93,114);\n"
 "    font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	border: 1px solid #34495e;\n"
@@ -682,149 +787,20 @@ class Ui_MainWindow(object):
 "	border: 2px solid #3498db;\n"
 "}\n"
 "")
-        self.edt_area_land.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
-        self.lb_item_nm_15 = QLabel(self.part_1)
-        self.lb_item_nm_15.setObjectName(u"lb_item_nm_15")
-        self.lb_item_nm_15.setGeometry(QRect(420, 392, 60, 30))
-        self.lb_item_nm_15.setFont(font)
-        self.lb_item_nm_15.setStyleSheet(u"QLabel {\n"
-"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: #2c3e50;\n"
-"	padding-top: 2px;\n"
-"}")
-        self.lb_price_3 = QLabel(self.part_1)
-        self.lb_price_3.setObjectName(u"lb_price_3")
-        self.lb_price_3.setGeometry(QRect(346, 359, 31, 22))
-        self.lb_price_3.setStyleSheet(u"QLabel {\n"
-"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: rgb(127, 140, 141);\n"
-"	padding-top: 3px;\n"
-"}")
-        self.lb_price_3.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
-        self.lb_unit_2 = QLabel(self.part_1)
-        self.lb_unit_2.setObjectName(u"lb_unit_2")
-        self.lb_unit_2.setGeometry(QRect(667, 120, 20, 22))
-        self.lb_unit_2.setStyleSheet(u"QLabel {\n"
-"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: rgb(127, 140, 141);\n"
-"	padding-top: 3px;\n"
-"}")
-        self.lb_unit_2.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
-        self.lb_item_nm_2 = QLabel(self.part_1)
-        self.lb_item_nm_2.setObjectName(u"lb_item_nm_2")
-        self.lb_item_nm_2.setGeometry(QRect(10, 78, 60, 30))
-        self.lb_item_nm_2.setFont(font)
-        self.lb_item_nm_2.setStyleSheet(u"QLabel {\n"
-"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: #2c3e50;\n"
-"	padding-top: 2px;\n"
-"}")
-        self.lb_item_nm_5 = QLabel(self.part_1)
-        self.lb_item_nm_5.setObjectName(u"lb_item_nm_5")
-        self.lb_item_nm_5.setGeometry(QRect(420, 78, 60, 30))
-        self.lb_item_nm_5.setFont(font)
-        self.lb_item_nm_5.setStyleSheet(u"QLabel {\n"
-"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: #2c3e50;\n"
-"	padding-top: 2px;\n"
-"}")
-        self.cbx_purposes = QComboBox(self.part_1)
-        self.cbx_purposes.setObjectName(u"cbx_purposes")
-        self.cbx_purposes.setGeometry(QRect(160, 192, 221, 30))
-        self.cbx_purposes.setMinimumSize(QSize(109, 0))
-        self.cbx_purposes.setMaximumSize(QSize(1666, 16777215))
-        self.cbx_purposes.setStyleSheet(u"QComboBox {\n"
-"    border: 1px solid gray;\n"
-"    padding: 3px 1px 1px 10px;\n"
-"    min-width: 6em;\n"
-"    background: rgb(255, 255, 255);\n"
-"    font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"    color: rgb(44, 62, 80);\n"
-"}\n"
-"\n"
-"QComboBox:focus {\n"
-"    padding: 3px 1px 1px 10px;\n"
-"    color: rgb(127, 140, 141);\n"
-"}\n"
-"\n"
-"QComboBox:hover {\n"
-"    border: 1px solid #3498db;\n"
-"}\n"
-"\n"
-"QComboBox:on { \n"
-"    padding-top: 3px;\n"
-"    padding-left: 4px;\n"
-"}\n"
-"\n"
-"QComboBox QAbstractItemView::item { \n"
-"	min-height: 30px; \n"
-"}\n"
-"\n"
-"QComboBox::drop-down {\n"
-"    subcontrol-origin: padding;\n"
-"    subcontrol-position: top right;\n"
-"    width: 30px;\n"
-"\n"
-"    border-left-width: 1px;\n"
-"    border-left-style: solid;\n"
-"    border-left-color: darkgray;\n"
-"    border-top-right-radius: 3px;\n"
-"    border-bottom-right-radius: 3px;\n"
-"}\n"
-"\n"
-"QComboBox::down-arrow {\n"
-"    image: url(../../data/img/system/down_arrow_icon.png);\n"
-"    width: 22px;\n"
-"    height: 22px;\n"
-""
-                        "}\n"
-"\n"
-"QComboBox::down-arrow:on {\n"
-"    top: 1px;\n"
-"    left: 1px;\n"
-"}\n"
-"QComboBox::setView {\n"
-"    color: rgb(44, 62, 80);\n"
-"    background-color: lightblue\n"
-"}\n"
-"\n"
-"QScrollBar:vertical {\n"
-"	width: 5px;\n"
-"	border-radius: 2px;\n"
-"	background: rgb(220,220,220);\n"
-"}\n"
-"\n"
-"QScrollBar::handle:vertical  {\n"
-"	border-radius: 2px;\n"
-"	background: rgba(84,102,120, 120);\n"
-"	min-height: 0px;\n"
-"}\n"
-"\n"
-"QScrollBar::handle:vertical:hover  {\n"
-"	border-radius: 2px;\n"
-"	background: rgba(134,152,170, 120);\n"
-"	min-height: 0px;\n"
-"}\n"
-"\n"
-"comboBox->setView(view);\n"
-"QListView::item:selected {\n"
-"    color: rgb(44, 62, 80);\n"
-"    background-color: lightblue\n"
-"}")
-        self.line_4 = QFrame(self.part_1)
-        self.line_4.setObjectName(u"line_4")
-        self.line_4.setGeometry(QRect(0, 251, 691, 20))
-        self.line_4.setFrameShape(QFrame.HLine)
-        self.line_4.setFrameShadow(QFrame.Sunken)
-        self.edt_1st_day = QLineEdit(self.part_1)
-        self.edt_1st_day.setObjectName(u"edt_1st_day")
-        self.edt_1st_day.setEnabled(True)
-        self.edt_1st_day.setGeometry(QRect(500, 355, 151, 30))
-        self.edt_1st_day.setStyleSheet(u"QLineEdit {\n"
+        self.edt_area_rental_2.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.lb_item_nm_24 = QLabel(self.set_area)
+        self.lb_item_nm_24.setObjectName(u"lb_item_nm_24")
+        self.lb_item_nm_24.setGeometry(QRect(220, 0, 31, 29))
+        self.lb_item_nm_24.setFont(font)
+        self.lb_item_nm_24.setStyleSheet(u"")
+        self.edt_address_details_3 = QLineEdit(self.set_area)
+        self.edt_address_details_3.setObjectName(u"edt_address_details_3")
+        self.edt_address_details_3.setEnabled(True)
+        self.edt_address_details_3.setGeometry(QRect(260, 0, 121, 30))
+        self.edt_address_details_3.setStyleSheet(u"QLineEdit {\n"
 "	color: rgb(72,93,114);\n"
 "    font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	border: 1px solid #34495e;\n"
-"	padding-right: 5px;\n"
 "}\n"
 "\n"
 "QLineEdit::hover {\n"
@@ -835,30 +811,65 @@ class Ui_MainWindow(object):
 "	border: 2px solid #3498db;\n"
 "}\n"
 "")
-        self.edt_1st_day.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
-        self.lb_item_nm_4 = QLabel(self.part_1)
-        self.lb_item_nm_4.setObjectName(u"lb_item_nm_4")
-        self.lb_item_nm_4.setGeometry(QRect(10, 173, 60, 30))
-        self.lb_item_nm_4.setFont(font)
-        self.lb_item_nm_4.setStyleSheet(u"QLabel {\n"
-"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+        self.edt_address_details_3.setAlignment(Qt.AlignCenter)
+        self.set_address = QWidget(self.part_1)
+        self.set_address.setObjectName(u"set_address")
+        self.set_address.setGeometry(QRect(0, 30, 699, 31))
+        self.set_address.setMinimumSize(QSize(0, 31))
+        self.set_address.setMaximumSize(QSize(16777215, 31))
+        self.edt_address = QLineEdit(self.set_address)
+        self.edt_address.setObjectName(u"edt_address")
+        self.edt_address.setEnabled(True)
+        self.edt_address.setGeometry(QRect(90, 0, 601, 30))
+        self.edt_address.setStyleSheet(u"QLineEdit {\n"
+"	color: rgb(72,93,114);\n"
+"    font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	border: 1px solid #34495e;\n"
+"	padding-left: 10px;\n"
+"}\n"
+"\n"
+"QLineEdit::hover {\n"
+"	border: 1px solid #3498db;\n"
+"}\n"
+"\n"
+"QLineEdit:focus {\n"
+"	border: 2px solid #3498db;\n"
+"}\n"
+"")
+        self.lb_item_nm_1 = QLabel(self.set_address)
+        self.lb_item_nm_1.setObjectName(u"lb_item_nm_1")
+        self.lb_item_nm_1.setGeometry(QRect(10, 1, 61, 29))
+        self.lb_item_nm_1.setFont(font)
+        self.lb_item_nm_1.setStyleSheet(u"")
+        self.btn_search = QPushButton(self.set_address)
+        self.btn_search.setObjectName(u"btn_search")
+        self.btn_search.setGeometry(QRect(596, 4, 91, 22))
+        self.btn_search.setStyleSheet(u"#btn_search {\n"
+"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	color: #2c3e50;\n"
+"	background-color: white;\n"
+"	border: none;\n"
 "	padding-top: 2px;\n"
 "}")
-        self.lb_item_nm_8 = QLabel(self.part_1)
-        self.lb_item_nm_8.setObjectName(u"lb_item_nm_8")
-        self.lb_item_nm_8.setGeometry(QRect(10, 281, 60, 30))
-        self.lb_item_nm_8.setFont(font)
-        self.lb_item_nm_8.setStyleSheet(u"QLabel {\n"
-"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: #2c3e50;\n"
-"	padding-top: 2px;\n"
+        self.set_land = QWidget(self.part_1)
+        self.set_land.setObjectName(u"set_land")
+        self.set_land.setGeometry(QRect(0, 150, 699, 31))
+        self.set_land.setMinimumSize(QSize(0, 31))
+        self.set_land.setMaximumSize(QSize(16777215, 31))
+        self.lb_unit_2 = QLabel(self.set_land)
+        self.lb_unit_2.setObjectName(u"lb_unit_2")
+        self.lb_unit_2.setGeometry(QRect(667, 4, 20, 22))
+        self.lb_unit_2.setStyleSheet(u"QLabel {\n"
+"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	color: rgb(127, 140, 141);\n"
+"	padding-top: 3px;\n"
 "}")
-        self.cbx_land = QComboBox(self.part_1)
+        self.lb_unit_2.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.cbx_land = QComboBox(self.set_land)
         self.cbx_land.addItem("")
         self.cbx_land.addItem("")
         self.cbx_land.setObjectName(u"cbx_land")
-        self.cbx_land.setGeometry(QRect(90, 116, 100, 30))
+        self.cbx_land.setGeometry(QRect(90, 0, 100, 30))
         self.cbx_land.setMinimumSize(QSize(45, 0))
         self.cbx_land.setMaximumSize(QSize(100, 16777215))
         self.cbx_land.setStyleSheet(u"QComboBox {\n"
@@ -941,50 +952,109 @@ class Ui_MainWindow(object):
 "    background-color: lightblue\n"
 "}")
         self.cbx_land.setIconSize(QSize(0, 0))
-        self.lb_item_nm_7 = QLabel(self.part_1)
-        self.lb_item_nm_7.setObjectName(u"lb_item_nm_7")
-        self.lb_item_nm_7.setGeometry(QRect(420, 154, 60, 30))
-        self.lb_item_nm_7.setFont(font)
-        self.lb_item_nm_7.setStyleSheet(u"QLabel {\n"
-"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: #2c3e50;\n"
-"	padding-top: 2px;\n"
-"}")
-        self.lb_item_nm_3 = QLabel(self.part_1)
+        self.lb_item_nm_6 = QLabel(self.set_land)
+        self.lb_item_nm_6.setObjectName(u"lb_item_nm_6")
+        self.lb_item_nm_6.setGeometry(QRect(420, 1, 60, 29))
+        self.lb_item_nm_6.setFont(font)
+        self.lb_item_nm_6.setStyleSheet(u"")
+        self.lb_item_nm_3 = QLabel(self.set_land)
         self.lb_item_nm_3.setObjectName(u"lb_item_nm_3")
-        self.lb_item_nm_3.setGeometry(QRect(10, 116, 60, 30))
+        self.lb_item_nm_3.setGeometry(QRect(10, 1, 60, 29))
         self.lb_item_nm_3.setFont(font)
-        self.lb_item_nm_3.setStyleSheet(u"QLabel {\n"
-"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: #2c3e50;\n"
-"	padding-top: 2px;\n"
+        self.lb_item_nm_3.setStyleSheet(u"")
+        self.cbx_land_details = QComboBox(self.set_land)
+        self.cbx_land_details.setObjectName(u"cbx_land_details")
+        self.cbx_land_details.setGeometry(QRect(200, 0, 181, 30))
+        self.cbx_land_details.setMinimumSize(QSize(109, 0))
+        self.cbx_land_details.setMaximumSize(QSize(1677, 16777215))
+        self.cbx_land_details.setStyleSheet(u"QComboBox {\n"
+"    border: 1px solid gray;\n"
+"    padding: 3px 1px 1px 10px;\n"
+"    min-width: 6em;\n"
+"    background: rgb(255, 255, 255);\n"
+"    font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"    color: rgb(44, 62, 80);\n"
+"}\n"
+"\n"
+"QComboBox:focus {\n"
+"    padding: 3px 1px 1px 10px;\n"
+"    color: rgb(127, 140, 141);\n"
+"}\n"
+"\n"
+"QComboBox:hover {\n"
+"    border: 1px solid #3498db;\n"
+"}\n"
+"\n"
+"QComboBox:on { \n"
+"    padding-top: 3px;\n"
+"    padding-left: 4px;\n"
+"}\n"
+"\n"
+"QComboBox QAbstractItemView::item { \n"
+"	min-height: 30px; \n"
+"}\n"
+"\n"
+"QComboBox::drop-down {\n"
+"    subcontrol-origin: padding;\n"
+"    subcontrol-position: top right;\n"
+"    width: 30px;\n"
+"\n"
+"    border-left-width: 1px;\n"
+"    border-left-style: solid;\n"
+"    border-left-color: darkgray;\n"
+"    border-top-right-radius: 3px;\n"
+"    border-bottom-right-radius: 3px;\n"
+"}\n"
+"\n"
+"QComboBox::down-arrow {\n"
+"    image: url(../../data/img/system/down_arrow_icon.png);\n"
+"    width: 22px;\n"
+"    height: 22px;\n"
+""
+                        "}\n"
+"\n"
+"QComboBox::down-arrow:on {\n"
+"    top: 1px;\n"
+"    left: 1px;\n"
+"}\n"
+"QComboBox::setView {\n"
+"    color: rgb(44, 62, 80);\n"
+"    background-color: lightblue\n"
+"}\n"
+"\n"
+"QScrollBar:vertical {\n"
+"	width: 5px;\n"
+"	border-radius: 2px;\n"
+"	background: rgb(220,220,220);\n"
+"}\n"
+"\n"
+"QScrollBar::handle:vertical  {\n"
+"	border-radius: 2px;\n"
+"	background: rgba(84,102,120, 120);\n"
+"	min-height: 0px;\n"
+"}\n"
+"\n"
+"QScrollBar::handle:vertical:hover  {\n"
+"	border-radius: 2px;\n"
+"	background: rgba(134,152,170, 120);\n"
+"	min-height: 0px;\n"
+"}\n"
+"\n"
+"comboBox->setView(view);\n"
+"QListView::item:selected {\n"
+"    color: rgb(44, 62, 80);\n"
+"    background-color: lightblue\n"
 "}")
-        self.lb_item_nm_14 = QLabel(self.part_1)
-        self.lb_item_nm_14.setObjectName(u"lb_item_nm_14")
-        self.lb_item_nm_14.setGeometry(QRect(420, 355, 60, 30))
-        self.lb_item_nm_14.setFont(font)
-        self.lb_item_nm_14.setStyleSheet(u"QLabel {\n"
-"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: #2c3e50;\n"
-"	padding-top: 2px;\n"
-"}")
-        self.lb_sub_title_1 = QLabel(self.part_1)
-        self.lb_sub_title_1.setObjectName(u"lb_sub_title_1")
-        self.lb_sub_title_1.setGeometry(QRect(0, 0, 91, 16))
-        self.lb_sub_title_1.setStyleSheet(u"QLabel {\n"
-"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: rgb(127, 140, 141);\n"
-"}")
-        self.edt_down_pay = QLineEdit(self.part_1)
-        self.edt_down_pay.setObjectName(u"edt_down_pay")
-        self.edt_down_pay.setReadOnly(True)
-        self.edt_down_pay.setGeometry(QRect(200, 318, 181, 30))
-        self.edt_down_pay.setStyleSheet(u"QLineEdit {\n"
+        self.edt_area_land = QLineEdit(self.set_land)
+        self.edt_area_land.setObjectName(u"edt_area_land")
+        self.edt_area_land.setEnabled(True)
+        self.edt_area_land.setGeometry(QRect(500, 0, 191, 30))
+        self.edt_area_land.setStyleSheet(u"QLineEdit {\n"
 "	color: rgb(72,93,114);\n"
 "    font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	border: 1px solid #34495e;\n"
 "	padding-left: 10px;\n"
-"	padding-right: 33px;\n"
+"	padding-right: 23px;\n"
 "	padding-top: 3px;\n"
 "}\n"
 "\n"
@@ -996,98 +1066,19 @@ class Ui_MainWindow(object):
 "	border: 2px solid #3498db;\n"
 "}\n"
 "")
-        self.edt_down_pay.setMaxLength(15)
-        self.edt_down_pay.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
-        self.edt_mid_pay_1st = QLineEdit(self.part_1)
-        self.edt_mid_pay_1st.setObjectName(u"edt_mid_pay_1st")
-        self.edt_mid_pay_1st.setGeometry(QRect(90, 355, 291, 30))
-        self.edt_mid_pay_1st.setStyleSheet(u"QLineEdit {\n"
-"	color: rgb(72,93,114);\n"
-"    font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	border: 1px solid #34495e;\n"
-"	padding-left: 10px;\n"
-"	padding-right: 33px;\n"
-"	padding-top: 3px;\n"
-"}\n"
-"\n"
-"QLineEdit::hover {\n"
-"	border: 1px solid #3498db;\n"
-"}\n"
-"\n"
-"QLineEdit:focus {\n"
-"	border: 2px solid #3498db;\n"
-"}\n"
-"")
-        self.edt_mid_pay_1st.setMaxLength(15)
-        self.edt_mid_pay_1st.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
-        self.edt_balance_pay = QLineEdit(self.part_1)
-        self.edt_balance_pay.setObjectName(u"edt_balance_pay")
-        self.edt_balance_pay.setReadOnly(True)
-        self.edt_balance_pay.setGeometry(QRect(90, 429, 291, 30))
-        self.edt_balance_pay.setStyleSheet(u"QLineEdit {\n"
-"	color: rgb(72,93,114);\n"
-"    font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	border: 1px solid #34495e;\n"
-"	padding-left: 10px;\n"
-"	padding-right: 33px;\n"
-"	padding-top: 3px;\n"
-"}\n"
-"\n"
-"QLineEdit::hover {\n"
-"	border: 1px solid #3498db;\n"
-"}\n"
-"\n"
-"QLineEdit:focus {\n"
-"	border: 2px solid #3498db;\n"
-"}\n"
-"")
-        self.edt_balance_pay.setMaxLength(15)
-        self.edt_balance_pay.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
-        self.edt_amount = QLineEdit(self.part_1)
-        self.edt_amount.setObjectName(u"edt_amount")
-        self.edt_amount.setGeometry(QRect(90, 281, 291, 30))
-        self.edt_amount.setStyleSheet(u"QLineEdit {\n"
-"	color: rgb(72,93,114);\n"
-"    font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	border: 1px solid #34495e;\n"
-"	padding-left: 10px;\n"
-"	padding-right: 33px;\n"
-"	padding-top: 3px;\n"
-"}\n"
-"\n"
-"QLineEdit::hover {\n"
-"	border: 1px solid #3498db;\n"
-"}\n"
-"\n"
-"QLineEdit:focus {\n"
-"	border: 2px solid #3498db;\n"
-"}\n"
-"")
-        self.edt_amount.setMaxLength(15)
-        self.edt_amount.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
-        self.edt_2st_day = QLineEdit(self.part_1)
-        self.edt_2st_day.setObjectName(u"edt_2st_day")
-        self.edt_2st_day.setEnabled(True)
-        self.edt_2st_day.setGeometry(QRect(500, 392, 151, 30))
-        self.edt_2st_day.setStyleSheet(u"QLineEdit {\n"
-"	color: rgb(72,93,114);\n"
-"    font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	border: 1px solid #34495e;\n"
-"	padding-right: 5px;\n"
-"}\n"
-"\n"
-"QLineEdit::hover {\n"
-"	border: 1px solid #3498db;\n"
-"}\n"
-"\n"
-"QLineEdit:focus {\n"
-"	border: 2px solid #3498db;\n"
-"}\n"
-"")
-        self.edt_2st_day.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
-        self.label_5 = QLabel(self.part_1)
+        self.edt_area_land.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.cbx_land.raise_()
+        self.lb_item_nm_6.raise_()
+        self.lb_item_nm_3.raise_()
+        self.cbx_land_details.raise_()
+        self.edt_area_land.raise_()
+        self.lb_unit_2.raise_()
+        self.set_building = QWidget(self.part_1)
+        self.set_building.setObjectName(u"set_building")
+        self.set_building.setGeometry(QRect(0, 190, 701, 71))
+        self.label_5 = QLabel(self.set_building)
         self.label_5.setObjectName(u"label_5")
-        self.label_5.setGeometry(QRect(90, 154, 71, 30))
+        self.label_5.setGeometry(QRect(90, 0, 71, 30))
         self.label_5.setFont(font)
         self.label_5.setStyleSheet(u"QLabel {\n"
 "	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
@@ -1097,37 +1088,93 @@ class Ui_MainWindow(object):
 "	background-color: rgb(234, 234, 234);\n"
 "}")
         self.label_5.setAlignment(Qt.AlignCenter)
-        self.lb_item_nm_16 = QLabel(self.part_1)
-        self.lb_item_nm_16.setObjectName(u"lb_item_nm_16")
-        self.lb_item_nm_16.setGeometry(QRect(420, 429, 60, 30))
-        self.lb_item_nm_16.setFont(font)
-        self.lb_item_nm_16.setStyleSheet(u"QLabel {\n"
-"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: #2c3e50;\n"
-"	padding-top: 2px;\n"
+        self.cbx_purposes = QComboBox(self.set_building)
+        self.cbx_purposes.setObjectName(u"cbx_purposes")
+        self.cbx_purposes.setGeometry(QRect(160, 40, 221, 30))
+        self.cbx_purposes.setMinimumSize(QSize(109, 0))
+        self.cbx_purposes.setMaximumSize(QSize(1666, 16777215))
+        self.cbx_purposes.setStyleSheet(u"QComboBox {\n"
+"    border: 1px solid gray;\n"
+"    padding: 3px 1px 1px 10px;\n"
+"    min-width: 6em;\n"
+"    background: rgb(255, 255, 255);\n"
+"    font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"    color: rgb(44, 62, 80);\n"
+"}\n"
+"\n"
+"QComboBox:focus {\n"
+"    padding: 3px 1px 1px 10px;\n"
+"    color: rgb(127, 140, 141);\n"
+"}\n"
+"\n"
+"QComboBox:hover {\n"
+"    border: 1px solid #3498db;\n"
+"}\n"
+"\n"
+"QComboBox:on { \n"
+"    padding-top: 3px;\n"
+"    padding-left: 4px;\n"
+"}\n"
+"\n"
+"QComboBox QAbstractItemView::item { \n"
+"	min-height: 30px; \n"
+"}\n"
+"\n"
+"QComboBox::drop-down {\n"
+"    subcontrol-origin: padding;\n"
+"    subcontrol-position: top right;\n"
+"    width: 30px;\n"
+"\n"
+"    border-left-width: 1px;\n"
+"    border-left-style: solid;\n"
+"    border-left-color: darkgray;\n"
+"    border-top-right-radius: 3px;\n"
+"    border-bottom-right-radius: 3px;\n"
+"}\n"
+"\n"
+"QComboBox::down-arrow {\n"
+"    image: url(../../data/img/system/down_arrow_icon.png);\n"
+"    width: 22px;\n"
+"    height: 22px;\n"
+""
+                        "}\n"
+"\n"
+"QComboBox::down-arrow:on {\n"
+"    top: 1px;\n"
+"    left: 1px;\n"
+"}\n"
+"QComboBox::setView {\n"
+"    color: rgb(44, 62, 80);\n"
+"    background-color: lightblue\n"
+"}\n"
+"\n"
+"QScrollBar:vertical {\n"
+"	width: 5px;\n"
+"	border-radius: 2px;\n"
+"	background: rgb(220,220,220);\n"
+"}\n"
+"\n"
+"QScrollBar::handle:vertical  {\n"
+"	border-radius: 2px;\n"
+"	background: rgba(84,102,120, 120);\n"
+"	min-height: 0px;\n"
+"}\n"
+"\n"
+"QScrollBar::handle:vertical:hover  {\n"
+"	border-radius: 2px;\n"
+"	background: rgba(134,152,170, 120);\n"
+"	min-height: 0px;\n"
+"}\n"
+"\n"
+"comboBox->setView(view);\n"
+"QListView::item:selected {\n"
+"    color: rgb(44, 62, 80);\n"
+"    background-color: lightblue\n"
 "}")
-        self.lb_price_5 = QLabel(self.part_1)
-        self.lb_price_5.setObjectName(u"lb_price_5")
-        self.lb_price_5.setGeometry(QRect(346, 433, 31, 22))
-        self.lb_price_5.setStyleSheet(u"QLabel {\n"
-"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: rgb(127, 140, 141);\n"
-"	padding-top: 3px;\n"
-"}")
-        self.lb_price_5.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
-        self.lb_unit_3 = QLabel(self.part_1)
-        self.lb_unit_3.setObjectName(u"lb_unit_3")
-        self.lb_unit_3.setGeometry(QRect(667, 157, 20, 22))
-        self.lb_unit_3.setStyleSheet(u"QLabel {\n"
-"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: rgb(127, 140, 141);\n"
-"	padding-top: 3px;\n"
-"}")
-        self.lb_unit_3.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
-        self.edt_area_total = QLineEdit(self.part_1)
+        self.edt_area_total = QLineEdit(self.set_building)
         self.edt_area_total.setObjectName(u"edt_area_total")
         self.edt_area_total.setEnabled(True)
-        self.edt_area_total.setGeometry(QRect(500, 154, 191, 30))
+        self.edt_area_total.setGeometry(QRect(500, 0, 191, 30))
         self.edt_area_total.setStyleSheet(u"QLineEdit {\n"
 "	color: rgb(72,93,114);\n"
 "    font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
@@ -1146,68 +1193,140 @@ class Ui_MainWindow(object):
 "}\n"
 "")
         self.edt_area_total.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
-        self.edt_mid_pay_2st = QLineEdit(self.part_1)
-        self.edt_mid_pay_2st.setObjectName(u"edt_mid_pay_2st")
-        self.edt_mid_pay_2st.setGeometry(QRect(90, 392, 291, 30))
-        self.edt_mid_pay_2st.setStyleSheet(u"QLineEdit {\n"
-"	color: rgb(72,93,114);\n"
-"    font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	border: 1px solid #34495e;\n"
-"	padding-left: 10px;\n"
-"	padding-right: 33px;\n"
-"	padding-top: 3px;\n"
-"}\n"
-"\n"
-"QLineEdit::hover {\n"
-"	border: 1px solid #3498db;\n"
-"}\n"
-"\n"
-"QLineEdit:focus {\n"
-"	border: 2px solid #3498db;\n"
-"}\n"
-"")
-        self.edt_mid_pay_2st.setMaxLength(15)
-        self.edt_mid_pay_2st.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
-        self.lb_price_1 = QLabel(self.part_1)
-        self.lb_price_1.setObjectName(u"lb_price_1")
-        self.lb_price_1.setGeometry(QRect(346, 285, 31, 22))
-        self.lb_price_1.setStyleSheet(u"QLabel {\n"
+        self.lb_item_nm_4 = QLabel(self.set_building)
+        self.lb_item_nm_4.setObjectName(u"lb_item_nm_4")
+        self.lb_item_nm_4.setGeometry(QRect(10, 20, 60, 30))
+        self.lb_item_nm_4.setFont(font)
+        self.lb_item_nm_4.setStyleSheet(u"")
+        self.lb_unit_3 = QLabel(self.set_building)
+        self.lb_unit_3.setObjectName(u"lb_unit_3")
+        self.lb_unit_3.setGeometry(QRect(667, 4, 20, 22))
+        self.lb_unit_3.setStyleSheet(u"QLabel {\n"
 "	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	color: rgb(127, 140, 141);\n"
 "	padding-top: 3px;\n"
 "}")
-        self.lb_price_1.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
-        self.lb_item_nm_1 = QLabel(self.part_1)
-        self.lb_item_nm_1.setObjectName(u"lb_item_nm_1")
-        self.lb_item_nm_1.setGeometry(QRect(10, 40, 81, 30))
-        self.lb_item_nm_1.setFont(font)
-        self.lb_item_nm_1.setStyleSheet(u"QLabel {\n"
+        self.lb_unit_3.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.lb_item_nm_7 = QLabel(self.set_building)
+        self.lb_item_nm_7.setObjectName(u"lb_item_nm_7")
+        self.lb_item_nm_7.setGeometry(QRect(420, 1, 60, 29))
+        self.lb_item_nm_7.setFont(font)
+        self.lb_item_nm_7.setStyleSheet(u"")
+        self.cbx_structure = QComboBox(self.set_building)
+        self.cbx_structure.setObjectName(u"cbx_structure")
+        self.cbx_structure.setGeometry(QRect(160, 0, 221, 30))
+        self.cbx_structure.setMinimumSize(QSize(109, 0))
+        self.cbx_structure.setMaximumSize(QSize(1666, 16777215))
+        self.cbx_structure.setStyleSheet(u"QComboBox {\n"
+"    border: 1px solid gray;\n"
+"    padding: 3px 1px 1px 10px;\n"
+"    min-width: 6em;\n"
+"    background: rgb(255, 255, 255);\n"
+"    font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"    color: rgb(44, 62, 80);\n"
+"}\n"
+"\n"
+"QComboBox:focus {\n"
+"    padding: 3px 1px 1px 10px;\n"
+"    color: rgb(127, 140, 141);\n"
+"}\n"
+"\n"
+"QComboBox:hover {\n"
+"    border: 1px solid #3498db;\n"
+"}\n"
+"\n"
+"QComboBox:on { \n"
+"    padding-top: 3px;\n"
+"    padding-left: 4px;\n"
+"}\n"
+"\n"
+"QComboBox QAbstractItemView::item { \n"
+"	min-height: 30px; \n"
+"}\n"
+"\n"
+"QComboBox::drop-down {\n"
+"    subcontrol-origin: padding;\n"
+"    subcontrol-position: top right;\n"
+"    width: 30px;\n"
+"\n"
+"    border-left-width: 1px;\n"
+"    border-left-style: solid;\n"
+"    border-left-color: darkgray;\n"
+"    border-top-right-radius: 3px;\n"
+"    border-bottom-right-radius: 3px;\n"
+"}\n"
+"\n"
+"QComboBox::down-arrow {\n"
+"    image: url(../../data/img/system/down_arrow_icon.png);\n"
+"    width: 22px;\n"
+"    height: 22px;\n"
+""
+                        "}\n"
+"\n"
+"QComboBox::down-arrow:on {\n"
+"    top: 1px;\n"
+"    left: 1px;\n"
+"}\n"
+"QComboBox::setView {\n"
+"    color: rgb(44, 62, 80);\n"
+"    background-color: lightblue\n"
+"}\n"
+"\n"
+"QScrollBar:vertical {\n"
+"	width: 5px;\n"
+"	border-radius: 2px;\n"
+"	background: rgb(220,220,220);\n"
+"}\n"
+"\n"
+"QScrollBar::handle:vertical  {\n"
+"	border-radius: 2px;\n"
+"	background: rgba(84,102,120, 120);\n"
+"	min-height: 0px;\n"
+"}\n"
+"\n"
+"QScrollBar::handle:vertical:hover  {\n"
+"	border-radius: 2px;\n"
+"	background: rgba(134,152,170, 120);\n"
+"	min-height: 0px;\n"
+"}\n"
+"\n"
+"comboBox->setView(view);\n"
+"QListView::item:selected {\n"
+"    color: rgb(44, 62, 80);\n"
+"    background-color: lightblue\n"
+"}")
+        self.label_6 = QLabel(self.set_building)
+        self.label_6.setObjectName(u"label_6")
+        self.label_6.setGeometry(QRect(90, 40, 71, 30))
+        self.label_6.setFont(font)
+        self.label_6.setStyleSheet(u"QLabel {\n"
 "	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	color: #2c3e50;\n"
-"	padding-top: 2px;\n"
+"    border: 1px solid gray;\n"
+"	padding-top: 3px;\n"
+"	background-color: rgb(234, 234, 234);\n"
 "}")
-        self.edt_address = QLineEdit(self.part_1)
-        self.edt_address.setObjectName(u"edt_address")
-        self.edt_address.setEnabled(True)
-        self.edt_address.setGeometry(QRect(90, 40, 601, 30))
-        self.edt_address.setStyleSheet(u"QLineEdit {\n"
-"	color: rgb(72,93,114);\n"
-"    font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	border: 1px solid #34495e;\n"
-"	padding-left: 10px;\n"
-"}\n"
-"\n"
-"QLineEdit::hover {\n"
-"	border: 1px solid #3498db;\n"
-"}\n"
-"\n"
-"QLineEdit:focus {\n"
-"	border: 2px solid #3498db;\n"
-"}\n"
-"")
-        self.edt_sub_1 = QLineEdit(self.part_1)
+        self.label_6.setAlignment(Qt.AlignCenter)
+        self.set_sub_1 = QWidget(self.part_1)
+        self.set_sub_1.setObjectName(u"set_sub_1")
+        self.set_sub_1.setGeometry(QRect(420, 300, 271, 31))
+        self.lb_price_sub_1 = QLabel(self.set_sub_1)
+        self.lb_price_sub_1.setObjectName(u"lb_price_sub_1")
+        self.lb_price_sub_1.setGeometry(QRect(236, 5, 31, 22))
+        self.lb_price_sub_1.setStyleSheet(u"QLabel {\n"
+"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	color: rgb(127, 140, 141);\n"
+"	padding-top: 3px;\n"
+"}")
+        self.lb_price_sub_1.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.lb_item_nm_12 = QLabel(self.set_sub_1)
+        self.lb_item_nm_12.setObjectName(u"lb_item_nm_12")
+        self.lb_item_nm_12.setGeometry(QRect(0, 1, 60, 29))
+        self.lb_item_nm_12.setFont(font)
+        self.lb_item_nm_12.setStyleSheet(u"")
+        self.edt_sub_1 = QLineEdit(self.set_sub_1)
         self.edt_sub_1.setObjectName(u"edt_sub_1")
-        self.edt_sub_1.setGeometry(QRect(500, 281, 191, 30))
+        self.edt_sub_1.setGeometry(QRect(80, 0, 191, 30))
         self.edt_sub_1.setStyleSheet(u"QLineEdit {\n"
 "	color: rgb(72,93,114);\n"
 "    font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
@@ -1227,28 +1346,25 @@ class Ui_MainWindow(object):
 "")
         self.edt_sub_1.setMaxLength(15)
         self.edt_sub_1.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
-        self.lb_price_sub_1 = QLabel(self.part_1)
-        self.lb_price_sub_1.setObjectName(u"lb_price_sub_1")
-        self.lb_price_sub_1.setGeometry(QRect(656, 285, 31, 22))
-        self.lb_price_sub_1.setStyleSheet(u"QLabel {\n"
-"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: rgb(127, 140, 141);\n"
-"	padding-top: 3px;\n"
-"}")
-        self.lb_price_sub_1.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
-        self.lb_price_sub_2 = QLabel(self.part_1)
+        self.lb_item_nm_12.raise_()
+        self.edt_sub_1.raise_()
+        self.lb_price_sub_1.raise_()
+        self.set_sub_2 = QWidget(self.part_1)
+        self.set_sub_2.setObjectName(u"set_sub_2")
+        self.set_sub_2.setGeometry(QRect(420, 340, 271, 31))
+        self.lb_price_sub_2 = QLabel(self.set_sub_2)
         self.lb_price_sub_2.setObjectName(u"lb_price_sub_2")
-        self.lb_price_sub_2.setGeometry(QRect(656, 322, 31, 22))
+        self.lb_price_sub_2.setGeometry(QRect(236, 4, 31, 22))
         self.lb_price_sub_2.setStyleSheet(u"QLabel {\n"
 "	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	color: rgb(127, 140, 141);\n"
 "	padding-top: 3px;\n"
 "}")
         self.lb_price_sub_2.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
-        self.edt_sub_2 = QLineEdit(self.part_1)
+        self.edt_sub_2 = QLineEdit(self.set_sub_2)
         self.edt_sub_2.setObjectName(u"edt_sub_2")
         self.edt_sub_2.setEnabled(True)
-        self.edt_sub_2.setGeometry(QRect(500, 318, 191, 30))
+        self.edt_sub_2.setGeometry(QRect(80, 0, 191, 30))
         self.edt_sub_2.setStyleSheet(u"QLineEdit {\n"
 "	color: rgb(72,93,114);\n"
 "    font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
@@ -1268,169 +1384,23 @@ class Ui_MainWindow(object):
 "")
         self.edt_sub_2.setMaxLength(15)
         self.edt_sub_2.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
-        self.lb_item_nm_12 = QLabel(self.part_1)
-        self.lb_item_nm_12.setObjectName(u"lb_item_nm_12")
-        self.lb_item_nm_12.setGeometry(QRect(420, 281, 60, 30))
-        self.lb_item_nm_12.setFont(font)
-        self.lb_item_nm_12.setStyleSheet(u"QLabel {\n"
-"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: #2c3e50;\n"
-"	padding-top: 2px;\n"
-"}")
-        self.lb_item_nm_13 = QLabel(self.part_1)
+        self.lb_item_nm_13 = QLabel(self.set_sub_2)
         self.lb_item_nm_13.setObjectName(u"lb_item_nm_13")
-        self.lb_item_nm_13.setGeometry(QRect(420, 318, 71, 30))
+        self.lb_item_nm_13.setGeometry(QRect(0, 1, 71, 29))
         self.lb_item_nm_13.setFont(font)
-        self.lb_item_nm_13.setStyleSheet(u"QLabel {\n"
-"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: #2c3e50;\n"
-"	padding-top: 2px;\n"
-"}")
-        self.btn_1st_cal = QPushButton(self.part_1)
-        self.btn_1st_cal.setObjectName(u"btn_1st_cal")
-        self.btn_1st_cal.setGeometry(QRect(659, 356, 28, 28))
-        self.btn_1st_cal.setStyleSheet(u"QPushButton {\n"
-"	background-color: rgba(0,0,0,0);\n"
-"	border-radius: 4px;\n"
-"}\n"
-"\n"
-"QPushButton::hover {\n"
-"	background-color: rgba(44,62,80,50)\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"	background-color: rgba(44,62,80,80)\n"
-"}")
-        self.btn_2st_cal = QPushButton(self.part_1)
-        self.btn_2st_cal.setObjectName(u"btn_2st_cal")
-        self.btn_2st_cal.setGeometry(QRect(659, 393, 28, 28))
-        self.btn_2st_cal.setStyleSheet(u"QPushButton {\n"
-"	background-color: rgba(0,0,0,0);\n"
-"	border-radius: 4px;\n"
-"}\n"
-"\n"
-"QPushButton::hover {\n"
-"	background-color: rgba(44,62,80,50)\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"	background-color: rgba(44,62,80,80)\n"
-"}")
-        self.btn_balance_cal = QPushButton(self.part_1)
-        self.btn_balance_cal.setObjectName(u"btn_balance_cal")
-        self.btn_balance_cal.setGeometry(QRect(659, 430, 28, 28))
-        self.btn_balance_cal.setStyleSheet(u"QPushButton {\n"
-"	background-color: rgba(0,0,0,0);\n"
-"	border-radius: 4px;\n"
-"}\n"
-"\n"
-"QPushButton::hover {\n"
-"	background-color: rgba(44,62,80,50)\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"	background-color: rgba(44,62,80,80)\n"
-"}")
-        self.lb_korean_amount = QLineEdit(self.part_1)
-        self.lb_korean_amount.setObjectName(u"lb_korean_amount")
-        self.lb_korean_amount.setGeometry(QRect(94, 285, 141, 22))
-        self.lb_korean_amount.setStyleSheet(u"QLineEdit {\n"
-"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: rgb(67, 80, 81);\n"
-"	background-color: rgba(127, 140, 141, 50);\n"
-"	padding-top: 3px;\n"
-"	padding-right: 8px;\n"
-"	border: 0px;\n"
-"}")
-        self.lb_korean_amount.setReadOnly(True)
-        self.lb_korean_1st = QLineEdit(self.part_1)
-        self.lb_korean_1st.setObjectName(u"lb_korean_1st")
-        self.lb_korean_1st.setGeometry(QRect(94, 359, 141, 22))
-        self.lb_korean_1st.setStyleSheet(u"QLineEdit {\n"
-"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: rgb(67, 80, 81);\n"
-"	background-color: rgba(127, 140, 141, 50);\n"
-"	padding-top: 3px;\n"
-"	padding-right: 8px;\n"
-"	border: 0px;\n"
-"}")
-        self.lb_korean_1st.setReadOnly(True)
-        self.lb_korean_2st = QLineEdit(self.part_1)
-        self.lb_korean_2st.setObjectName(u"lb_korean_2st")
-        self.lb_korean_2st.setGeometry(QRect(94, 396, 141, 22))
-        self.lb_korean_2st.setStyleSheet(u"QLineEdit {\n"
-"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: rgb(67, 80, 81);\n"
-"	background-color: rgba(127, 140, 141, 50);\n"
-"	padding-top: 3px;\n"
-"	padding-right: 8px;\n"
-"	border: 0px;\n"
-"}")
-        self.lb_korean_2st.setReadOnly(True)
-        self.lb_korean_balance = QLineEdit(self.part_1)
-        self.lb_korean_balance.setObjectName(u"lb_korean_balance")
-        self.lb_korean_balance.setGeometry(QRect(94, 433, 141, 22))
-        self.lb_korean_balance.setStyleSheet(u"QLineEdit {\n"
-"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: rgb(67, 80, 81);\n"
-"	background-color: rgba(127, 140, 141, 50);\n"
-"	padding-top: 3px;\n"
-"	padding-right: 8px;\n"
-"	border: 0px;\n"
-"}")
-        self.lb_korean_balance.setReadOnly(True)
-        self.lb_item_nm_21 = QLabel(self.part_1)
-        self.lb_item_nm_21.setObjectName(u"lb_item_nm_21")
-        self.lb_item_nm_21.setGeometry(QRect(420, 192, 71, 30))
-        self.lb_item_nm_21.setFont(font)
-        self.lb_item_nm_21.setStyleSheet(u"QLabel {\n"
-"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: #2c3e50;\n"
-"	padding-top: 2px;\n"
-"}")
-        self.edt_land_areas = QLineEdit(self.part_1)
-        self.edt_land_areas.setObjectName(u"edt_land_areas")
-        self.edt_land_areas.setEnabled(True)
-        self.edt_land_areas.setGeometry(QRect(500, 192, 191, 30))
-        self.edt_land_areas.setStyleSheet(u"QLineEdit {\n"
-"	color: rgb(72,93,114);\n"
-"    font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	border: 1px solid #34495e;\n"
-"	padding-left: 10px;\n"
-"}\n"
-"\n"
-"QLineEdit::hover {\n"
-"	border: 1px solid #3498db;\n"
-"}\n"
-"\n"
-"QLineEdit:focus {\n"
-"	border: 2px solid #3498db;\n"
-"}\n"
-"")
-        self.edt_land_areas.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
-        self.cbx_structure.raise_()
-        self.edt_area_rental.raise_()
-        self.edt_address_details.raise_()
+        self.lb_item_nm_13.setStyleSheet(u"")
+        self.lb_item_nm_13.raise_()
+        self.edt_sub_2.raise_()
+        self.lb_price_sub_2.raise_()
         self.line_3.raise_()
-        self.lb_item_nm_6.raise_()
         self.lb_item_nm_9.raise_()
         self.edt_balance_day.raise_()
-        self.cbx_land_details.raise_()
         self.lb_item_nm_11.raise_()
-        self.label_6.raise_()
         self.lb_item_nm_10.raise_()
-        self.edt_area_land.raise_()
         self.lb_item_nm_15.raise_()
-        self.lb_item_nm_2.raise_()
-        self.lb_item_nm_5.raise_()
-        self.cbx_purposes.raise_()
         self.line_4.raise_()
         self.edt_1st_day.raise_()
-        self.lb_item_nm_4.raise_()
         self.lb_item_nm_8.raise_()
-        self.cbx_land.raise_()
-        self.lb_item_nm_7.raise_()
-        self.lb_item_nm_3.raise_()
         self.lb_item_nm_14.raise_()
         self.lb_sub_title_1.raise_()
         self.edt_down_pay.raise_()
@@ -1438,23 +1408,13 @@ class Ui_MainWindow(object):
         self.edt_balance_pay.raise_()
         self.edt_amount.raise_()
         self.edt_2st_day.raise_()
-        self.label_5.raise_()
         self.lb_item_nm_16.raise_()
         self.lb_price_5.raise_()
-        self.edt_area_total.raise_()
         self.edt_mid_pay_2st.raise_()
         self.lb_price_1.raise_()
-        self.lb_item_nm_1.raise_()
-        self.edt_address.raise_()
         self.lb_price_4.raise_()
         self.lb_price_3.raise_()
         self.lb_price_2.raise_()
-        self.edt_sub_1.raise_()
-        self.lb_price_sub_1.raise_()
-        self.edt_sub_2.raise_()
-        self.lb_price_sub_2.raise_()
-        self.lb_item_nm_12.raise_()
-        self.lb_item_nm_13.raise_()
         self.lb_sub_title_2.raise_()
         self.cbx_down_pay.raise_()
         self.btn_1st_cal.raise_()
@@ -1464,20 +1424,40 @@ class Ui_MainWindow(object):
         self.lb_korean_1st.raise_()
         self.lb_korean_2st.raise_()
         self.lb_korean_balance.raise_()
-        self.lb_item_nm_21.raise_()
-        self.edt_land_areas.raise_()
-        self.lb_unit_1.raise_()
-        self.lb_unit_3.raise_()
-        self.lb_unit_2.raise_()
+        self.set_rantal.raise_()
+        self.set_area.raise_()
+        self.set_address.raise_()
+        self.set_land.raise_()
+        self.set_building.raise_()
+        self.set_sub_1.raise_()
+        self.set_sub_2.raise_()
         self.stackedWidget.addWidget(self.page_2)
         self.page_3 = QWidget()
         self.page_3.setObjectName(u"page_3")
         self.part_2 = QFrame(self.page_3)
         self.part_2.setObjectName(u"part_2")
-        self.part_2.setGeometry(QRect(0, 0, 701, 481))
-        self.part_2.setStyleSheet(u"QFrame{\n"
-"	background-color: white;\n"
-"}")
+        self.part_2.setGeometry(QRect(0, 0, 701, 501))
+        self.part_2.setStyleSheet(u"QPushButton {\n"
+"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	color: white;\n"
+"	border: 0px;\n"
+"	padding-top: 3px;\n"
+"	background-color: rgb(84,102,120);\n"
+"	border-radius: 3px;\n"
+"}\n"
+"\n"
+"QPushButton::hover {\n"
+"	border: 0px;\n"
+"	background-color: rgb(104,122,140);\n"
+"	border-style: inset;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"	border: 0px;\n"
+"	background-color: rgb(64,82,100);\n"
+"	border-style: inset;\n"
+"}\n"
+"")
         self.lb_item_nm_17 = QLabel(self.part_2)
         self.lb_item_nm_17.setObjectName(u"lb_item_nm_17")
         self.lb_item_nm_17.setGeometry(QRect(10, 40, 60, 30))
@@ -1489,52 +1469,12 @@ class Ui_MainWindow(object):
 "}")
         self.btn_spell_check = QPushButton(self.part_2)
         self.btn_spell_check.setObjectName(u"btn_spell_check")
-        self.btn_spell_check.setGeometry(QRect(590, 400, 101, 30))
-        self.btn_spell_check.setStyleSheet(u"QPushButton {\n"
-"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: white;\n"
-"	border: 0px;\n"
-"	padding-top: 3px;\n"
-"	background-color: rgb(84,102,120);\n"
-"	border-radius: 3px;\n"
-"}\n"
-"\n"
-"QPushButton::hover {\n"
-"	border: 0px;\n"
-"	background-color: rgb(104,122,140);\n"
-"	border-style: inset;\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"	border: 0px;\n"
-"	background-color: rgb(64,82,100);\n"
-"	border-style: inset;\n"
-"}\n"
-"")
+        self.btn_spell_check.setGeometry(QRect(590, 424, 101, 30))
+        self.btn_spell_check.setStyleSheet(u"")
         self.btn_add = QPushButton(self.part_2)
         self.btn_add.setObjectName(u"btn_add")
         self.btn_add.setGeometry(QRect(590, 85, 101, 30))
-        self.btn_add.setStyleSheet(u"QPushButton {\n"
-"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: white;\n"
-"	border: 0px;\n"
-"	padding-top: 3px;\n"
-"	background-color: rgb(84,102,120);\n"
-"	border-radius: 3px;\n"
-"}\n"
-"\n"
-"QPushButton::hover {\n"
-"	border: 0px;\n"
-"	background-color: rgb(104,122,140);\n"
-"	border-style: inset;\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"	border: 0px;\n"
-"	background-color: rgb(64,82,100);\n"
-"	border-style: inset;\n"
-"}\n"
-"")
+        self.btn_add.setStyleSheet(u"")
         self.line_5 = QFrame(self.part_2)
         self.line_5.setObjectName(u"line_5")
         self.line_5.setGeometry(QRect(0, 10, 691, 20))
@@ -1554,7 +1494,7 @@ class Ui_MainWindow(object):
 "}")
         self.edt_agreement = QTextEdit(self.part_2)
         self.edt_agreement.setObjectName(u"edt_agreement")
-        self.edt_agreement.setGeometry(QRect(90, 240, 491, 231))
+        self.edt_agreement.setGeometry(QRect(90, 240, 491, 251))
         self.edt_agreement.setStyleSheet(u"QTextEdit {\n"
 "    font: 13px;\n"
 "	border: 1px solid #34495e;\n"
@@ -1642,7 +1582,7 @@ class Ui_MainWindow(object):
         self.lst_title.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
         self.lb_item_nm_18 = QLabel(self.part_2)
         self.lb_item_nm_18.setObjectName(u"lb_item_nm_18")
-        self.lb_item_nm_18.setGeometry(QRect(10, 330, 60, 30))
+        self.lb_item_nm_18.setGeometry(QRect(10, 350, 60, 30))
         self.lb_item_nm_18.setFont(font)
         self.lb_item_nm_18.setStyleSheet(u"QLabel {\n"
 "	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
@@ -1675,28 +1615,8 @@ class Ui_MainWindow(object):
 "}")
         self.btn_preview = QPushButton(self.part_2)
         self.btn_preview.setObjectName(u"btn_preview")
-        self.btn_preview.setGeometry(QRect(590, 436, 101, 30))
-        self.btn_preview.setStyleSheet(u"QPushButton {\n"
-"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: white;\n"
-"	border: 0px;\n"
-"	padding-top: 3px;\n"
-"	background-color: rgb(84,102,120);\n"
-"	border-radius: 3px;\n"
-"}\n"
-"\n"
-"QPushButton::hover {\n"
-"	border: 0px;\n"
-"	background-color: rgb(104,122,140);\n"
-"	border-style: inset;\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"	border: 0px;\n"
-"	background-color: rgb(64,82,100);\n"
-"	border-style: inset;\n"
-"}\n"
-"")
+        self.btn_preview.setGeometry(QRect(590, 460, 101, 30))
+        self.btn_preview.setStyleSheet(u"")
         self.lb_hint = QLabel(self.part_2)
         self.lb_hint.setObjectName(u"lb_hint")
         self.lb_hint.setGeometry(QRect(260, 192, 321, 20))
@@ -1708,60 +1628,42 @@ class Ui_MainWindow(object):
         self.btn_edit = QPushButton(self.part_2)
         self.btn_edit.setObjectName(u"btn_edit")
         self.btn_edit.setGeometry(QRect(590, 121, 101, 30))
-        self.btn_edit.setStyleSheet(u"QPushButton {\n"
-"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: white;\n"
-"	border: 0px;\n"
-"	padding-top: 3px;\n"
-"	background-color: rgb(84,102,120);\n"
-"	border-radius: 3px;\n"
-"}\n"
-"\n"
-"QPushButton::hover {\n"
-"	border: 0px;\n"
-"	background-color: rgb(104,122,140);\n"
-"	border-style: inset;\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"	border: 0px;\n"
-"	background-color: rgb(64,82,100);\n"
-"	border-style: inset;\n"
-"}\n"
-"")
+        self.btn_edit.setStyleSheet(u"")
         self.btn_del = QPushButton(self.part_2)
         self.btn_del.setObjectName(u"btn_del")
         self.btn_del.setGeometry(QRect(590, 157, 101, 30))
-        self.btn_del.setStyleSheet(u"QPushButton {\n"
-"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: white;\n"
-"	border: 0px;\n"
-"	padding-top: 3px;\n"
-"	background-color: rgb(84,102,120);\n"
-"	border-radius: 3px;\n"
-"}\n"
-"\n"
-"QPushButton::hover {\n"
-"	border: 0px;\n"
-"	background-color: rgb(104,122,140);\n"
-"	border-style: inset;\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"	border: 0px;\n"
-"	background-color: rgb(64,82,100);\n"
-"	border-style: inset;\n"
-"}\n"
-"")
+        self.btn_del.setStyleSheet(u"")
         self.stackedWidget.addWidget(self.page_3)
         self.page_4 = QWidget()
         self.page_4.setObjectName(u"page_4")
         self.part_3 = QFrame(self.page_4)
         self.part_3.setObjectName(u"part_3")
-        self.part_3.setGeometry(QRect(0, 0, 701, 481))
+        self.part_3.setGeometry(QRect(0, 0, 701, 501))
         self.part_3.setStyleSheet(u"QFrame{\n"
 "	background-color: white;\n"
-"}")
+"}\n"
+"\n"
+"QPushButton {\n"
+"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	color: white;\n"
+"	border: 0px;\n"
+"	padding-top: 3px;\n"
+"	background-color: rgb(84,102,120);\n"
+"	border-radius: 3px;\n"
+"}\n"
+"\n"
+"QPushButton::hover {\n"
+"	border: 0px;\n"
+"	background-color: rgb(104,122,140);\n"
+"	border-style: inset;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"	border: 0px;\n"
+"	background-color: rgb(64,82,100);\n"
+"	border-style: inset;\n"
+"}\n"
+"")
         self.line_7 = QFrame(self.part_3)
         self.line_7.setObjectName(u"line_7")
         self.line_7.setGeometry(QRect(0, 10, 691, 20))
@@ -1777,30 +1679,10 @@ class Ui_MainWindow(object):
         self.btn_add_c = QPushButton(self.part_3)
         self.btn_add_c.setObjectName(u"btn_add_c")
         self.btn_add_c.setGeometry(QRect(580, 30, 111, 30))
-        self.btn_add_c.setStyleSheet(u"QPushButton {\n"
-"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: white;\n"
-"	border: 0px;\n"
-"	padding-top: 3px;\n"
-"	background-color: rgb(84,102,120);\n"
-"	border-radius: 3px;\n"
-"}\n"
-"\n"
-"QPushButton::hover {\n"
-"	border: 0px;\n"
-"	background-color: rgb(104,122,140);\n"
-"	border-style: inset;\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"	border: 0px;\n"
-"	background-color: rgb(64,82,100);\n"
-"	border-style: inset;\n"
-"}\n"
-"")
+        self.btn_add_c.setStyleSheet(u"")
         self.lst_contractor = QListWidget(self.part_3)
         self.lst_contractor.setObjectName(u"lst_contractor")
-        self.lst_contractor.setGeometry(QRect(10, 80, 681, 367))
+        self.lst_contractor.setGeometry(QRect(10, 80, 681, 381))
         self.lst_contractor.setStyleSheet(u"QListWidget {\n"
 "	outline: none;\n"
 "	border: none;\n"
@@ -1833,12 +1715,12 @@ class Ui_MainWindow(object):
         self.lst_contractor.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
         self.line_2 = QFrame(self.part_3)
         self.line_2.setObjectName(u"line_2")
-        self.line_2.setGeometry(QRect(0, 448, 691, 20))
+        self.line_2.setGeometry(QRect(0, 460, 691, 20))
         self.line_2.setFrameShape(QFrame.HLine)
         self.line_2.setFrameShadow(QFrame.Sunken)
         self.lb_hint_3 = QLabel(self.part_3)
         self.lb_hint_3.setObjectName(u"lb_hint_3")
-        self.lb_hint_3.setGeometry(QRect(480, 464, 211, 16))
+        self.lb_hint_3.setGeometry(QRect(480, 476, 211, 16))
         self.lb_hint_3.setStyleSheet(u"QLabel {\n"
 "	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	color: rgb(127, 140, 141);\n"
@@ -1847,51 +1729,11 @@ class Ui_MainWindow(object):
         self.btn_add_b = QPushButton(self.part_3)
         self.btn_add_b.setObjectName(u"btn_add_b")
         self.btn_add_b.setGeometry(QRect(464, 30, 111, 30))
-        self.btn_add_b.setStyleSheet(u"QPushButton {\n"
-"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: white;\n"
-"	border: 0px;\n"
-"	padding-top: 3px;\n"
-"	background-color: rgb(84,102,120);\n"
-"	border-radius: 3px;\n"
-"}\n"
-"\n"
-"QPushButton::hover {\n"
-"	border: 0px;\n"
-"	background-color: rgb(104,122,140);\n"
-"	border-style: inset;\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"	border: 0px;\n"
-"	background-color: rgb(64,82,100);\n"
-"	border-style: inset;\n"
-"}\n"
-"")
+        self.btn_add_b.setStyleSheet(u"")
         self.btn_add_a = QPushButton(self.part_3)
         self.btn_add_a.setObjectName(u"btn_add_a")
         self.btn_add_a.setGeometry(QRect(348, 30, 111, 30))
-        self.btn_add_a.setStyleSheet(u"QPushButton {\n"
-"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: white;\n"
-"	border: 0px;\n"
-"	padding-top: 3px;\n"
-"	background-color: rgb(84,102,120);\n"
-"	border-radius: 3px;\n"
-"}\n"
-"\n"
-"QPushButton::hover {\n"
-"	border: 0px;\n"
-"	background-color: rgb(104,122,140);\n"
-"	border-style: inset;\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"	border: 0px;\n"
-"	background-color: rgb(64,82,100);\n"
-"	border-style: inset;\n"
-"}\n"
-"")
+        self.btn_add_a.setStyleSheet(u"")
         self.line_8 = QFrame(self.part_3)
         self.line_8.setObjectName(u"line_8")
         self.line_8.setGeometry(QRect(0, 60, 691, 20))
@@ -1923,16 +1765,16 @@ class Ui_MainWindow(object):
         self.page_5 = QWidget()
         self.page_5.setObjectName(u"page_5")
         self.stackedWidget.addWidget(self.page_5)
-        self.widget = QWidget(self.centralwidget)
-        self.widget.setObjectName(u"widget")
-        self.widget.setGeometry(QRect(0, 0, 720, 61))
-        self.widget.setStyleSheet(u"QWidget {\n"
+        self.top_bar = QWidget(self.centralwidget)
+        self.top_bar.setObjectName(u"top_bar")
+        self.top_bar.setGeometry(QRect(0, 0, 720, 61))
+        self.top_bar.setStyleSheet(u"QWidget {\n"
 "	background-color: rgb(245, 245, 245);\n"
 "	border-bottom: 1px solid;\n"
 "	border-top: 1px solid;\n"
 "	border-color: rgb(230, 230, 230);\n"
 "}")
-        self.lb_title = QLabel(self.widget)
+        self.lb_title = QLabel(self.top_bar)
         self.lb_title.setObjectName(u"lb_title")
         self.lb_title.setGeometry(QRect(260, 4, 210, 30))
         self.lb_title.setStyleSheet(u"QLabel{\n"
@@ -1944,7 +1786,7 @@ class Ui_MainWindow(object):
 "	border: 0px;\n"
 "}")
         self.lb_title.setAlignment(Qt.AlignCenter)
-        self.lb_sub_title = QLabel(self.widget)
+        self.lb_sub_title = QLabel(self.top_bar)
         self.lb_sub_title.setObjectName(u"lb_sub_title")
         self.lb_sub_title.setGeometry(QRect(270, 29, 190, 25))
         self.lb_sub_title.setStyleSheet(u"QLabel{\n"
@@ -1958,15 +1800,15 @@ class Ui_MainWindow(object):
         self.lb_sub_title.setAlignment(Qt.AlignCenter)
         self.lb_sub_title.raise_()
         self.lb_title.raise_()
-        self.widget_2 = QWidget(self.centralwidget)
-        self.widget_2.setObjectName(u"widget_2")
-        self.widget_2.setGeometry(QRect(0, 560, 721, 71))
-        self.widget_2.setStyleSheet(u"QWidget {\n"
+        self.bottom_bar = QWidget(self.centralwidget)
+        self.bottom_bar.setObjectName(u"bottom_bar")
+        self.bottom_bar.setGeometry(QRect(0, 580, 721, 71))
+        self.bottom_bar.setStyleSheet(u"QWidget {\n"
 "	background-color: rgb(245, 245, 245);\n"
 "	border-top: 1px solid;\n"
 "	border-color: rgb(230, 230, 230);\n"
 "}")
-        self.btn_back = QPushButton(self.widget_2)
+        self.btn_back = QPushButton(self.bottom_bar)
         self.btn_back.setObjectName(u"btn_back")
         self.btn_back.setGeometry(QRect(418, 15, 141, 40))
         self.btn_back.setStyleSheet(u"QPushButton {\n"
@@ -1992,7 +1834,7 @@ class Ui_MainWindow(object):
 "	border-style: inset;\n"
 "}\n"
 "")
-        self.btn_next = QPushButton(self.widget_2)
+        self.btn_next = QPushButton(self.bottom_bar)
         self.btn_next.setObjectName(u"btn_next")
         self.btn_next.setGeometry(QRect(568, 15, 141, 40))
         self.btn_next.setStyleSheet(u"QPushButton {\n"
@@ -2018,7 +1860,7 @@ class Ui_MainWindow(object):
 "	border-style: inset;\n"
 "}\n"
 "")
-        self.btn_provisions = QPushButton(self.widget_2)
+        self.btn_provisions = QPushButton(self.bottom_bar)
         self.btn_provisions.setObjectName(u"btn_provisions")
         self.btn_provisions.setGeometry(QRect(20, 20, 111, 31))
         self.btn_provisions.setStyleSheet(u"QPushButton {\n"
@@ -2049,25 +1891,14 @@ class Ui_MainWindow(object):
         QWidget.setTabOrder(self.btn_contract_1, self.btn_contract_2)
         QWidget.setTabOrder(self.btn_contract_2, self.btn_contract_3)
         QWidget.setTabOrder(self.btn_contract_3, self.cbx_contract)
-        QWidget.setTabOrder(self.cbx_contract, self.edt_address)
-        QWidget.setTabOrder(self.edt_address, self.edt_address_details)
-        QWidget.setTabOrder(self.edt_address_details, self.cbx_land)
-        QWidget.setTabOrder(self.cbx_land, self.cbx_land_details)
-        QWidget.setTabOrder(self.cbx_land_details, self.cbx_structure)
-        QWidget.setTabOrder(self.cbx_structure, self.cbx_purposes)
-        QWidget.setTabOrder(self.cbx_purposes, self.edt_area_rental)
-        QWidget.setTabOrder(self.edt_area_rental, self.edt_area_land)
-        QWidget.setTabOrder(self.edt_area_land, self.edt_area_total)
-        QWidget.setTabOrder(self.edt_area_total, self.edt_land_areas)
-        QWidget.setTabOrder(self.edt_land_areas, self.lb_korean_amount)
+        QWidget.setTabOrder(self.cbx_contract, self.lb_korean_amount)
         QWidget.setTabOrder(self.lb_korean_amount, self.cbx_down_pay)
         QWidget.setTabOrder(self.cbx_down_pay, self.edt_down_pay)
         QWidget.setTabOrder(self.edt_down_pay, self.edt_mid_pay_1st)
         QWidget.setTabOrder(self.edt_mid_pay_1st, self.lb_korean_2st)
         QWidget.setTabOrder(self.lb_korean_2st, self.edt_balance_pay)
         QWidget.setTabOrder(self.edt_balance_pay, self.edt_sub_1)
-        QWidget.setTabOrder(self.edt_sub_1, self.edt_sub_2)
-        QWidget.setTabOrder(self.edt_sub_2, self.edt_1st_day)
+        QWidget.setTabOrder(self.edt_sub_1, self.edt_1st_day)
         QWidget.setTabOrder(self.edt_1st_day, self.btn_1st_cal)
         QWidget.setTabOrder(self.btn_1st_cal, self.edt_2st_day)
         QWidget.setTabOrder(self.edt_2st_day, self.btn_2st_cal)
@@ -2113,42 +1944,22 @@ class Ui_MainWindow(object):
         self.cbx_down_pay.setItemText(2, QCoreApplication.translate("MainWindow", u"(\uc9c1\uc811\uc785\ub825)", None))
 
         self.lb_sub_title_2.setText(QCoreApplication.translate("MainWindow", u"2. \uacc4\uc57d \ub0b4\uc6a9", None))
-        self.edt_address_details.setText("")
-        self.lb_item_nm_6.setText(QCoreApplication.translate("MainWindow", u"\ub300 \uc9c0 \uba74 \uc801", None))
         self.lb_item_nm_9.setText(QCoreApplication.translate("MainWindow", u"\uacc4 \uc57d \uae08", None))
         self.lb_price_2.setText(QCoreApplication.translate("MainWindow", u"\ub9cc\uc6d0", None))
         self.edt_balance_day.setInputMask(QCoreApplication.translate("MainWindow", u"0000 \ub144  00 \uc6d4  00 \uc77c", None))
         self.lb_item_nm_11.setText(QCoreApplication.translate("MainWindow", u"\uc794 \u3000\uae08", None))
         self.lb_price_4.setText(QCoreApplication.translate("MainWindow", u"\ub9cc\uc6d0", None))
-        self.lb_unit_1.setText(QCoreApplication.translate("MainWindow", u"\u33a1", None))
-        self.label_6.setText(QCoreApplication.translate("MainWindow", u"\uc6a9    \ub3c4", None))
         self.lb_item_nm_10.setText(QCoreApplication.translate("MainWindow", u"\uc911 \ub3c4 \uae08", None))
         self.lb_item_nm_15.setText(QCoreApplication.translate("MainWindow", u"2\ucc28 \uc9c0\ubd88\uc77c", None))
         self.lb_price_3.setText(QCoreApplication.translate("MainWindow", u"\ub9cc\uc6d0", None))
-        self.lb_unit_2.setText(QCoreApplication.translate("MainWindow", u"\u33a1", None))
-        self.lb_item_nm_2.setText(QCoreApplication.translate("MainWindow", u"\uc784 \ub300 \ubd80 \ubd84", None))
-        self.lb_item_nm_5.setText(QCoreApplication.translate("MainWindow", u"\uc784 \ub300 \uba74 \uc801", None))
         self.edt_1st_day.setInputMask(QCoreApplication.translate("MainWindow", u"0000 \ub144  00 \uc6d4  00 \uc77c", None))
-        self.lb_item_nm_4.setText(QCoreApplication.translate("MainWindow", u"\uac74 \u3000\ubb3c", None))
         self.lb_item_nm_8.setText(QCoreApplication.translate("MainWindow", u"\ubcf4 \uc99d \uae08", None))
-        self.cbx_land.setItemText(0, QCoreApplication.translate("MainWindow", u"\uc9c0\ubaa9", None))
-        self.cbx_land.setItemText(1, QCoreApplication.translate("MainWindow", u"\ub300\ud45c\uc9c0\ubaa9", None))
-
-        self.lb_item_nm_7.setText(QCoreApplication.translate("MainWindow", u"\uc5f0 \uba74 \uc801", None))
-        self.lb_item_nm_3.setText(QCoreApplication.translate("MainWindow", u"\ud1a0 \u3000\uc9c0", None))
         self.lb_item_nm_14.setText(QCoreApplication.translate("MainWindow", u"1\ucc28 \uc9c0\ubd88\uc77c", None))
         self.lb_sub_title_1.setText(QCoreApplication.translate("MainWindow", u"1. \ubd80\ub3d9\uc0b0\uc758 \ud45c\uc2dc", None))
         self.edt_2st_day.setInputMask(QCoreApplication.translate("MainWindow", u"0000 \ub144  00 \uc6d4  00 \uc77c", None))
-        self.label_5.setText(QCoreApplication.translate("MainWindow", u"\uad6c    \uc870", None))
         self.lb_item_nm_16.setText(QCoreApplication.translate("MainWindow", u"\uc794 \uae08 \uc77c", None))
         self.lb_price_5.setText(QCoreApplication.translate("MainWindow", u"\ub9cc\uc6d0", None))
-        self.lb_unit_3.setText(QCoreApplication.translate("MainWindow", u"\u33a1", None))
         self.lb_price_1.setText(QCoreApplication.translate("MainWindow", u"\ub9cc\uc6d0", None))
-        self.lb_item_nm_1.setText(QCoreApplication.translate("MainWindow", u"\uc18c \uc7ac \uc9c0", None))
-        self.lb_price_sub_1.setText(QCoreApplication.translate("MainWindow", u"\ub9cc\uc6d0", None))
-        self.lb_price_sub_2.setText(QCoreApplication.translate("MainWindow", u"\ub9cc\uc6d0", None))
-        self.lb_item_nm_12.setText(QCoreApplication.translate("MainWindow", u"\uc735 \uc790 \uae08", None))
-        self.lb_item_nm_13.setText(QCoreApplication.translate("MainWindow", u"\uae30 \ubcf4 \uc99d \uae08", None))
         self.btn_1st_cal.setText("")
         self.btn_2st_cal.setText("")
         self.btn_balance_cal.setText("")
@@ -2156,7 +1967,33 @@ class Ui_MainWindow(object):
         self.lb_korean_1st.setText("")
         self.lb_korean_2st.setText("")
         self.lb_korean_balance.setText("")
-        self.lb_item_nm_21.setText(QCoreApplication.translate("MainWindow", u"\ub300\uc9c0\uad8c\uc885\ub958", None))
+        self.edt_address_details.setText("")
+        self.lb_item_nm_2.setText(QCoreApplication.translate("MainWindow", u"\uc784 \ub300 \ubd80 \ubd84", None))
+        self.lb_item_nm_5.setText(QCoreApplication.translate("MainWindow", u"\uc784 \ub300 \uba74 \uc801", None))
+        self.lb_unit_1.setText(QCoreApplication.translate("MainWindow", u"\u33a1", None))
+        self.edt_address_details_2.setText("")
+        self.lb_item_nm_22.setText(QCoreApplication.translate("MainWindow", u"\ub300\uc9c0\uad8c\ube44\uc728", None))
+        self.lb_item_nm_23.setText(QCoreApplication.translate("MainWindow", u"\ub300\uc9c0\uad8c\uc885\ub958", None))
+        self.lb_unit_4.setText(QCoreApplication.translate("MainWindow", u"\u33a1", None))
+        self.lb_item_nm_24.setText(QCoreApplication.translate("MainWindow", u"\ubd84\uc758", None))
+        self.edt_address_details_3.setText("")
+        self.lb_item_nm_1.setText(QCoreApplication.translate("MainWindow", u"\uc18c \uc7ac \uc9c0", None))
+        self.btn_search.setText(QCoreApplication.translate("MainWindow", u"\uc18c\uc7ac\uc9c0 \uac80\uc0c9", None))
+        self.lb_unit_2.setText(QCoreApplication.translate("MainWindow", u"\u33a1", None))
+        self.cbx_land.setItemText(0, QCoreApplication.translate("MainWindow", u"\uc9c0\ubaa9", None))
+        self.cbx_land.setItemText(1, QCoreApplication.translate("MainWindow", u"\ub300\ud45c\uc9c0\ubaa9", None))
+
+        self.lb_item_nm_6.setText(QCoreApplication.translate("MainWindow", u"\ub300 \uc9c0 \uba74 \uc801", None))
+        self.lb_item_nm_3.setText(QCoreApplication.translate("MainWindow", u"\ud1a0 \u3000\uc9c0", None))
+        self.label_5.setText(QCoreApplication.translate("MainWindow", u"\uad6c    \uc870", None))
+        self.lb_item_nm_4.setText(QCoreApplication.translate("MainWindow", u"\uac74 \u3000\ubb3c", None))
+        self.lb_unit_3.setText(QCoreApplication.translate("MainWindow", u"\u33a1", None))
+        self.lb_item_nm_7.setText(QCoreApplication.translate("MainWindow", u"\uc5f0 \uba74 \uc801", None))
+        self.label_6.setText(QCoreApplication.translate("MainWindow", u"\uc6a9    \ub3c4", None))
+        self.lb_price_sub_1.setText(QCoreApplication.translate("MainWindow", u"\ub9cc\uc6d0", None))
+        self.lb_item_nm_12.setText(QCoreApplication.translate("MainWindow", u"\uc735 \uc790 \uae08", None))
+        self.lb_price_sub_2.setText(QCoreApplication.translate("MainWindow", u"\ub9cc\uc6d0", None))
+        self.lb_item_nm_13.setText(QCoreApplication.translate("MainWindow", u"\uae30 \ubcf4 \uc99d \uae08", None))
         self.lb_item_nm_17.setText(QCoreApplication.translate("MainWindow", u"My \ud2b9 \uc57d", None))
         self.btn_spell_check.setText(QCoreApplication.translate("MainWindow", u"\ub9de\ucda4\ubc95 \uad50\uc815", None))
         self.btn_add.setText(QCoreApplication.translate("MainWindow", u"\ucd94      \uac00", None))

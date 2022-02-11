@@ -302,7 +302,6 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         # 총괄 표제부 주차장
         if self.total_buildings is not None:
             total = self.total_buildings
-            print("[###%s###]" % total['옥내자주식대수'].Value[0])
             in_land += int(total['옥내자주식대수'])
             in_mechanical += int(total['옥내기계식대수'])
 

@@ -101,10 +101,13 @@ class MainLease(QMainWindow, Ui_MainWindow):
         self.msg_background.hide()
         self.load_keyword()
 
+        # 서치 버튼 이미지
+        self.btn_search.setIcon(QIcon('../../data/img/button/search_icon.png'))
+        self.btn_search.setIconSize(QSize(22, 22))
+
     # 상호작용 init
     def _init_interaction(self):
         # 에디트 마우스 클릭
-        self.edt_address.mousePressEvent = self.clicked_address_edit
         # self.edt_c_company.mousePressEvent = self.find_company_event
 
         # 텍스트 체인지 이벤트
@@ -122,10 +125,13 @@ class MainLease(QMainWindow, Ui_MainWindow):
         # 버튼 클릭 이벤트
         self.btn_next.clicked.connect(lambda: self.page_change_event("next"))
         self.btn_back.clicked.connect(lambda: self.page_change_event("back"))
+        self.btn_search.clicked.connect(self.clicked_address_edit)
+        self.btn_del.clicked.connect(self.remove_agrs)
         self.cbx_down_pay.activated.connect(self.activated_deposit_cbx)
 
         # 계약자 추가 이벤트
-        self.btn_add_a.clicked.connect(lambda: self.insert_contractor(0))
+        self.btn_add_a.clicked.connect(self.test)
+        #.btn_add_a.clicked.connect(lambda: self.insert_contractor(0))
         self.btn_add_b.clicked.connect(lambda: self.insert_contractor(1))
         self.btn_add_c.clicked.connect(lambda: self.insert_contractor(2))
 
@@ -173,7 +179,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
         content_text = "\n".join(content_list)
         self.edt_agreement.setText(content_text)
 
-    ## UI 상호작용 이벤트
+    ## 계약 선택 페이지
     ################################################################################################
 
     # 계약 종류토글 선택
@@ -212,23 +218,50 @@ class MainLease(QMainWindow, Ui_MainWindow):
         button.setStyleSheet(btn_style_on)
         self.contract = self.contract_btn[button]
 
-    # 페이지 전환 이벤트
-    def page_change_event(self, v):
-        current_count = self.stackedWidget.getCurrent()
-        if v == "back":
-            if current_count == 1:
-                self.btn_provisions.hide()
-                self.btn_back.hide()
-            self.stackedWidget.slideInPrev()
+    # 계약종류 선택 후 라벨 세팅
+    def setting_ui_form(self):
+        select_item = self.cbx_contract.currentText()
+        set_list = ["아파트", "다세대주택", "연립주택", "도시형생활주택", "주상복합", "오피스텔", "상가", "사무실"]
 
-        elif v == "next":
-            if current_count == 0:
-                self.btn_back.show()
-                self.btn_provisions.show()
-                if self.lst_contractor.count() < 1:
-                    [self.insert_contractor(i) for i in range(3)]   # 기본 계약자 추가
-                self.setting_ui_form()
-            self.stackedWidget.slideInNext()
+        # 임대일 경우 임대부분 추가
+        self.set_rantal.show() if self.contract != 0 else self.set_rantal.hide()
+
+        # 집합 건물일 경우 대지권 추가
+        self.set_area.show() if select_item in set_list else self.set_area.hide()
+        self.set_area.move(0, 70 if self.set_rantal.isHidden() else 110)
+
+        # 토지 항목 위치 설정
+        land_y = 70 if self.set_rantal.isHidden() and self.set_area.isHidden() \
+                 else 110 if self.set_rantal.isHidden() or self.set_area.isHidden() else 150
+        self.set_land.move(0, land_y)
+
+        # '토지'일 경우 건물 항목 숨김
+        self.set_building.hide() if select_item == "토지" else self.set_building.show()
+        self.set_building.move(0, land_y + 40)
+
+        # 라벨 설정
+        self.lb_item_nm_8.setText("매 매 대 금") if self.contract == 0 else self.lb_item_nm_8.setText("보 증 금")
+        self.lb_item_nm_7.setText("전 용 면 적") if select_item in set_list else self.lb_item_nm_7.setText("연 면 적")
+
+        # 매매 계약일 경우
+        if self.contract == 0:
+            self.set_sub_1.show()
+            self.set_sub_2.show()
+            self.lb_item_nm_12.setText("융 자 금")
+
+        # 월세, 단기일 경우
+        elif (self.contract == 2) | (self.contract == 3):
+            self.set_sub_1.show()
+            self.set_sub_2.hide()
+            self.lb_item_nm_12.setText("월 차 임")
+
+        # 전세일 경우
+        else:
+            self.set_sub_1.hide()
+            self.set_sub_2.hide()
+
+    ## 부동산, 계약 금액 페이지
+    ################################################################################################
 
     # 소재지 찾기 에디트 클릭
     def clicked_address_edit(self, e):
@@ -243,26 +276,85 @@ class MainLease(QMainWindow, Ui_MainWindow):
 
             self.insert_address_event()
 
-    # 사무소찾기 에디트 클릭
-    def clicked_company_edit(self):
-        if len(self.address) != 0:
-            key = 'ff8e71ba71f059c00ec57f'
-            code = self.address[0]
+    # 받아온 주소 데이터 입력
+    def insert_address_event(self):
+        self.edt_area_rental.clear()
+        room = None
+        address, building, detail = self.address, self.select_building, self.select_detail
 
-            # dialog = func_dialog.Company(key, code[0:5])
-            # dialog.exec()
-            #
-            # if len(dialog.data) != 0:
-            #     self.company = dialog.data
-            #     self.edt_c_name.setText(self.company[3])
-            #     self.edt_c_company.setText(self.company[2])
+        print(self.address)
+        print(self.binfo)
+        print(self.select_detail)
+        print(self.select_building)
+
+        self.cbx_structure.setItemText(self.cbx_structure.count() - 1, "직접입력")
+        self.cbx_purposes.setItemText(self.cbx_purposes.count() - 1, "직접입력")
+
+        if address['지'] == "0":
+            old = "%s %s %s %s" % (address['시도'], address['시군구'], address['읍면동'], address['번'])
+        else:
+            old = "%s %s %s %s-%s" % (address['시도'], address['시군구'], address['읍면동'], address['번'], address['지'])
+
+        if self.binfo['타입'] == '일반':
+            room = "%s층" % detail['층명칭'].rstrip("층")
+
+            if self.binfo['일부']:
+                room = room + " 일부"
+            else:
+                self.edt_area_rental.setText(detail['층면적'])
+
+        elif self.binfo['타입'] == '집합':
+            room = "%s호" % detail['호명칭'].rstrip("호")
+
+            if len(detail['동명칭']) > 0:
+                room = "%s동 " % (detail['동명칭'].rstrip("동")) + room
+
+            if self.binfo['일부']:
+                room = room + " 일부"
+            else:
+                self.edt_area_rental.setText(detail['전용면적'])
+
+            old = "%s, %s" % (old, room)
+
+        # 건물명칭 있으면 입력
+        if self.address['건물명칭'] != "": old = "%s (%s)" % (old, self.address['건물명칭'])
+
+        self.edt_address.setText(old)  # 소재지
+        self.edt_address_details.setText(room)  # 임대부분
+        self.edt_area_land.setText('' if building['대지면적'] == '0' else building['대지면적'])  # 대지면적
+        self.edt_area_total.setText(building['연면적']) if self.lb_item_nm_7.text() == "연 면 적" \
+            else self.edt_area_total.setText(detail['전용면적'])
+
+        structure_index, purposes_index = [], []
+
+        # 구조 세팅
+        structure_list = [detail['주구조'], detail['기타구조'], building['주구조'], building['기타구조']]
+        for i in structure_list:
+            structure_index = self.cbx_structure.findText(i, Qt.MatchFixedString)
+            if structure_index > -1:
+                self.cbx_structure.setCurrentIndex(structure_index)
+                break
+        if structure_index == -1:
+            self.cbx_structure.setItemText(self.cbx_structure.count() - 1, detail['기타구조'])
+            self.cbx_structure.setCurrentIndex(self.cbx_structure.count() - 1)
+
+        # 용도 세팅
+        purposes_list = [detail['주용도'], detail['기타용도'], building['주용도'], building['기타용도']]
+        for i in purposes_list:
+            purposes_index = self.cbx_purposes.findText(i, Qt.MatchFixedString)
+            if purposes_index > -1:
+                self.cbx_purposes.setCurrentIndex(purposes_index)
+                break
+        if purposes_index == -1:
+            self.cbx_purposes.setItemText(self.cbx_purposes.count() - 1, detail['기타용도'])
+            self.cbx_purposes.setCurrentIndex(self.cbx_purposes.count() - 1)
 
     # 매매대금/보증금 입력 이벤트
     def changed_amount_edit(self):
         self.changed_down_pay_edit()
         self.insert_balance_edt()
         self.translation_into_kor("amount")
-    
+
     # 계약금 입력 이벤트
     def changed_down_pay_edit(self):
         amount = self.edt_amount.text()
@@ -314,53 +406,40 @@ class MainLease(QMainWindow, Ui_MainWindow):
             balance = amount - minus_pay
             self.edt_balance_pay.setText(str(balance))
 
+    ## 특약사항 페이지
+    ################################################################################################
+
+    # 특약 사항 삭제 이벤트
+    def remove_agrs(self):
+        keyword = self.lst_keyword.currentRow()
+        title = self.lst_title.currentRow()
+
+        # 키워드 삭제
+        if title == -1 and keyword != 0:
+            keyword_text = self.lst_keyword.currentItem().text()
+            result = self.agrs_data[self.agrs_data['keyword'] == keyword_text].index
+            self.agrs_data = self.agrs_data.drop(result)
+            self.lst_keyword.model().removeRow(keyword)
+            self.lst_title.clear()
+            self.edt_agreement.clear()
+
+        # 타이틀 삭제
+        elif keyword != 0:
+            keyword_text = self.lst_keyword.currentItem().text()
+            title_text = self.lst_title.currentItem().text()
+            result = self.agrs_data[self.agrs_data.keyword == keyword_text]
+            result = result[result.title == title_text].index
+            self.agrs_data = self.agrs_data.drop(result)
+            self.lst_title.model().removeRow(title)
+            self.edt_agreement.clear()
+
+            result = self.agrs_data[self.agrs_data.keyword == keyword_text]
+            if result.empty: self.lst_keyword.model().removeRow(self.lst_keyword.currentRow())
+
     # QMenu 이벤트
     def eventFilter(self, source, event):
-
-        # 키워드 리스트
-        if event.type() == QEvent.ContextMenu and source is self.lst_keyword:
-
-            # 클릭한 아이템 인덱스
-            item = source.itemAt(event.pos())
-            item_index = self.lst_keyword.indexFromItem(item)
-
-            # 우측 클릭 QMenu
-            menu = QMenu(self)
-
-            remove_action = menu.addAction("삭 제")
-            menu.addAction(remove_action)
-
-            menu_click = menu.exec(event.globalPos())
-
-            # QMenu '삭제' 클릭 시
-            if menu_click == remove_action:
-                self.delete_item("keyword", item_index)
-
-            return True
-
-        # 특약 리스트
-        elif event.type() == QEvent.ContextMenu and source is self.lst_title:
-
-            # 클릭한 아이템 인덱스
-            item = source.itemAt(event.pos())
-            item_index = self.lst_title.indexFromItem(item)
-
-            # 우측 클릭 QMenu
-            menu = QMenu(self)
-
-            remove_action = menu.addAction("삭 제")
-            menu.addAction(remove_action)
-
-            menu_click = menu.exec(event.globalPos())
-
-            # QMenu '삭제' 클릭 시
-            if menu_click == remove_action:
-                self.delete_item("title", item_index)
-
-            return True
-
         # 항목 리스트
-        elif event.type() == QEvent.ContextMenu and source is self.lst_contractor:
+        if event.type() == QEvent.ContextMenu and source is self.lst_contractor:
 
             # 클릭한 아이템 인덱스
             item = source.itemAt(event.pos())
@@ -376,109 +455,41 @@ class MainLease(QMainWindow, Ui_MainWindow):
 
             # QMenu '삭제' 클릭 시
             if menu_click == remove_action:
-                self.delete_item("contractor", item_index)
+                item = self.lst_contractor.currentItem()
+                item_widget = self.lst_contractor.itemWidget(item)
+                name = item_widget.cbx_name.currentText().replace(" ", "").replace("\n", "")
+
+                if name not in ["매도인", "매수인", "개업공인중개사"]:
+                    self.lst_contractor.model().removeRow(item_index.row())
+                else: self.info_msg(1, "해당 계약자 정보는 필수 입력 사항입니다.")
 
             return True
 
         return super(MainLease, self).eventFilter(source, event)
 
-    # 항목 삭제
-    def delete_item(self, cbx, item_index):
-        # 계약자 정보 삭제
-        if cbx == "contractor":
-            item = self.lst_contractor.currentItem()
-            item_widget = self.lst_contractor.itemWidget(item)
-            name = item_widget.cbx_name.currentText().replace(" ", "")
-            if "매도인" in name or "임대인" in name:
-                if self.a_count == 1: return
-                self.a_count -= 1
-            if "매수인" in name or "임차인" in name:
-                if self.b_count == 1: return
-                self.b_count -= 1
-            if "중개사" in name:
-                if self.c_count == 1: return
-                self.c_count -= 1
-            self.lst_contractor.model().removeRow(item_index.row())
-
-        # 특약 ) 키워드 삭제
-        elif cbx == "keyword":
-            if self.lst_keyword.currentRow() == 0: return
-            keyword = self.lst_keyword.currentItem().text()
-            
-            result = self.agrs_data[self.agrs_data['keyword'] == keyword].index
-            self.agrs_data = self.agrs_data.drop(result)
-            self.lst_keyword.model().removeRow(item_index.row())
-
-        # 특약) 타이틀 삭제
-        elif cbx == "title":
-            keyword = self.lst_keyword.currentItem()
-            title = self.lst_title.currentItem().text()
-
-            result = self.agrs_data[self.agrs_data.keyword == keyword.text()]
-            result = result[result.title == title].index
-            self.agrs_data = self.agrs_data.drop(result)
-            self.lst_title.model().removeRow(item_index.row())
-
-            result = self.agrs_data[self.agrs_data.keyword == keyword.text()]
-            if result.empty:
-                self.delete_item("keyword", self.lst_keyword.indexFromItem(keyword))
-
-    ## 기타 함수
+    ## 계약자 정보 페이지
     ################################################################################################
 
-    # 계약종류 선택 후 라벨 세팅
-    def setting_ui_form(self):
+    def test(self):
+        pos = 0
+        item_size = self.lst_contractor.model().rowCount()
+        for i in range(item_size):
+            item = self.lst_contractor.item(i)
+            item_widget = self.lst_contractor.itemWidget(item)
+            name = item_widget.cbx_name.currentText().replace(" ", "").replace("\n", "")
 
-        self.lb_item_nm_8.setText("보 증 금")
-        ##
-        # 매매 계약일 경우
-        if self.contract == 0:
-            self.lb_item_nm_8.setText("매 매 대 금")
+            # 매도/임대인
+            if cont == 0:
+                if name == "매도인" or name == "임대인": pos = i
 
-            # 서브 1
-            self.lb_item_nm_12.setText("융 자 금")
-            self.lb_item_nm_12.show()
-            self.edt_sub_1.show()
-            self.lb_price_sub_1.show()
+            # 매수/임차인
+            elif cont == 1:
+                if name == "매수인" or name == "임차인": pos = i
 
-            # 서브 2
-            self.lb_item_nm_13.show()
-            self.edt_sub_2.show()
-            self.lb_price_sub_2.show()
-
-            # 임대부분
-            self.lb_item_nm_2.setText("대지권종류")
-
-            # 임대면적
-            self.lb_item_nm_5.setText("대지권비율")
-
-            # 대지권종류
-            self.lb_item_nm_5.hide()
-            self.edt_land_type.hide()
-
-        elif self.contract == 1:
-            # 서브 1
-            self.lb_item_nm_12.hide()
-            self.edt_sub_1.hide()
-            self.lb_price_sub_1.hide()
-
-            # 서브 2
-            self.lb_item_nm_13.hide()
-            self.edt_sub_2.hide()
-            self.lb_price_sub_2.hide()
-
-        elif (self.contract == 2) | (self.contract == 3):
-            self.lb_item_nm_12.setText("월 차 임")
-
-            # 서브 1
-            self.lb_item_nm_12.show()
-            self.edt_sub_1.show()
-            self.lb_price_sub_1.show()
-
-            # 서브 2
-            self.lb_item_nm_13.hide()
-            self.edt_sub_2.hide()
-            self.lb_price_sub_2.hide()
+            # 중개사
+            elif cont == 2:
+                if name == "개업공인중개사": pos = i
+        print(pos)
 
     # 계약자 추가
     def insert_contractor(self, cont):
@@ -493,81 +504,40 @@ class MainLease(QMainWindow, Ui_MainWindow):
         elif cont == 1: self.b_count += 1
         elif cont == 2: self.c_count += 1
 
-    #
-    def insert_brief_event(self, category, intent_data):
-        obj = {"a": self.edt_a_address,
-               "b": self.edt_b_address}
-        obj[category].setText(intent_data['도로명주소'])
+    # 사무소찾기 에디트 클릭
+    def clicked_company_edit(self):
+        if len(self.address) != 0:
+            key = 'ff8e71ba71f059c00ec57f'
+            code = self.address[0]
 
-    # 받아온 주소 데이터 입력
-    def insert_address_event(self):
-        self.edt_area_rental.clear()
-        room = None
-        address, building, detail = self.address, self.select_building, self.select_detail
+            # dialog = func_dialog.Company(key, code[0:5])
+            # dialog.exec()
+            #
+            # if len(dialog.data) != 0:
+            #     self.company = dialog.data
+            #     self.edt_c_name.setText(self.company[3])
+            #     self.edt_c_company.setText(self.company[2])
 
-        print(self.address)
-        print(self.binfo)
-        print(self.select_detail)
-        print(self.select_building)
-
-        self.cbx_structure.setItemText(self.cbx_structure.count() - 1, "직접입력")
-        self.cbx_purposes.setItemText(self.cbx_purposes.count() - 1, "직접입력")
-
-        if address['지'] == "0":
-            old = "%s %s %s %s" % (address['시도'], address['시군구'], address['읍면동'], address['번'])
-        else: old = "%s %s %s %s-%s" % (address['시도'], address['시군구'], address['읍면동'], address['번'], address['지'])
-
-        if self.binfo['타입'] == '일반':
-            room = "%s층" % detail['층명칭'].rstrip("층")
-
-            if self.binfo['일부']: room = room + " 일부"
-            else: self.edt_area_rental.setText(detail['층면적'])
-
-        elif self.binfo['타입'] == '집합':
-            room = "%s호" % detail['호명칭'].rstrip("호")
-
-            if len(detail['동명칭']) > 0:
-                room = "%s동 " % (detail['동명칭'].rstrip("동")) + room
-
-            if self.binfo['일부']: room = room + " 일부"
-            else: self.edt_area_rental.setText(detail['전용면적'])
-
-            old = "%s, %s" % (old, room)
-
-        # 건물명칭 있으면 입력
-        if self.address['건물명칭'] != "": old = "%s (%s)" % (old, self.address['건물명칭'])
-
-        self.edt_address.setText(old)   # 소재지
-        self.edt_address_details.setText(room)  # 임대부분
-        self.edt_area_land.setText(building['대지면적'])    # 대지면적 
-        self.edt_area_total.setText(building['연면적'])    # 연면적
-
-        structure_index, purposes_index = [], []
-        
-        # 구조 세팅
-        structure_list = [detail['주구조'], detail['기타구조'], building['주구조'], building['기타구조']]
-        for i in structure_list:
-            structure_index = self.cbx_structure.findText(i, Qt.MatchFixedString)
-            if structure_index > -1:
-                self.cbx_structure.setCurrentIndex(structure_index)
-                break
-        if structure_index == -1:
-            self.cbx_structure.setItemText(self.cbx_structure.count() - 1, detail['기타구조'])
-            self.cbx_structure.setCurrentIndex(self.cbx_structure.count() - 1)
-            
-        # 용도 세팅
-        purposes_list = [detail['주용도'], detail['기타용도'], building['주용도'], building['기타용도']]
-        for i in purposes_list:
-            purposes_index = self.cbx_purposes.findText(i, Qt.MatchFixedString)
-            if purposes_index > -1:
-                self.cbx_purposes.setCurrentIndex(purposes_index)
-                break
-        if purposes_index == -1:
-            self.cbx_purposes.setItemText(self.cbx_purposes.count() - 1, detail['기타용도'])
-            self.cbx_purposes.setCurrentIndex(self.cbx_purposes.count() - 1)
-
-    ## 정규식, 텍스트 변환
+    ## 기타 기능, 함수
     ################################################################################################
+
+    # 페이지 전환 이벤트
+    def page_change_event(self, v):
+        current_count = self.stackedWidget.getCurrent()
+        if v == "back":
+            if current_count == 1:
+                self.btn_provisions.hide()
+                self.btn_back.hide()
+            self.stackedWidget.slideInPrev()
+
+        elif v == "next":
+            if current_count == 0:
+                self.btn_back.show()
+                self.btn_provisions.show()
+                if self.lst_contractor.count() < 1:
+                    [self.insert_contractor(i) for i in range(3)]   # 기본 계약자 추가
+                self.setting_ui_form()
+            self.stackedWidget.slideInNext()
 
     # 금액 한글로 변경
     def translation_into_kor(self, category):
@@ -702,7 +672,6 @@ def mask_money(txt):
     txt = re.sub(r'[^0-9]', '', txt)
     txt = format(int(txt), ',')
     return str(txt)
-
 
 # 숫자 -> 한글 변환 함수
 def num_kor_read(num):  # num은 각 자리 숫자들의 리스트
@@ -888,7 +857,7 @@ class ContractorItem(QWidget):
         elif contractor == 2:
             if current_count[2] == 0:    # 중개사 아이템이 없을 경우
                 self.cbx_name.addItem("개 업\n공인중개사")
-            else: self.cbx_name.addItem("개 업 (공동)\n공인중개사")
+            else: self.cbx_name.addItem("개업 (공동)\n공인중개사")
             self._contractor_c()
 
     def _contractor_ab(self):
@@ -986,8 +955,8 @@ class ContractorItem(QWidget):
 
 # 문자열
 class str_list:
-    contract_list = ["아파트", "주상복합", "연립주택", "다중주택", "다세대주택", "단독주택", "다가구주택", "도시형생활주택", "주택",
-                     "오피스텔", "원룸", "상가", "상가점포", "상가주택", "상가건물", "건물", "사무실", "토지", "공장", "창고", "( 직접입력 )"]
+    contract_list = ["아파트", "다세대주택", "연립주택", "다가구주택", "단독주택", "다중주택", "도시형생활주택", "주상복합",
+                     "오피스텔", "원룸", "상가", "상가점포", "상가주택", "상가건물", "건물", "사무실", "토지", "공장", "창고"]
     land_details_list = ["대", "전", "답", "임야", "공원", "구거", "도로", "염전", "제방", "하천", "유지", "묘지", "과수원",
                          "양어장", "주차장", "유원지", "광천지", "사적지", "잡종지", "공장용지", "창고용지", "학교용지", "종교용지",
                          "체육용지", "수도용지", "목장용지", "철도용지", "주유소용지", "기타", "( 직접입력 )"]
