@@ -130,10 +130,9 @@ class MainLease(QMainWindow, Ui_MainWindow):
         self.cbx_down_pay.activated.connect(self.activated_deposit_cbx)
 
         # 계약자 추가 이벤트
-        self.btn_add_a.clicked.connect(self.test)
-        #.btn_add_a.clicked.connect(lambda: self.insert_contractor(0))
-        self.btn_add_b.clicked.connect(lambda: self.insert_contractor(1))
-        self.btn_add_c.clicked.connect(lambda: self.insert_contractor(2))
+        self.btn_add_a.clicked.connect(lambda: self.clicked_insert_btn(0))
+        self.btn_add_b.clicked.connect(lambda: self.clicked_insert_btn(1))
+        self.btn_add_c.clicked.connect(lambda: self.clicked_insert_btn(2))
 
         # 리스트 이벤트 필터
         self.lst_keyword.installEventFilter(self)
@@ -214,6 +213,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
                         border-style: inset; }
                     """
 
+        self.lst_contractor.clear()
         for i in self.btn_group.buttons(): i.setStyleSheet(btn_style_off)
         button.setStyleSheet(btn_style_on)
         self.contract = self.contract_btn[button]
@@ -470,8 +470,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
     ## 계약자 정보 페이지
     ################################################################################################
 
-    def test(self):
-        pos = 0
+    def clicked_insert_btn(self, cont, pos=0):
         item_size = self.lst_contractor.model().rowCount()
         for i in range(item_size):
             item = self.lst_contractor.item(i)
@@ -489,20 +488,15 @@ class MainLease(QMainWindow, Ui_MainWindow):
             # 중개사
             elif cont == 2:
                 if name == "개업공인중개사": pos = i
-        print(pos)
+        self.insert_contractor(False, cont, pos)
 
     # 계약자 추가
-    def insert_contractor(self, cont):
-        current_count = [self.a_count, self.b_count, self.c_count]
-
-        custom_item = ContractorItem(self.contract, cont, current_count)
+    def insert_contractor(self, first, cont, pos=0):
+        custom_item = ContractorItem(first, self.contract, cont)
         item = QListWidgetItem(self.lst_contractor)
         item.setSizeHint(QSize(custom_item.width(), 80))
         self.lst_contractor.setItemWidget(item, custom_item)
-
-        if cont == 0: self.a_count += 1
-        elif cont == 1: self.b_count += 1
-        elif cont == 2: self.c_count += 1
+        self.lst_contractor.setCurrentRow()
 
     # 사무소찾기 에디트 클릭
     def clicked_company_edit(self):
@@ -535,7 +529,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
                 self.btn_back.show()
                 self.btn_provisions.show()
                 if self.lst_contractor.count() < 1:
-                    [self.insert_contractor(i) for i in range(3)]   # 기본 계약자 추가
+                    [self.insert_contractor(True, i) for i in range(3)]   # 기본 계약자 추가
                 self.setting_ui_form()
             self.stackedWidget.slideInNext()
 
@@ -717,7 +711,7 @@ def my_exception_hook(exctype, value, traceback):
 
 
 class ContractorItem(QWidget):
-    def __init__(self, contract, contractor, current_count):
+    def __init__(self, first, contract, contractor):
         super(ContractorItem, self).__init__()
         self.edt_css = """QLineEdit {
                      color: rgb(72,93,114);
@@ -839,23 +833,21 @@ class ContractorItem(QWidget):
 
         # contractor [ 0: 매도인/임대인, 1: 매수인/임차인, 2: 중개사 ]
         if contractor == 0:
-            if current_count[0] == 0:    # 매도/임대인이 아이템이 없을 경우
+            if first:    # 매도/임대인이 아이템이 없을 경우
                 if contract == 0: self.cbx_name.addItem("매 도 인")
                 else: self.cbx_name.addItem("임 대 인")
             else: self.cbx_name.addItems(names)
-
             self._contractor_ab()
 
         elif contractor == 1:
-            if current_count[1] == 0:  # 매도/임대인이 아이템이 없을 경우
+            if first:    # 매수/임차인 아이템이 없을 경우
                 if contract == 0: self.cbx_name.addItem("매 수 인")
                 else: self.cbx_name.addItem("임 차 인")
             else: self.cbx_name.addItems(names)
-
             self._contractor_ab()
 
         elif contractor == 2:
-            if current_count[2] == 0:    # 중개사 아이템이 없을 경우
+            if first:    # 중개사 아이템이 없을 경우
                 self.cbx_name.addItem("개 업\n공인중개사")
             else: self.cbx_name.addItem("개업 (공동)\n공인중개사")
             self._contractor_c()
