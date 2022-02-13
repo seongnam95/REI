@@ -19,7 +19,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
 
         # 특약 불러오기
         try:
-            self.agrs_data = pd.read_csv('../../data/val/agrs.csv', sep=",", encoding='cp949')
+            self.agrs_data = pd.read_csv('../../data/val/agrs.csv', sep=",")
         except FileNotFoundError:
             return
 
@@ -128,7 +128,9 @@ class MainLease(QMainWindow, Ui_MainWindow):
         self.btn_next.clicked.connect(lambda: self.page_change_event("next"))
         self.btn_back.clicked.connect(lambda: self.page_change_event("back"))
         self.btn_search.clicked.connect(self.clicked_address_edit)
-        self.btn_del.clicked.connect(self.remove_agrs)
+        self.btn_add.clicked.connect(self.clicked_add_btn)
+        self.btn_del.clicked.connect(self.clicked_remove_btn)
+        self.btn_edit.clicked.connect(self.clicked_edit_btn)
         self.cbx_down_pay.activated.connect(self.activated_deposit_cbx)
 
         # 계약자 추가 이벤트
@@ -419,8 +421,13 @@ class MainLease(QMainWindow, Ui_MainWindow):
     ## 특약사항 페이지
     ################################################################################################
 
-    # 특약 사항 삭제 이벤트
-    def remove_agrs(self):
+    # 특약사항 추가 이벤트
+    def clicked_add_btn(self):
+        print(self.agrs_data)
+        return
+
+    # 특약사항 삭제 이벤트
+    def clicked_remove_btn(self):
         keyword = self.lst_keyword.currentRow()
         title = self.lst_title.currentRow()
 
@@ -432,6 +439,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
             self.lst_keyword.model().removeRow(keyword)
             self.lst_title.clear()
             self.edt_agreement.clear()
+            self.agrs_data.to_csv("../../data/val/agrs.csv", sep=",", index=False)
 
         # 타이틀 삭제
         elif keyword != 0:
@@ -445,6 +453,65 @@ class MainLease(QMainWindow, Ui_MainWindow):
 
             result = self.agrs_data[self.agrs_data.keyword == keyword_text]
             if result.empty: self.lst_keyword.model().removeRow(self.lst_keyword.currentRow())
+
+            self.agrs_data.to_csv("../../data/val/agrs.csv", sep=",", index=False)
+
+    # 특약사항 편집 이벤트
+    def clicked_edit_btn(self):
+        return
+
+    # 특약사항 저장
+    def saved_agrs(self):
+        return
+
+    ## 계약자 정보 페이지
+    ################################################################################################
+
+    # 계약자 추가 버튼
+    def clicked_insert_btn(self, cont, pos=0):
+        item_size = self.lst_contractor.model().rowCount()
+        for i in range(item_size):
+            item = self.lst_contractor.item(i)
+            item_widget = self.lst_contractor.itemWidget(item)
+            name = item_widget.cbx_name.currentText().replace(" ", "").replace("\n", "")
+
+            # 매도/임대인
+            if cont == 0:
+                if name == "매도인" or name == "임대인": pos = i
+
+            # 매수/임차인
+            elif cont == 1:
+                if name == "매수인" or name == "임차인": pos = i
+
+            # 중개사
+            elif cont == 2:
+                if name == "개업공인중개사": pos = i
+        self.insert_contractor(False, cont, pos)
+
+    # 계약자 추가
+    def insert_contractor(self, first, cont, pos=0):
+        custom_item = ContractorItem(first, self.contract, cont)
+        item = QListWidgetItem()
+        item.setSizeHint(QSize(custom_item.width(), 80))
+
+        if first: self.lst_contractor.addItem(item)
+        else: self.lst_contractor.insertItem(pos + 1, item)
+
+        self.lst_contractor.setItemWidget(item, custom_item)
+
+    # 사무소찾기 에디트 클릭
+    def clicked_company_edit(self):
+        if len(self.address) != 0:
+            key = 'ff8e71ba71f059c00ec57f'
+            code = self.address[0]
+
+            # dialog = func_dialog.Company(key, code[0:5])
+            # dialog.exec()
+            #
+            # if len(dialog.data) != 0:
+            #     self.company = dialog.data
+            #     self.edt_c_name.setText(self.company[3])
+            #     self.edt_c_company.setText(self.company[2])
 
     # QMenu 이벤트
     def eventFilter(self, source, event):
@@ -477,53 +544,6 @@ class MainLease(QMainWindow, Ui_MainWindow):
             return True
 
         return super(MainLease, self).eventFilter(source, event)
-
-    ## 계약자 정보 페이지
-    ################################################################################################
-
-    def clicked_insert_btn(self, cont, pos=0):
-        item_size = self.lst_contractor.model().rowCount()
-        for i in range(item_size):
-            item = self.lst_contractor.item(i)
-            item_widget = self.lst_contractor.itemWidget(item)
-            name = item_widget.cbx_name.currentText().replace(" ", "").replace("\n", "")
-
-            # 매도/임대인
-            if cont == 0:
-                if name == "매도인" or name == "임대인": pos = i
-
-            # 매수/임차인
-            elif cont == 1:
-                if name == "매수인" or name == "임차인": pos = i
-
-            # 중개사
-            elif cont == 2:
-                if name == "개업공인중개사": pos = i
-        self.insert_contractor(False, cont, pos)
-
-    # 계약자 추가
-    def insert_contractor(self, first, cont, pos=0):
-        custom_item = ContractorItem(first, self.contract, cont)
-        item = QListWidgetItem(self.lst_contractor)
-        item.setSizeHint(QSize(custom_item.width(), 80))
-        self.lst_contractor.setItemWidget(item, custom_item)
-        self.lst_contractor.item(self.lst_contractor.size()-1)
-        print(pos)
-        self.lst_contractor.insertItem(pos, item)
-
-    # 사무소찾기 에디트 클릭
-    def clicked_company_edit(self):
-        if len(self.address) != 0:
-            key = 'ff8e71ba71f059c00ec57f'
-            code = self.address[0]
-
-            # dialog = func_dialog.Company(key, code[0:5])
-            # dialog.exec()
-            #
-            # if len(dialog.data) != 0:
-            #     self.company = dialog.data
-            #     self.edt_c_name.setText(self.company[3])
-            #     self.edt_c_company.setText(self.company[2])
 
     ## 기타 기능, 함수
     ################################################################################################
