@@ -18,15 +18,17 @@ class MainLease(QMainWindow, Ui_MainWindow):
         super(MainLease, self).__init__(*args, **kwargs)
 
         # 특약 불러오기
-        try:  self.agrs_data = pd.read_csv('../../data/val/agrs.csv', sep=",", encoding='cp949')
-        except FileNotFoundError: return
+        try:
+            self.agrs_data = pd.read_csv('../../data/val/agrs.csv', sep=",", encoding='cp949')
+        except FileNotFoundError:
+            return
 
         self._init_ui()
         self._init_interaction()
 
-        self.get_building_thread = None     # 토지, 지역지구, 공시지가 스레드
-        self.binfo, self.address = None, None   # 주소
-        self.select_detail, self.select_building, self.total_buildings = None, None, None    # 표제부, 총괄 표제부
+        self.get_building_thread = None  # 토지, 지역지구, 공시지가 스레드
+        self.binfo, self.address = None, None  # 주소
+        self.select_detail, self.select_building, self.total_buildings = None, None, None  # 표제부, 총괄 표제부
         self.owners, self.prices, self.pk = None, None, None  # 소유자, 공시가격, 건축물대장 PK
 
         self.page, self.contract = None, None  # 페이지, 계약 종류
@@ -232,7 +234,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
 
         # 토지 항목 위치 설정
         land_y = 70 if self.set_rantal.isHidden() and self.set_area.isHidden() \
-                 else 110 if self.set_rantal.isHidden() or self.set_area.isHidden() else 150
+            else 110 if self.set_rantal.isHidden() or self.set_area.isHidden() else 150
         self.set_land.move(0, land_y)
 
         # '토지'일 경우 건물 항목 숨김
@@ -366,9 +368,12 @@ class MainLease(QMainWindow, Ui_MainWindow):
         else:
             amount = int(re.sub(r'[^0-9]', '', amount))
 
-            if select_item == 0: down_pay = int(amount * 0.1)
-            elif select_item == 1: down_pay = int(amount * 0.05)
-            else: down_pay = self.edt_down_pay.text()
+            if select_item == 0:
+                down_pay = int(amount * 0.1)
+            elif select_item == 1:
+                down_pay = int(amount * 0.05)
+            else:
+                down_pay = self.edt_down_pay.text()
 
             self.edt_down_pay.setText(str(down_pay))
 
@@ -376,9 +381,11 @@ class MainLease(QMainWindow, Ui_MainWindow):
     def activated_deposit_cbx(self):
 
         select_item = self.cbx_down_pay.currentIndex()
-        if select_item == 0: self.edt_down_pay.setReadOnly(True)
-        elif select_item == 1: self.edt_down_pay.setReadOnly(True)
-        else:   # 직접 입력
+        if select_item == 0:
+            self.edt_down_pay.setReadOnly(True)
+        elif select_item == 1:
+            self.edt_down_pay.setReadOnly(True)
+        else:  # 직접 입력
             self.edt_down_pay.setReadOnly(False)
             self.edt_down_pay.setFocus()
 
@@ -390,17 +397,20 @@ class MainLease(QMainWindow, Ui_MainWindow):
         # 입력된 값이 있다면 int로 변환, 없다면 0
         amount = int(re.sub(r'[^0-9]', '', self.edt_amount.text())) if self.edt_amount.text() != "" else 0
         down_pay = int(re.sub(r'[^0-9]', '', self.edt_down_pay.text())) if self.edt_down_pay.text() != "" else 0
-        mid_pay_1st = int(re.sub(r'[^0-9]', '', self.edt_mid_pay_1st.text())) if self.edt_mid_pay_1st.text() != "" else 0
-        mid_pay_2st = int(re.sub(r'[^0-9]', '', self.edt_mid_pay_2st.text())) if self.edt_mid_pay_2st.text() != "" else 0
+        mid_pay_1st = int(
+            re.sub(r'[^0-9]', '', self.edt_mid_pay_1st.text())) if self.edt_mid_pay_1st.text() != "" else 0
+        mid_pay_2st = int(
+            re.sub(r'[^0-9]', '', self.edt_mid_pay_2st.text())) if self.edt_mid_pay_2st.text() != "" else 0
         minus_pay = down_pay + mid_pay_1st + mid_pay_2st
 
         if amount < minus_pay:
             if self.focusWidget() == self.edt_amount:
                 self.edt_balance_pay.clear()
                 return
-            if self.contract == 0: self.info_msg(2, "계약금과 중도금의 합은 매매대금 보다 많을 수 없습니다.")
-            else: self.info_msg(2, "계약금과 중도금의 합은 보증금 보다 많을 수 없습니다.")
-            self.focusWidget().clear()
+            if self.contract == 0:
+                self.info_msg(2, "계약금과 중도금의 합은 매매대금 보다 많을 수 없습니다.")
+            else:
+                self.info_msg(2, "계약금과 중도금의 합은 보증금 보다 많을 수 없습니다.")
 
         else:
             balance = amount - minus_pay
@@ -461,7 +471,8 @@ class MainLease(QMainWindow, Ui_MainWindow):
 
                 if name not in ["매도인", "매수인", "개업공인중개사"]:
                     self.lst_contractor.model().removeRow(item_index.row())
-                else: self.info_msg(1, "해당 계약자 정보는 필수 입력 사항입니다.")
+                else:
+                    self.info_msg(1, "해당 계약자 정보는 필수 입력 사항입니다.")
 
             return True
 
@@ -496,7 +507,9 @@ class MainLease(QMainWindow, Ui_MainWindow):
         item = QListWidgetItem(self.lst_contractor)
         item.setSizeHint(QSize(custom_item.width(), 80))
         self.lst_contractor.setItemWidget(item, custom_item)
-        self.lst_contractor.setCurrentRow()
+        self.lst_contractor.item(self.lst_contractor.size()-1)
+        print(pos)
+        self.lst_contractor.insertItem(pos, item)
 
     # 사무소찾기 에디트 클릭
     def clicked_company_edit(self):
@@ -529,7 +542,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
                 self.btn_back.show()
                 self.btn_provisions.show()
                 if self.lst_contractor.count() < 1:
-                    [self.insert_contractor(True, i) for i in range(3)]   # 기본 계약자 추가
+                    [self.insert_contractor(True, i) for i in range(3)]  # 기본 계약자 추가
                 self.setting_ui_form()
             self.stackedWidget.slideInNext()
 
@@ -623,7 +636,8 @@ class MainLease(QMainWindow, Ui_MainWindow):
             for i in content.split('\n'):
                 line_width.append(self.msg_background.fontMetrics().boundingRect(i).width())
             w = max(line_width)
-        else: w = font_size.width()
+        else:
+            w = font_size.width()
 
         h = font_size.height() * (content.count('\n') + 1)
         self.msg_background.resize(w + 20, h + 14)
@@ -660,12 +674,14 @@ class MainLease(QMainWindow, Ui_MainWindow):
         self.timer.stop()
         self.msg_timer = False
 
+
 # 돈 정규식
 def mask_money(txt):
     if txt == '': return
     txt = re.sub(r'[^0-9]', '', txt)
     txt = format(int(txt), ',')
     return str(txt)
+
 
 # 숫자 -> 한글 변환 함수
 def num_kor_read(num):  # num은 각 자리 숫자들의 리스트
@@ -833,23 +849,30 @@ class ContractorItem(QWidget):
 
         # contractor [ 0: 매도인/임대인, 1: 매수인/임차인, 2: 중개사 ]
         if contractor == 0:
-            if first:    # 매도/임대인이 아이템이 없을 경우
-                if contract == 0: self.cbx_name.addItem("매 도 인")
-                else: self.cbx_name.addItem("임 대 인")
-            else: self.cbx_name.addItems(names)
+            if first:  # 매도/임대인이 아이템이 없을 경우
+                if contract == 0:
+                    self.cbx_name.addItem("매 도 인")
+                else:
+                    self.cbx_name.addItem("임 대 인")
+            else:
+                self.cbx_name.addItems(names)
             self._contractor_ab()
 
         elif contractor == 1:
-            if first:    # 매수/임차인 아이템이 없을 경우
-                if contract == 0: self.cbx_name.addItem("매 수 인")
-                else: self.cbx_name.addItem("임 차 인")
-            else: self.cbx_name.addItems(names)
+            if first:  # 매수/임차인 아이템이 없을 경우
+                if contract == 0:
+                    self.cbx_name.addItem("매 수 인")
+                else:
+                    self.cbx_name.addItem("임 차 인")
+            else:
+                self.cbx_name.addItems(names)
             self._contractor_ab()
 
         elif contractor == 2:
-            if first:    # 중개사 아이템이 없을 경우
+            if first:  # 중개사 아이템이 없을 경우
                 self.cbx_name.addItem("개 업\n공인중개사")
-            else: self.cbx_name.addItem("개업 (공동)\n공인중개사")
+            else:
+                self.cbx_name.addItem("개업 (공동)\n공인중개사")
             self._contractor_c()
 
     def _contractor_ab(self):
