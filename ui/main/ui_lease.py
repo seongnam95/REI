@@ -34,7 +34,7 @@ class Ui_MainWindow(object):
         MainWindow.setSizePolicy(sizePolicy)
         MainWindow.setMinimumSize(QSize(720, 650))
         MainWindow.setMaximumSize(QSize(720, 650))
-        MainWindow.setStyleSheet(u"QWidget { background-color: white; }")
+        MainWindow.setStyleSheet(u"QMainWindow { background-color: white; }")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.stackedWidget = SlidingStackedWidget(self.centralwidget)
@@ -45,7 +45,9 @@ class Ui_MainWindow(object):
         self.part_0 = QFrame(self.page_1)
         self.part_0.setObjectName(u"part_0")
         self.part_0.setGeometry(QRect(0, 0, 701, 501))
-        self.part_0.setStyleSheet(u"QLabel {\n"
+        self.part_0.setStyleSheet(u"#part_0 { background-color: white; }\n"
+"\n"
+"QLabel {\n"
 "	font: 25px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	color: rgb(127, 140, 141);\n"
 "}\n"
@@ -92,29 +94,19 @@ class Ui_MainWindow(object):
         self.cbx_contract = QComboBox(self.part_0)
         self.cbx_contract.setObjectName(u"cbx_contract")
         self.cbx_contract.setGeometry(QRect(180, 300, 351, 41))
-        self.cbx_contract.setMinimumSize(QSize(51, 0))
+        self.cbx_contract.setMinimumSize(QSize(0, 0))
         self.cbx_contract.setMaximumSize(QSize(1677, 16777215))
         self.cbx_contract.setStyleSheet(u"QComboBox {\n"
 "    border: 1px solid gray;\n"
-"    padding: 3px 1px 1px 10px;\n"
-"    min-width: 2em;\n"
+"	padding-top: 3px;\n"
+"	padding-left: 10px;\n"
 "    background: rgb(255, 255, 255);\n"
 "    font: 16px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "    color: rgb(44, 62, 80);\n"
 "}\n"
 "\n"
-"QComboBox:focus {\n"
-"    padding: 3px 1px 1px 10px;\n"
-"    color: rgb(127, 140, 141);\n"
-"}\n"
-"\n"
 "QComboBox:hover {\n"
-"    border: 1px solid #3498db;\n"
-"}\n"
-"\n"
-"QComboBox:on { \n"
-"    padding-top: 3px;\n"
-"    padding-left: 4px;\n"
+"    color: rgb(127, 140, 141);\n"
 "}\n"
 "\n"
 "QComboBox QAbstractItemView::item { \n"
@@ -129,16 +121,13 @@ class Ui_MainWindow(object):
 "    border-left-width: 1px;\n"
 "    border-left-style: solid;\n"
 "    border-left-color: darkgray;\n"
-"    border-top-right-radius: 3px;\n"
-"    border-bottom-right-radius: 3px;\n"
 "}\n"
 "\n"
 "QComboBox::down-arrow {\n"
 "    image: url(../../data/img/system/down_arrow_icon.png);\n"
 "    width: 26px;\n"
 "    height: 26px;\n"
-""
-                        "}\n"
+"}\n"
 "\n"
 "QComboBox::down-arrow:on {\n"
 "    top: 1px;\n"
@@ -153,7 +142,8 @@ class Ui_MainWindow(object):
 "QScrollBar:vertical {\n"
 "	width: 5px;\n"
 "	border-radius: 2px;\n"
-"	background: rgb(220,220,220);\n"
+"	background:"
+                        " rgb(220,220,220);\n"
 "}\n"
 "\n"
 "QScrollBar::handle:vertical  {\n"
@@ -184,7 +174,11 @@ class Ui_MainWindow(object):
         self.part_1 = QFrame(self.page_2)
         self.part_1.setObjectName(u"part_1")
         self.part_1.setGeometry(QRect(0, 0, 701, 501))
-        self.part_1.setStyleSheet(u"QLabel {\n"
+        self.part_1.setStyleSheet(u"#part_1 {\n"
+"	background-color: white;\n"
+"}\n"
+"\n"
+"QLabel {\n"
 "	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	color: #2c3e50;\n"
 "	padding-top: 2px;\n"
@@ -195,30 +189,18 @@ class Ui_MainWindow(object):
         self.cbx_down_pay.addItem("")
         self.cbx_down_pay.setObjectName(u"cbx_down_pay")
         self.cbx_down_pay.setGeometry(QRect(90, 340, 100, 30))
-        self.cbx_down_pay.setMinimumSize(QSize(45, 0))
+        self.cbx_down_pay.setMinimumSize(QSize(0, 0))
         self.cbx_down_pay.setMaximumSize(QSize(100, 16777215))
         self.cbx_down_pay.setStyleSheet(u"QComboBox {\n"
 "    border: 1px solid gray;\n"
-"    padding: 3px 1px 1px 10px;\n"
-"    min-width: 2em;\n"
+"	padding-left: 10px;\n"
+"	padding-top: 3px;\n"
 "    background: rgb(255, 255, 255);\n"
 "    font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "    color: rgb(44, 62, 80);\n"
 "}\n"
 "\n"
-"QComboBox:focus {\n"
-"    padding: 3px 1px 1px 10px;\n"
-"    color: rgb(127, 140, 141);\n"
-"}\n"
-"\n"
-"QComboBox:hover {\n"
-"    border: 1px solid #3498db;\n"
-"}\n"
-"\n"
-"QComboBox:on { \n"
-"    padding-top: 3px;\n"
-"    padding-left: 4px;\n"
-"}\n"
+"QComboBox:hover { color: rgb(127, 140, 141); }\n"
 "\n"
 "QComboBox QAbstractItemView::item { \n"
 "	min-height: 30px; \n"
@@ -227,21 +209,18 @@ class Ui_MainWindow(object):
 "QComboBox::drop-down {\n"
 "    subcontrol-origin: padding;\n"
 "    subcontrol-position: top right;\n"
-"    width: 20px;\n"
+"    width: 25px;\n"
 "\n"
 "    border-left-width: 1px;\n"
 "    border-left-style: solid;\n"
 "    border-left-color: darkgray;\n"
-"    border-top-right-radius: 3px;\n"
-"    border-bottom-right-radius: 3px;\n"
 "}\n"
 "\n"
 "QComboBox::down-arrow {\n"
 "    image: url(../../data/img/system/down_arrow_icon.png);\n"
 "    width: 22px;\n"
 "    height: 22px;\n"
-""
-                        "}\n"
+"}\n"
 "\n"
 "QComboBox::down-arrow:on {\n"
 "    top: 1px;\n"
@@ -256,7 +235,8 @@ class Ui_MainWindow(object):
 "QScrollBar:vertical {\n"
 "	width: 5px;\n"
 "	border-radius: 2px;\n"
-"	background: rgb(220,220,220);\n"
+"	background: rgb(220,220"
+                        ",220);\n"
 "}\n"
 "\n"
 "QScrollBar::handle:vertical  {\n"
@@ -843,13 +823,18 @@ class Ui_MainWindow(object):
         self.lb_item_nm_1.setStyleSheet(u"")
         self.btn_search = QPushButton(self.set_address)
         self.btn_search.setObjectName(u"btn_search")
-        self.btn_search.setGeometry(QRect(596, 4, 91, 22))
+        self.btn_search.setGeometry(QRect(599, 1, 91, 28))
         self.btn_search.setStyleSheet(u"#btn_search {\n"
 "	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	color: #2c3e50;\n"
 "	background-color: white;\n"
 "	border: none;\n"
 "	padding-top: 2px;\n"
+"	\n"
+"}\n"
+"\n"
+"#btn_search::hover {\n"
+"	background-color: rgba(0,0,0,20)\n"
 "}")
         self.set_land = QWidget(self.part_1)
         self.set_land.setObjectName(u"set_land")
@@ -870,30 +855,18 @@ class Ui_MainWindow(object):
         self.cbx_land.addItem("")
         self.cbx_land.setObjectName(u"cbx_land")
         self.cbx_land.setGeometry(QRect(90, 0, 100, 30))
-        self.cbx_land.setMinimumSize(QSize(45, 0))
+        self.cbx_land.setMinimumSize(QSize(0, 0))
         self.cbx_land.setMaximumSize(QSize(100, 16777215))
         self.cbx_land.setStyleSheet(u"QComboBox {\n"
 "    border: 1px solid gray;\n"
-"    padding: 3px 1px 1px 10px;\n"
-"    min-width: 2em;\n"
+"	padding-left: 10px;\n"
+"	padding-top: 3px;\n"
 "    background: rgb(255, 255, 255);\n"
 "    font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "    color: rgb(44, 62, 80);\n"
 "}\n"
 "\n"
-"QComboBox:focus {\n"
-"    padding: 3px 1px 1px 10px;\n"
-"    color: rgb(127, 140, 141);\n"
-"}\n"
-"\n"
-"QComboBox:hover {\n"
-"    border: 1px solid #3498db;\n"
-"}\n"
-"\n"
-"QComboBox:on { \n"
-"    padding-top: 3px;\n"
-"    padding-left: 4px;\n"
-"}\n"
+"QComboBox:hover { color: rgb(127, 140, 141); }\n"
 "\n"
 "QComboBox QAbstractItemView::item { \n"
 "	min-height: 30px; \n"
@@ -902,21 +875,18 @@ class Ui_MainWindow(object):
 "QComboBox::drop-down {\n"
 "    subcontrol-origin: padding;\n"
 "    subcontrol-position: top right;\n"
-"    width: 20px;\n"
+"    width: 25px;\n"
 "\n"
 "    border-left-width: 1px;\n"
 "    border-left-style: solid;\n"
 "    border-left-color: darkgray;\n"
-"    border-top-right-radius: 3px;\n"
-"    border-bottom-right-radius: 3px;\n"
 "}\n"
 "\n"
 "QComboBox::down-arrow {\n"
 "    image: url(../../data/img/system/down_arrow_icon.png);\n"
 "    width: 22px;\n"
 "    height: 22px;\n"
-""
-                        "}\n"
+"}\n"
 "\n"
 "QComboBox::down-arrow:on {\n"
 "    top: 1px;\n"
@@ -931,7 +901,8 @@ class Ui_MainWindow(object):
 "QScrollBar:vertical {\n"
 "	width: 5px;\n"
 "	border-radius: 2px;\n"
-"	background: rgb(220,220,220);\n"
+"	background: rgb(220,220"
+                        ",220);\n"
 "}\n"
 "\n"
 "QScrollBar::handle:vertical  {\n"
@@ -965,30 +936,18 @@ class Ui_MainWindow(object):
         self.cbx_land_details = QComboBox(self.set_land)
         self.cbx_land_details.setObjectName(u"cbx_land_details")
         self.cbx_land_details.setGeometry(QRect(200, 0, 181, 30))
-        self.cbx_land_details.setMinimumSize(QSize(109, 0))
+        self.cbx_land_details.setMinimumSize(QSize(0, 0))
         self.cbx_land_details.setMaximumSize(QSize(1677, 16777215))
         self.cbx_land_details.setStyleSheet(u"QComboBox {\n"
 "    border: 1px solid gray;\n"
-"    padding: 3px 1px 1px 10px;\n"
-"    min-width: 6em;\n"
+"	padding-left: 10px;\n"
+"	padding-top: 3px;\n"
 "    background: rgb(255, 255, 255);\n"
 "    font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "    color: rgb(44, 62, 80);\n"
 "}\n"
 "\n"
-"QComboBox:focus {\n"
-"    padding: 3px 1px 1px 10px;\n"
-"    color: rgb(127, 140, 141);\n"
-"}\n"
-"\n"
-"QComboBox:hover {\n"
-"    border: 1px solid #3498db;\n"
-"}\n"
-"\n"
-"QComboBox:on { \n"
-"    padding-top: 3px;\n"
-"    padding-left: 4px;\n"
-"}\n"
+"QComboBox:hover { color: rgb(127, 140, 141); }\n"
 "\n"
 "QComboBox QAbstractItemView::item { \n"
 "	min-height: 30px; \n"
@@ -1002,21 +961,19 @@ class Ui_MainWindow(object):
 "    border-left-width: 1px;\n"
 "    border-left-style: solid;\n"
 "    border-left-color: darkgray;\n"
-"    border-top-right-radius: 3px;\n"
-"    border-bottom-right-radius: 3px;\n"
 "}\n"
 "\n"
 "QComboBox::down-arrow {\n"
 "    image: url(../../data/img/system/down_arrow_icon.png);\n"
 "    width: 22px;\n"
 "    height: 22px;\n"
-""
-                        "}\n"
+"}\n"
 "\n"
 "QComboBox::down-arrow:on {\n"
 "    top: 1px;\n"
 "    left: 1px;\n"
 "}\n"
+"\n"
 "QComboBox::setView {\n"
 "    color: rgb(44, 62, 80);\n"
 "    background-color: lightblue\n"
@@ -1025,7 +982,8 @@ class Ui_MainWindow(object):
 "QScrollBar:vertical {\n"
 "	width: 5px;\n"
 "	border-radius: 2px;\n"
-"	background: rgb(220,220,220);\n"
+"	background: rgb(220,220"
+                        ",220);\n"
 "}\n"
 "\n"
 "QScrollBar::handle:vertical  {\n"
@@ -1091,30 +1049,18 @@ class Ui_MainWindow(object):
         self.cbx_purposes = QComboBox(self.set_building)
         self.cbx_purposes.setObjectName(u"cbx_purposes")
         self.cbx_purposes.setGeometry(QRect(160, 40, 221, 30))
-        self.cbx_purposes.setMinimumSize(QSize(109, 0))
+        self.cbx_purposes.setMinimumSize(QSize(0, 0))
         self.cbx_purposes.setMaximumSize(QSize(1666, 16777215))
         self.cbx_purposes.setStyleSheet(u"QComboBox {\n"
 "    border: 1px solid gray;\n"
-"    padding: 3px 1px 1px 10px;\n"
-"    min-width: 6em;\n"
+"	padding-left: 10px;\n"
+"	padding-top: 3px;\n"
 "    background: rgb(255, 255, 255);\n"
 "    font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "    color: rgb(44, 62, 80);\n"
 "}\n"
 "\n"
-"QComboBox:focus {\n"
-"    padding: 3px 1px 1px 10px;\n"
-"    color: rgb(127, 140, 141);\n"
-"}\n"
-"\n"
-"QComboBox:hover {\n"
-"    border: 1px solid #3498db;\n"
-"}\n"
-"\n"
-"QComboBox:on { \n"
-"    padding-top: 3px;\n"
-"    padding-left: 4px;\n"
-"}\n"
+"QComboBox:hover { color: rgb(127, 140, 141); }\n"
 "\n"
 "QComboBox QAbstractItemView::item { \n"
 "	min-height: 30px; \n"
@@ -1128,21 +1074,19 @@ class Ui_MainWindow(object):
 "    border-left-width: 1px;\n"
 "    border-left-style: solid;\n"
 "    border-left-color: darkgray;\n"
-"    border-top-right-radius: 3px;\n"
-"    border-bottom-right-radius: 3px;\n"
 "}\n"
 "\n"
 "QComboBox::down-arrow {\n"
 "    image: url(../../data/img/system/down_arrow_icon.png);\n"
 "    width: 22px;\n"
 "    height: 22px;\n"
-""
-                        "}\n"
+"}\n"
 "\n"
 "QComboBox::down-arrow:on {\n"
 "    top: 1px;\n"
 "    left: 1px;\n"
 "}\n"
+"\n"
 "QComboBox::setView {\n"
 "    color: rgb(44, 62, 80);\n"
 "    background-color: lightblue\n"
@@ -1151,7 +1095,8 @@ class Ui_MainWindow(object):
 "QScrollBar:vertical {\n"
 "	width: 5px;\n"
 "	border-radius: 2px;\n"
-"	background: rgb(220,220,220);\n"
+"	background: rgb(220,220"
+                        ",220);\n"
 "}\n"
 "\n"
 "QScrollBar::handle:vertical  {\n"
@@ -1215,30 +1160,18 @@ class Ui_MainWindow(object):
         self.cbx_structure = QComboBox(self.set_building)
         self.cbx_structure.setObjectName(u"cbx_structure")
         self.cbx_structure.setGeometry(QRect(160, 0, 221, 30))
-        self.cbx_structure.setMinimumSize(QSize(109, 0))
+        self.cbx_structure.setMinimumSize(QSize(0, 0))
         self.cbx_structure.setMaximumSize(QSize(1666, 16777215))
         self.cbx_structure.setStyleSheet(u"QComboBox {\n"
 "    border: 1px solid gray;\n"
-"    padding: 3px 1px 1px 10px;\n"
-"    min-width: 6em;\n"
+"	padding-left: 10px;\n"
+"	padding-top: 3px;\n"
 "    background: rgb(255, 255, 255);\n"
 "    font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "    color: rgb(44, 62, 80);\n"
 "}\n"
 "\n"
-"QComboBox:focus {\n"
-"    padding: 3px 1px 1px 10px;\n"
-"    color: rgb(127, 140, 141);\n"
-"}\n"
-"\n"
-"QComboBox:hover {\n"
-"    border: 1px solid #3498db;\n"
-"}\n"
-"\n"
-"QComboBox:on { \n"
-"    padding-top: 3px;\n"
-"    padding-left: 4px;\n"
-"}\n"
+"QComboBox:hover { color: rgb(127, 140, 141); }\n"
 "\n"
 "QComboBox QAbstractItemView::item { \n"
 "	min-height: 30px; \n"
@@ -1252,21 +1185,19 @@ class Ui_MainWindow(object):
 "    border-left-width: 1px;\n"
 "    border-left-style: solid;\n"
 "    border-left-color: darkgray;\n"
-"    border-top-right-radius: 3px;\n"
-"    border-bottom-right-radius: 3px;\n"
 "}\n"
 "\n"
 "QComboBox::down-arrow {\n"
 "    image: url(../../data/img/system/down_arrow_icon.png);\n"
 "    width: 22px;\n"
 "    height: 22px;\n"
-""
-                        "}\n"
+"}\n"
 "\n"
 "QComboBox::down-arrow:on {\n"
 "    top: 1px;\n"
 "    left: 1px;\n"
 "}\n"
+"\n"
 "QComboBox::setView {\n"
 "    color: rgb(44, 62, 80);\n"
 "    background-color: lightblue\n"
@@ -1275,7 +1206,8 @@ class Ui_MainWindow(object):
 "QScrollBar:vertical {\n"
 "	width: 5px;\n"
 "	border-radius: 2px;\n"
-"	background: rgb(220,220,220);\n"
+"	background: rgb(220,220"
+                        ",220);\n"
 "}\n"
 "\n"
 "QScrollBar::handle:vertical  {\n"
@@ -1437,7 +1369,14 @@ class Ui_MainWindow(object):
         self.part_2 = QFrame(self.page_3)
         self.part_2.setObjectName(u"part_2")
         self.part_2.setGeometry(QRect(0, 0, 701, 501))
-        self.part_2.setStyleSheet(u"QPushButton {\n"
+        self.part_2.setStyleSheet(u"#part_2 { background-color: white; }\n"
+"\n"
+"QLabel {\n"
+"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	color: rgb(127, 140, 141);\n"
+"}\n"
+"\n"
+"QPushButton {\n"
 "	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	color: white;\n"
 "	border: 0px;\n"
@@ -1462,7 +1401,7 @@ class Ui_MainWindow(object):
         self.lb_item_nm_17.setObjectName(u"lb_item_nm_17")
         self.lb_item_nm_17.setGeometry(QRect(10, 40, 60, 30))
         self.lb_item_nm_17.setFont(font)
-        self.lb_item_nm_17.setStyleSheet(u"QLabel {\n"
+        self.lb_item_nm_17.setStyleSheet(u"#lb_item_nm_17 {\n"
 "	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	color: #2c3e50;\n"
 "	padding-top: 2px;\n"
@@ -1473,7 +1412,7 @@ class Ui_MainWindow(object):
         self.btn_spell_check.setStyleSheet(u"")
         self.btn_add = QPushButton(self.part_2)
         self.btn_add.setObjectName(u"btn_add")
-        self.btn_add.setGeometry(QRect(590, 85, 101, 30))
+        self.btn_add.setGeometry(QRect(590, 95, 101, 30))
         self.btn_add.setStyleSheet(u"")
         self.line_5 = QFrame(self.part_2)
         self.line_5.setObjectName(u"line_5")
@@ -1488,10 +1427,7 @@ class Ui_MainWindow(object):
         self.lb_sub_title_3 = QLabel(self.part_2)
         self.lb_sub_title_3.setObjectName(u"lb_sub_title_3")
         self.lb_sub_title_3.setGeometry(QRect(0, 0, 91, 16))
-        self.lb_sub_title_3.setStyleSheet(u"QLabel {\n"
-"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: rgb(127, 140, 141);\n"
-"}")
+        self.lb_sub_title_3.setStyleSheet(u"")
         self.edt_agreement = QTextEdit(self.part_2)
         self.edt_agreement.setObjectName(u"edt_agreement")
         self.edt_agreement.setGeometry(QRect(90, 240, 491, 251))
@@ -1529,7 +1465,7 @@ class Ui_MainWindow(object):
 "}")
         self.lst_keyword = QListWidget(self.part_2)
         self.lst_keyword.setObjectName(u"lst_keyword")
-        self.lst_keyword.setGeometry(QRect(90, 69, 141, 121))
+        self.lst_keyword.setGeometry(QRect(90, 69, 141, 131))
         self.lst_keyword.setStyleSheet(u"QListWidget:hover {\n"
 "    border: 1px solid #3498db;\n"
 "}\n"
@@ -1555,11 +1491,10 @@ class Ui_MainWindow(object):
         self.lst_keyword.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
         self.lst_title = QListWidget(self.part_2)
         self.lst_title.setObjectName(u"lst_title")
-        self.lst_title.setGeometry(QRect(240, 69, 341, 121))
+        self.lst_title.setGeometry(QRect(240, 69, 341, 131))
         self.lst_title.setStyleSheet(u"QListWidget:hover {\n"
 "    border: 1px solid #3498db;\n"
 "}\n"
-"\n"
 "\n"
 "QScrollBar:vertical {\n"
 "	width: 5px;\n"
@@ -1584,7 +1519,7 @@ class Ui_MainWindow(object):
         self.lb_item_nm_18.setObjectName(u"lb_item_nm_18")
         self.lb_item_nm_18.setGeometry(QRect(10, 350, 60, 30))
         self.lb_item_nm_18.setFont(font)
-        self.lb_item_nm_18.setStyleSheet(u"QLabel {\n"
+        self.lb_item_nm_18.setStyleSheet(u"#lb_item_nm_18 {\n"
 "	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	color: #2c3e50;\n"
 "	padding-top: 2px;\n"
@@ -1593,7 +1528,7 @@ class Ui_MainWindow(object):
         self.lb_item_nm_19.setObjectName(u"lb_item_nm_19")
         self.lb_item_nm_19.setGeometry(QRect(90, 40, 141, 30))
         self.lb_item_nm_19.setFont(font)
-        self.lb_item_nm_19.setStyleSheet(u"QLabel {\n"
+        self.lb_item_nm_19.setStyleSheet(u"#lb_item_nm_19 {\n"
 "	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	color: #2c3e50;\n"
 "    border: 1px solid gray;\n"
@@ -1605,7 +1540,7 @@ class Ui_MainWindow(object):
         self.lb_item_nm_20.setObjectName(u"lb_item_nm_20")
         self.lb_item_nm_20.setGeometry(QRect(240, 40, 341, 30))
         self.lb_item_nm_20.setFont(font)
-        self.lb_item_nm_20.setStyleSheet(u"QLabel {\n"
+        self.lb_item_nm_20.setStyleSheet(u"#lb_item_nm_20 {\n"
 "	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	color: #2c3e50;\n"
 "    border: 1px solid gray;\n"
@@ -1617,21 +1552,13 @@ class Ui_MainWindow(object):
         self.btn_preview.setObjectName(u"btn_preview")
         self.btn_preview.setGeometry(QRect(590, 460, 101, 30))
         self.btn_preview.setStyleSheet(u"")
-        self.lb_hint = QLabel(self.part_2)
-        self.lb_hint.setObjectName(u"lb_hint")
-        self.lb_hint.setGeometry(QRect(260, 192, 321, 20))
-        self.lb_hint.setStyleSheet(u"QLabel {\n"
-"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: rgb(127, 140, 141);\n"
-"}")
-        self.lb_hint.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
         self.btn_edit = QPushButton(self.part_2)
         self.btn_edit.setObjectName(u"btn_edit")
-        self.btn_edit.setGeometry(QRect(590, 121, 101, 30))
+        self.btn_edit.setGeometry(QRect(590, 132, 101, 30))
         self.btn_edit.setStyleSheet(u"")
         self.btn_del = QPushButton(self.part_2)
         self.btn_del.setObjectName(u"btn_del")
-        self.btn_del.setGeometry(QRect(590, 157, 101, 30))
+        self.btn_del.setGeometry(QRect(590, 169, 101, 30))
         self.btn_del.setStyleSheet(u"")
         self.stackedWidget.addWidget(self.page_3)
         self.page_4 = QWidget()
@@ -1639,8 +1566,11 @@ class Ui_MainWindow(object):
         self.part_3 = QFrame(self.page_4)
         self.part_3.setObjectName(u"part_3")
         self.part_3.setGeometry(QRect(0, 0, 701, 501))
-        self.part_3.setStyleSheet(u"QFrame{\n"
-"	background-color: white;\n"
+        self.part_3.setStyleSheet(u"#part_3 { background-color: white; }\n"
+"\n"
+"QLabel {\n"
+"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	color: rgb(127, 140, 141);\n"
 "}\n"
 "\n"
 "QPushButton {\n"
@@ -1663,27 +1593,8 @@ class Ui_MainWindow(object):
 "	background-color: rgb(64,82,100);\n"
 "	border-style: inset;\n"
 "}\n"
-"")
-        self.line_7 = QFrame(self.part_3)
-        self.line_7.setObjectName(u"line_7")
-        self.line_7.setGeometry(QRect(0, 10, 691, 20))
-        self.line_7.setFrameShape(QFrame.HLine)
-        self.line_7.setFrameShadow(QFrame.Sunken)
-        self.lb_sub_title_6 = QLabel(self.part_3)
-        self.lb_sub_title_6.setObjectName(u"lb_sub_title_6")
-        self.lb_sub_title_6.setGeometry(QRect(0, 0, 91, 16))
-        self.lb_sub_title_6.setStyleSheet(u"QLabel {\n"
-"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: rgb(127, 140, 141);\n"
-"}")
-        self.btn_add_c = QPushButton(self.part_3)
-        self.btn_add_c.setObjectName(u"btn_add_c")
-        self.btn_add_c.setGeometry(QRect(580, 30, 111, 30))
-        self.btn_add_c.setStyleSheet(u"")
-        self.lst_contractor = QListWidget(self.part_3)
-        self.lst_contractor.setObjectName(u"lst_contractor")
-        self.lst_contractor.setGeometry(QRect(10, 80, 681, 381))
-        self.lst_contractor.setStyleSheet(u"QListWidget {\n"
+"\n"
+"QListWidget {\n"
 "	outline: none;\n"
 "	border: none;\n"
 "}\n"
@@ -1706,11 +1617,28 @@ class Ui_MainWindow(object):
 "\n"
 "QScrollBar::handle:vertical:hover  {\n"
 "	border-radius: 2px;\n"
-"	background: rgba(134,152,170, 120);\n"
+""
+                        "	background: rgba(134,152,170, 120);\n"
 "	min-height: 0px;\n"
-"}")
-        self.lst_contractor.setDragDropMode(QAbstractItemView.NoDragDrop)
-        self.lst_contractor.setDefaultDropAction(Qt.TargetMoveAction)
+"}\n"
+"")
+        self.line_7 = QFrame(self.part_3)
+        self.line_7.setObjectName(u"line_7")
+        self.line_7.setGeometry(QRect(0, 10, 691, 20))
+        self.line_7.setFrameShape(QFrame.HLine)
+        self.line_7.setFrameShadow(QFrame.Sunken)
+        self.lb_sub_title_6 = QLabel(self.part_3)
+        self.lb_sub_title_6.setObjectName(u"lb_sub_title_6")
+        self.lb_sub_title_6.setGeometry(QRect(0, 0, 91, 16))
+        self.lb_sub_title_6.setStyleSheet(u"")
+        self.btn_add_c = QPushButton(self.part_3)
+        self.btn_add_c.setObjectName(u"btn_add_c")
+        self.btn_add_c.setGeometry(QRect(580, 30, 111, 30))
+        self.btn_add_c.setStyleSheet(u"")
+        self.lst_contractor = QListWidget(self.part_3)
+        self.lst_contractor.setObjectName(u"lst_contractor")
+        self.lst_contractor.setGeometry(QRect(10, 80, 681, 381))
+        self.lst_contractor.setStyleSheet(u"")
         self.lst_contractor.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
         self.lst_contractor.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
         self.line_2 = QFrame(self.part_3)
@@ -1721,10 +1649,7 @@ class Ui_MainWindow(object):
         self.lb_hint_3 = QLabel(self.part_3)
         self.lb_hint_3.setObjectName(u"lb_hint_3")
         self.lb_hint_3.setGeometry(QRect(480, 476, 211, 16))
-        self.lb_hint_3.setStyleSheet(u"QLabel {\n"
-"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: rgb(127, 140, 141);\n"
-"}")
+        self.lb_hint_3.setStyleSheet(u"")
         self.lb_hint_3.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
         self.btn_add_b = QPushButton(self.part_3)
         self.btn_add_b.setObjectName(u"btn_add_b")
@@ -1742,10 +1667,7 @@ class Ui_MainWindow(object):
         self.lb_hint_2 = QLabel(self.part_3)
         self.lb_hint_2.setObjectName(u"lb_hint_2")
         self.lb_hint_2.setGeometry(QRect(0, 50, 211, 16))
-        self.lb_hint_2.setStyleSheet(u"QLabel {\n"
-"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: rgb(127, 140, 141);\n"
-"}")
+        self.lb_hint_2.setStyleSheet(u"")
         self.lb_hint_2.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
         self.lb_icon = QLabel(self.part_3)
         self.lb_icon.setObjectName(u"lb_icon")
@@ -1768,28 +1690,23 @@ class Ui_MainWindow(object):
         self.top_bar = QWidget(self.centralwidget)
         self.top_bar.setObjectName(u"top_bar")
         self.top_bar.setGeometry(QRect(0, 0, 720, 61))
-        self.top_bar.setStyleSheet(u"QWidget {\n"
+        self.top_bar.setStyleSheet(u"#top_bar {\n"
 "	background-color: rgb(245, 245, 245);\n"
 "	border-bottom: 1px solid;\n"
 "	border-top: 1px solid;\n"
 "	border-color: rgb(230, 230, 230);\n"
-"}")
-        self.lb_title = QLabel(self.top_bar)
-        self.lb_title.setObjectName(u"lb_title")
-        self.lb_title.setGeometry(QRect(260, 4, 210, 30))
-        self.lb_title.setStyleSheet(u"QLabel{\n"
+"}\n"
+"\n"
+"#lb_title {\n"
 "	background-color: rgb(245, 245, 245);\n"
 "	font: 25px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	color: rgba(0, 0, 0, 120);\n"
 "	padding-top: 8px;\n"
 "	padding-left: 8px;\n"
 "	border: 0px;\n"
-"}")
-        self.lb_title.setAlignment(Qt.AlignCenter)
-        self.lb_sub_title = QLabel(self.top_bar)
-        self.lb_sub_title.setObjectName(u"lb_sub_title")
-        self.lb_sub_title.setGeometry(QRect(270, 29, 190, 25))
-        self.lb_sub_title.setStyleSheet(u"QLabel{\n"
+"}\n"
+"\n"
+"#lb_sub_title {\n"
 "	background-color: rgb(245, 245, 245);\n"
 "	font: 15px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	color: rgba(0, 0, 0, 120);\n"
@@ -1797,21 +1714,28 @@ class Ui_MainWindow(object):
 "	padding-left: 8px;\n"
 "	border: 0px;\n"
 "}")
+        self.lb_title = QLabel(self.top_bar)
+        self.lb_title.setObjectName(u"lb_title")
+        self.lb_title.setGeometry(QRect(260, 4, 210, 30))
+        self.lb_title.setStyleSheet(u"")
+        self.lb_title.setAlignment(Qt.AlignCenter)
+        self.lb_sub_title = QLabel(self.top_bar)
+        self.lb_sub_title.setObjectName(u"lb_sub_title")
+        self.lb_sub_title.setGeometry(QRect(270, 29, 190, 25))
+        self.lb_sub_title.setStyleSheet(u"")
         self.lb_sub_title.setAlignment(Qt.AlignCenter)
         self.lb_sub_title.raise_()
         self.lb_title.raise_()
         self.bottom_bar = QWidget(self.centralwidget)
         self.bottom_bar.setObjectName(u"bottom_bar")
         self.bottom_bar.setGeometry(QRect(0, 580, 721, 71))
-        self.bottom_bar.setStyleSheet(u"QWidget {\n"
+        self.bottom_bar.setStyleSheet(u"#bottom_bar {\n"
 "	background-color: rgb(245, 245, 245);\n"
 "	border-top: 1px solid;\n"
 "	border-color: rgb(230, 230, 230);\n"
-"}")
-        self.btn_back = QPushButton(self.bottom_bar)
-        self.btn_back.setObjectName(u"btn_back")
-        self.btn_back.setGeometry(QRect(418, 15, 141, 40))
-        self.btn_back.setStyleSheet(u"QPushButton {\n"
+"}\n"
+"\n"
+"QPushButton {\n"
 "	font: 17px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	color: white;\n"
 "	border: 0px;\n"
@@ -1833,37 +1757,8 @@ class Ui_MainWindow(object):
 "	background-color:  rgb(24,42,60);\n"
 "	border-style: inset;\n"
 "}\n"
-"")
-        self.btn_next = QPushButton(self.bottom_bar)
-        self.btn_next.setObjectName(u"btn_next")
-        self.btn_next.setGeometry(QRect(568, 15, 141, 40))
-        self.btn_next.setStyleSheet(u"QPushButton {\n"
-"	font: 17px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: white;\n"
-"	border: 0px;\n"
-"	padding-top: 3px;\n"
-"	background-color:  rgb(44,62,80);\n"
-"	border-radius: 20px;\n"
-"}\n"
 "\n"
-"QPushButton::hover {\n"
-"	border: 0px;\n"
-"	color: white;\n"
-"	background-color:  rgb(64,82,100);\n"
-"	border-style: inset;\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"	border: 0px;\n"
-"	color: white;\n"
-"	background-color:  rgb(24,42,60);\n"
-"	border-style: inset;\n"
-"}\n"
-"")
-        self.btn_provisions = QPushButton(self.bottom_bar)
-        self.btn_provisions.setObjectName(u"btn_provisions")
-        self.btn_provisions.setGeometry(QRect(20, 20, 111, 31))
-        self.btn_provisions.setStyleSheet(u"QPushButton {\n"
+"#btn_provisions {\n"
 "	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	color: rgb(44,62,80);\n"
 "	border: 3px solid rgb(44,62,80);\n"
@@ -1872,20 +1767,33 @@ class Ui_MainWindow(object):
 "	border-radius: 5px;\n"
 "}\n"
 "\n"
-"QPushButton::hover {\n"
+"#btn_provisions::hover {\n"
 "	border: 0px;\n"
 "	color: white;\n"
 "	background-color: rgb(64,82,100);\n"
 "	border-style: inset;\n"
 "}\n"
 "\n"
-"QPushButton:pressed {\n"
-"	border: 0px;\n"
+"#btn_provisions:pressed {\n"
+"	border: 0"
+                        "px;\n"
 "	color: white;\n"
 "	background-color: rgb(24,42,60);\n"
 "	border-style: inset;\n"
 "}\n"
 "")
+        self.btn_back = QPushButton(self.bottom_bar)
+        self.btn_back.setObjectName(u"btn_back")
+        self.btn_back.setGeometry(QRect(418, 15, 141, 40))
+        self.btn_back.setStyleSheet(u"")
+        self.btn_next = QPushButton(self.bottom_bar)
+        self.btn_next.setObjectName(u"btn_next")
+        self.btn_next.setGeometry(QRect(568, 15, 141, 40))
+        self.btn_next.setStyleSheet(u"")
+        self.btn_provisions = QPushButton(self.bottom_bar)
+        self.btn_provisions.setObjectName(u"btn_provisions")
+        self.btn_provisions.setGeometry(QRect(20, 20, 111, 31))
+        self.btn_provisions.setStyleSheet(u"")
         MainWindow.setCentralWidget(self.centralwidget)
         QWidget.setTabOrder(self.btn_contract_0, self.btn_contract_1)
         QWidget.setTabOrder(self.btn_contract_1, self.btn_contract_2)
@@ -2002,7 +1910,6 @@ class Ui_MainWindow(object):
         self.lb_item_nm_19.setText(QCoreApplication.translate("MainWindow", u"\ud0a4 \uc6cc \ub4dc", None))
         self.lb_item_nm_20.setText(QCoreApplication.translate("MainWindow", u"My \ud2b9\uc57d \ub9ac\uc2a4\ud2b8", None))
         self.btn_preview.setText(QCoreApplication.translate("MainWindow", u"\ubbf8 \ub9ac \ubcf4 \uae30", None))
-        self.lb_hint.setText(QCoreApplication.translate("MainWindow", u"* \ub9c8\uc6b0\uc2a4 \uc624\ub978\ucabd \ud074\ub9ad \uc2dc \uc0ad\uc81c / \ud3b8\uc9d1 \uac00\ub2a5 ", None))
         self.btn_edit.setText(QCoreApplication.translate("MainWindow", u"\ud3b8      \uc9d1", None))
         self.btn_del.setText(QCoreApplication.translate("MainWindow", u"\uc0ad      \uc81c", None))
         self.lb_sub_title_6.setText(QCoreApplication.translate("MainWindow", u"4. \uacc4\uc57d\uc790 \uc815\ubcf4", None))

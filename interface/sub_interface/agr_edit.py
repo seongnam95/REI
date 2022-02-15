@@ -2,7 +2,7 @@ import sys
 import csv
 import pandas as pd
 
-from ui.dialog.ui_lease_agr_editor import Ui_Dialog
+from ui.dialog.ui_agr_editor import Ui_AgreementEditor
 from PySide6.QtWidgets import QWidget, QApplication, QDialog, QLabel, QMessageBox, QHBoxLayout, QListWidgetItem, QMenu
 from PySide6.QtCore import Qt, QEvent, QRect, QSize
 from PySide6.QtGui import QTextCursor, QFontMetrics
@@ -11,150 +11,46 @@ from hanspell import spell_checker
 from ui.custom.TitleBarWidget import TitleBarWidget
 
 
-class AgrEditor(QDialog, Ui_Dialog):
-    def __init__(self, *args, **kwargs):
-        super(AgrEditor, self).__init__(*args, **kwargs)
+class AgrEditor(QDialog, Ui_AgreementEditor):
+    def __init__(self, agr):
+        super().__init__()
 
-        try: self.agrs_data = pd.read_csv('../../data/val/agrs.csv', sep=",", encoding='cp949')
-        except FileNotFoundError: return
+        self._setupUi(self)
 
-        self.editing = False
-        self.editing_row = 0
-        self.save_row = 0
-
-        self.setupUi(self)
-        self.show()
+        # 변수 선언
+        self.agr = agr
+        self.editing, self.editing_row, self.save_row = False, 0, 0
 
         self._init_interaction()
-        self.load_keyword()
+        self.load_content()
 
     # UI 상호작용 컨넥트
     def _init_interaction(self):
-        self.lst_keyword.installEventFilter(self)
-        self.lst_title.installEventFilter(self)
-        self.lst_content.installEventFilter(self)
-
         self.btn_add.clicked.connect(self.clicked_add)
-        self.btn_save.clicked.connect(self.clicked_save)
-
-        self.cbx_keyword.activated.connect(self.selected_keyword)
-        self.lst_keyword.itemClicked.connect(self.load_title)
-        self.lst_title.itemClicked.connect(self.load_content)
+        self.lst_content.installEventFilter(self)
 
     ## UI 세팅
     ############################################################################
 
-    # 특약 로드
-    def load_keyword(self):
-        try: self.agrs_data = pd.read_csv('../../data/val/agrs.csv', sep=",", encoding='cp949')
-        except FileNotFoundError: return
-
-        # 리스트에 키워드 추가
-        keyword = self.agrs_data.keyword.values.tolist()
-        keyword = list(dict.fromkeys(keyword))
-
-        self.lst_keyword.clear()
-        self.lst_keyword.addItems(keyword)
-
-        self.cbx_keyword.clear()
-        self.cbx_keyword.addItems(keyword)
-        self.cbx_keyword.addItem("( 직접입력 )")
-
-        if self.lst_keyword.count():
-            self.lst_keyword.setCurrentRow(self.save_row)
-
-        self.load_title()
-
-    # 제목 로드
-    def load_title(self):
-        keyword = self.lst_keyword.currentItem().text()
-        title = self.agrs_data.title[self.agrs_data.keyword == keyword]
-        title = list(dict.fromkeys(title))
-
-        self.lst_content.clear()
-        self.lst_title.clear()
-        self.edt_title.setText("")
-
-        self.lst_title.addItems(title)
-        self.cbx_keyword.setCurrentText(keyword)
-
     # 내용 로드
     def load_content(self):
-        keyword = self.lst_keyword.currentItem().text()
-        title = self.lst_title.currentItem().text()
+        keyword = self.agr['keyword'].iloc[0]
+        title = self.agr['title'].iloc[0]
 
-        result = self.agrs_data[self.agrs_data.keyword == keyword]
-        result = result[result.title == title]
-
+        self.cbx_keyword.addItem(keyword)
         self.edt_title.setText(title)
         self.lst_content.clear()
 
-        [self.add_conent_item(count, content) for count, content in zip(result.num, result.content)]
+        [self.add_conent_item(count, content) for count, content in zip(self.agr['num'], self.agr['content'])]
 
     ## 상호작용 이벤트
     ############################################################################
 
-    # 키워드 선택 이벤트
-    def selected_keyword(self):
-
-        # 직접 입력 선택 시
-        end_index = self.cbx_keyword.count() - 1
-        if self.cbx_keyword.currentIndex() == end_index:
-            self.cbx_keyword.setEditable(True)
-            self.cbx_keyword.setItemText(end_index, "")
-
-        # 그 외
-        else:
-            self.cbx_keyword.setEditable(False)
-            self.cbx_keyword.setItemText(end_index, "( 직접입력 )")
-
     # QMenu 이벤트
     def eventFilter(self, source, event):
 
-        # 키워드 리스트
-        if event.type() == QEvent.ContextMenu and source is self.lst_keyword:
-
-            # 클릭한 아이템 인덱스
-            item = source.itemAt(event.pos())
-            item_index = self.lst_keyword.indexFromItem(item)
-
-            # 우측 클릭 QMenu
-            menu = QMenu(self)
-
-            remove_action = menu.addAction("삭 제")
-            menu.addAction(remove_action)
-
-            menu_click = menu.exec(event.globalPos())
-
-            # QMenu '삭제' 클릭 시
-            if menu_click == remove_action:
-                self.delete_item("keyword", item_index)
-
-            return True
-
-        # 특약 리스트
-        elif event.type() == QEvent.ContextMenu and source is self.lst_title:
-
-            # 클릭한 아이템 인덱스
-            item = source.itemAt(event.pos())
-            item_index = self.lst_title.indexFromItem(item)
-
-            # 우측 클릭 QMenu
-            menu = QMenu(self)
-
-            remove_action = menu.addAction("삭 제")
-            menu.addAction(remove_action)
-
-            menu_click = menu.exec(event.globalPos())
-
-            # QMenu '삭제' 클릭 시
-            if menu_click == remove_action:
-                self.delete_item("title", item_index)
-
-            return True
-
         # 항목 리스트
-        elif event.type() == QEvent.ContextMenu and source is self.lst_content:
+        if event.type() == QEvent.ContextMenu and source is self.lst_content:
 
             # 클릭한 아이템 인덱스
             item = source.itemAt(event.pos())
@@ -178,7 +74,10 @@ class AgrEditor(QDialog, Ui_Dialog):
 
             # QMenu '삭제' 클릭 시
             elif menu_click == remove_action:
-                self.delete_item("content", item_index)
+                self.editing = False
+                self.btn_add.setText("작  성")
+                self.lst_content.model().removeRow(item_index.row())
+                self.sorted_row()
 
             return True
 
@@ -286,16 +185,9 @@ class AgrEditor(QDialog, Ui_Dialog):
 
     # 특약 아이템 추가 함수
     def add_conent_item(self, count, content):
-        print(len(content))
-        if 0 < len(content) < 40: h = 40
-        elif 41 < len(content) < 60: h = 55
-        elif 61 < len(content) < 90: h = 75
-        elif len(content) > 61: h = 95
-
-        print(h)
         custom_item = MyItem(str(count), content)
         item = QListWidgetItem(self.lst_content)
-        item.setSizeHint(QSize(self.lst_content.width() - 10, h))
+        item.setSizeHint(QSize(self.lst_content.width() - 10, 15))
         item.setSizeHint(QSize(custom_item.sizeHint()))
         self.lst_content.setItemWidget(item, custom_item)
 
@@ -338,10 +230,12 @@ class MyItem(QWidget):
         self.lb_num_icon.setStyleSheet(border_txt)
 
         self.lb_content = QLabel(self)
-        self.lb_content.setAlignment(Qt.AlignVCenter)
-        self.lb_content.setMaximumWidth(self.width() - self.lb_num_icon.width() - 120)
-        self.lb_content.setText(agr)
         self.lb_content.setWordWrap(True)
+        self.lb_content.adjustSize()
+        self.lb_content.setAlignment(Qt.AlignVCenter)
+        self.lb_content.setMinimumSize(450, 15)
+        self.lb_content.setMaximumSize(450, 160)
+        self.lb_content.setText(agr)
         self.lb_content.setStyleSheet("""QLabel { font: 12px ; color: rgb(45, 71, 102); padding-top: 2px; margin: 0px;}""")
 
         self.set_ui()
@@ -362,6 +256,4 @@ def my_exception_hook(exctype, value, traceback):
 sys._excepthook = sys.excepthook
 sys.excepthook = my_exception_hook
 
-app = QApplication()
-window = AgrEditor()
-app.exec()
+

@@ -56,7 +56,6 @@ class AddressDetails(QDialog, Ui_FindAddress):
 
     # init UI
     def _init_ui(self):
-        self.setWindowTitle("Real estate Information")
         self.edt_address.setFocus()
         
         # 메세지

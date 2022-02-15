@@ -10,7 +10,7 @@ from PySide6.QtGui import QIcon, QRegularExpressionValidator, QPixmap
 from urllib3.connectionpool import xrange
 
 from ui.main.ui_lease import Ui_MainWindow
-from interface.sub_interface import address_details
+from interface.sub_interface import address_details, agr_edit
 
 
 class MainLease(QMainWindow, Ui_MainWindow):
@@ -18,10 +18,8 @@ class MainLease(QMainWindow, Ui_MainWindow):
         super(MainLease, self).__init__(*args, **kwargs)
 
         # 특약 불러오기
-        try:
-            self.agrs_data = pd.read_csv('../../data/val/agrs.csv', sep=",")
-        except FileNotFoundError:
-            return
+        try: self.agrs_data = pd.read_csv('../../data/val/agrs.csv', sep=",")
+        except FileNotFoundError: return
 
         self._init_ui()
         self._init_interaction()
@@ -146,41 +144,6 @@ class MainLease(QMainWindow, Ui_MainWindow):
         # 리스트 아이템 클릭
         self.lst_keyword.itemClicked.connect(self.load_title)
         self.lst_title.itemClicked.connect(self.load_content)
-
-    # 키워드 로드
-    def load_keyword(self):
-        keyword = self.agrs_data.keyword.values.tolist()
-        keyword = list(dict.fromkeys(keyword))
-
-        self.lst_keyword.clear()
-        self.lst_keyword.addItem("( 직접입력 )")
-        self.lst_keyword.addItems(keyword)
-        self.lst_keyword.setCurrentRow(0)
-
-    # 제목 로드
-    def load_title(self):
-        if self.lst_keyword.currentRow() == 0:
-            self.lst_title.clear()
-            self.edt_agreement.clear()
-            return
-        keyword = self.lst_keyword.currentItem().text()
-        title = self.agrs_data.title[self.agrs_data.keyword == keyword]
-        title = list(dict.fromkeys(title))
-
-        self.lst_title.clear()
-        self.lst_title.addItems(title)
-
-    # 내용 로드
-    def load_content(self):
-        keyword = self.lst_keyword.currentItem().text()
-        title = self.lst_title.currentItem().text()
-
-        result = self.agrs_data[self.agrs_data.keyword == keyword]
-        result = result[result.title == title]
-
-        content_list = list("%s. %s" % (n, c) for n, c in zip(result.num, result.content))
-        content_text = "\n".join(content_list)
-        self.edt_agreement.setText(content_text)
 
     ## 계약 선택 페이지
     ################################################################################################
@@ -421,6 +384,41 @@ class MainLease(QMainWindow, Ui_MainWindow):
     ## 특약사항 페이지
     ################################################################################################
 
+    # 키워드 로드
+    def load_keyword(self):
+        keyword = self.agrs_data.keyword.values.tolist()
+        keyword = list(dict.fromkeys(keyword))
+
+        self.lst_keyword.clear()
+        self.lst_keyword.addItem("( 직접입력 )")
+        self.lst_keyword.addItems(keyword)
+        self.lst_keyword.setCurrentRow(0)
+
+    # 제목 로드
+    def load_title(self):
+        if self.lst_keyword.currentItem() is None:
+            self.lst_title.clear()
+            self.edt_agreement.clear()
+            return
+        keyword = self.lst_keyword.currentItem().text()
+        title = self.agrs_data.title[self.agrs_data.keyword == keyword]
+        title = list(dict.fromkeys(title))
+
+        self.lst_title.clear()
+        self.lst_title.addItems(title)
+
+    # 내용 로드
+    def load_content(self):
+        keyword = self.lst_keyword.currentItem().text()
+        title = self.lst_title.currentItem().text()
+
+        result = self.agrs_data[self.agrs_data.keyword == keyword]
+        result = result[result.title == title]
+
+        content_list = list("%s. %s" % (n, c) for n, c in zip(result.num, result.content))
+        content_text = "\n".join(content_list)
+        self.edt_agreement.setText(content_text)
+
     # 특약사항 추가 이벤트
     def clicked_add_btn(self):
         print(self.agrs_data)
@@ -458,7 +456,21 @@ class MainLease(QMainWindow, Ui_MainWindow):
 
     # 특약사항 편집 이벤트
     def clicked_edit_btn(self):
-        return
+        if self.lst_title.currentItem() is None: return
+
+        keyword = self.lst_keyword.currentItem().text()
+        title = self.lst_title.currentItem().text()
+
+        result = self.agrs_data[self.agrs_data.keyword == keyword]
+        result = result[result.title == title]
+
+        dialog = agr_edit.AgrEditor(result)
+        dialog.exec()
+
+        if dialog.result:
+            response = dialog.result
+            print(response)
+            # self.agrs_data.to_csv("../../data/val/agrs.csv", sep=",", index=False)
 
     # 특약사항 저장
     def saved_agrs(self):
