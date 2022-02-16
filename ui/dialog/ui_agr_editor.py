@@ -88,6 +88,7 @@ class Ui_AgreementEditor(object):
 "")
         self.cbx_keyword = QComboBox(self.widget_3)
         self.cbx_keyword.setObjectName(u"cbx_keyword")
+        self.cbx_keyword.setEnabled(False)
         self.cbx_keyword.setGeometry(QRect(10, 6, 111, 30))
         self.cbx_keyword.setStyleSheet(u"QComboBox {\n"
 "    background-color: rgb(255, 255, 255);\n"
@@ -293,13 +294,13 @@ class Ui_AgreementEditor(object):
 "	border-radius: 20px;\n"
 "}\n"
 "\n"
-"btn_save::hover {\n"
+"#btn_save::hover {\n"
 "	border: 0px;\n"
 "	background-color: rgb(64,82,100);\n"
 "	border-style: inset;\n"
 "}\n"
 "\n"
-"btn_save:pressed {\n"
+"#btn_save:pressed {\n"
 "	border: 0px;\n"
 "	background-color: rgb(24,42,60);\n"
 "	border-style: inset;\n"

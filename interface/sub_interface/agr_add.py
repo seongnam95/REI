@@ -3,25 +3,26 @@ import csv
 import pandas as pd
 
 from ui.dialog.ui_agr_editor import Ui_AgreementEditor
-from PySide6.QtWidgets import QWidget, QApplication, QDialog, QLabel, QMessageBox, QHBoxLayout, QListWidgetItem, QMenu
+from PySide6.QtWidgets import QWidget, QApplication, QDialog, QLabel, QMessageBox, QHBoxLayout, QListWidgetItem, QMenu, QComboBox
 from PySide6.QtCore import Qt, QEvent, QRect, QSize
 from PySide6.QtGui import QTextCursor, QFontMetrics
 
 from hanspell import spell_checker
 from ui.custom.TitleBarWidget import TitleBarWidget
-from module.black_box_msg import BoxMessage
 
 
-class AgrEditor(QDialog, Ui_AgreementEditor):
-    def __init__(self, agr):
+class AgrAdd(QDialog, Ui_AgreementEditor):
+    def __init__(self, agrs):
         super().__init__()
 
         self._setupUi(self)
-        self.msg = BoxMessage(self)
+        self.lb_sub_title.setText("( 특약사항 추가 )")
+        self.cbx_keyword.setEnabled(True)
 
         # 변수 선언
-        self.agr, self.response = agr, None
+        self.agrs, self.response = agrs, None
         self.editing, self.editing_row, self.save_row = False, 0, 0
+        self.cbx_keyword.setInsertPolicy(QComboBox.NoInsert)
 
         self._init_interaction()
         self.load_content()
@@ -30,6 +31,7 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
     def _init_interaction(self):
         self.btn_add.clicked.connect(self.clicked_add)
         self.btn_save.clicked.connect(self.clicked_save_btn)
+        self.cbx_keyword.activated.connect(self.activated_keyword_cbx)
         self.lst_content.installEventFilter(self)
 
     ## UI 세팅
@@ -37,16 +39,13 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
 
     # 내용 로드
     def load_content(self):
-        keyword = self.agr['keyword'].iloc[0]
-        title = self.agr['title'].iloc[0]
-
-        self.cbx_keyword.addItem(keyword)
-        self.edt_title.setText(title)
-
-        [self.add_conent_item(count, content) for count, content in zip(self.agr['num'], self.agr['content'])]
-
-        count = self.lst_content.count() + 1
-        self.lb_number.setText(str(count))
+        # 키워드 추가
+        keyword = self.agrs['keyword'].values.tolist()
+        keyword = list(dict.fromkeys(keyword))
+        self.cbx_keyword.addItem('( 선택 )')
+        self.cbx_keyword.addItems(keyword)
+        self.cbx_keyword.addItem('( 직접입력 )')
+        self.cbx_keyword.showPopup()
 
     ## 상호작용 이벤트
     ############################################################################
@@ -86,15 +85,15 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
 
             return True
 
-        return super(AgrEditor, self).eventFilter(source, event)
+        return super(AgrAdd, self).eventFilter(source, event)
 
     # 저장 버튼 클릭
     def clicked_save_btn(self):
         if self.edt_title.text() == "":
-            self.msg.show_msg(1800, "My 특약 제목을 입력해주세요.")
+            self.msg("정보", "My 특약 제목을 입력해주세요.")
             return
         elif self.lst_content.count() == 0:
-            self.msg.show_msg(1800, "My 특약 리스트가 비어있습니다.")
+            self.msg("정보", "My 특약 리스트가 비어있습니다.")
             return
 
         column = ['keyword', 'title', 'num', 'content']
@@ -123,9 +122,7 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
     def clicked_add(self):
         content = self.edt_add.toPlainText()
 
-        if not content:
-            self.msg.show_msg(1800, "특약사항 내용을 입력해주세요.")
-            return
+        if not content: return
         count = self.lst_content.count() + 1
 
         # '수정' 클릭 이벤트
@@ -198,6 +195,30 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
         item.setSizeHint(QSize(custom_item.sizeHint()))
         self.lst_content.addItem(item)
         self.lst_content.setItemWidget(item, custom_item)
+
+    # 메세지 함수
+    def msg(self, ty, content):
+        title = "레이 - Real estate Information"
+        if ty == "기본":
+            QMessageBox.about(self, title, content)
+        elif ty == "정보":
+            QMessageBox.information(self, title, content, QMessageBox.Ok)
+        elif ty == "경고":
+            QMessageBox.warning(self, title, content, QMessageBox.Ok)
+        elif ty == "에러":
+            QMessageBox.critical(self, title, content, QMessageBox.Ok)
+
+    # 키워드 선택 이벤트
+    def activated_keyword_cbx(self):
+        item = self.cbx_keyword.currentText()
+        if item == "( 선택 )": return
+        elif item == "( 직접입력 )":
+            self.cbx_keyword.setEditable(True)
+            self.cbx_keyword.setCurrentText("")
+        else:
+            self.cbx_keyword.removeItem(self.cbx_keyword.count() - 1)
+            self.cbx_keyword.addItem('( 직접입력 )')
+            self.cbx_keyword.setEditable(False)
 
 
 # 맞춤법, 띄어쓰기 교정

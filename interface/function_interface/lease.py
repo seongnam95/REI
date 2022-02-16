@@ -10,7 +10,8 @@ from PySide6.QtGui import QIcon, QRegularExpressionValidator, QPixmap
 from urllib3.connectionpool import xrange
 
 from ui.main.ui_lease import Ui_MainWindow
-from interface.sub_interface import address_details, agr_edit
+from module.black_box_msg import BoxMessage
+from interface.sub_interface import address_details, agr_edit, agr_add
 
 
 class MainLease(QMainWindow, Ui_MainWindow):
@@ -23,6 +24,8 @@ class MainLease(QMainWindow, Ui_MainWindow):
 
         self._init_ui()
         self._init_interaction()
+
+        self.load_keyword()
 
         self.get_building_thread = None  # 토지, 지역지구, 공시지가 스레드
         self.binfo, self.address = None, None  # 주소
@@ -37,7 +40,8 @@ class MainLease(QMainWindow, Ui_MainWindow):
                              self.btn_contract_2: 2,
                              self.btn_contract_3: 3}
 
-        self.msg_timer = False
+        self.msg = BoxMessage(self)
+        self.editing_data = []
 
         self.btn_contract_0.click()
         self.btn_provisions.hide()
@@ -90,16 +94,6 @@ class MainLease(QMainWindow, Ui_MainWindow):
         self.btn_balance_cal.setIcon(calendar_icon)
         self.btn_balance_cal.setIconSize(QSize(22, 22))
         self.lb_icon.setStyleSheet("QLabel { image: url(../../data/img/system/down_arrow_icon.png);}")
-
-        # 메세지
-        self.msg_background = QLabel(self)
-        self.msg_background.setAlignment(Qt.AlignCenter)
-        self.msg_background.setStyleSheet("QLabel{background-color: rgba(0,0,0,150);"
-                                          "font: 14px \uc6f0\ucef4\uccb4 Regular;"
-                                          "color: white;"
-                                          "padding-top: 3px;}")
-        self.msg_background.hide()
-        self.load_keyword()
 
         # 서치 버튼 이미지
         self.btn_search.setIcon(QIcon('../../data/img/button/search_icon.png'))
@@ -372,10 +366,10 @@ class MainLease(QMainWindow, Ui_MainWindow):
             if self.focusWidget() == self.edt_amount:
                 self.edt_balance_pay.clear()
                 return
-            if self.contract == 0:
-                self.info_msg(2, "계약금과 중도금의 합은 매매대금 보다 많을 수 없습니다.")
-            else:
-                self.info_msg(2, "계약금과 중도금의 합은 보증금 보다 많을 수 없습니다.")
+
+            if self.contract == 0: self.msg.show_msg(2500, 'center', "계약금과 중도금의 합은 매매대금 보다 많을 수 없습니다.")
+            else: self.msg.show_msg(2500, 'center', "계약금과 중도금의 합은 보증금 보다 많을 수 없습니다.")
+            self.focusWidget().clear()
 
         else:
             balance = amount - minus_pay
@@ -421,8 +415,8 @@ class MainLease(QMainWindow, Ui_MainWindow):
 
     # 특약사항 추가 이벤트
     def clicked_add_btn(self):
-        print(self.agrs_data)
-        return
+        dialog = agr_add.AgrAdd(self.agrs_data)
+        dialog.exec()
 
     # 특약사항 삭제 이벤트
     def clicked_remove_btn(self):
@@ -433,44 +427,54 @@ class MainLease(QMainWindow, Ui_MainWindow):
         if title == -1 and keyword != 0:
             keyword_text = self.lst_keyword.currentItem().text()
             result = self.agrs_data[self.agrs_data['keyword'] == keyword_text].index
+
             self.agrs_data = self.agrs_data.drop(result)
             self.lst_keyword.model().removeRow(keyword)
+
             self.lst_title.clear()
             self.edt_agreement.clear()
-            self.agrs_data.to_csv("../../data/val/agrs.csv", sep=",", index=False)
 
         # 타이틀 삭제
         elif keyword != 0:
             keyword_text = self.lst_keyword.currentItem().text()
             title_text = self.lst_title.currentItem().text()
+
             result = self.agrs_data[self.agrs_data.keyword == keyword_text]
             result = result[result.title == title_text].index
+
             self.agrs_data = self.agrs_data.drop(result)
             self.lst_title.model().removeRow(title)
+
             self.edt_agreement.clear()
 
             result = self.agrs_data[self.agrs_data.keyword == keyword_text]
             if result.empty: self.lst_keyword.model().removeRow(self.lst_keyword.currentRow())
 
-            self.agrs_data.to_csv("../../data/val/agrs.csv", sep=",", index=False)
+        self.agrs_data.reset_index(drop=True, inplace=True)
+        self.agrs_data.to_csv("../../data/val/agrs.csv", sep=",", index=False)
 
     # 특약사항 편집 이벤트
     def clicked_edit_btn(self):
-        if self.lst_title.currentItem() is None: return
+        if self.lst_title.currentItem() is not None:
 
-        keyword = self.lst_keyword.currentItem().text()
-        title = self.lst_title.currentItem().text()
+            keyword = self.lst_keyword.currentItem().text()
+            title = self.lst_title.currentItem().text()
 
-        result = self.agrs_data[self.agrs_data.keyword == keyword]
-        result = result[result.title == title]
+            result = self.agrs_data[self.agrs_data.keyword == keyword]
+            self.editing_data = result[result.title == title]
 
-        dialog = agr_edit.AgrEditor(result)
-        dialog.exec()
+            dialog = agr_edit.AgrEditor(self.editing_data)
+            dialog.exec()
 
-        if dialog.result:
-            response = dialog.result
-            print(response)
-            # self.agrs_data.to_csv("../../data/val/agrs.csv", sep=",", index=False)
+            if dialog.response is not None:
+                response = dialog.response
+
+                self.agrs_data = self.agrs_data.drop(self.editing_data.index)
+                self.agrs_data = self.agrs_data.append(response)
+
+                self.agrs_data.reset_index(drop=True, inplace=True)
+                self.agrs_data.to_csv("../../data/val/agrs.csv", sep=",", index=False)
+                self.load_content()
 
     # 특약사항 저장
     def saved_agrs(self):
@@ -548,10 +552,10 @@ class MainLease(QMainWindow, Ui_MainWindow):
                 item_widget = self.lst_contractor.itemWidget(item)
                 name = item_widget.cbx_name.currentText().replace(" ", "").replace("\n", "")
 
-                if name not in ["매도인", "매수인", "개업공인중개사"]:
+                if name not in ["매도인", "매수인", "임대인", "임차인", "개업공인중개사"]:
                     self.lst_contractor.model().removeRow(item_index.row())
                 else:
-                    self.info_msg(1, "해당 계약자 정보는 필수 입력 사항입니다.")
+                    self.msg.show_msg(1500, 545, "해당 계약자 정보는 필수 입력 사항입니다.")
 
             return True
 
@@ -649,62 +653,6 @@ class MainLease(QMainWindow, Ui_MainWindow):
             num = re.sub(r'(\d{3})(\d{2})(\d{5})', r'\1-\2-\3', num)
 
         obj_edt[category].setText(num)
-
-    # 알림 메세지
-    def info_msg(self, sec, content):
-        if self.msg_background.isHidden():
-            self.msg_background.show()
-
-        if self.msg_timer:
-            self.timer.stop()
-            self.msg_timer = False
-
-        self.msg_timer = True
-        self.msg_background.setText(content)
-        font_size = self.msg_background.fontMetrics().boundingRect(content)
-
-        if '\n' in content:
-            line_width = []
-            for i in content.split('\n'):
-                line_width.append(self.msg_background.fontMetrics().boundingRect(i).width())
-            w = max(line_width)
-        else:
-            w = font_size.width()
-
-        h = font_size.height() * (content.count('\n') + 1)
-        self.msg_background.resize(w + 20, h + 14)
-
-        x = round((self.width() / 2) - (self.msg_background.width() / 2))
-        y = round((self.height() / 2) - (self.msg_background.height() / 2))
-
-        self.msg_background.move(x, y)
-
-        effect = QGraphicsOpacityEffect(self.msg_background)
-        self.msg_background.setGraphicsEffect(effect)
-
-        self.anim = QPropertyAnimation(effect, b"opacity")
-        self.anim.setStartValue(0)
-        self.anim.setEndValue(1)
-        self.anim.setDuration(60)
-        self.anim.start()
-
-        self.timer = QTimer(self)
-        self.timer.start(sec * 1300)
-        self.timer.timeout.connect(self.hide_msg)
-
-    # 메세지 타이머 종료
-    def hide_msg(self):
-        effect = QGraphicsOpacityEffect(self.msg_background)
-        self.msg_background.setGraphicsEffect(effect)
-
-        self.anim = QPropertyAnimation(effect, b"opacity")
-        self.anim.setStartValue(1)
-        self.anim.setEndValue(0)
-        self.anim.setDuration(500)
-        self.anim.start()
-
-        self.timer.stop()
-        self.msg_timer = False
 
 
 # 돈 정규식
