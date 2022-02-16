@@ -554,8 +554,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
 
                 if name not in ["매도인", "매수인", "임대인", "임차인", "개업공인중개사"]:
                     self.lst_contractor.model().removeRow(item_index.row())
-                else:
-                    self.msg.show_msg(1500, 545, "해당 계약자 정보는 필수 입력 사항입니다.")
+                else: self.msg.show_msg(1500, 545, "해당 계약자 정보는 필수 입력 사항입니다.")
 
             return True
 
