@@ -6,7 +6,7 @@ import pandas as pd
 from PySide6.QtWidgets import QApplication, QMainWindow, QButtonGroup, QWidget, QLabel, QLineEdit, QComboBox, \
     QListWidgetItem, QMenu, QGraphicsOpacityEffect
 from PySide6.QtCore import QPropertyAnimation, Qt, QSize, QRegularExpression, QRect, QEvent, QTimer
-from PySide6.QtGui import QIcon, QRegularExpressionValidator, QPixmap
+from PySide6.QtGui import QIcon, QRegularExpressionValidator, QPixmap, QFont
 from urllib3.connectionpool import xrange
 
 from ui.main.ui_lease import Ui_MainWindow
@@ -17,10 +17,14 @@ from interface.sub_interface import address_details, agr_edit, agr_add
 class MainLease(QMainWindow, Ui_MainWindow):
     def __init__(self, *args, **kwargs):
         super(MainLease, self).__init__(*args, **kwargs)
-
+        pd.set_option('display.max_columns', None)
+        pd.set_option('display.max_row', None)
+        pd.set_option('display.width', None)
         # 특약 불러오기
-        try: self.agrs_data = pd.read_csv('../../data/val/agrs.csv', sep=",")
-        except FileNotFoundError: return
+        try:
+            self.agrs_data = pd.read_csv('../../data/val/agrs.csv', sep=",")
+        except FileNotFoundError:
+            return
 
         self._init_ui()
         self._init_interaction()
@@ -98,6 +102,14 @@ class MainLease(QMainWindow, Ui_MainWindow):
         # 서치 버튼 이미지
         self.btn_search.setIcon(QIcon('../../data/img/button/search_icon.png'))
         self.btn_search.setIconSize(QSize(22, 22))
+
+        # 폰트 스페이싱
+        font = self.lb_item_nm_26.font()
+        font.setLetterSpacing(QFont.AbsoluteSpacing, 8)
+
+        self.lb_item_nm_26.setFont(font)
+        self.lb_item_nm_25.setFont(font)
+        self.lb_item_nm_27.setFont(font)
 
     # 상호작용 init
     def _init_interaction(self):
@@ -182,7 +194,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
     # 계약종류 선택 후 라벨 세팅
     def setting_ui_form(self):
         select_item = self.cbx_contract.currentText()
-        set_list = ["아파트", "다세대주택", "연립주택", "도시형생활주택", "주상복합", "오피스텔", "상가", "사무실"]
+        set_list = ["아파트", "다세대주택", "연립주택", "도시형생활주택", "주상복합", "오피스텔", "사무실"]
 
         # 임대일 경우 임대부분 추가
         self.set_rantal.show() if self.contract != 0 else self.set_rantal.hide()
@@ -197,7 +209,20 @@ class MainLease(QMainWindow, Ui_MainWindow):
         self.set_land.move(0, land_y)
 
         # '토지'일 경우 건물 항목 숨김
-        self.set_building.hide() if select_item == "토지" else self.set_building.show()
+        if select_item == "토지":
+            self.set_building.hide()
+            self.set_area.show()
+            self.set_area.move(0, land_y + 40)
+            self.lb_item_nm_22.setText("거 래 지 분")
+            self.lb_item_nm_23.hide()
+            self.edt_area_rental_2.hide()
+
+        else:
+            self.set_building.show()
+            self.lb_item_nm_22.setText("대지권비율")
+            self.lb_item_nm_23.show()
+            self.edt_area_rental_2.show()
+
         self.set_building.move(0, land_y + 40)
 
         # 라벨 설정
@@ -210,8 +235,8 @@ class MainLease(QMainWindow, Ui_MainWindow):
             self.set_sub_2.show()
             self.lb_item_nm_12.setText("융 자 금")
 
-        # 월세, 단기일 경우
-        elif (self.contract == 2) | (self.contract == 3):
+        # 월세일 경우
+        elif self.contract == 2:
             self.set_sub_1.show()
             self.set_sub_2.hide()
             self.lb_item_nm_12.setText("월 차 임")
@@ -240,40 +265,44 @@ class MainLease(QMainWindow, Ui_MainWindow):
     # 받아온 주소 데이터 입력
     def insert_address_event(self):
         self.edt_area_rental.clear()
-        room = None
-        address, building, detail = self.address, self.select_building, self.select_detail
+        address, building, detail, room = self.address, self.select_building, self.select_detail, None
 
-        print(self.address)
-        print(self.binfo)
-        print(self.select_detail)
-        print(self.select_building)
+        select_item = self.cbx_contract.currentText()
+        set_list = ["아파트", "다세대주택", "연립주택", "도시형생활주택", "주상복합", "오피스텔", "사무실"]
+
+        if self.binfo['타입'] == '일반':
+            if select_item in set_list:
+                self.msg.show_msg(2000, 'center', "잘못된 계약서 종류 또는 주소지입니다. 다시 한번 확인해주세요.\n계속 동일한 문제 발생시, 직접 입력하여 작성해주세요.")
+                return
+
+        elif self.binfo['타입'] == '집합':
+            if select_item not in set_list:
+                self.msg.show_msg(2000, 'center', "잘못된 계약서 종류 또는 주소지입니다. 다시 한번 확인해주세요.\n계속 동일한 문제 발생시, 직접 입력하여 작성해주세요.")
+                return
 
         self.cbx_structure.setItemText(self.cbx_structure.count() - 1, "직접입력")
         self.cbx_purposes.setItemText(self.cbx_purposes.count() - 1, "직접입력")
 
-        if address['지'] == "0":
-            old = "%s %s %s %s" % (address['시도'], address['시군구'], address['읍면동'], address['번'])
-        else:
-            old = "%s %s %s %s-%s" % (address['시도'], address['시군구'], address['읍면동'], address['번'], address['지'])
+        old = "%s %s %s %s" % (address['시도'], address['시군구'], address['읍면동'], address['번'])
+        if address['지'] != "0": old = "%s-%s" % (old, address['지'])
 
         if self.binfo['타입'] == '일반':
             room = "%s층" % detail['층명칭'].rstrip("층")
 
-            if self.binfo['일부']:
-                room = room + " 일부"
+            if self.binfo['일부']: room = room + " 일부"
             else:
-                self.edt_area_rental.setText(detail['층면적'])
+                if not self.set_rantal.isHidden():
+                    self.edt_area_rental.setText(detail['층면적'])
 
         elif self.binfo['타입'] == '집합':
             room = "%s호" % detail['호명칭'].rstrip("호")
 
-            if len(detail['동명칭']) > 0:
-                room = "%s동 " % (detail['동명칭'].rstrip("동")) + room
+            if len(detail['동명칭']) > 0: room = "%s동 " % (detail['동명칭'].rstrip("동")) + room
 
-            if self.binfo['일부']:
-                room = room + " 일부"
+            if self.binfo['일부']: room = room + " 일부"
             else:
-                self.edt_area_rental.setText(detail['전용면적'])
+                if not self.set_rantal.isHidden():
+                    self.edt_area_rental.setText(detail['전용면적'])
 
             old = "%s, %s" % (old, room)
 
@@ -281,34 +310,167 @@ class MainLease(QMainWindow, Ui_MainWindow):
         if self.address['건물명칭'] != "": old = "%s (%s)" % (old, self.address['건물명칭'])
 
         self.edt_address.setText(old)  # 소재지
-        self.edt_address_details.setText(room)  # 임대부분
         self.edt_area_land.setText('' if building['대지면적'] == '0' else building['대지면적'])  # 대지면적
-        self.edt_area_total.setText(building['연면적']) if self.lb_item_nm_7.text() == "연 면 적" \
-            else self.edt_area_total.setText(detail['전용면적'])
 
-        structure_index, purposes_index = [], []
+        if not self.set_rantal.isHidden():
+            self.edt_address_details.setText(room)  # 임대부분
 
-        # 구조 세팅
-        structure_list = [detail['주구조'], detail['기타구조'], building['주구조'], building['기타구조']]
-        for i in structure_list:
-            structure_index = self.cbx_structure.findText(i, Qt.MatchFixedString)
-            if structure_index > -1:
-                self.cbx_structure.setCurrentIndex(structure_index)
-                break
-        if structure_index == -1:
-            self.cbx_structure.setItemText(self.cbx_structure.count() - 1, detail['기타구조'])
-            self.cbx_structure.setCurrentIndex(self.cbx_structure.count() - 1)
+        if not self.set_building.isHidden():
+            self.edt_area_total.setText(building['연면적']) if self.lb_item_nm_7.text() == "연 면 적" \
+                else self.edt_area_total.setText(detail['전용면적'])
 
-        # 용도 세팅
-        purposes_list = [detail['주용도'], detail['기타용도'], building['주용도'], building['기타용도']]
-        for i in purposes_list:
-            purposes_index = self.cbx_purposes.findText(i, Qt.MatchFixedString)
-            if purposes_index > -1:
-                self.cbx_purposes.setCurrentIndex(purposes_index)
-                break
-        if purposes_index == -1:
-            self.cbx_purposes.setItemText(self.cbx_purposes.count() - 1, detail['기타용도'])
-            self.cbx_purposes.setCurrentIndex(self.cbx_purposes.count() - 1)
+            structure_index, purposes_index = [], []
+
+            # 구조 세팅
+            structure_list = [detail['주구조'], detail['기타구조'], building['주구조'], building['기타구조']]
+            for i in structure_list:
+                structure_index = self.cbx_structure.findText(i, Qt.MatchFixedString)
+                if structure_index > -1:
+                    self.cbx_structure.setCurrentIndex(structure_index)
+                    break
+            if structure_index == -1:
+                self.cbx_structure.setItemText(self.cbx_structure.count() - 1, detail['기타구조'])
+                self.cbx_structure.setCurrentIndex(self.cbx_structure.count() - 1)
+
+            # 용도 세팅
+            purposes_list = [detail['기타용도'], building['기타용도']]
+            for i in purposes_list:
+                purposes_index = self.cbx_purposes.findText(i, Qt.MatchFixedString)
+                if purposes_index > -1:
+                    self.cbx_purposes.setCurrentIndex(purposes_index)
+                    break
+            if purposes_index == -1:
+                self.cbx_purposes.setItemText(self.cbx_purposes.count() - 1, detail['기타용도'])
+                self.cbx_purposes.setCurrentIndex(self.cbx_purposes.count() - 1)
+
+    def insert_general_event(self):
+        self.edt_area_rental.clear()
+        address, building, detail, room = self.address, self.select_building, self.select_detail, None
+
+        select_item = self.cbx_contract.currentText()
+        set_list = ["아파트", "다세대주택", "연립주택", "도시형생활주택", "주상복합", "오피스텔", "사무실"]
+
+        if select_item in set_list:
+            self.msg.show_msg(2000, 'center', "잘못된 계약서 종류 또는 주소지입니다. 다시 한번 확인해주세요.\n계속 동일한 문제 발생시, 직접 입력하여 작성해주세요.")
+            return
+
+        self.cbx_structure.setItemText(self.cbx_structure.count() - 1, "( 직접입력 )")
+        self.cbx_purposes.setItemText(self.cbx_purposes.count() - 1, "( 직접입력 )")
+
+        # 소재지
+        old = "%s %s %s %s" % (address['시도'], address['시군구'], address['읍면동'], address['번'])
+        if address['지'] != "0": old = "%s-%s" % (old, address['지'])
+
+        # 상세주소
+        room = "%s층" % detail['층명칭'].rstrip("층")
+        if self.binfo['일부']: room = room + " 일부"
+        else:
+            if not self.set_rantal.isHidden():
+                self.edt_area_rental.setText(detail['층면적'])
+
+        # 건물명칭 있으면 입력
+        if self.address['건물명칭'] != "": old = "%s (%s)" % (old, self.address['건물명칭'])
+
+        self.edt_address.setText(old)  # 소재지
+        self.edt_area_land.setText('' if building['대지면적'] == '0' else building['대지면적'])  # 대지면적
+
+        # 임대일 경우
+        if not self.set_rantal.isHidden(): self.edt_address_details.setText(room)  # 임대부분
+
+        # 건물이 있을 경우
+        if not self.set_building.isHidden():
+            self.edt_area_total.setText(building['연면적']) if self.lb_item_nm_7.text() == "연 면 적" \
+                else self.edt_area_total.setText(detail['전용면적'])
+
+            structure_index, purposes_index = [], []
+
+            # 구조 세팅
+            structure_list = [detail['주구조'], detail['기타구조'], building['주구조'], building['기타구조']]
+            for i in structure_list:
+                structure_index = self.cbx_structure.findText(i, Qt.MatchFixedString)
+                if structure_index > -1:
+                    self.cbx_structure.setCurrentIndex(structure_index)
+                    break
+            if structure_index == -1:
+                self.cbx_structure.setItemText(self.cbx_structure.count() - 1, detail['기타구조'])
+                self.cbx_structure.setCurrentIndex(self.cbx_structure.count() - 1)
+
+            # 용도 세팅
+            purposes_list = [detail['기타용도'], building['기타용도']]
+            for i in purposes_list:
+                purposes_index = self.cbx_purposes.findText(i, Qt.MatchFixedString)
+                if purposes_index > -1:
+                    self.cbx_purposes.setCurrentIndex(purposes_index)
+                    break
+            if purposes_index == -1:
+                self.cbx_purposes.setItemText(self.cbx_purposes.count() - 1, detail['기타용도'])
+                self.cbx_purposes.setCurrentIndex(self.cbx_purposes.count() - 1)
+
+    def insert_set_event(self):
+        self.edt_area_rental.clear()
+        address, building, detail, room = self.address, self.select_building, self.select_detail, None
+
+        select_item = self.cbx_contract.currentText()
+        set_list = ["아파트", "다세대주택", "연립주택", "도시형생활주택", "주상복합", "오피스텔", "사무실"]
+
+        if select_item not in set_list:
+            self.msg.show_msg(3000, 'center', "입력하신 소재지는 일반 건물입니다. 다시 한번 확인해주세요.\n계속 동일한 문제 발생시, 직접 입력하여 작성해주세요.")
+            return
+
+        self.cbx_structure.setItemText(self.cbx_structure.count() - 1, "직접입력")
+        self.cbx_purposes.setItemText(self.cbx_purposes.count() - 1, "직접입력")
+
+        # 주소지
+        old = "%s %s %s %s" % (address['시도'], address['시군구'], address['읍면동'], address['번'])
+        if address['지'] != "0": old = "%s-%s" % (old, address['지'])
+
+        # 상세주소
+        room = "%s호" % detail['호명칭'].rstrip("호")
+        if len(detail['동명칭']) > 0: room = "%s동 " % (detail['동명칭'].rstrip("동")) + room
+
+        if self.binfo['일부']: room = room + " 일부"
+        else:
+            if not self.set_rantal.isHidden():
+                self.edt_area_rental.setText(detail['전용면적'])
+
+        old = "%s, %s" % (old, room)
+
+        # 건물명칭 있으면 입력
+        if self.address['건물명칭'] != "": old = "%s (%s)" % (old, self.address['건물명칭'])
+
+        self.edt_address.setText(old)  # 소재지
+        self.edt_area_land.setText('' if building['대지면적'] == '0' else building['대지면적'])  # 대지면적
+
+        if not self.set_rantal.isHidden():
+            self.edt_address_details.setText(room)  # 임대부분
+
+        if not self.set_building.isHidden():
+            self.edt_area_total.setText(building['연면적']) if self.lb_item_nm_7.text() == "연 면 적" \
+                else self.edt_area_total.setText(detail['전용면적'])
+
+            structure_index, purposes_index = [], []
+
+            # 구조 세팅
+            structure_list = [detail['주구조'], detail['기타구조'], building['주구조'], building['기타구조']]
+            for i in structure_list:
+                structure_index = self.cbx_structure.findText(i, Qt.MatchFixedString)
+                if structure_index > -1:
+                    self.cbx_structure.setCurrentIndex(structure_index)
+                    break
+            if structure_index == -1:
+                self.cbx_structure.setItemText(self.cbx_structure.count() - 1, detail['기타구조'])
+                self.cbx_structure.setCurrentIndex(self.cbx_structure.count() - 1)
+
+            # 용도 세팅
+            purposes_list = [detail['기타용도'], building['기타용도']]
+            for i in purposes_list:
+                purposes_index = self.cbx_purposes.findText(i, Qt.MatchFixedString)
+                if purposes_index > -1:
+                    self.cbx_purposes.setCurrentIndex(purposes_index)
+                    break
+            if purposes_index == -1:
+                self.cbx_purposes.setItemText(self.cbx_purposes.count() - 1, detail['기타용도'])
+                self.cbx_purposes.setCurrentIndex(self.cbx_purposes.count() - 1)
 
     # 매매대금/보증금 입력 이벤트
     def changed_amount_edit(self):
@@ -367,8 +529,10 @@ class MainLease(QMainWindow, Ui_MainWindow):
                 self.edt_balance_pay.clear()
                 return
 
-            if self.contract == 0: self.msg.show_msg(2500, 'center', "계약금과 중도금의 합은 매매대금 보다 많을 수 없습니다.")
-            else: self.msg.show_msg(2500, 'center', "계약금과 중도금의 합은 보증금 보다 많을 수 없습니다.")
+            if self.contract == 0:
+                self.msg.show_msg(2500, 'center', "계약금과 중도금의 합은 매매대금 보다 많을 수 없습니다.")
+            else:
+                self.msg.show_msg(2500, 'center', "계약금과 중도금의 합은 보증금 보다 많을 수 없습니다.")
             self.focusWidget().clear()
 
         else:
@@ -384,6 +548,9 @@ class MainLease(QMainWindow, Ui_MainWindow):
         keyword = list(dict.fromkeys(keyword))
 
         self.lst_keyword.clear()
+        self.lst_title.clear()
+        self.edt_agreement.clear()
+
         self.lst_keyword.addItem("( 직접입력 )")
         self.lst_keyword.addItems(keyword)
         self.lst_keyword.setCurrentRow(0)
@@ -394,6 +561,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
             self.lst_title.clear()
             self.edt_agreement.clear()
             return
+
         keyword = self.lst_keyword.currentItem().text()
         title = self.agrs_data.title[self.agrs_data.keyword == keyword]
         title = list(dict.fromkeys(title))
@@ -417,6 +585,46 @@ class MainLease(QMainWindow, Ui_MainWindow):
     def clicked_add_btn(self):
         dialog = agr_add.AgrAdd(self.agrs_data)
         dialog.exec()
+
+        if dialog.response is not None:
+            response = dialog.response
+
+            keyword = response['keyword'].iloc[0]
+            title = response['title'].iloc[0]
+
+            self.agrs_data = self.agrs_data.append(response)
+
+            self.agrs_data.reset_index(drop=True, inplace=True)
+            self.agrs_data.to_csv("../../data/val/agrs.csv", sep=",", index=False)
+
+            self.visit_item(keyword, title)
+
+    # 특약사항 편집 이벤트
+    def clicked_edit_btn(self):
+        if self.lst_title.currentItem() is not None:
+
+            keyword = self.lst_keyword.currentItem().text()
+            title = self.lst_title.currentItem().text()
+
+            result = self.agrs_data[self.agrs_data.keyword == keyword]
+            self.editing_data = result[result.title == title]
+
+            dialog = agr_edit.AgrEditor(self.agrs_data, self.editing_data)
+            dialog.exec()
+
+            if dialog.response is not None:
+                response = dialog.response
+
+                self.agrs_data = self.agrs_data.drop(self.editing_data.index)
+                self.agrs_data = self.agrs_data.append(response)
+
+                self.agrs_data.reset_index(drop=True, inplace=True)
+                self.agrs_data.to_csv("../../data/val/agrs.csv", sep=",", index=False)
+
+                self.visit_item(keyword, title)
+
+        else:
+            self.msg.show_msg(1500, 'center', "편집할 특약사항을 선택해주세요.")
 
     # 특약사항 삭제 이벤트
     def clicked_remove_btn(self):
@@ -453,32 +661,22 @@ class MainLease(QMainWindow, Ui_MainWindow):
         self.agrs_data.reset_index(drop=True, inplace=True)
         self.agrs_data.to_csv("../../data/val/agrs.csv", sep=",", index=False)
 
-    # 특약사항 편집 이벤트
-    def clicked_edit_btn(self):
-        if self.lst_title.currentItem() is not None:
+    def visit_item(self, keyword, title):
+        self.load_keyword()
+        for i in range(self.lst_keyword.model().rowCount()):
+            item = self.lst_keyword.item(i)
+            if item.text() == keyword:
+                self.lst_keyword.setCurrentItem(item)
+                break
 
-            keyword = self.lst_keyword.currentItem().text()
-            title = self.lst_title.currentItem().text()
+        self.load_title()
+        for i in range(self.lst_title.model().rowCount()):
+            item = self.lst_title.item(i)
+            if item.text() == title:
+                self.lst_title.setCurrentItem(item)
+                break
 
-            result = self.agrs_data[self.agrs_data.keyword == keyword]
-            self.editing_data = result[result.title == title]
-
-            dialog = agr_edit.AgrEditor(self.editing_data)
-            dialog.exec()
-
-            if dialog.response is not None:
-                response = dialog.response
-
-                self.agrs_data = self.agrs_data.drop(self.editing_data.index)
-                self.agrs_data = self.agrs_data.append(response)
-
-                self.agrs_data.reset_index(drop=True, inplace=True)
-                self.agrs_data.to_csv("../../data/val/agrs.csv", sep=",", index=False)
-                self.load_content()
-
-    # 특약사항 저장
-    def saved_agrs(self):
-        return
+        self.load_content()
 
     ## 계약자 정보 페이지
     ################################################################################################
@@ -510,8 +708,10 @@ class MainLease(QMainWindow, Ui_MainWindow):
         item = QListWidgetItem()
         item.setSizeHint(QSize(custom_item.width(), 80))
 
-        if first: self.lst_contractor.addItem(item)
-        else: self.lst_contractor.insertItem(pos + 1, item)
+        if first:
+            self.lst_contractor.addItem(item)
+        else:
+            self.lst_contractor.insertItem(pos + 1, item)
 
         self.lst_contractor.setItemWidget(item, custom_item)
 
@@ -554,7 +754,8 @@ class MainLease(QMainWindow, Ui_MainWindow):
 
                 if name not in ["매도인", "매수인", "임대인", "임차인", "개업공인중개사"]:
                     self.lst_contractor.model().removeRow(item_index.row())
-                else: self.msg.show_msg(1500, 545, "해당 계약자 정보는 필수 입력 사항입니다.")
+                else:
+                    self.msg.show_msg(1500, 545, "해당 계약자 정보는 필수 입력 사항입니다.")
 
             return True
 
@@ -726,21 +927,14 @@ class ContractorItem(QWidget):
                          QLineEdit::hover { border: 1px solid #3498db; }
                          QLineEdit:focus { border: 2px solid #3498db; } """
         self.cbx_css = """QComboBox {border: 1px solid gray;
-                                padding: 3px 1px 1px 10px;
-                                min-width: 4em;
-                                background: rgb(255, 255, 255);
+                                padding-left: 6px;
+                                padding-top: 3px;
                                 font: 14px "웰컴체 Regular";
                                 color: rgb(44, 62, 80);
                             }
 
-                            QComboBox:focus {
-                                padding: 3px 1px 1px 10px;
+                            QComboBox:hover {
                                 color: rgb(127, 140, 141);
-                            }
-
-                            QComboBox:on { 
-                                padding-top: 3px;
-                                padding-left: 4px;
                             }
 
                             QComboBox QAbstractItemView::item { 
@@ -855,6 +1049,8 @@ class ContractorItem(QWidget):
             self._contractor_c()
 
     def _contractor_ab(self):
+        # 폰트 스페이싱
+
         self.edt_name = QLineEdit(self)
         self.edt_name.setGeometry(QRect(90, 5, 130, 30))
         self.edt_name.setStyleSheet(self.edt_css)
@@ -862,8 +1058,11 @@ class ContractorItem(QWidget):
         self.lb_name_hint = QLabel(self)
         self.lb_name_hint.setGeometry(QRect(94, 9, 50, 22))
         self.lb_name_hint.setStyleSheet(self.hint_css)
-        self.lb_name_hint.setAlignment(Qt.AlignCenter)
-        self.lb_name_hint.setText("성 　 명")
+        self.lb_name_hint.setText("성명")
+
+        font = self.lb_name_hint.font()
+        font.setLetterSpacing(QFont.AbsoluteSpacing, 21)
+        self.lb_name_hint.setFont(font)
 
         self.edt_phone = QLineEdit(self)
         self.edt_phone.setGeometry(QRect(230, 5, 170, 30))
@@ -872,8 +1071,11 @@ class ContractorItem(QWidget):
         self.lb_phone_hint = QLabel(self)
         self.lb_phone_hint.setGeometry(QRect(234, 9, 50, 22))
         self.lb_phone_hint.setStyleSheet(self.hint_css)
-        self.lb_phone_hint.setAlignment(Qt.AlignCenter)
-        self.lb_phone_hint.setText("연 락 처")
+        self.lb_phone_hint.setText("연락처")
+
+        font = self.lb_phone_hint.font()
+        font.setLetterSpacing(QFont.AbsoluteSpacing, 5)
+        self.lb_phone_hint.setFont(font)
 
         self.cbx_number = QComboBox(self)
         self.cbx_number.setGeometry(QRect(411, 5, 130, 30))
@@ -892,8 +1094,8 @@ class ContractorItem(QWidget):
         self.lb_address_hint = QLabel(self)
         self.lb_address_hint.setGeometry(QRect(94, 47, 50, 22))
         self.lb_address_hint.setStyleSheet(self.hint_css)
-        self.lb_name_hint.setAlignment(Qt.AlignCenter)
-        self.lb_address_hint.setText("신 주 소")
+        self.lb_address_hint.setText("신주소")
+        self.lb_address_hint.setFont(font)
 
     def _contractor_c(self):
         self.edt_name = QLineEdit(self)
@@ -943,8 +1145,11 @@ class ContractorItem(QWidget):
         self.lb_address_hint = QLabel(self)
         self.lb_address_hint.setGeometry(QRect(264, 47, 50, 22))
         self.lb_address_hint.setStyleSheet(self.hint_css)
-        self.lb_address_hint.setAlignment(Qt.AlignCenter)
-        self.lb_address_hint.setText("주 　 소")
+        self.lb_address_hint.setText("주소")
+
+        font = self.lb_address_hint.font()
+        font.setLetterSpacing(QFont.AbsoluteSpacing, 21)
+        self.lb_address_hint.setFont(font)
 
 
 # 문자열

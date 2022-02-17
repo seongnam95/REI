@@ -100,3 +100,10 @@ def get_exact_value(data):
 
     except ValueError:
         return data
+
+
+a = " ".strip()
+if a.isspace():
+    print("이씅")
+else:
+    print('없음')

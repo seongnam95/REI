@@ -3,49 +3,38 @@ import csv
 import pandas as pd
 
 from ui.dialog.ui_agr_editor import Ui_AgreementEditor
-from PySide6.QtWidgets import QWidget, QApplication, QDialog, QLabel, QMessageBox, QHBoxLayout, QListWidgetItem, QMenu, QComboBox
+from PySide6.QtWidgets import QWidget, QApplication, QDialog, QLabel, QMessageBox, \
+    QHBoxLayout, QListWidgetItem, QMenu, QComboBox
 from PySide6.QtCore import Qt, QEvent, QRect, QSize
 from PySide6.QtGui import QTextCursor, QFontMetrics
 
 from hanspell import spell_checker
 from ui.custom.TitleBarWidget import TitleBarWidget
+from module.black_box_msg import BoxMessage
 
 
 class AgrAdd(QDialog, Ui_AgreementEditor):
-    def __init__(self, agrs):
+    def __init__(self, agr):
         super().__init__()
-
         self._setupUi(self)
+        
         self.lb_sub_title.setText("( 특약사항 추가 )")
         self.cbx_keyword.setEnabled(True)
 
-        # 변수 선언
-        self.agrs, self.response = agrs, None
+        # 선언문
+        self.agr, self.response = agr, None
         self.editing, self.editing_row, self.save_row = False, 0, 0
         self.cbx_keyword.setInsertPolicy(QComboBox.NoInsert)
+        self.msg = BoxMessage(self)
 
-        self._init_interaction()
-        self.load_content()
-
-    # UI 상호작용 컨넥트
-    def _init_interaction(self):
+        # UI 이벤트 설정
         self.btn_add.clicked.connect(self.clicked_add)
         self.btn_save.clicked.connect(self.clicked_save_btn)
         self.cbx_keyword.activated.connect(self.activated_keyword_cbx)
         self.lst_content.installEventFilter(self)
 
-    ## UI 세팅
-    ############################################################################
-
-    # 내용 로드
-    def load_content(self):
-        # 키워드 추가
-        keyword = self.agrs['keyword'].values.tolist()
-        keyword = list(dict.fromkeys(keyword))
-        self.cbx_keyword.addItem('( 선택 )')
-        self.cbx_keyword.addItems(keyword)
-        self.cbx_keyword.addItem('( 직접입력 )')
-        self.cbx_keyword.showPopup()
+        # 특약사항 로드
+        self.load_content()
 
     ## 상호작용 이벤트
     ############################################################################
@@ -89,18 +78,27 @@ class AgrAdd(QDialog, Ui_AgreementEditor):
 
     # 저장 버튼 클릭
     def clicked_save_btn(self):
-        if self.edt_title.text() == "":
-            self.msg("정보", "My 특약 제목을 입력해주세요.")
+        keyword = self.cbx_keyword.currentText().strip()
+        title = self.edt_title.text().strip()
+
+        if keyword == "( 선택 )":
+            self.msg.show_msg(1500, 'center', "키워드를 선택해주세요.")
+            return
+        elif not title:
+            self.msg.show_msg(1500, 'center', "My 특약 제목을 입력해주세요.")
             return
         elif self.lst_content.count() == 0:
-            self.msg("정보", "My 특약 리스트가 비어있습니다.")
+            self.msg.show_msg(1500, 'center', "My 특약 리스트가 비어있습니다.")
             return
+        else:
+            result = self.agr[self.agr['keyword'] == keyword]
+
+            if title in result['title'].values.tolist():
+                self.msg.show_msg(1500, 'center', "이미 존재하는 특약 제목입니다.")
+                return
 
         column = ['keyword', 'title', 'num', 'content']
         response = pd.DataFrame(columns=column)
-
-        keyword = self.cbx_keyword.currentText()
-        title = self.edt_title.text()
 
         for i in range(self.lst_content.count()):
             item = self.lst_content.item(i)
@@ -115,7 +113,7 @@ class AgrAdd(QDialog, Ui_AgreementEditor):
         self.response = response
         self.hide()
 
-    ## 항목 함수
+    ## 항목 제어
     ############################################################################
 
     # 항목 추가
@@ -123,7 +121,6 @@ class AgrAdd(QDialog, Ui_AgreementEditor):
         content = self.edt_add.toPlainText()
 
         if not content: return
-        count = self.lst_content.count() + 1
 
         # '수정' 클릭 이벤트
         if self.editing:
@@ -136,9 +133,11 @@ class AgrAdd(QDialog, Ui_AgreementEditor):
             self.editing = False
 
         # '추가' 클릭 이벤트
-        else: self.add_conent_item(count, content)
+        else:
+            count = self.lst_content.count() + 1
+            self.add_content_item(count, content)
 
-        self.lb_number.setText(str(count))
+        self.lb_number.setText(str(self.lst_content.count() + 1))
 
         self.edt_add.clear()
         self.edt_add.setFocus()
@@ -176,6 +175,17 @@ class AgrAdd(QDialog, Ui_AgreementEditor):
 
     ############################################################################
 
+    # 내용 로드
+    def load_content(self):
+        # 키워드 추가
+        keyword = self.agr['keyword'].values.tolist()
+        keyword = list(dict.fromkeys(keyword))
+
+        self.cbx_keyword.addItem('( 선택 )')
+        self.cbx_keyword.addItems(keyword)
+        self.cbx_keyword.addItem('( 직접입력 )')
+        self.cbx_keyword.showPopup()
+
     # 리스트 순서 정렬
     def sorted_row(self):
         for i in range(self.lst_content.count()):
@@ -184,35 +194,21 @@ class AgrAdd(QDialog, Ui_AgreementEditor):
             item_widget = self.lst_content.itemWidget(item)
             item_widget.lb_num_icon.setText(str(i + 1))
 
-        count = self.lst_content.count() + 1
-        self.lb_number.setText(str(count))
+        self.lb_number.setText(str(self.lst_content.count() + 1))
 
     # 특약 아이템 추가 함수
-    def add_conent_item(self, count, content):
+    def add_content_item(self, count, content):
         custom_item = MyItem(str(count), content)
         item = QListWidgetItem()
-        item.setSizeHint(QSize(self.lst_content.width() - 10, 15))
         item.setSizeHint(QSize(custom_item.sizeHint()))
         self.lst_content.addItem(item)
         self.lst_content.setItemWidget(item, custom_item)
-
-    # 메세지 함수
-    def msg(self, ty, content):
-        title = "레이 - Real estate Information"
-        if ty == "기본":
-            QMessageBox.about(self, title, content)
-        elif ty == "정보":
-            QMessageBox.information(self, title, content, QMessageBox.Ok)
-        elif ty == "경고":
-            QMessageBox.warning(self, title, content, QMessageBox.Ok)
-        elif ty == "에러":
-            QMessageBox.critical(self, title, content, QMessageBox.Ok)
+        self.lst_content.setCurrentRow(self.lst_content.count() - 1)
 
     # 키워드 선택 이벤트
     def activated_keyword_cbx(self):
         item = self.cbx_keyword.currentText()
-        if item == "( 선택 )": return
-        elif item == "( 직접입력 )":
+        if item == "( 직접입력 )":
             self.cbx_keyword.setEditable(True)
             self.cbx_keyword.setCurrentText("")
         else:
@@ -225,6 +221,10 @@ class AgrAdd(QDialog, Ui_AgreementEditor):
 def spell_check_module(content):
     content = spell_checker.check(content).checked
     return content
+
+# 예외 오류 처리
+def my_exception_hook(exctype, value, traceback):
+    sys.excepthook(exctype, value, traceback)
 
 
 # 리스트 아이템
@@ -263,11 +263,6 @@ class MyItem(QWidget):
         h_box.addWidget(self.lb_content)
 
         self.setLayout(h_box)
-
-
-# 예외 오류 처리
-def my_exception_hook(exctype, value, traceback):
-    sys.excepthook(exctype, value, traceback)
 
 
 sys._excepthook = sys.excepthook

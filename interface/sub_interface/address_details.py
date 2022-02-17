@@ -338,6 +338,7 @@ class AddressDetails(QDialog, Ui_FindAddress):
         # 집합일 경우
         elif self.binfo['타입'] == '집합':
             print(self.exact_detail)
+            print(self.select_building)
             self.select_detail = self.exact_detail.iloc[select_index]
             dong = self.select_detail['동명칭'].rstrip('동')
             ho = self.select_detail['호명칭'].rstrip('호')
@@ -353,7 +354,7 @@ class AddressDetails(QDialog, Ui_FindAddress):
             self.result = True
             self.hide()
 
-########################################################################################################
+    ########################################################################################################
 
     # 일부 체크
     def part_check_event(self):

@@ -13,40 +13,19 @@ from module.black_box_msg import BoxMessage
 
 
 class AgrEditor(QDialog, Ui_AgreementEditor):
-    def __init__(self, agr):
+    def __init__(self, agr, select_agr):
         super().__init__()
-
         self._setupUi(self)
-        self.msg = BoxMessage(self)
 
-        # 변수 선언
-        self.agr, self.response = agr, None
+        self.msg = BoxMessage(self)
+        self.agr, self.select_agr, self.response = agr, select_agr, None
         self.editing, self.editing_row, self.save_row = False, 0, 0
 
-        self._init_interaction()
-        self.load_content()
-
-    # UI 상호작용 컨넥트
-    def _init_interaction(self):
-        self.btn_add.clicked.connect(self.clicked_add)
+        self.btn_add.clicked.connect(self.add_item)
         self.btn_save.clicked.connect(self.clicked_save_btn)
         self.lst_content.installEventFilter(self)
 
-    ## UI 세팅
-    ############################################################################
-
-    # 내용 로드
-    def load_content(self):
-        keyword = self.agr['keyword'].iloc[0]
-        title = self.agr['title'].iloc[0]
-
-        self.cbx_keyword.addItem(keyword)
-        self.edt_title.setText(title)
-
-        [self.add_conent_item(count, content) for count, content in zip(self.agr['num'], self.agr['content'])]
-
-        count = self.lst_content.count() + 1
-        self.lb_number.setText(str(count))
+        self.load_content()
 
     ## 상호작용 이벤트
     ############################################################################
@@ -90,18 +69,26 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
 
     # 저장 버튼 클릭
     def clicked_save_btn(self):
-        if self.edt_title.text() == "":
-            self.msg.show_msg(1800, "My 특약 제목을 입력해주세요.")
-            return
-        elif self.lst_content.count() == 0:
-            self.msg.show_msg(1800, "My 특약 리스트가 비어있습니다.")
-            return
+        keyword = self.cbx_keyword.currentText().strip()
+        title = self.edt_title.text().strip()
+
+        if not title:
+            self.msg.show_msg(1500, 'center', "My 특약 제목을 입력해주세요.")
+
+        elif not self.lst_content.count():
+            self.msg.show_msg(1500, 'center', "My 특약 리스트가 비어있습니다.")
+
+        else:
+            result = self.agr[self.agr['keyword'] == keyword]
+
+            if title in result['title'].values.tolist():
+                current_title = self.select_agr['title'].iloc[0]
+                if title != current_title:
+                    self.msg.show_msg(1500, 'center', "이미 존재하는 특약 제목입니다.")
+                    return
 
         column = ['keyword', 'title', 'num', 'content']
         response = pd.DataFrame(columns=column)
-
-        keyword = self.cbx_keyword.currentText()
-        title = self.edt_title.text()
 
         for i in range(self.lst_content.count()):
             item = self.lst_content.item(i)
@@ -116,17 +103,16 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
         self.response = response
         self.hide()
 
-    ## 항목 함수
+    ## 항목 제어
     ############################################################################
 
     # 항목 추가
-    def clicked_add(self):
+    def add_item(self):
         content = self.edt_add.toPlainText()
 
         if not content:
-            self.msg.show_msg(1800, "특약사항 내용을 입력해주세요.")
+            self.msg.show_msg(1800, 'center', "특약사항 내용을 입력해주세요.")
             return
-        count = self.lst_content.count() + 1
 
         # '수정' 클릭 이벤트
         if self.editing:
@@ -139,9 +125,11 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
             self.editing = False
 
         # '추가' 클릭 이벤트
-        else: self.add_conent_item(count, content)
+        else:
+            count = self.lst_content.count() + 1
+            self.add_conent_item(count, content)
 
-        self.lb_number.setText(str(count))
+        self.lb_number.setText(str(self.lst_content.count() + 1))
 
         self.edt_add.clear()
         self.edt_add.setFocus()
@@ -179,6 +167,18 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
 
     ############################################################################
 
+    # 특약사항 세팅
+    def load_content(self):
+        keyword = self.select_agr['keyword'].iloc[0]
+        title = self.select_agr['title'].iloc[0]
+
+        self.cbx_keyword.addItem(keyword)
+        self.edt_title.setText(title)
+
+        [self.add_conent_item(count, content) for count, content in zip(self.select_agr['num'], self.select_agr['content'])]
+
+        self.lb_number.setText(str(self.lst_content.count() + 1))
+
     # 리스트 순서 정렬
     def sorted_row(self):
         for i in range(self.lst_content.count()):
@@ -187,8 +187,7 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
             item_widget = self.lst_content.itemWidget(item)
             item_widget.lb_num_icon.setText(str(i + 1))
 
-        count = self.lst_content.count() + 1
-        self.lb_number.setText(str(count))
+        self.lb_number.setText(str(self.lst_content.count() + 1))
 
     # 특약 아이템 추가 함수
     def add_conent_item(self, count, content):
