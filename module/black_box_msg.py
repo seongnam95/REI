@@ -30,7 +30,7 @@ class BoxMessage(QLabel):
         else:
             w = font_size.width()
 
-        h = font_size.height() * (content.count('\n') + 1)
+        h = 20 * (content.count('\n') + 1)
         self.resize(w + 20, h + 14)
 
         x, y = round((self.parent_size.width() / 2) - (self.width() / 2)), 0

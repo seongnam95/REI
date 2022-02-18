@@ -35,7 +35,7 @@ class OpenApiRequest:
             return result
 
         except (ValueError, TypeError, IndexError) as e:
-            print(e)
+            print("에러:" + e)
             return None
 
     # 주소 조회
@@ -123,20 +123,21 @@ class DataRequestThread(QThread):
             if ty == '공동주택가격':
                 url = 'http://apis.data.go.kr/1611000/nsdi/ApartHousingPriceService/attr/getApartHousingPriceAttr'
                 column = {'동명칭': 'dongNm', '호명칭': 'hoNm', '공동주택가격': 'pblntfPc', '공시일자': 'lastUpdtDt'}
-                result_data.append(pool.apply_async(self.get_price, (url, column,)))
+                result_data.append(pool.apply_async(self.get_days_data, (url, column,)))
 
             elif ty == '개별주택가격':
                 url = 'http://apis.data.go.kr/1611000/nsdi/IndvdHousingPriceService/attr/getIndvdHousingPriceAttr'
                 column = {'개별주택가격': 'housePc', '공시일자': 'lastUpdtDt'}
-                result_data.append(pool.apply_async(self.get_price, (url, column,)))
+                result_data.append(pool.apply_async(self.get_days_data, (url, column,)))
 
-            elif ty == '공시지가':
-                url = 'http://apis.data.go.kr/1611000/nsdi/IndvdLandPriceService/attr/getIndvdLandPriceAttr'
-                column = {'공시지가': 'pblntfPclnd', '공시일자': 'pblntfDe'}
-                result_data.append(pool.apply_async(self.get_price, (url, column,)))
+            elif ty == '토지':
+                url = 'http://apis.data.go.kr/1611000/nsdi/LandCharacteristicsService/attr/getLandCharacteristics'
+                column = {'지목': 'lndcgrCodeNm', '대지면적': 'lndpclAr', '공시지가': 'pblntfPclnd',
+                          '공시기준년': 'stdrYear', '공시기준월': 'stdrMt'}
+                result_data.append(pool.apply_async(self.get_days_data, (url, column,)))
 
             else:
-                if ty == '토지':
+                if ty == '토지용도지역지구':
                     url = 'http://apis.data.go.kr/1611000/nsdi/LandUseService/attr/getLandUseAttr'
                     column = {'용도지역지구명': 'prposAreaDstrcCodeNm'}
                     params = {'serviceKey': self.key, 'pnu':  self.pnu, 'cnflcAt': '1', 'format': 'xml', 'numOfRows': '10'}
@@ -169,7 +170,7 @@ class DataRequestThread(QThread):
                         parsing_type = 'getBrRecapTitleInfo'
                         column = {'옥내기계식대수': 'indrMechUtcnt', '옥외기계식대수': 'oudrMechUtcnt',
                                   '옥내자주식대수': 'indrAutoUtcnt', '옥외자주식대수': 'oudrAutoUtcnt',
-                                  '총주차수': 'totPkngCnt'}
+                                  '총주차수': 'totPkngCnt', '대지면적': 'platArea'}
 
                     elif ty == '전유부':
                         parsing_type = 'getBrExposPubuseAreaInfo'
@@ -199,7 +200,7 @@ class DataRequestThread(QThread):
 
         self.threadEvent.workerThreadDone.emit(result_data)
 
-    def get_price(self, url, column):
+    def get_days_data(self, url, column):
         # 현재, 작년, 재작년
         years = [datetime.now().year, datetime.now().year - 1, datetime.now().year - 2]
         for y in years:
@@ -208,6 +209,7 @@ class DataRequestThread(QThread):
             if result_data is not None:
                 return result_data
         return None
+
 
 class SetParsingThread(QThread):
     def __init__(self, binfo, key, dong_count, dong='', parent=None):

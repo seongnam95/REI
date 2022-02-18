@@ -40,7 +40,7 @@ class AddressDetails(QDialog, Ui_FindAddress):
         self.address, self.select_address, self.binfo = None, None, None    # 주소
         self.buildings, self.select_building, self.total_buildings = None, None, None   # 건물 (동)
         self.detail, self.select_detail, self.exact_detail = None, None, None    # 상세 (호, 층)
-        self.owners, self.prices = None, None   # 소유자, 공시가격
+        self.land, self.owners, self.prices = None, None, None   # 소유자, 공시가격
         self.get_building_thread, self.get_rooms_thread, self.get_layers_thread = None, None, None
         self.select_index, self.result = None, False
         self.detail_list = []
@@ -218,12 +218,12 @@ class AddressDetails(QDialog, Ui_FindAddress):
         if val[0] is None:
             self.msg('정보', MsgContext.failed_in_search)
             return
-
         if self.call_type == 1:
-            if val[1] is not None: self.owners = val[1]
-            if val[2] is not None: self.prices = val[2]
+            if val[1] is not None: self.land = val[1]
+            if val[2] is not None: self.owners = val[2]
+            if val[3] is not None: self.prices = val[3]
 
-        self.detail = val[0]
+        self.detail, self.land = val[0], val[1]
         self.exact_detail = details = sorted_rooms_len(get_exact_value(self.detail))
 
         for i in range(len(details)):
@@ -245,9 +245,10 @@ class AddressDetails(QDialog, Ui_FindAddress):
             return
 
         if self.call_type == 1:
-            if val[1] is not None: self.owners = val[1]
-            if val[2] is not None: self.prices = val[2]
+            if val[2] is not None: self.owners = val[2]
+            if val[3] is not None: self.prices = val[3]
 
+        self.detail, self.land = val[0], val[1]
         self.detail = sort_value_layer(val[0])
 
         self.clear_cbx(False)
@@ -304,17 +305,17 @@ class AddressDetails(QDialog, Ui_FindAddress):
         # 일반일 경우
         if self.binfo['타입'] == '일반':
             if self.call_type == 0:
-                self.get_building_thread = pars.DataRequestThread(self.binfo, self.BULIDING_API_KEY, ['층별'])
+                self.get_building_thread = pars.DataRequestThread(self.binfo, self.BULIDING_API_KEY, ['층별', '토지'])
             if self.call_type == 1:
-                self.get_building_thread = pars.DataRequestThread(self.binfo, self.BULIDING_API_KEY, ['층별', '소유자', '개별주택가격'])
+                self.get_building_thread = pars.DataRequestThread(self.binfo, self.BULIDING_API_KEY, ['층별', '토지', '소유자', '개별주택가격'])
             self.get_building_thread.start()
             self.get_building_thread.threadEvent.workerThreadDone.connect(self.add_layer_list)
 
         # 건물 타입이 집합일 경우
         if self.binfo['타입'] == '집합':
             if len(self.buildings) > 1: self.binfo['동명칭'] = self.select_building['동명칭']
-            if self.call_type == 0: self.get_building_thread = pars.DataRequestThread(self.binfo, self.BULIDING_API_KEY, ['전유부'])
-            if self.call_type == 1: self.get_building_thread = pars.DataRequestThread(self.binfo, self.BULIDING_API_KEY, ['전유부', '소유자', '공동주택가격'])
+            if self.call_type == 0: self.get_building_thread = pars.DataRequestThread(self.binfo, self.BULIDING_API_KEY, ['전유부', '토지'])
+            if self.call_type == 1: self.get_building_thread = pars.DataRequestThread(self.binfo, self.BULIDING_API_KEY, ['전유부', '토지', '소유자', '공동주택가격'])
             self.get_building_thread.start()
             self.get_building_thread.threadEvent.workerThreadDone.connect(self.add_room_list)
 
@@ -337,8 +338,6 @@ class AddressDetails(QDialog, Ui_FindAddress):
 
         # 집합일 경우
         elif self.binfo['타입'] == '집합':
-            print(self.exact_detail)
-            print(self.select_building)
             self.select_detail = self.exact_detail.iloc[select_index]
             dong = self.select_detail['동명칭'].rstrip('동')
             ho = self.select_detail['호명칭'].rstrip('호')

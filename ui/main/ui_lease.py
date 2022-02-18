@@ -698,16 +698,16 @@ class Ui_MainWindow(object):
         self.lb_item_nm_5.raise_()
         self.edt_area_rental.raise_()
         self.lb_unit_1.raise_()
-        self.set_area = QWidget(self.part_1)
-        self.set_area.setObjectName(u"set_area")
-        self.set_area.setGeometry(QRect(0, 110, 699, 31))
-        self.set_area.setMinimumSize(QSize(0, 31))
-        self.set_area.setMaximumSize(QSize(16777215, 31))
-        self.edt_address_details_2 = QLineEdit(self.set_area)
-        self.edt_address_details_2.setObjectName(u"edt_address_details_2")
-        self.edt_address_details_2.setEnabled(True)
-        self.edt_address_details_2.setGeometry(QRect(90, 0, 121, 30))
-        self.edt_address_details_2.setStyleSheet(u"QLineEdit {\n"
+        self.set_ratio = QWidget(self.part_1)
+        self.set_ratio.setObjectName(u"set_ratio")
+        self.set_ratio.setGeometry(QRect(0, 110, 699, 31))
+        self.set_ratio.setMinimumSize(QSize(0, 31))
+        self.set_ratio.setMaximumSize(QSize(16777215, 31))
+        self.edt_ratio_1 = QLineEdit(self.set_ratio)
+        self.edt_ratio_1.setObjectName(u"edt_ratio_1")
+        self.edt_ratio_1.setEnabled(True)
+        self.edt_ratio_1.setGeometry(QRect(90, 0, 121, 30))
+        self.edt_ratio_1.setStyleSheet(u"QLineEdit {\n"
 "	color: rgb(72,93,114);\n"
 "    font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	border: 1px solid #34495e;\n"
@@ -721,49 +721,27 @@ class Ui_MainWindow(object):
 "	border: 2px solid #3498db;\n"
 "}\n"
 "")
-        self.edt_address_details_2.setAlignment(Qt.AlignCenter)
-        self.lb_item_nm_22 = QLabel(self.set_area)
+        self.edt_ratio_1.setAlignment(Qt.AlignCenter)
+        self.lb_item_nm_22 = QLabel(self.set_ratio)
         self.lb_item_nm_22.setObjectName(u"lb_item_nm_22")
         self.lb_item_nm_22.setGeometry(QRect(10, 1, 71, 29))
         self.lb_item_nm_22.setFont(font)
         self.lb_item_nm_22.setStyleSheet(u"")
-        self.lb_item_nm_23 = QLabel(self.set_area)
+        self.lb_item_nm_23 = QLabel(self.set_ratio)
         self.lb_item_nm_23.setObjectName(u"lb_item_nm_23")
         self.lb_item_nm_23.setGeometry(QRect(420, 1, 60, 29))
         self.lb_item_nm_23.setFont(font)
         self.lb_item_nm_23.setStyleSheet(u"")
-        self.edt_area_rental_2 = QLineEdit(self.set_area)
-        self.edt_area_rental_2.setObjectName(u"edt_area_rental_2")
-        self.edt_area_rental_2.setEnabled(True)
-        self.edt_area_rental_2.setGeometry(QRect(500, 0, 191, 30))
-        self.edt_area_rental_2.setStyleSheet(u"QLineEdit {\n"
-"	color: rgb(72,93,114);\n"
-"    font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	border: 1px solid #34495e;\n"
-"	padding-left: 10px;\n"
-"	padding-right: 23px;\n"
-"	padding-top: 3px;\n"
-"}\n"
-"\n"
-"QLineEdit::hover {\n"
-"	border: 1px solid #3498db;\n"
-"}\n"
-"\n"
-"QLineEdit:focus {\n"
-"	border: 2px solid #3498db;\n"
-"}\n"
-"")
-        self.edt_area_rental_2.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
-        self.lb_item_nm_24 = QLabel(self.set_area)
+        self.lb_item_nm_24 = QLabel(self.set_ratio)
         self.lb_item_nm_24.setObjectName(u"lb_item_nm_24")
         self.lb_item_nm_24.setGeometry(QRect(220, 0, 31, 29))
         self.lb_item_nm_24.setFont(font)
         self.lb_item_nm_24.setStyleSheet(u"")
-        self.edt_address_details_3 = QLineEdit(self.set_area)
-        self.edt_address_details_3.setObjectName(u"edt_address_details_3")
-        self.edt_address_details_3.setEnabled(True)
-        self.edt_address_details_3.setGeometry(QRect(260, 0, 121, 30))
-        self.edt_address_details_3.setStyleSheet(u"QLineEdit {\n"
+        self.edt_ratio_2 = QLineEdit(self.set_ratio)
+        self.edt_ratio_2.setObjectName(u"edt_ratio_2")
+        self.edt_ratio_2.setEnabled(True)
+        self.edt_ratio_2.setGeometry(QRect(260, 0, 121, 30))
+        self.edt_ratio_2.setStyleSheet(u"QLineEdit {\n"
 "	color: rgb(72,93,114);\n"
 "    font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	border: 1px solid #34495e;\n"
@@ -777,7 +755,83 @@ class Ui_MainWindow(object):
 "	border: 2px solid #3498db;\n"
 "}\n"
 "")
-        self.edt_address_details_3.setAlignment(Qt.AlignCenter)
+        self.edt_ratio_2.setAlignment(Qt.AlignCenter)
+        self.cbx_land_type = QComboBox(self.set_ratio)
+        self.cbx_land_type.addItem("")
+        self.cbx_land_type.addItem("")
+        self.cbx_land_type.addItem("")
+        self.cbx_land_type.addItem("")
+        self.cbx_land_type.addItem("")
+        self.cbx_land_type.addItem("")
+        self.cbx_land_type.setObjectName(u"cbx_land_type")
+        self.cbx_land_type.setGeometry(QRect(500, 0, 191, 30))
+        self.cbx_land_type.setMinimumSize(QSize(0, 0))
+        self.cbx_land_type.setMaximumSize(QSize(1677, 16777215))
+        self.cbx_land_type.setStyleSheet(u"QComboBox {\n"
+"    border: 1px solid gray;\n"
+"	padding-left: 10px;\n"
+"	padding-top: 3px;\n"
+"    background: rgb(255, 255, 255);\n"
+"    font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"    color: rgb(44, 62, 80);\n"
+"}\n"
+"\n"
+"QComboBox:hover { color: rgb(127, 140, 141); }\n"
+"\n"
+"QComboBox QAbstractItemView::item { \n"
+"	min-height: 30px; \n"
+"}\n"
+"\n"
+"QComboBox::drop-down {\n"
+"    subcontrol-origin: padding;\n"
+"    subcontrol-position: top right;\n"
+"    width: 30px;\n"
+"\n"
+"    border-left-width: 1px;\n"
+"    border-left-style: solid;\n"
+"    border-left-color: darkgray;\n"
+"}\n"
+"\n"
+"QComboBox::down-arrow {\n"
+"    image: url(../../data/img/system/down_arrow_icon.png);\n"
+"    width: 22px;\n"
+"    height: 22px;\n"
+"}\n"
+"\n"
+"QComboBox::down-arrow:on {\n"
+"    top: 1px;\n"
+"    left: 1px;\n"
+"}\n"
+"\n"
+"QComboBox::setView {\n"
+"    color: rgb(44, 62, 80);\n"
+"    background-color: lightblue\n"
+"}\n"
+"\n"
+"QScrollBar:vertical {\n"
+"	width: 5px;\n"
+"	border-radius: 2px;\n"
+"	background: rgb(220,220"
+                        ",220);\n"
+"}\n"
+"\n"
+"QScrollBar::handle:vertical  {\n"
+"	border-radius: 2px;\n"
+"	background: rgba(84,102,120, 120);\n"
+"	min-height: 0px;\n"
+"}\n"
+"\n"
+"QScrollBar::handle:vertical:hover  {\n"
+"	border-radius: 2px;\n"
+"	background: rgba(134,152,170, 120);\n"
+"	min-height: 0px;\n"
+"}\n"
+"\n"
+"comboBox->setView(view);\n"
+"QListView::item:selected {\n"
+"    color: rgb(44, 62, 80);\n"
+"    background-color: lightblue\n"
+"}")
         self.set_address = QWidget(self.part_1)
         self.set_address.setObjectName(u"set_address")
         self.set_address.setGeometry(QRect(0, 30, 699, 31))
@@ -1347,7 +1401,7 @@ class Ui_MainWindow(object):
         self.lb_korean_2st.raise_()
         self.lb_korean_balance.raise_()
         self.set_rantal.raise_()
-        self.set_area.raise_()
+        self.set_ratio.raise_()
         self.set_address.raise_()
         self.set_land.raise_()
         self.set_building.raise_()
@@ -1859,11 +1913,18 @@ class Ui_MainWindow(object):
         self.lb_item_nm_2.setText(QCoreApplication.translate("MainWindow", u"\uc784 \ub300 \ubd80 \ubd84", None))
         self.lb_item_nm_5.setText(QCoreApplication.translate("MainWindow", u"\uc784 \ub300 \uba74 \uc801", None))
         self.lb_unit_1.setText(QCoreApplication.translate("MainWindow", u"\u33a1", None))
-        self.edt_address_details_2.setText("")
+        self.edt_ratio_1.setText("")
         self.lb_item_nm_22.setText(QCoreApplication.translate("MainWindow", u"\ub300\uc9c0\uad8c\ube44\uc728", None))
         self.lb_item_nm_23.setText(QCoreApplication.translate("MainWindow", u"\ub300\uc9c0\uad8c\uc885\ub958", None))
         self.lb_item_nm_24.setText(QCoreApplication.translate("MainWindow", u"\ubd84\uc758", None))
-        self.edt_address_details_3.setText("")
+        self.edt_ratio_2.setText("")
+        self.cbx_land_type.setItemText(0, QCoreApplication.translate("MainWindow", u"\uc18c\uc720\uad8c", None))
+        self.cbx_land_type.setItemText(1, QCoreApplication.translate("MainWindow", u"\uc784\ucc28\uad8c", None))
+        self.cbx_land_type.setItemText(2, QCoreApplication.translate("MainWindow", u"\uc804\uc138\uad8c", None))
+        self.cbx_land_type.setItemText(3, QCoreApplication.translate("MainWindow", u"\uc9c0\uc0c1\uad8c", None))
+        self.cbx_land_type.setItemText(4, QCoreApplication.translate("MainWindow", u"\uc0ac\uc6a9\ucc28\uad8c", None))
+        self.cbx_land_type.setItemText(5, QCoreApplication.translate("MainWindow", u"( \uc9c1\uc811\uc785\ub825 )", None))
+
         self.lb_item_nm_1.setText(QCoreApplication.translate("MainWindow", u"\uc18c \uc7ac \uc9c0", None))
         self.btn_search.setText(QCoreApplication.translate("MainWindow", u"\uc18c\uc7ac\uc9c0 \uac80\uc0c9", None))
         self.lb_unit_2.setText(QCoreApplication.translate("MainWindow", u"\u33a1", None))
