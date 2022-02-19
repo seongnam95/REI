@@ -297,9 +297,10 @@ class MainLease(QMainWindow, Ui_MainWindow):
         if self.address['건물명칭'] != "": old = "%s (%s)" % (old, self.address['건물명칭'])
 
         self.edt_address.setText(old)  # 소재지
-        self.edt_ratio_1.setText(self.land['대지면적'].values[0])
-        self.edt_area_land.setText(self.land['대지면적'].values[0])  # 대지면적
-        self.cbx_land_details.setCurrentIndex(self.cbx_land_details.findText(self.land['지목'].values[0], Qt.MatchFixedString))
+        if self.land:
+            self.edt_ratio_1.setText(self.land['대지면적'].values[0])
+            self.edt_area_land.setText(self.land['대지면적'].values[0])  # 대지면적
+            self.cbx_land_details.setCurrentIndex(self.cbx_land_details.findText(self.land['지목'].values[0], Qt.MatchFixedString))
 
         # 임대일 경우
         if not self.set_rantal.isHidden(): self.edt_address_details.setText(room)  # 임대부분
@@ -358,9 +359,10 @@ class MainLease(QMainWindow, Ui_MainWindow):
         if self.address['건물명칭']: old = "%s (%s)" % (old, self.address['건물명칭'])
 
         self.edt_address.setText(old)  # 소재지
-        self.edt_ratio_1.setText(self.land['대지면적'].values[0])  # 대지면적
-        self.edt_area_land.setText(self.land['대지면적'].values[0])
-        self.cbx_land_details.setCurrentIndex(self.cbx_land_details.findText(self.land['지목'].values[0], Qt.MatchFixedString))
+        if self.land:
+            self.edt_ratio_1.setText(self.land['대지면적'].values[0])  # 대지면적
+            self.edt_area_land.setText(self.land['대지면적'].values[0])
+            self.cbx_land_details.setCurrentIndex(self.cbx_land_details.findText(self.land['지목'].values[0], Qt.MatchFixedString))
 
         # 임대부분
         if not self.set_rantal.isHidden():
@@ -593,6 +595,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
         self.agrs_data.reset_index(drop=True, inplace=True)
         self.agrs_data.to_csv("../../data/val/agrs.csv", sep=",", index=False)
 
+    # 추가, 편집한 아이템 찾기
     def visit_item(self, keyword, title):
         self.load_keyword()
         for i in range(self.lst_keyword.model().rowCount()):
@@ -687,7 +690,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
                 if name not in ["매도인", "매수인", "임대인", "임차인", "개업공인중개사"]:
                     self.lst_contractor.model().removeRow(item_index.row())
                 else:
-                    self.msg.show_msg(1500, 545, "해당 계약자 정보는 필수 입력 사항입니다.")
+                    self.msg.show_msg(1500, 543, "해당 계약자 정보는 필수 입력 사항입니다.")
 
             return True
 
@@ -756,53 +759,24 @@ class MainLease(QMainWindow, Ui_MainWindow):
         num = re.sub(",", "", num)
         pays[category].setText(mask_money(num))
 
-    # 번호 정규식
-    def format_phone(self, category):
-        obj = {"a": self.edt_a_phone,
-               "b": self.edt_b_phone}
-
-        phone = obj[category].text()
-        phone = re.sub(r'[^0-9]', '', phone)
-        phone = re.sub(r'(\d{3})(\d{3,4})(\d{4})', r'\1-\2-\3', phone)
-
-        obj[category].setText(phone)
-
-    # 번호 정규식
-    def format_call(self):
-        call = self.edt_c_phone.text()
-        call = re.sub(r'[^0-9]', '', call)
-        call = re.sub(r'(\d{2,3})(\d{3,4})(\d{4})', r'\1-\2-\3', call)
-
-        self.edt_c_phone.setText(call)
-
-    # 등록번호 정규식
-    def format_number(self, category):
-        obj = {"a": self.cbx_a_num,
-               "b": self.cbx_b_num}
-        obj_edt = {"a": self.edt_a_num,
-                   "b": self.edt_b_num}
-
-        num = obj_edt[category].text()
-        num = re.sub(r'[^0-9]', '', num)
-
-        idx = obj[category].currentIndex()
-
-        if idx == 0 or idx == 1 or idx == 3 or idx == 5 or idx == 6 or idx == 7 or idx == 8:
-            num = re.sub(r'(\d{6})(\d{7})', r'\1-\2', num)
-
-        elif idx == 2:
-            num = re.sub(r'(\d{3})(\d{2})(\d{5})', r'\1-\2-\3', num)
-
-        obj_edt[category].setText(num)
-
-
 # 돈 정규식
-def mask_money(txt):
-    if txt == '': return
-    txt = re.sub(r'[^0-9]', '', txt)
-    txt = format(int(txt), ',')
-    return str(txt)
+def mask_money(money):
+    if money == '': return
+    money = re.sub(r'[^0-9]', '', money)
+    money = format(int(money), ',')
+    return str(money)
 
+# 폰 번호 정규식
+def mask_phone(num):
+    num = re.sub(r'[^0-9]', '', num)
+    num = re.sub(r'(\d{3})(\d{3,4})(\d{4})', r'\1-\2-\3', num)
+    return num
+
+# 대표번호 정규식
+def mask_call(num):
+    num = re.sub(r'[^0-9]', '', num)
+    num = re.sub(r'(\d{2,3})(\d{3,4})(\d{4})', r'\1-\2-\3', num)
+    return num
 
 # 숫자 -> 한글 변환 함수
 def num_kor_read(num):  # num은 각 자리 숫자들의 리스트
@@ -840,6 +814,18 @@ def num_kor_read(num):  # num은 각 자리 숫자들의 리스트
             part_read.append(temp)
             part_read.append(UNIT_B[int(digits / 4 - i - 1)])  # 단위 추가
         return ''.join(part_read)
+
+# 등록번호 정규식
+def mask_number(idx, num):
+    num = re.sub(r'[^0-9]', '', num)
+
+    if idx == 0 or idx == 1 or idx == 3 or idx == 5 or idx == 6 or idx == 7 or idx == 8:
+        num = re.sub(r'(\d{6})(\d{7})', r'\1-\2', num)
+
+    elif idx == 2:
+        num = re.sub(r'(\d{3})(\d{2})(\d{5})', r'\1-\2-\3', num)
+
+    return num
 
 
 # 예외 오류 처리
@@ -1008,6 +994,7 @@ class ContractorItem(QWidget):
         self.edt_phone = QLineEdit(self)
         self.edt_phone.setGeometry(QRect(230, 5, 170, 30))
         self.edt_phone.setStyleSheet(self.edt_css)
+        self.edt_phone.textChanged.connect(lambda: self.edt_phone.setText(mask_phone(self.edt_phone.text())))
 
         self.lb_phone_hint = QLabel(self)
         self.lb_phone_hint.setGeometry(QRect(234, 9, 50, 22))
@@ -1022,11 +1009,12 @@ class ContractorItem(QWidget):
         self.cbx_number.setGeometry(QRect(411, 5, 130, 30))
         self.cbx_number.setStyleSheet(self.cbx_css)
         self.cbx_number.addItems(self.num_list)
-        self.cbx_number.setCurrentIndex(0)
 
         self.edt_number = QLineEdit(self)
         self.edt_number.setGeometry(QRect(540, 5, 130, 30))
         self.edt_number.setStyleSheet(self.edt_num_css)
+        self.edt_number.textChanged.connect(lambda: self.edt_number.setText(
+            mask_number(self.cbx_number.currentIndex(), self.edt_number.text())))
 
         self.edt_address = QLineEdit(self)
         self.edt_address.setGeometry(QRect(90, 43, 580, 30))
@@ -1052,6 +1040,7 @@ class ContractorItem(QWidget):
         self.edt_phone = QLineEdit(self)
         self.edt_phone.setGeometry(QRect(260, 5, 170, 30))
         self.edt_phone.setStyleSheet(self.edt_css)
+        self.edt_phone.textChanged.connect(lambda: self.edt_phone.setText(mask_call(self.edt_phone.text())))
 
         self.lb_phone_hint = QLabel(self)
         self.lb_phone_hint.setGeometry(QRect(264, 9, 50, 22))
