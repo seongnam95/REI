@@ -4,12 +4,12 @@ from pdfminer.pdfpage import PDFPage
 from pdfminer.pdfpage import PDFTextExtractionNotAllowed
 from pdfminer.pdfinterp import PDFResourceManager
 from pdfminer.pdfinterp import PDFPageInterpreter
-from pdfminer.pdfdevice import PDFDevice
 from pdfminer.layout import LAParams
 from pdfminer.converter import PDFPageAggregator
 import pdfminer
 
 
+# 등기부등본 List 변경
 def get_register(path):
     datas = []
     fp = open(path, 'rb')
@@ -45,42 +45,60 @@ def parse_obj(lt_objs):
 
 def extract(page):
     title_index, datas, result = [], [], {}
-
     for i, c in enumerate(page):
         if '【' in c:
             title_index.append(i)
         elif '이하여백' in c.replace(" ", ""):
             title_index.append(i)
+
     title_index.append(len(page))
     start_index = 0
+
+    # 제목별로 리스트 추가
     for n, t in enumerate(title_index):
         datas.append(page[start_index:t])
         start_index = t
-
+    print(datas)
+    # 제목별로 딕셔너리 정리
     for data in datas:
-        if '갑구' in data[0].replace(" ", ""):
+        if '표제부' in data[0].replace(" ", ""):
+            result['표제부'] = data
+        elif '갑구' in data[0].replace(" ", ""):
             result['갑구'] = data
         elif '을구' in data[0].replace(" ", ""):
             result['을구'] = data
 
+    result['타입'] = datas[0][1].split('- ')[1].split(' -')[0]
+    result['소재지'] = datas[0][3].split('] ')[1].split('_')[0]
+
     return result
 
 
-file_name = 'test_pdf3.pdf'
+file_name = 'test_pdf2.pdf'
 val = get_register(file_name)
 
 owner, owners = {}, []
-for i in extract(val)['갑구']:
+r_data = extract(val)
+for i in r_data['갑구']:
+    print(i)
     if '*' in i:
         for n in i.split('_'):
-            print(i)
-            if '분의' in n:
-                owner['지분'] = n.split('지분 ')[1]
-            elif '*' in n:
-                owner['이름'] = n.split('  ')[0]
-                owner['생년월일'] = n.split('  ')[1].split('-')[0]
+            print(n)
+            if '집합' in r_data['타입']:
+                if '분의' in n:
+                    owner['지분'] = n.split('지분 ')[1]
+                elif '*' in n:
+                    owner['이름'] = n.split('  ')[0]
+                    owner['생년월일'] = n.split('  ')[1].split('-')[0]
+            else:
+                if '*' in n:
+                    name = n.split('소유자  ')[1]
+                    owner['이름'] = name.split('  ')[0]
+                    owner['생년월일'] = name.split('  ')[1].split('-')[0]
+
         owners.append(owner)
         owner = {}
+        print(owners)
 
 for i in owners:
     if '지분' in i.keys():
