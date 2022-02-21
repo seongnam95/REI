@@ -288,7 +288,7 @@ class SetParsingThread(QThread):
         df['convert_ho'] = df['convert_ho'].str.replace('층', '0').str.replace('지', 'B') \
             .str.replace('비', 'B').str.replace('B', '-')
         regex = r"([-+]?\d*\.*\d+|\d+)"
-        df['convert_ho'] = df.sorted_rooms_len.astype('str').str.extract(regex, expand=False)
+        df['convert_ho'] = df.sorted_rooms_len.astype('str').str.table_trim(regex, expand=False)
         df['convert_ho'] = df['convert_ho'].astype(int)
         df = df.sort_values(by=['convert_ho'], axis=0)
 

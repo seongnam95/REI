@@ -52,7 +52,7 @@ def sorted_rooms_flr(data):
 
     try:
         data['층번호'] = data['층번호'].str.replace('.0', '')
-        data['층번호명'] = data['층번호명'].str.extract('(\d+)')
+        data['층번호명'] = data['층번호명'].str.table_trim('(\d+)')
 
         name = [x for x in list(set(data['층번호명'])) if pd.isnull(x) is False]
         num = list(set(data['층번호']))
