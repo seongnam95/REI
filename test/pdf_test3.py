@@ -64,11 +64,22 @@ def extract(frame):
 
             if f.iloc[1][4] == '권리자 및 기타사항':
                 owners = f.iloc[2][4]
-                owners = owners.split('\n')
-                extract_owners = []
+                if '지분' in owners:
+                    owners = owners.split('\n')
+                    extract_owners, name, share = [], '', ''
 
+                    for o in owners:
+                        if '지분' in o:
+                            share = o.split('지분 ')[1]
+                        elif '*' in o:
+                            name = '%s/%s' % (o.split('  ')[0], o.split('  ')[1].split('-')[0])
+                        if name and share:
+                            extract_owners.append("%s/%s" % (name, share))
+                            name, share = '', ''
 
-                result['소유자'] = owners
+                    result['소유자'] = extract_owners
+                else:
+                    result['소유자'] = owners.split('소유자  ')[1].split('-')[0].replace('  ', '/')
 
         if f.iloc[0][0] == '대지권의목적인토지의표시':
             for i, s in enumerate(f.iloc[1]):
@@ -78,7 +89,7 @@ def extract(frame):
     print(result['소유자'])
 
 
-file_name = 'test_pdf4.pdf'
+file_name = 'test_pdf2.pdf'
 response = table_trim(file_name)
 for i in response:
     a = i.replace('\n', ' ')
