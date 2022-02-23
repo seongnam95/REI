@@ -168,7 +168,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
         # 처음 열 경우 정보 불러오기
         if self.first:
-            self.get_building_thread = pars.DataRequestThread(self.binfo, self.BULIDING_API_KEY, ['지역지구', '토지', '공시지가'])
+            self.get_building_thread = pars.DataRequestThread(self.binfo, self.BULIDING_API_KEY, ['지역지구', '토지용도지역지구', '토지'])
             self.get_building_thread.start()
             self.get_building_thread.threadEvent.workerThreadDone.connect(self.insert_detail_info)
             self.first = False
@@ -322,11 +322,10 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             land_jj = ', '.join(land_jj)
             land_etc = ', '.join(land_etc)
 
-        if val[2] is None: price = "조회 결과 없음"
-        else: price = str("{:,}".format(int(val[2]['공시지가'])) + ' 원 (㎡ 기준)')
+        price = str("{:,}".format(int(val[2]['공시지가'])) + ' 원 (㎡ 기준)')
 
-        base = {'주구조': building['주구조'], '지역지구': jiji,'주용도': building['주용도'],
-                '대지면적': building['대지면적'] + ' ㎡', '건축면적': building['건축면적'] + ' ㎡', '건폐율': building['건폐율'] + ' %',
+        base = {'주구조': building['주구조'], '지역지구': jiji, '주용도': building['주용도'],
+                '대지면적': val[2]['대지면적'].values[0] + ' ㎡', '건축면적': building['건축면적'] + ' ㎡', '건폐율': building['건폐율'] + ' %',
                 '연면적': building['연면적'] + ' %', '높이': building['높이'], '용적률': building['용적률'] + ' %',
                 '옥내자주식': str(in_land) + ' 대', '옥내기계식': str(in_mechanical) + ' 대',
                 '옥외자주식': str(out_land) + ' 대', '옥외기계식': str(out_mechanical) + ' 대',
