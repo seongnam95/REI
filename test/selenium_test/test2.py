@@ -20,7 +20,7 @@ options.add_argument("no-sandbox")  #
 # options.add_argument('window-size=1920x1080') # 해상도 설정
 options.add_argument("disable-gpu")   # 가속 사용 x
 options.add_argument("lang=ko_KR")    # 가짜 플러그인 탑재
-# options.add_argument('user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36')  # user-agent 이름 설정
+options.add_argument('user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36')  # user-agent 이름 설정
 
 old_address = '면목동 90-27'
 new_address = '봉우재로154'
@@ -86,6 +86,8 @@ def find_ho():
                         breaker = True
                         break
             if breaker: break
+    driver.save_screenshot('a.png')
+    time.sleep(1)
     driver.find_element(By.CLASS_NAME, 'btnAddCart').click()
     time.sleep(1)
     driver.find_element(By.CLASS_NAME, 'btnSubmit.mt10').click()
@@ -128,7 +130,7 @@ if breaker:
     driver.find_element(By.CLASS_NAME, 'report_view_button').click()
 time.sleep(3)
 
-driver.quit()
+# driver.quit()
 
 # //*[@id="container"]/div[2]/div/div[2]/div[1]/div[1]/div[3]/div/div[3]/ul/li[1]/text()
 # container > div.content.pb80 > div > div > div.fl > div.loginForm > button
