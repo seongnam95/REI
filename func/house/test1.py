@@ -25,11 +25,11 @@ class CustomListItem(QWidget):
         if width > height:
             v = height * (500 / width)
             self.iconQLabel.setToolTip(
-                "<a href=\"" + img + "\"><img src=\"" + img + "\" width=\"500\" height=\"" + str(v) + "\" /></a>")
+                "<a.png href=\"" + img + "\"><img src=\"" + img + "\" width=\"500\" height=\"" + str(v) + "\" /></a.png>")
         else:
             v = height * (400 / width)
             self.iconQLabel.setToolTip(
-                "<a href=\"" + img + "\"><img src=\"" + img + "\" width=\"400\" height=\"" + str(v) + "\" /></a>")
+                "<a.png href=\"" + img + "\"><img src=\"" + img + "\" width=\"400\" height=\"" + str(v) + "\" /></a.png>")
 
         self.set_ui()
 

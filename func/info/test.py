@@ -45,7 +45,7 @@ class Window(QMainWindow):
                              "}"
                              )
 
-        # creating a label
+        # creating a.png label
         label = QLabel("GeesforGeeks", self)
 
         # setting geometry to the label

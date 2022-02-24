@@ -29,7 +29,7 @@ class IndicSelectWindow(QDialog):
                 self.Frame.setLineWidth(1)
                 self.layout = QHBoxLayout(self.Frame)
 
-                self.figure = Figure()  # a figure to plot on
+                self.figure = Figure()  # a.png figure to plot on
                 self.canvas = FigureCanvas(self.figure)
                 self.ax = self.figure.add_subplot(111)  # create an axis
                 data = [random.random() for i in range(10)]

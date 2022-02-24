@@ -16,7 +16,7 @@ class HouseMain(QDialog, FROM_CLASS):
         self.bt_add.clicked.connect(self.clicked_add_bt)
         self.list_top.itemDoubleClicked.connect(self.test)
         # self.lw_img.model().rowsMoved.connect(self.test1)
-        # self.a = QListWidget(self)
+        # self.a.png = QListWidget(self)
 
     def clicked_add_bt(self):
         img_dlg = QFileDialog.getOpenFileNames(self, '매물 사진 불러오기', os.path.expanduser('~'), '이미지 파일 (*.jpg *.png);;')
@@ -34,7 +34,7 @@ class HouseMain(QDialog, FROM_CLASS):
             print(item.text())
 
     def test1(self):
-        print('a')
+        print('a.png')
 
     # 예외 오류 처리
     def my_exception_hook(exctype, value, traceback):
@@ -58,11 +58,11 @@ class CustomListItem(QWidget):
         if width > height:
             v = height * (500 / width)
             self.iconQLabel.setToolTip(
-                "<a href=\"" + img + "\"><img src=\"" + img + "\" width=\"500\" height=\"" + str(v) + "\" /></a>")
+                "<a.png href=\"" + img + "\"><img src=\"" + img + "\" width=\"500\" height=\"" + str(v) + "\" /></a.png>")
         else:
             v = height * (400 / width)
             self.iconQLabel.setToolTip(
-                "<a href=\"" + img + "\"><img src=\"" + img + "\" width=\"400\" height=\"" + str(v) + "\" /></a>")
+                "<a.png href=\"" + img + "\"><img src=\"" + img + "\" width=\"400\" height=\"" + str(v) + "\" /></a.png>")
 
         self.set_ui()
 
