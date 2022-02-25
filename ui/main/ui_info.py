@@ -127,20 +127,11 @@ class Ui_BuildingInfo(object):
         self.edt_address.setStyleSheet(u"QLineEdit {\n"
 "	color: rgb(72,93,114);\n"
 "    font: 16px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	border: 2px solid #34495e;\n"
+"	border: 2px solid #3498db;\n"
 "	padding-top: 3px;\n"
 "	padding-left: 10px;\n"
 "	padding-right: 70px;\n"
-"}\n"
-"\n"
-"QLineEdit::hover {\n"
-"	border: 2px solid #3498db;\n"
-"}\n"
-"\n"
-"QLineEdit:focus {\n"
-"	border: 2px solid #3498db;\n"
-"}\n"
-"")
+"}")
         self.edt_address.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
         self.lb_sub_title_1 = QLabel(BuildingInfo)
         self.lb_sub_title_1.setObjectName(u"lb_sub_title_1")
@@ -185,9 +176,10 @@ class Ui_BuildingInfo(object):
         self.lb_sub_title_5.setStyleSheet(u"")
         self.lb_hint_2 = QLabel(BuildingInfo)
         self.lb_hint_2.setObjectName(u"lb_hint_2")
-        self.lb_hint_2.setGeometry(QRect(20, 607, 391, 61))
+        self.lb_hint_2.setGeometry(QRect(20, 611, 391, 61))
         self.lb_hint_2.setStyleSheet(u"#lb_hint_2 {\n"
 "	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	border-radius: 10px;\n"
 "	padding-top: 3px;\n"
 "	background-color: rgba(0, 0, 0, 50);\n"
 "	color: rgb(80, 80, 80);\n"
@@ -235,35 +227,117 @@ class Ui_BuildingInfo(object):
 "	background-color: rgb(245, 245, 245);\n"
 "	border-top: 1px solid;\n"
 "	border-color: rgb(230, 230, 230);\n"
-"}")
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"	background-color: rgb(20, 83, 145);\n"
+"	border-style: inset;\n"
+"}\n"
+"\n"
+"QPushButton:disabled {\n"
+"	background-color: rgb(166, 168, 171);\n"
+"}\n"
+"\n"
+"")
         self.btn_viol = QPushButton(self.bot_bar)
         self.btn_viol.setObjectName(u"btn_viol")
-        self.btn_viol.setGeometry(QRect(20, 20, 141, 31))
-        self.btn_viol.setStyleSheet(u"#btn_viol {\n"
+        self.btn_viol.setGeometry(QRect(680, 20, 141, 31))
+        self.btn_viol.setStyleSheet(u"QPushButton {\n"
 "	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	color: white;\n"
-"	border: 0px;\n"
-"	padding-top: 3px;\n"
-"	background-color: rgb(84,102,120);\n"
+"	border: none;\n"
 "	border-radius: 15px;\n"
+"	padding-top: 3px;\n"
+"	background-color: rgb(255, 120, 90);\n"
 "}\n"
 "\n"
-"#btn_viol::hover {\n"
-"	border: 0px;\n"
-"	background-color: rgb(104,122,140);\n"
+"QPushButton:pressed {\n"
+"	background-color: rgb(225, 64, 44);\n"
 "	border-style: inset;\n"
 "}\n"
 "\n"
-"#btn_viol:pressed {\n"
-"	border: 0px;\n"
-"	background-color: rgb(64,82,100);\n"
-"	border-style: inset;\n"
-"}\n"
-"")
+"QPushButton:disabled {\n"
+"	background-color: rgb(166, 168, 171);\n"
+"}")
         icon = QIcon()
         icon.addFile(u"E:/PyProject/Project/REI/building_info/image/bt_search.png", QSize(), QIcon.Normal, QIcon.Off)
         self.btn_viol.setIcon(icon)
         self.btn_viol.setIconSize(QSize(23, 23))
+        self.lb_viol = QLabel(self.bot_bar)
+        self.lb_viol.setObjectName(u"lb_viol")
+        self.lb_viol.setGeometry(QRect(570, 20, 91, 31))
+        self.lb_viol.setStyleSheet(u"#lb_viol { background-color: rgb(245, 245, 245); }")
+        self.lb_viol.setAlignment(Qt.AlignCenter)
+        self.btn_sharing = QPushButton(self.bot_bar)
+        self.btn_sharing.setObjectName(u"btn_sharing")
+        self.btn_sharing.setEnabled(True)
+        self.btn_sharing.setGeometry(QRect(20, 20, 90, 31))
+        self.btn_sharing.setStyleSheet(u"QPushButton {\n"
+"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	color: white;\n"
+"	border: none;\n"
+"	padding-top: 3px;\n"
+"	padding-left: 2px;\n"
+"	background-color: rgb(40, 104, 176);\n"
+"	border-top-left-radius: 15px;\n"
+"	border-bottom-left-radius: 15px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"	background-color: rgb(20, 83, 145);\n"
+"	border-style: inset;\n"
+"}\n"
+"\n"
+"QPushButton:disabled {\n"
+"	background-color: rgb(166, 168, 171);\n"
+"}")
+        self.btn_sharing.setIcon(icon)
+        self.btn_sharing.setIconSize(QSize(23, 23))
+        self.btn_issuance = QPushButton(self.bot_bar)
+        self.btn_issuance.setObjectName(u"btn_issuance")
+        self.btn_issuance.setGeometry(QRect(204, 20, 90, 31))
+        self.btn_issuance.setStyleSheet(u"QPushButton {\n"
+"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	color: white;\n"
+"	padding-top: 3px;\n"
+"	padding-right: 11px;\n"
+"	background-color: rgb(40, 104, 176);\n"
+"	border-top-right-radius: 15px;\n"
+"	border-bottom-right-radius: 15px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"	background-color: rgb(20, 83, 145);\n"
+"	border-style: inset;\n"
+"}\n"
+"\n"
+"QPushButton:disabled {\n"
+"	background-color: rgb(166, 168, 171);\n"
+"}\n"
+"")
+        self.btn_issuance.setIcon(icon)
+        self.btn_issuance.setIconSize(QSize(23, 23))
+        self.btn_add = QPushButton(self.bot_bar)
+        self.btn_add.setObjectName(u"btn_add")
+        self.btn_add.setGeometry(QRect(112, 20, 90, 31))
+        self.btn_add.setStyleSheet(u"QPushButton {\n"
+"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	color: white;\n"
+"	border: none;\n"
+"	padding-top: 3px;\n"
+"	background-color: rgb(40, 104, 176);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"	background-color: rgb(20, 83, 145);\n"
+"	border-style: inset;\n"
+"}\n"
+"\n"
+"QPushButton:disabled {\n"
+"	background-color: rgb(166, 168, 171);\n"
+"}")
+        self.btn_add.setIcon(icon)
+        self.btn_add.setIconSize(QSize(23, 23))
         self.btn_details = QPushButton(self.bot_bar)
         self.btn_details.setObjectName(u"btn_details")
         self.btn_details.setGeometry(QRect(340, 20, 81, 31))
@@ -277,8 +351,6 @@ class Ui_BuildingInfo(object):
 "}\n"
 "\n"
 "#btn_details::hover {\n"
-"	padding-left: 1px;\n"
-"	padding-top: 1px;\n"
 "	color: rgb(155, 155, 155);\n"
 "	border-style: inset;\n"
 "}\n"
@@ -288,11 +360,6 @@ class Ui_BuildingInfo(object):
 "	border-style: inset;\n"
 "}\n"
 "")
-        self.lb_viol = QLabel(self.bot_bar)
-        self.lb_viol.setObjectName(u"lb_viol")
-        self.lb_viol.setGeometry(QRect(170, 20, 91, 31))
-        self.lb_viol.setStyleSheet(u"#lb_viol { background-color: rgb(245, 245, 245); }")
-        self.lb_viol.setAlignment(Qt.AlignCenter)
         self.widget_3 = QWidget(BuildingInfo)
         self.widget_3.setObjectName(u"widget_3")
         self.widget_3.setGeometry(QRect(20, 255, 391, 331))
@@ -303,7 +370,7 @@ class Ui_BuildingInfo(object):
 "	border-right: 1px solid;\n"
 "	border-bottom: 1px solid;\n"
 "	border-color: rgb(210, 210, 210);\n"
-"	border-radius: 5px;\n"
+"	border-bottom-right-radius: 0px;\n"
 "}")
         self.gridLayoutWidget = QWidget(self.widget_3)
         self.gridLayoutWidget.setObjectName(u"gridLayoutWidget")
@@ -321,6 +388,8 @@ class Ui_BuildingInfo(object):
         self.base_item_11.setStyleSheet(u"QLabel { \n"
 "	padding-left: 5px;\n"
 "	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 15px;\n"
+"	border-top-right-radius: 15px;\n"
 "}")
         self.base_item_11.setAlignment(Qt.AlignCenter)
 
@@ -375,6 +444,8 @@ class Ui_BuildingInfo(object):
         self.base_item_4.setStyleSheet(u"QLabel { \n"
 "	padding-left: 5px;\n"
 "	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 15px;\n"
+"	border-top-right-radius: 15px;\n"
 "}")
         self.base_item_4.setAlignment(Qt.AlignCenter)
 
@@ -405,6 +476,8 @@ class Ui_BuildingInfo(object):
         self.base_item_12.setStyleSheet(u"QLabel { \n"
 "	padding-left: 5px;\n"
 "	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 15px;\n"
+"	border-top-right-radius: 15px;\n"
 "}")
         self.base_item_12.setAlignment(Qt.AlignCenter)
 
@@ -426,6 +499,8 @@ class Ui_BuildingInfo(object):
         self.base_item_13.setStyleSheet(u"QLabel { \n"
 "	padding-left: 5px;\n"
 "	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 15px;\n"
+"	border-top-right-radius: 15px;\n"
 "}")
         self.base_item_13.setAlignment(Qt.AlignCenter)
 
@@ -456,6 +531,8 @@ class Ui_BuildingInfo(object):
         self.base_item_9.setStyleSheet(u"QLabel { \n"
 "	padding-left: 5px;\n"
 "	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 15px;\n"
+"	border-top-right-radius: 15px;\n"
 "}")
         self.base_item_9.setAlignment(Qt.AlignCenter)
 
@@ -468,6 +545,8 @@ class Ui_BuildingInfo(object):
         self.base_item_5.setStyleSheet(u"QLabel { \n"
 "	padding-left: 5px;\n"
 "	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 15px;\n"
+"	border-top-right-radius: 15px;\n"
 "}")
         self.base_item_5.setAlignment(Qt.AlignCenter)
 
@@ -489,6 +568,8 @@ class Ui_BuildingInfo(object):
         self.base_item_7.setStyleSheet(u"QLabel { \n"
 "	padding-left: 5px;\n"
 "	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 15px;\n"
+"	border-top-right-radius: 15px;\n"
 "}")
         self.base_item_7.setAlignment(Qt.AlignCenter)
 
@@ -510,6 +591,8 @@ class Ui_BuildingInfo(object):
         self.base_item_6.setStyleSheet(u"QLabel { \n"
 "	padding-left: 5px;\n"
 "	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 15px;\n"
+"	border-top-right-radius: 15px;\n"
 "}")
         self.base_item_6.setAlignment(Qt.AlignCenter)
 
@@ -522,6 +605,8 @@ class Ui_BuildingInfo(object):
         self.base_item_8.setStyleSheet(u"QLabel { \n"
 "	padding-left: 5px;\n"
 "	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 15px;\n"
+"	border-top-right-radius: 15px;\n"
 "}")
         self.base_item_8.setAlignment(Qt.AlignCenter)
 
@@ -532,7 +617,14 @@ class Ui_BuildingInfo(object):
         self.base_name_1.setMinimumSize(QSize(80, 30))
         self.base_name_1.setMaximumSize(QSize(80, 30))
         self.base_name_1.setFont(font)
-        self.base_name_1.setStyleSheet(u"")
+        self.base_name_1.setStyleSheet(u"QLabel {\n"
+"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	color: rgb(44,62,80);\n"
+"	padding-top: 4px;\n"
+"	border-right: 1px solid;\n"
+"	border-bottom: 1px solid;\n"
+"	border-color: rgb(210, 210, 210);\n"
+"}")
         self.base_name_1.setAlignment(Qt.AlignCenter)
 
         self.gridLayout.addWidget(self.base_name_1, 0, 0, 1, 1)
@@ -544,6 +636,8 @@ class Ui_BuildingInfo(object):
         self.base_item_2.setStyleSheet(u"QLabel { \n"
 "	padding-left: 5px;\n"
 "	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 15px;\n"
+"	border-top-right-radius: 15px;\n"
 "}")
         self.base_item_2.setAlignment(Qt.AlignCenter)
 
@@ -556,6 +650,8 @@ class Ui_BuildingInfo(object):
         self.base_item_1.setStyleSheet(u"QLabel { \n"
 "	padding-left: 5px;\n"
 "	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 15px;\n"
+"	border-top-right-radius: 15px;\n"
 "}")
         self.base_item_1.setAlignment(Qt.AlignCenter)
 
@@ -578,6 +674,8 @@ class Ui_BuildingInfo(object):
         self.base_item_3.setStyleSheet(u"QLabel { \n"
 "	padding-left: 5px;\n"
 "	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 15px;\n"
+"	border-top-right-radius: 15px;\n"
 "}")
         self.base_item_3.setAlignment(Qt.AlignCenter)
 
@@ -590,6 +688,8 @@ class Ui_BuildingInfo(object):
         self.base_item_10.setStyleSheet(u"QLabel { \n"
 "	padding-left: 5px;\n"
 "	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 15px;\n"
+"	border-top-right-radius: 15px;\n"
 "}")
         self.base_item_10.setAlignment(Qt.AlignCenter)
 
@@ -605,7 +705,7 @@ class Ui_BuildingInfo(object):
 "	border-right: 1px solid;\n"
 "	border-bottom: 1px solid;\n"
 "	border-color: rgb(210, 210, 210);\n"
-"	border-radius: 5px;\n"
+"	border-bottom-right-radius: 0px;\n"
 "}")
         self.gridLayoutWidget_5 = QWidget(self.widget_4)
         self.gridLayoutWidget_5.setObjectName(u"gridLayoutWidget_5")
@@ -641,6 +741,8 @@ class Ui_BuildingInfo(object):
         self.detail_item_6.setStyleSheet(u"QLabel { \n"
 "	padding-left: 5px;\n"
 "	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 15px;\n"
+"	border-top-right-radius: 15px;\n"
 "}")
         self.detail_item_6.setAlignment(Qt.AlignCenter)
 
@@ -671,6 +773,8 @@ class Ui_BuildingInfo(object):
         self.detail_item_9.setStyleSheet(u"QLabel { \n"
 "	padding-left: 5px;\n"
 "	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 15px;\n"
+"	border-top-right-radius: 15px;\n"
 "}")
         self.detail_item_9.setAlignment(Qt.AlignCenter)
 
@@ -702,6 +806,8 @@ class Ui_BuildingInfo(object):
         self.detail_item_7.setStyleSheet(u"QLabel { \n"
 "	padding-left: 5px;\n"
 "	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 15px;\n"
+"	border-top-right-radius: 15px;\n"
 "}")
         self.detail_item_7.setAlignment(Qt.AlignCenter)
 
@@ -714,6 +820,8 @@ class Ui_BuildingInfo(object):
         self.detail_item_1.setStyleSheet(u"QLabel { \n"
 "	padding-left: 5px;\n"
 "	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 15px;\n"
+"	border-top-right-radius: 15px;\n"
 "}")
         self.detail_item_1.setAlignment(Qt.AlignCenter)
 
@@ -726,6 +834,8 @@ class Ui_BuildingInfo(object):
         self.detail_item_3.setStyleSheet(u"QLabel { \n"
 "	padding-left: 5px;\n"
 "	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 15px;\n"
+"	border-top-right-radius: 15px;\n"
 "}")
         self.detail_item_3.setAlignment(Qt.AlignCenter)
 
@@ -748,6 +858,8 @@ class Ui_BuildingInfo(object):
         self.detail_item_8.setStyleSheet(u"QLabel { \n"
 "	padding-left: 5px;\n"
 "	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 15px;\n"
+"	border-top-right-radius: 15px;\n"
 "}")
         self.detail_item_8.setAlignment(Qt.AlignCenter)
 
@@ -769,6 +881,8 @@ class Ui_BuildingInfo(object):
         self.detail_item_4.setStyleSheet(u"QLabel { \n"
 "	padding-left: 5px;\n"
 "	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 15px;\n"
+"	border-top-right-radius: 15px;\n"
 "}")
         self.detail_item_4.setAlignment(Qt.AlignCenter)
 
@@ -781,6 +895,8 @@ class Ui_BuildingInfo(object):
         self.detail_item_5.setStyleSheet(u"QLabel { \n"
 "	padding-left: 5px;\n"
 "	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 15px;\n"
+"	border-top-right-radius: 15px;\n"
 "}")
         self.detail_item_5.setAlignment(Qt.AlignCenter)
 
@@ -793,6 +909,8 @@ class Ui_BuildingInfo(object):
         self.detail_item_2.setStyleSheet(u"QLabel { \n"
 "	padding-left: 5px;\n"
 "	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 20px;\n"
+"	border-top-right-radius: 20px;\n"
 "}")
         self.detail_item_2.setAlignment(Qt.AlignCenter)
         self.detail_item_2.setWordWrap(True)
@@ -819,7 +937,7 @@ class Ui_BuildingInfo(object):
 "	border-right: 1px solid;\n"
 "	border-bottom: 1px solid;\n"
 "	border-color: rgb(210, 210, 210);\n"
-"	border-radius: 5px;\n"
+"	border-bottom-right-radius: 0px;\n"
 "}")
         self.gridLayoutWidget_6 = QWidget(self.widget_5)
         self.gridLayoutWidget_6.setObjectName(u"gridLayoutWidget_6")
@@ -864,6 +982,8 @@ class Ui_BuildingInfo(object):
         self.park_item_1.setStyleSheet(u"QLabel { \n"
 "	padding-left: 5px;\n"
 "	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 15px;\n"
+"	border-top-right-radius: 15px;\n"
 "}")
         self.park_item_1.setAlignment(Qt.AlignCenter)
 
@@ -876,6 +996,8 @@ class Ui_BuildingInfo(object):
         self.park_item_3.setStyleSheet(u"QLabel { \n"
 "	padding-left: 5px;\n"
 "	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 15px;\n"
+"	border-top-right-radius: 15px;\n"
 "}")
         self.park_item_3.setAlignment(Qt.AlignCenter)
 
@@ -888,6 +1010,8 @@ class Ui_BuildingInfo(object):
         self.park_item_2.setStyleSheet(u"QLabel { \n"
 "	padding-left: 5px;\n"
 "	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 15px;\n"
+"	border-top-right-radius: 15px;\n"
 "}")
         self.park_item_2.setAlignment(Qt.AlignCenter)
 
@@ -900,6 +1024,8 @@ class Ui_BuildingInfo(object):
         self.park_item_4.setStyleSheet(u"QLabel { \n"
 "	padding-left: 5px;\n"
 "	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 15px;\n"
+"	border-top-right-radius: 15px;\n"
 "}")
         self.park_item_4.setAlignment(Qt.AlignCenter)
 
@@ -924,7 +1050,7 @@ class Ui_BuildingInfo(object):
 "	border-right: 1px solid;\n"
 "	border-bottom: 1px solid;\n"
 "	border-color: rgb(210, 210, 210);\n"
-"	border-radius: 5px;\n"
+"	border-bottom-right-radius: 0px;\n"
 "}")
         self.gridLayoutWidget_7 = QWidget(self.widget_6)
         self.gridLayoutWidget_7.setObjectName(u"gridLayoutWidget_7")
@@ -942,6 +1068,8 @@ class Ui_BuildingInfo(object):
         self.land_item_2.setStyleSheet(u"QLabel { \n"
 "	padding-left: 5px;\n"
 "	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 20px;\n"
+"	border-top-right-radius: 20px;\n"
 "}")
         self.land_item_2.setAlignment(Qt.AlignCenter)
         self.land_item_2.setWordWrap(True)
@@ -973,6 +1101,8 @@ class Ui_BuildingInfo(object):
         self.land_item_1.setStyleSheet(u"QLabel { \n"
 "	padding-left: 5px;\n"
 "	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 15px;\n"
+"	border-top-right-radius: 15px;\n"
 "}")
         self.land_item_1.setAlignment(Qt.AlignCenter)
 
@@ -985,6 +1115,8 @@ class Ui_BuildingInfo(object):
         self.land_item_3.setStyleSheet(u"QLabel { \n"
 "	padding-left: 5px;\n"
 "	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 20px;\n"
+"	border-top-right-radius: 20px;\n"
 "}")
         self.land_item_3.setAlignment(Qt.AlignCenter)
         self.land_item_3.setWordWrap(True)
@@ -1010,8 +1142,8 @@ class Ui_BuildingInfo(object):
         self.btn_search.setGeometry(QRect(359, 119, 50, 41))
         self.btn_search.setStyleSheet(u"#btn_search {\n"
 "	background-color: white;\n"
-"	padding-top: 3px;\n"
 "	border: none;\n"
+"	padding-top: 3px;\n"
 "}")
         self.widget_3.raise_()
         self.line_sub_title_5.raise_()
@@ -1060,8 +1192,11 @@ class Ui_BuildingInfo(object):
         self.lb_title.setText(QCoreApplication.translate("BuildingInfo", u"INFORMATION", None))
         self.lb_sub_title.setText(QCoreApplication.translate("BuildingInfo", u"(  \uac74\ucd95\ubb3c \uc870\ud68c  )", None))
         self.btn_viol.setText(QCoreApplication.translate("BuildingInfo", u"\uc704\ubc18 \uac74\ucd95\ubb3c \uc870\ud68c", None))
-        self.btn_details.setText(QCoreApplication.translate("BuildingInfo", u"\uc0c1\uc138\uc815\ubcf4  >", None))
         self.lb_viol.setText("")
+        self.btn_sharing.setText(QCoreApplication.translate("BuildingInfo", u"\uacf5\uc720\ud558\uae30", None))
+        self.btn_issuance.setText(QCoreApplication.translate("BuildingInfo", u"\ubb38\uc11c \ubc1c\uae09", None))
+        self.btn_add.setText(QCoreApplication.translate("BuildingInfo", u"\ub0b4 \ub9e4\ubb3c \ub4f1\ub85d", None))
+        self.btn_details.setText(QCoreApplication.translate("BuildingInfo", u"\uc0c1\uc138\uc815\ubcf4  >", None))
         self.base_item_11.setText("")
         self.base_name_12.setText(QCoreApplication.translate("BuildingInfo", u"\uc0ac \uc6a9 \uc2b9 \uc778 \uc77c", None))
         self.base_name_11.setText(QCoreApplication.translate("BuildingInfo", u"\ud638 / \uac00 \uad6c / \uc138 \ub300 \uc218", None))

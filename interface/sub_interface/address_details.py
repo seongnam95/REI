@@ -3,10 +3,10 @@ import sys
 import pandas as pd
 import module.open_api_pars as pars
 
-from PySide6.QtGui import QMovie, QIcon
+from PySide6.QtGui import QMovie, QIcon, QColor
 from PySide6.QtWidgets import QDialog, QLabel, QListWidgetItem, QMessageBox, QWidget, \
-    QGridLayout, QApplication, QGraphicsOpacityEffect
-from PySide6.QtCore import Qt, QPropertyAnimation, QTimer, QSize
+    QGridLayout, QApplication, QGraphicsOpacityEffect, QGraphicsDropShadowEffect
+from PySide6.QtCore import Qt, QPropertyAnimation, QTimer, QSize, QEvent
 
 from ui.dialog.ui_address import Ui_FindAddress
 
@@ -111,6 +111,47 @@ class AddressDetails(QDialog, Ui_FindAddress):
         self.list_address.itemDoubleClicked.connect(self.select_address_event)
         self.btn_input.clicked.connect(self.address_input_event)
         self.ckb_part.clicked.connect(self.part_check_event)
+
+        self.btn_input.installEventFilter(self)
+        self.edt_address.installEventFilter(self)
+        self.edt_result_address.installEventFilter(self)
+
+    def eventFilter(self, obj, event):
+        objs = {self.btn_input: 'button',
+                self.list_address: 'edit',
+                self.edt_address: 'edit',
+                self.edt_result_address: 'edit'}
+        if obj not in objs.keys(): return
+
+        if event.type() == QEvent.HoverEnter:
+            if obj.isEnabled():
+                obj.setGraphicsEffect(self.set_shadow(objs[obj]))
+
+        elif event.type() == QEvent.HoverLeave:
+            if obj.isEnabled():
+                obj.setGraphicsEffect(self.set_shadow('reset'))
+
+        return super(AddressDetails, self).eventFilter(obj, event)
+
+    def set_shadow(self, kind):
+        shadow = QGraphicsDropShadowEffect(self)
+
+        if kind == 'button':
+            shadow.setBlurRadius(30)
+            shadow.setXOffset(0)
+            shadow.setYOffset(0)
+            shadow.setColor(QColor(40, 104, 176, 150))
+
+        elif kind == 'edit':
+            shadow.setBlurRadius(15)
+            shadow.setXOffset(0)
+            shadow.setYOffset(0)
+            shadow.setColor(QColor(52, 152, 219, 150))
+
+        elif kind == 'reset':
+            shadow.setEnabled(False)
+
+        return shadow
 
     ########################################################################################################
 

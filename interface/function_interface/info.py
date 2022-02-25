@@ -2,9 +2,10 @@ import sys
 import pandas as pd
 import clipboard as clip
 import module.open_api_pars as pars
+import module.issuance_building_ledger as ibl
 
-from PySide6.QtWidgets import QMainWindow, QApplication, QLabel, QGraphicsOpacityEffect
-from PySide6.QtGui import QFontMetrics, Qt, QIcon
+from PySide6.QtWidgets import QMainWindow, QApplication, QLabel, QGraphicsOpacityEffect, QGraphicsDropShadowEffect
+from PySide6.QtGui import QFontMetrics, Qt, QIcon, QColor
 from PySide6.QtCore import QRect, QObject, Signal, QEvent, QTimer, QPropertyAnimation, QSize
 from ui.main.ui_info import Ui_BuildingInfo
 from interface.sub_interface import address_details
@@ -77,6 +78,12 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
                                           "padding-top: 3px;}")
         self.msg_background.hide()
 
+        self.edt_address.installEventFilter(self)
+        self.btn_viol.installEventFilter(self)
+        self.btn_sharing.installEventFilter(self)
+        self.btn_add.installEventFilter(self)
+        self.btn_issuance.installEventFilter(self)
+
         self.show()
 
     # 상호작용 세팅
@@ -87,9 +94,54 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.btn_details.clicked.connect(self.clicked_details_btn)
         self.cbx_rooms.activated.connect(self.insert_room_info)
         self.btn_viol.clicked.connect(self.clicked_viol_btn)
+        self.btn_issuance.clicked.connect(self.clicked_issuance_btn)
 
         for dic in [self.labels, self.labels_detail, self.labels_park, self.labels_land]:
             for i in dic: mouse_double_clicked(dic[i]).connect(self.clicked_labels)
+
+    # 이벤트 필터
+    def eventFilter(self, obj, event):
+        objs = {self.btn_viol: 'sub_button',
+                self.btn_sharing: 'main_button',
+                self.btn_add: 'main_button',
+                self.btn_issuance: 'main_button',
+                self.edt_address: 'edit'}
+        if obj not in objs.keys(): return
+
+        if event.type() == QEvent.HoverEnter:
+            obj.setGraphicsEffect(self.set_shadow(objs[obj]))
+
+        elif event.type() == QEvent.HoverLeave:
+            obj.setGraphicsEffect(self.set_shadow('reset'))
+
+        return super(BuildingInfo, self).eventFilter(obj, event)
+
+    # 그림자 세팅
+    def set_shadow(self, kind):
+        shadow = QGraphicsDropShadowEffect(self)
+
+        if kind == 'main_button':
+            shadow.setBlurRadius(20)
+            shadow.setXOffset(0)
+            shadow.setYOffset(0)
+            shadow.setColor(QColor(40, 104, 176, 250))
+
+        elif kind == 'sub_button':
+            shadow.setBlurRadius(20)
+            shadow.setXOffset(0)
+            shadow.setYOffset(0)
+            shadow.setColor(QColor(255, 120, 90, 250))
+
+        elif kind == 'edit':
+            shadow.setBlurRadius(10)
+            shadow.setXOffset(0)
+            shadow.setYOffset(0)
+            shadow.setColor(QColor(52, 152, 219, 150))
+
+        elif kind == 'reset':
+            shadow.setEnabled(False)
+
+        return shadow
 
     ##### 시그널 이벤트
     ########################################################################################################
@@ -173,7 +225,21 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             self.get_building_thread.threadEvent.workerThreadDone.connect(self.insert_detail_info)
             self.first = False
 
-        self.resize_form(self.opened)
+    # 문서 발급 버튼
+    def clicked_issuance_btn(self):
+        if not self.activation: return
+        address = self.address
+
+        if address['지'] == "0":
+            old = "%s %s %s" % (address['시군구'], address['읍면동'], address['번'])
+        else: old = "%s %s %s-%s" % (address['시군구'], address['읍면동'], address['번'], address['지'])
+
+        if self.binfo['타입'] == '집합':
+            ho = self.exact_detail.loc[self.cbx_rooms.currentIndex()]['호명칭'].rstrip("호")
+            ibl.IssuanceBuildingLedger(old, address['도로명주소'], ho, 2, 0, 'haul1115', 'ks05090818@')
+
+        elif self.binfo['타입'] == '일반':
+            ibl.IssuanceBuildingLedger(old, address['도로명주소'], '', 1, 0, 'haul1115', 'ks05090818@')
 
     ##### 데이터 입력
     ########################################################################################################
@@ -287,6 +353,8 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
     # 상세 정보 로드
     def insert_detail_info(self, val):
+        self.resize_form(self.opened)
+
         building = self.select_building
 
         in_land = int(building['옥내자주식대수'])
@@ -364,8 +432,8 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             self.opened = True
 
         self.resize_title_bar()
-        x = (self.width() - self.btn_details.width()) - 10
-        self.btn_details.move(x, self.btn_details.y())
+        # x = (self.width() - self.btn_details.width()) - 10
+        # self.btn_details.move(x, self.btn_details.y())
 
     # 알림 메세지
     def info_msg(self, sec, content):
@@ -423,6 +491,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.msg_timer = False
 
 
+# 더블 클릭 이벤트
 def mouse_double_clicked(widget):
     class Filter(QObject):
         clicked = Signal(QObject)

@@ -43,29 +43,13 @@ class Ui_FindAddress(object):
 "}\n"
 "\n"
 "QScrollBar:vertical {\n"
-"	border: 0px solid #999999;\n"
 "	background: white;\n"
 "	width: 4px;    \n"
-"	margin: 0px 0px 0px 0px;\n"
 "}\n"
 "\n"
 "QScrollBar::handle:vertical {         \n"
-"	min-height: 0px;\n"
-"	border: 0px solid red;\n"
 "	border-radius: 2px;\n"
-"	background-color: rgb(72,93,114,180);\n"
-"}\n"
-"\n"
-"QScrollBar::add-line:vertical {       \n"
-"	height: 0px;\n"
-"	subcontrol-position: bottom;\n"
-"	subcontrol-origin: margin;\n"
-"}\n"
-"\n"
-"QScrollBar::sub-line:vertical {\n"
-"	height: 0px;\n"
-"	subcontrol-position: top;\n"
-"	subcontrol-origin: margin;\n"
+"	background-color: rgb(215, 215, 215);\n"
 "}")
         self.rbt_set = QRadioButton(FindAddress)
         self.rbt_set.setObjectName(u"rbt_set")
@@ -242,30 +226,29 @@ class Ui_FindAddress(object):
         self.edt_address.setStyleSheet(u"#edt_address {\n"
 "	color: rgb(72,93,114);\n"
 "    font: 16px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	border: 2px solid #34495e;\n"
+"	border: 2px solid #3498db;\n"
 "	padding-top: 3px;\n"
 "	padding-left: 10px;\n"
-"}\n"
-"\n"
-"#edt_address::hover {\n"
-"	border: 2px solid #3498db;\n"
-"}\n"
-"\n"
-"#edt_address:focus {\n"
-"	border: 2px solid #3498db;\n"
-"}\n"
-"")
+"}")
         self.edt_address.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
         self.list_address = QListWidget(FindAddress)
         self.list_address.setObjectName(u"list_address")
         self.list_address.setGeometry(QRect(15, 174, 431, 201))
         self.list_address.setStyleSheet(u"QListWidget {\n"
-"	border: 0px;\n"
+"	border: none;\n"
 "	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	color: #2c3e50;\n"
-"	padding-top: 2px;\n"
 "}\n"
-"")
+"\n"
+"QScrollBar:vertical {\n"
+"	background: white;\n"
+"	width: 4px;    \n"
+"}\n"
+"\n"
+"QScrollBar::handle:vertical {         \n"
+"	border-radius: 2px;\n"
+"	background-color: rgb(215, 215, 215);\n"
+"}")
         self.lb_hint_1 = QLabel(FindAddress)
         self.lb_hint_1.setObjectName(u"lb_hint_1")
         self.lb_hint_1.setGeometry(QRect(25, 131, 371, 20))
@@ -361,27 +344,24 @@ class Ui_FindAddress(object):
         self.btn_input = QPushButton(self.bot_bar)
         self.btn_input.setObjectName(u"btn_input")
         self.btn_input.setGeometry(QRect(110, 18, 241, 35))
-        self.btn_input.setStyleSheet(u"#btn_input {\n"
+        self.btn_input.setStyleSheet(u"QPushButton {\n"
 "	font: 16px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "	color: white;\n"
-"	border: 0px;\n"
+"	border: none;\n"
 "	padding-top: 3px;\n"
-"	background-color: rgb(84,102,120);\n"
-"	border-radius: 17px;\n"
+"	padding-left: 2px;\n"
+"	background-color: rgb(40, 104, 176);\n"
+"	border-radius: 15px;\n"
 "}\n"
 "\n"
-"#btn_input::hover {\n"
-"	border: 0px;\n"
-"	background-color: rgb(64,82,100);\n"
+"QPushButton:pressed {\n"
+"	background-color: rgb(20, 83, 145);\n"
 "	border-style: inset;\n"
 "}\n"
 "\n"
-"#btn_input:pressed {\n"
-"	border: 0px;\n"
-"	background-color: rgb(24,42,60);\n"
-"	border-style: inset;\n"
-"}\n"
-"")
+"QPushButton:disabled {\n"
+"	background-color: rgb(166, 168, 171);\n"
+"}")
         icon = QIcon()
         icon.addFile(u"E:/PyProject/Project/REI/building_info/image/bt_search.png", QSize(), QIcon.Normal, QIcon.Off)
         self.btn_input.setIcon(icon)

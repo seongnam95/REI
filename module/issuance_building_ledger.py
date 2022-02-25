@@ -6,25 +6,20 @@ from selenium.webdriver.support import expected_conditions as ec
 from webdriver_manager.chrome import ChromeDriverManager
 
 import time
+import webbrowser
 
 
 # 크롬 드라이버 세팅
-def set_chrome_driver(kind):
+def set_chrome_driver():
     chrome_options = webdriver.ChromeOptions()
-
-    if kind == 0:
-        chrome_options.add_argument('headless')  # 크롬 화면 숨기기
-        chrome_options.add_argument("no-sandbox")  #
-        chrome_options.add_argument('window-size=1920x1080')  # 해상도 설정
-        chrome_options.add_argument("--start-maximized")
-        chrome_options.add_argument("disable-gpu")  # 가속 사용 x
-        chrome_options.add_argument("lang=ko_KR")  # 가짜 플러그인 탑재
-        chrome_options.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) "
-                                    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36")  # user-agent 이름 설정
-
-    elif kind == 1:
-        chrome_options.add_argument("--start-maximized")
-
+    chrome_options.add_argument('headless')  # 크롬 화면 숨기기
+    chrome_options.add_argument("no-sandbox")  #
+    chrome_options.add_argument('window-size=1920x1080')  # 해상도 설정
+    chrome_options.add_argument("--start-maximized")
+    chrome_options.add_argument("disable-gpu")  # 가속 사용 x
+    chrome_options.add_argument("lang=ko_KR")  # 가짜 플러그인 탑재
+    chrome_options.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) "
+                                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36")  # user-agent 이름 설정
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
     return driver
 
@@ -33,9 +28,9 @@ class IssuanceBuildingLedger:
     def __init__(self, old, new, ho, kind, work, user_id, user_pw):
         self.old_address, self.new_address, self.ho = old, new, ho  # 주소, 호
         self.kind, self.work_selection = kind, work     # 건물 타입, 대장 종류
-        self.user_id, self.user_pw = user_id, user_pw
+        self.user_id, self.user_pw = user_id, user_pw   # ID, PW
 
-        self.driver = set_chrome_driver(0)  # 크롬 드라이버 세팅
+        self.driver = set_chrome_driver()  # 크롬 드라이버 세팅
         self.practice_sign_in()
 
     # 세움터 로그인
@@ -101,9 +96,9 @@ class IssuanceBuildingLedger:
         # 베이스 XPATH
 
         result = False
-        if self.kind == 0: result = self.bd_select()    # 표제부
-        elif self.kind == 1: result = self.gen_select() # 일반 건축물
-        elif self.kind == 2: result = self.set_select() # 전유부
+        if self.kind == 0: result = self.bd_select()        # 표제부
+        elif self.kind == 1: result = self.gen_select()     # 일반 건축물
+        elif self.kind == 2: result = self.set_select()     # 전유부
 
         if result:
             print('선택 완료, 발급 신청')
@@ -215,14 +210,11 @@ class IssuanceBuildingLedger:
             time.sleep(1)
             self.driver.switch_to.window(self.driver.window_handles[1])
             new_url = self.driver.current_url
+
             self.driver.close()     # 기존 드라이브 종료
 
-            new_driver = set_chrome_driver(1)
-            new_driver.get(new_url)  # 새로운 페이지로 오픈
             print('건축물대장 오픈')
-            time.sleep(50)
+            webbrowser.open_new(new_url)
         else:
             print('오픈 실패')
 
-
-IssuanceBuildingLedger('면목동 90-27', '봉우재로154', '702', 0, 0, 'haul1115', 'ks05090818@')
