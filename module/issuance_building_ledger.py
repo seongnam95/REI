@@ -1,3 +1,4 @@
+from PySide6.QtCore import QThread, QObject, Signal
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
@@ -24,13 +25,21 @@ def set_chrome_driver():
     return driver
 
 
-class IssuanceBuildingLedger:
+class ThreadSignal(QObject):
+    workerThreadDone = Signal(object)
+
+
+class IssuanceBuildingLedger(QThread):
     def __init__(self, old, new, ho, kind, work, user_id, user_pw):
+        super().__init__()
+
         self.old_address, self.new_address, self.ho = old, new, ho  # 주소, 호
         self.kind, self.work_selection = kind, work     # 건물 타입, 대장 종류
         self.user_id, self.user_pw = user_id, user_pw   # ID, PW
-
         self.driver = set_chrome_driver()  # 크롬 드라이버 세팅
+
+    def run(self):
+        print('run')
         self.practice_sign_in()
 
     # 세움터 로그인

@@ -6,7 +6,7 @@ from PySide6.QtGui import QMovie
 from PySide6.QtWidgets import QDialog, QLabel, QListWidgetItem, QMessageBox, QWidget, QGridLayout, QApplication, QMainWindow
 from PySide6.QtCore import Qt, QTimer
 
-from ui.dialog.ui_address_detail import Ui_Address_Detaile
+from ui.dialog.ui_address import Ui_FindAddress
 
 
 class MsgContext:
@@ -17,7 +17,7 @@ class MsgContext:
     loading_msg = "건축물대장 정보를 불러오는 중입니다.\n통신 서버 및 네트워크 상태에 따라\n지연 될 수 있습니다."
 
 
-class Address(QDialog, Ui_Address_Detaile):
+class Address(QDialog, Ui_FindAddress):
     def __init__(self):
         super().__init__()
 

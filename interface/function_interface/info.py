@@ -23,7 +23,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.data_basic, self.data_basic_all = None, None
         self.base_list = []
 
-        self.get_building_thread = None     # 토지, 지역지구, 공시지가 스레드
+        self.get_building_thread, self.issuance_thread = None, None     # 토지, 지역지구, 공시지가 스레드
         self.binfo, self.address = None, None
         self.select_building, self.total_buildings = None, None
         self.detail, self.exact_detail = None, None  # 상세 (호, 층)
@@ -225,6 +225,8 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             self.get_building_thread.threadEvent.workerThreadDone.connect(self.insert_detail_info)
             self.first = False
 
+        self.resize_form(self.opened)
+
     # 문서 발급 버튼
     def clicked_issuance_btn(self):
         if not self.activation: return
@@ -236,10 +238,12 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
         if self.binfo['타입'] == '집합':
             ho = self.exact_detail.loc[self.cbx_rooms.currentIndex()]['호명칭'].rstrip("호")
-            ibl.IssuanceBuildingLedger(old, address['도로명주소'], ho, 2, 0, 'haul1115', 'ks05090818@')
+            self.issuance_thread = ibl.IssuanceBuildingLedger(old, address['도로명주소'], ho, 2, 0, 'haul1115', 'ks05090818@')
+            self.issuance_thread.start()
 
         elif self.binfo['타입'] == '일반':
-            ibl.IssuanceBuildingLedger(old, address['도로명주소'], '', 1, 0, 'haul1115', 'ks05090818@')
+            self.issuance_thread = ibl.IssuanceBuildingLedger(old, address['도로명주소'], '', 1, 0, 'haul1115', 'ks05090818@')
+            self.issuance_thread.start()
 
     ##### 데이터 입력
     ########################################################################################################
@@ -353,7 +357,6 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
     # 상세 정보 로드
     def insert_detail_info(self, val):
-        self.resize_form(self.opened)
 
         building = self.select_building
 

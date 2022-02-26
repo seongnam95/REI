@@ -6,6 +6,7 @@ from PySide6.QtWidgets import QMainWindow, QMessageBox, QApplication
 from module.mysql import ReadMysqlData
 from ui.main.ui_login import Ui_Login
 
+
 class LoginMain(QMainWindow, Ui_Login):
     def __init__(self):
         super().__init__()
