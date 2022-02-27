@@ -10,21 +10,6 @@ import time
 import webbrowser
 
 
-# 크롬 드라이버 세팅
-def set_chrome_driver():
-    chrome_options = webdriver.ChromeOptions()
-    chrome_options.add_argument('headless')  # 크롬 화면 숨기기
-    chrome_options.add_argument("no-sandbox")  #
-    chrome_options.add_argument('window-size=1920x1080')  # 해상도 설정
-    chrome_options.add_argument("--start-maximized")
-    chrome_options.add_argument("disable-gpu")  # 가속 사용 x
-    chrome_options.add_argument("lang=ko_KR")  # 가짜 플러그인 탑재
-    chrome_options.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) "
-                                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36")  # user-agent 이름 설정
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
-    return driver
-
-
 class ThreadSignal(QObject):
     workerThreadDone = Signal(object)
 
@@ -36,10 +21,19 @@ class IssuanceBuildingLedger(QThread):
         self.old_address, self.new_address, self.ho = old, new, ho  # 주소, 호
         self.kind, self.work_selection = kind, work     # 건물 타입, 대장 종류
         self.user_id, self.user_pw = user_id, user_pw   # ID, PW
-        self.driver = set_chrome_driver()  # 크롬 드라이버 세팅
+        self.driver = None
 
     def run(self):
-        print('run')
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument('headless')  # 크롬 화면 숨기기
+        chrome_options.add_argument("no-sandbox")  #
+        chrome_options.add_argument('window-size=1920x1080')  # 해상도 설정
+        chrome_options.add_argument("--start-maximized")
+        chrome_options.add_argument("disable-gpu")  # 가속 사용 x
+        chrome_options.add_argument("lang=ko_KR")  # 가짜 플러그인 탑재
+        chrome_options.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) "
+                                    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36")  # user-agent 이름 설정
+        self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
         self.practice_sign_in()
 
     # 세움터 로그인
@@ -190,6 +184,7 @@ class IssuanceBuildingLedger(QThread):
                 if breaker: return True
         return self.set_select()
 
+    # 문서 열기
     def open_document(self):
         print('신청된 문서 처리 대기중')
 

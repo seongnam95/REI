@@ -5,7 +5,7 @@ import module.open_api_pars as pars
 import module.issuance_building_ledger as ibl
 
 from PySide6.QtWidgets import QMainWindow, QApplication, QLabel, QGraphicsOpacityEffect, QGraphicsDropShadowEffect
-from PySide6.QtGui import QFontMetrics, Qt, QIcon, QColor
+from PySide6.QtGui import QFontMetrics, Qt, QIcon, QColor, QMovie
 from PySide6.QtCore import QRect, QObject, Signal, QEvent, QTimer, QPropertyAnimation, QSize
 from ui.main.ui_info import Ui_BuildingInfo
 from interface.sub_interface import address_details
@@ -83,6 +83,13 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.btn_sharing.installEventFilter(self)
         self.btn_add.installEventFilter(self)
         self.btn_issuance.installEventFilter(self)
+
+        self.movie = QMovie("../../data/img/animation/btn_loading.gif")
+        self.movie.frameChanged.connect(lambda: self.btn_issuance.setIcon(QIcon(self.movie.currentPixmap())))
+
+        self.movie.start()
+
+        # self.btn_issuance.setIcon(QIcon("../../data/img/animation/btn_loading.gif"))
 
         self.show()
 
