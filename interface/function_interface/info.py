@@ -4,12 +4,16 @@ import clipboard as clip
 import module.open_api_pars as pars
 import module.issuance_building_ledger as ibl
 
-from PySide6.QtWidgets import QMainWindow, QApplication, QLabel, QGraphicsOpacityEffect, QGraphicsDropShadowEffect
+from PySide6.QtWidgets import QMainWindow, QApplication, QLabel, QFrame, QGraphicsOpacityEffect, QGraphicsDropShadowEffect
 from PySide6.QtGui import QFontMetrics, Qt, QIcon, QColor, QMovie
 from PySide6.QtCore import QRect, QObject, Signal, QEvent, QTimer, QPropertyAnimation, QSize
 from ui.main.ui_info import Ui_BuildingInfo
 from interface.sub_interface import address_details
 from module.open_api_pars import OpenApiRequest
+# import fluentapp.pyqt6.windowtools as wingui
+
+# from BlurWindow.blurWindow import blur
+# blur(self.winId())
 
 
 class BuildingInfo(QMainWindow, Ui_BuildingInfo):
@@ -60,6 +64,8 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.labels_land = {'공시지가': self.land_item_1,
                             '토지지역지구': self.land_item_2,
                             '토지기타지역지구': self.land_item_3}
+
+        self.pop_up_test()
 
         self._init_interaction()
 
@@ -251,6 +257,15 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         elif self.binfo['타입'] == '일반':
             self.issuance_thread = ibl.IssuanceBuildingLedger(old, address['도로명주소'], '', 1, 0, 'haul1115', 'ks05090818@')
             self.issuance_thread.start()
+
+    def pop_up_test(self):
+        self.pop = QFrame(self)
+        self.pop.setGeometry(20, 20, 50, 50)
+        self.pop.setStyleSheet("background-color: blue")
+
+
+
+        return
 
     ##### 데이터 입력
     ########################################################################################################
