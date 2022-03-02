@@ -15,6 +15,7 @@ class BoxMessage(QLabel):
         self.setStyleSheet("QLabel{background-color: rgba(0,0,0,150);"
                                           "font: 15px \uc6f0\ucef4\uccb4 Regular;"
                                           "color: white;"
+                                          "border-radius: 3px;"
                                           "padding-top: 3px;}")
         self.parent_size = parent.size()
 
@@ -45,6 +46,7 @@ class BoxMessage(QLabel):
                 y = round((self.height() / 2) + 100)
 
         elif type(pos) == int: y = pos
+        elif type(pos) == QPoint: x, y = pos.x(), pos.y()
 
         self.move(x, y)
 

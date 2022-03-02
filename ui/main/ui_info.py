@@ -40,7 +40,8 @@ class Ui_BuildingInfo(object):
         self.cbx_rooms.setGeometry(QRect(20, 169, 391, 35))
         self.cbx_rooms.setStyleSheet(u"QComboBox {\n"
 "    border: 1px solid gray;\n"
-"    padding: 3px 1px 1px 5px;\n"
+"    padding-top: 5px;\n"
+"	padding-left: 5px;\n"
 "    min-width: 6em;\n"
 "    background: rgb(255, 255, 255);\n"
 "    font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
@@ -48,7 +49,6 @@ class Ui_BuildingInfo(object):
 "}\n"
 "\n"
 "QComboBox:focus {\n"
-"    padding: 3px 1px 1px 5px;\n"
 "    color: rgb(127, 140, 141);\n"
 "}\n"
 "\n"
@@ -82,8 +82,8 @@ class Ui_BuildingInfo(object):
 "    top: 1px;\n"
 "    left: 1px;\n"
 "}\n"
-""
-                        "QComboBox::setView {\n"
+"QComboBox::setVi"
+                        "ew {\n"
 "    color: rgb(44, 62, 80);\n"
 "    background-color: lightblue\n"
 "}\n"
@@ -193,33 +193,66 @@ class Ui_BuildingInfo(object):
 "	border-bottom: 1px solid;\n"
 "	border-top: 1px solid;\n"
 "	border-color: rgb(230, 230, 230);\n"
+"}\n"
+"\n"
+"QPushButton {\n"
+"	border-radius: 10px;\n"
+"	padding-top: 2px;\n"
+"	padding-left: 2px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"	background-color: rgb(235, 235, 235);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"	background-color: rgb(215, 215, 215);\n"
 "}")
         self.lb_title = QLabel(self.top_bar)
         self.lb_title.setObjectName(u"lb_title")
-        self.lb_title.setGeometry(QRect(112, 4, 211, 30))
+        self.lb_title.setGeometry(QRect(112, 5, 211, 30))
         self.lb_title.setStyleSheet(u"#lb_title {\n"
-"	background-color: rgb(245, 245, 245);\n"
+"	background-color: rgba(0,0,0,0);\n"
 "	font: 25px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: rgba(0, 0, 0, 120);\n"
+"	color: rgb(125, 125, 125);\n"
 "	padding-top: 8px;\n"
-"	padding-left: 8px;\n"
+"	padding-left: 4px;\n"
 "	border: 0px;\n"
 "}")
         self.lb_title.setAlignment(Qt.AlignCenter)
         self.lb_sub_title = QLabel(self.top_bar)
         self.lb_sub_title.setObjectName(u"lb_sub_title")
-        self.lb_sub_title.setGeometry(QRect(122, 29, 190, 25))
+        self.lb_sub_title.setGeometry(QRect(122, 30, 191, 24))
         self.lb_sub_title.setStyleSheet(u"#lb_sub_title {\n"
-"	background-color: rgb(245, 245, 245);\n"
+"	background-color: rgb(0,0,0,0);\n"
 "	font: 15px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: rgba(0, 0, 0, 120);\n"
+"	color: rgb(125, 125, 125);\n"
 "	padding-top: 8px;\n"
 "	padding-left: 8px;\n"
 "	border: 0px;\n"
 "}")
         self.lb_sub_title.setAlignment(Qt.AlignCenter)
+        self.btn_sharing = QPushButton(self.top_bar)
+        self.btn_sharing.setObjectName(u"btn_sharing")
+        self.btn_sharing.setEnabled(True)
+        self.btn_sharing.setGeometry(QRect(380, 12, 40, 40))
+        self.btn_sharing.setStyleSheet(u"")
+        icon = QIcon()
+        icon.addFile(u"../../1814119_launch_open_share_icon.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.btn_sharing.setIcon(icon)
+        self.btn_sharing.setIconSize(QSize(23, 23))
+        self.btn_add = QPushButton(self.top_bar)
+        self.btn_add.setObjectName(u"btn_add")
+        self.btn_add.setGeometry(QRect(10, 12, 40, 40))
+        self.btn_add.setStyleSheet(u"")
+        icon1 = QIcon()
+        icon1.addFile(u"../../1814113_add_more_plus_icon.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.btn_add.setIcon(icon1)
+        self.btn_add.setIconSize(QSize(25, 25))
         self.lb_sub_title.raise_()
         self.lb_title.raise_()
+        self.btn_sharing.raise_()
+        self.btn_add.raise_()
         self.bot_bar = QWidget(BuildingInfo)
         self.bot_bar.setObjectName(u"bot_bar")
         self.bot_bar.setGeometry(QRect(0, 690, 840, 71))
@@ -227,18 +260,7 @@ class Ui_BuildingInfo(object):
 "	background-color: rgb(245, 245, 245);\n"
 "	border-top: 1px solid;\n"
 "	border-color: rgb(230, 230, 230);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"	background-color: rgb(20, 83, 145);\n"
-"	border-style: inset;\n"
-"}\n"
-"\n"
-"QPushButton:disabled {\n"
-"	background-color: rgb(166, 168, 171);\n"
-"}\n"
-"\n"
-"")
+"}")
         self.btn_viol = QPushButton(self.bot_bar)
         self.btn_viol.setObjectName(u"btn_viol")
         self.btn_viol.setGeometry(QRect(680, 20, 141, 31))
@@ -259,85 +281,15 @@ class Ui_BuildingInfo(object):
 "QPushButton:disabled {\n"
 "	background-color: rgb(166, 168, 171);\n"
 "}")
-        icon = QIcon()
-        icon.addFile(u"E:/PyProject/Project/REI/building_info/image/bt_search.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.btn_viol.setIcon(icon)
+        icon2 = QIcon()
+        icon2.addFile(u"E:/PyProject/Project/REI/building_info/image/bt_search.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.btn_viol.setIcon(icon2)
         self.btn_viol.setIconSize(QSize(23, 23))
         self.lb_viol = QLabel(self.bot_bar)
         self.lb_viol.setObjectName(u"lb_viol")
         self.lb_viol.setGeometry(QRect(570, 20, 91, 31))
         self.lb_viol.setStyleSheet(u"#lb_viol { background-color: rgb(245, 245, 245); }")
         self.lb_viol.setAlignment(Qt.AlignCenter)
-        self.btn_sharing = QPushButton(self.bot_bar)
-        self.btn_sharing.setObjectName(u"btn_sharing")
-        self.btn_sharing.setEnabled(True)
-        self.btn_sharing.setGeometry(QRect(20, 20, 90, 31))
-        self.btn_sharing.setStyleSheet(u"QPushButton {\n"
-"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: white;\n"
-"	border: none;\n"
-"	padding-top: 3px;\n"
-"	padding-left: 2px;\n"
-"	background-color: rgb(40, 104, 176);\n"
-"	border-top-left-radius: 15px;\n"
-"	border-bottom-left-radius: 15px;\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"	background-color: rgb(20, 83, 145);\n"
-"	border-style: inset;\n"
-"}\n"
-"\n"
-"QPushButton:disabled {\n"
-"	background-color: rgb(166, 168, 171);\n"
-"}")
-        self.btn_sharing.setIcon(icon)
-        self.btn_sharing.setIconSize(QSize(23, 23))
-        self.btn_issuance = QPushButton(self.bot_bar)
-        self.btn_issuance.setObjectName(u"btn_issuance")
-        self.btn_issuance.setGeometry(QRect(204, 20, 90, 31))
-        self.btn_issuance.setStyleSheet(u"QPushButton {\n"
-"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: white;\n"
-"	padding-top: 3px;\n"
-"	padding-right: 11px;\n"
-"	background-color: rgb(40, 104, 176);\n"
-"	border-top-right-radius: 15px;\n"
-"	border-bottom-right-radius: 15px;\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"	background-color: rgb(20, 83, 145);\n"
-"	border-style: inset;\n"
-"}\n"
-"\n"
-"QPushButton:disabled {\n"
-"	background-color: rgb(166, 168, 171);\n"
-"}\n"
-"")
-        self.btn_issuance.setIcon(icon)
-        self.btn_issuance.setIconSize(QSize(23, 23))
-        self.btn_add = QPushButton(self.bot_bar)
-        self.btn_add.setObjectName(u"btn_add")
-        self.btn_add.setGeometry(QRect(112, 20, 90, 31))
-        self.btn_add.setStyleSheet(u"QPushButton {\n"
-"	font: 14px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: white;\n"
-"	border: none;\n"
-"	padding-top: 3px;\n"
-"	background-color: rgb(40, 104, 176);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"	background-color: rgb(20, 83, 145);\n"
-"	border-style: inset;\n"
-"}\n"
-"\n"
-"QPushButton:disabled {\n"
-"	background-color: rgb(166, 168, 171);\n"
-"}")
-        self.btn_add.setIcon(icon)
-        self.btn_add.setIconSize(QSize(23, 23))
         self.btn_details = QPushButton(self.bot_bar)
         self.btn_details.setObjectName(u"btn_details")
         self.btn_details.setGeometry(QRect(340, 20, 81, 31))
@@ -360,6 +312,81 @@ class Ui_BuildingInfo(object):
 "	border-style: inset;\n"
 "}\n"
 "")
+        self.btn_issuance = QPushButton(self.bot_bar)
+        self.btn_issuance.setObjectName(u"btn_issuance")
+        self.btn_issuance.setEnabled(True)
+        self.btn_issuance.setGeometry(QRect(20, 16, 40, 40))
+        self.btn_issuance.setStyleSheet(u"QPushButton {\n"
+"	border-radius: 10px;\n"
+"	padding-top: 2px;\n"
+"	padding-left: 1px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"	background-color: rgb(235, 235, 235);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"	background-color: rgb(215, 215, 215);\n"
+"}")
+        icon3 = QIcon()
+        icon3.addFile(u"../../print.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.btn_issuance.setIcon(icon3)
+        self.btn_issuance.setIconSize(QSize(23, 23))
+        self.issuances = QFrame(self.bot_bar)
+        self.issuances.setObjectName(u"issuances")
+        self.issuances.setGeometry(QRect(70, 18, 237, 35))
+        self.issuances.setStyleSheet(u"QFrame{\n"
+"	background-color: rgba(0, 0, 0, 140);\n"
+"	border-radius: 5px;\n"
+"}\n"
+"\n"
+"QPushButton {\n"
+"	font: 15px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	color: white;\n"
+"	background-color: rgba(0, 0, 0, 0);\n"
+"	padding-top: 2px;\n"
+"	padding-right: 2px;\n"
+"	border-radius: 3px\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"	background-color: rgba(255,255,255,30);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"	background-color: rgba(0,0,0,40);\n"
+"}\n"
+"")
+        self.issuances.setFrameShape(QFrame.StyledPanel)
+        self.issuances.setFrameShadow(QFrame.Raised)
+        self.btn_issuance_1 = QPushButton(self.issuances)
+        self.btn_issuance_1.setObjectName(u"btn_issuance_1")
+        self.btn_issuance_1.setEnabled(True)
+        self.btn_issuance_1.setGeometry(QRect(10, 5, 61, 25))
+        self.btn_issuance_1.setStyleSheet(u"")
+        self.btn_issuance_1.setIcon(icon2)
+        self.btn_issuance_1.setIconSize(QSize(23, 23))
+        self.btn_issuance_3 = QPushButton(self.issuances)
+        self.btn_issuance_3.setObjectName(u"btn_issuance_3")
+        self.btn_issuance_3.setGeometry(QRect(140, 5, 91, 25))
+        self.btn_issuance_3.setStyleSheet(u"")
+        self.btn_issuance_3.setIcon(icon2)
+        self.btn_issuance_3.setIconSize(QSize(23, 23))
+        self.btn_issuance_2 = QPushButton(self.issuances)
+        self.btn_issuance_2.setObjectName(u"btn_issuance_2")
+        self.btn_issuance_2.setGeometry(QRect(70, 5, 61, 25))
+        self.btn_issuance_2.setStyleSheet(u"")
+        self.btn_issuance_2.setIcon(icon2)
+        self.btn_issuance_2.setIconSize(QSize(23, 23))
+        self.issuance_line = QFrame(self.issuances)
+        self.issuance_line.setObjectName(u"issuance_line")
+        self.issuance_line.setGeometry(QRect(135, 8, 1, 19))
+        self.issuance_line.setStyleSheet(u"#issuance_line {\n"
+"	background-color: rgba(255,255,255,120);\n"
+"}")
+        self.issuance_line.setFrameShape(QFrame.VLine)
+        self.issuance_line.setFrameShadow(QFrame.Sunken)
         self.widget_3 = QWidget(BuildingInfo)
         self.widget_3.setObjectName(u"widget_3")
         self.widget_3.setGeometry(QRect(20, 255, 391, 331))
@@ -374,13 +401,22 @@ class Ui_BuildingInfo(object):
 "}")
         self.gridLayoutWidget = QWidget(self.widget_3)
         self.gridLayoutWidget.setObjectName(u"gridLayoutWidget")
-        self.gridLayoutWidget.setGeometry(QRect(0, 0, 391, 329))
+        self.gridLayoutWidget.setGeometry(QRect(0, 0, 391, 331))
         self.gridLayout = QGridLayout(self.gridLayoutWidget)
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setSizeConstraint(QLayout.SetDefaultConstraint)
         self.gridLayout.setHorizontalSpacing(5)
         self.gridLayout.setVerticalSpacing(3)
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
+        self.base_name_11 = QLabel(self.gridLayoutWidget)
+        self.base_name_11.setObjectName(u"base_name_11")
+        self.base_name_11.setMinimumSize(QSize(0, 30))
+        self.base_name_11.setMaximumSize(QSize(16777215, 30))
+        self.base_name_11.setStyleSheet(u"")
+        self.base_name_11.setAlignment(Qt.AlignCenter)
+
+        self.gridLayout.addWidget(self.base_name_11, 7, 0, 1, 2)
+
         self.base_item_11 = QLabel(self.gridLayoutWidget)
         self.base_item_11.setObjectName(u"base_item_11")
         self.base_item_11.setMinimumSize(QSize(0, 30))
@@ -404,38 +440,89 @@ class Ui_BuildingInfo(object):
 
         self.gridLayout.addWidget(self.base_name_12, 8, 0, 1, 2)
 
-        self.base_name_11 = QLabel(self.gridLayoutWidget)
-        self.base_name_11.setObjectName(u"base_name_11")
-        self.base_name_11.setMinimumSize(QSize(0, 30))
-        self.base_name_11.setMaximumSize(QSize(16777215, 30))
-        self.base_name_11.setStyleSheet(u"")
-        self.base_name_11.setAlignment(Qt.AlignCenter)
+        self.base_name_2 = QLabel(self.gridLayoutWidget)
+        self.base_name_2.setObjectName(u"base_name_2")
+        self.base_name_2.setMinimumSize(QSize(0, 30))
+        self.base_name_2.setMaximumSize(QSize(16777215, 30))
+        font = QFont()
+        font.setFamilies([u"\uc6f0\ucef4\uccb4 Regular"])
+        font.setBold(False)
+        font.setItalic(False)
+        self.base_name_2.setFont(font)
+        self.base_name_2.setStyleSheet(u"")
+        self.base_name_2.setAlignment(Qt.AlignCenter)
 
-        self.gridLayout.addWidget(self.base_name_11, 7, 0, 1, 2)
+        self.gridLayout.addWidget(self.base_name_2, 1, 0, 1, 1)
 
         self.base_name_4 = QLabel(self.gridLayoutWidget)
         self.base_name_4.setObjectName(u"base_name_4")
         self.base_name_4.setMinimumSize(QSize(0, 30))
         self.base_name_4.setMaximumSize(QSize(16777215, 30))
-        font = QFont()
-        font.setFamilies([u"\uc6f0\ucef4\uccb4 Regular"])
-        font.setBold(False)
-        font.setItalic(False)
         self.base_name_4.setFont(font)
         self.base_name_4.setStyleSheet(u"")
         self.base_name_4.setAlignment(Qt.AlignCenter)
 
         self.gridLayout.addWidget(self.base_name_4, 3, 0, 1, 1)
 
-        self.base_name_2 = QLabel(self.gridLayoutWidget)
-        self.base_name_2.setObjectName(u"base_name_2")
-        self.base_name_2.setMinimumSize(QSize(0, 30))
-        self.base_name_2.setMaximumSize(QSize(16777215, 30))
-        self.base_name_2.setFont(font)
-        self.base_name_2.setStyleSheet(u"")
-        self.base_name_2.setAlignment(Qt.AlignCenter)
+        self.base_item_10 = QLabel(self.gridLayoutWidget)
+        self.base_item_10.setObjectName(u"base_item_10")
+        self.base_item_10.setMinimumSize(QSize(0, 30))
+        self.base_item_10.setMaximumSize(QSize(16777215, 30))
+        self.base_item_10.setStyleSheet(u"QLabel { \n"
+"	padding-left: 5px;\n"
+"	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 15px;\n"
+"	border-top-right-radius: 15px;\n"
+"}")
+        self.base_item_10.setAlignment(Qt.AlignCenter)
 
-        self.gridLayout.addWidget(self.base_name_2, 1, 0, 1, 1)
+        self.gridLayout.addWidget(self.base_item_10, 6, 3, 1, 1)
+
+        self.base_item_9 = QLabel(self.gridLayoutWidget)
+        self.base_item_9.setObjectName(u"base_item_9")
+        self.base_item_9.setMinimumSize(QSize(0, 30))
+        self.base_item_9.setMaximumSize(QSize(16777215, 30))
+        self.base_item_9.setStyleSheet(u"QLabel { \n"
+"	padding-left: 5px;\n"
+"	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 15px;\n"
+"	border-top-right-radius: 15px;\n"
+"}")
+        self.base_item_9.setAlignment(Qt.AlignCenter)
+
+        self.gridLayout.addWidget(self.base_item_9, 5, 3, 1, 1)
+
+        self.base_name_10 = QLabel(self.gridLayoutWidget)
+        self.base_name_10.setObjectName(u"base_name_10")
+        self.base_name_10.setMinimumSize(QSize(0, 30))
+        self.base_name_10.setMaximumSize(QSize(16777215, 30))
+        self.base_name_10.setStyleSheet(u"")
+        self.base_name_10.setAlignment(Qt.AlignCenter)
+
+        self.gridLayout.addWidget(self.base_name_10, 6, 2, 1, 1)
+
+        self.base_item_5 = QLabel(self.gridLayoutWidget)
+        self.base_item_5.setObjectName(u"base_item_5")
+        self.base_item_5.setMinimumSize(QSize(0, 30))
+        self.base_item_5.setMaximumSize(QSize(16777215, 30))
+        self.base_item_5.setStyleSheet(u"QLabel { \n"
+"	padding-left: 5px;\n"
+"	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 15px;\n"
+"	border-top-right-radius: 15px;\n"
+"}")
+        self.base_item_5.setAlignment(Qt.AlignCenter)
+
+        self.gridLayout.addWidget(self.base_item_5, 4, 1, 1, 1)
+
+        self.base_name_6 = QLabel(self.gridLayoutWidget)
+        self.base_name_6.setObjectName(u"base_name_6")
+        self.base_name_6.setMinimumSize(QSize(0, 30))
+        self.base_name_6.setMaximumSize(QSize(16777215, 30))
+        self.base_name_6.setStyleSheet(u"")
+        self.base_name_6.setAlignment(Qt.AlignCenter)
+
+        self.gridLayout.addWidget(self.base_name_6, 5, 0, 1, 1)
 
         self.base_item_4 = QLabel(self.gridLayoutWidget)
         self.base_item_4.setObjectName(u"base_item_4")
@@ -450,15 +537,6 @@ class Ui_BuildingInfo(object):
         self.base_item_4.setAlignment(Qt.AlignCenter)
 
         self.gridLayout.addWidget(self.base_item_4, 3, 1, 1, 3)
-
-        self.base_name_6 = QLabel(self.gridLayoutWidget)
-        self.base_name_6.setObjectName(u"base_name_6")
-        self.base_name_6.setMinimumSize(QSize(0, 30))
-        self.base_name_6.setMaximumSize(QSize(16777215, 30))
-        self.base_name_6.setStyleSheet(u"")
-        self.base_name_6.setAlignment(Qt.AlignCenter)
-
-        self.gridLayout.addWidget(self.base_name_6, 5, 0, 1, 1)
 
         self.base_name_13 = QLabel(self.gridLayoutWidget)
         self.base_name_13.setObjectName(u"base_name_13")
@@ -483,15 +561,6 @@ class Ui_BuildingInfo(object):
 
         self.gridLayout.addWidget(self.base_item_12, 8, 2, 1, 2)
 
-        self.base_name_8 = QLabel(self.gridLayoutWidget)
-        self.base_name_8.setObjectName(u"base_name_8")
-        self.base_name_8.setMinimumSize(QSize(80, 30))
-        self.base_name_8.setMaximumSize(QSize(80, 30))
-        self.base_name_8.setStyleSheet(u"")
-        self.base_name_8.setAlignment(Qt.AlignCenter)
-
-        self.gridLayout.addWidget(self.base_name_8, 4, 2, 1, 1)
-
         self.base_item_13 = QLabel(self.gridLayoutWidget)
         self.base_item_13.setObjectName(u"base_item_13")
         self.base_item_13.setMinimumSize(QSize(0, 30))
@@ -506,6 +575,15 @@ class Ui_BuildingInfo(object):
 
         self.gridLayout.addWidget(self.base_item_13, 9, 2, 1, 2)
 
+        self.base_name_8 = QLabel(self.gridLayoutWidget)
+        self.base_name_8.setObjectName(u"base_name_8")
+        self.base_name_8.setMinimumSize(QSize(80, 30))
+        self.base_name_8.setMaximumSize(QSize(80, 30))
+        self.base_name_8.setStyleSheet(u"")
+        self.base_name_8.setAlignment(Qt.AlignCenter)
+
+        self.gridLayout.addWidget(self.base_name_8, 4, 2, 1, 1)
+
         self.base_name_5 = QLabel(self.gridLayoutWidget)
         self.base_name_5.setObjectName(u"base_name_5")
         self.base_name_5.setMinimumSize(QSize(0, 30))
@@ -514,89 +592,6 @@ class Ui_BuildingInfo(object):
         self.base_name_5.setAlignment(Qt.AlignCenter)
 
         self.gridLayout.addWidget(self.base_name_5, 4, 0, 1, 1)
-
-        self.base_name_10 = QLabel(self.gridLayoutWidget)
-        self.base_name_10.setObjectName(u"base_name_10")
-        self.base_name_10.setMinimumSize(QSize(0, 30))
-        self.base_name_10.setMaximumSize(QSize(16777215, 30))
-        self.base_name_10.setStyleSheet(u"")
-        self.base_name_10.setAlignment(Qt.AlignCenter)
-
-        self.gridLayout.addWidget(self.base_name_10, 6, 2, 1, 1)
-
-        self.base_item_9 = QLabel(self.gridLayoutWidget)
-        self.base_item_9.setObjectName(u"base_item_9")
-        self.base_item_9.setMinimumSize(QSize(0, 30))
-        self.base_item_9.setMaximumSize(QSize(16777215, 30))
-        self.base_item_9.setStyleSheet(u"QLabel { \n"
-"	padding-left: 5px;\n"
-"	background-color: rgb(240, 240, 240); \n"
-"	border-bottom-right-radius: 15px;\n"
-"	border-top-right-radius: 15px;\n"
-"}")
-        self.base_item_9.setAlignment(Qt.AlignCenter)
-
-        self.gridLayout.addWidget(self.base_item_9, 5, 3, 1, 1)
-
-        self.base_item_5 = QLabel(self.gridLayoutWidget)
-        self.base_item_5.setObjectName(u"base_item_5")
-        self.base_item_5.setMinimumSize(QSize(0, 30))
-        self.base_item_5.setMaximumSize(QSize(16777215, 30))
-        self.base_item_5.setStyleSheet(u"QLabel { \n"
-"	padding-left: 5px;\n"
-"	background-color: rgb(240, 240, 240); \n"
-"	border-bottom-right-radius: 15px;\n"
-"	border-top-right-radius: 15px;\n"
-"}")
-        self.base_item_5.setAlignment(Qt.AlignCenter)
-
-        self.gridLayout.addWidget(self.base_item_5, 4, 1, 1, 1)
-
-        self.base_name_9 = QLabel(self.gridLayoutWidget)
-        self.base_name_9.setObjectName(u"base_name_9")
-        self.base_name_9.setMinimumSize(QSize(0, 30))
-        self.base_name_9.setMaximumSize(QSize(16777215, 30))
-        self.base_name_9.setStyleSheet(u"")
-        self.base_name_9.setAlignment(Qt.AlignCenter)
-
-        self.gridLayout.addWidget(self.base_name_9, 5, 2, 1, 1)
-
-        self.base_item_7 = QLabel(self.gridLayoutWidget)
-        self.base_item_7.setObjectName(u"base_item_7")
-        self.base_item_7.setMinimumSize(QSize(0, 30))
-        self.base_item_7.setMaximumSize(QSize(16777215, 30))
-        self.base_item_7.setStyleSheet(u"QLabel { \n"
-"	padding-left: 5px;\n"
-"	background-color: rgb(240, 240, 240); \n"
-"	border-bottom-right-radius: 15px;\n"
-"	border-top-right-radius: 15px;\n"
-"}")
-        self.base_item_7.setAlignment(Qt.AlignCenter)
-
-        self.gridLayout.addWidget(self.base_item_7, 6, 1, 1, 1)
-
-        self.base_name_7 = QLabel(self.gridLayoutWidget)
-        self.base_name_7.setObjectName(u"base_name_7")
-        self.base_name_7.setMinimumSize(QSize(0, 30))
-        self.base_name_7.setMaximumSize(QSize(16777215, 30))
-        self.base_name_7.setStyleSheet(u"")
-        self.base_name_7.setAlignment(Qt.AlignCenter)
-
-        self.gridLayout.addWidget(self.base_name_7, 6, 0, 1, 1)
-
-        self.base_item_6 = QLabel(self.gridLayoutWidget)
-        self.base_item_6.setObjectName(u"base_item_6")
-        self.base_item_6.setMinimumSize(QSize(0, 30))
-        self.base_item_6.setMaximumSize(QSize(16777215, 30))
-        self.base_item_6.setStyleSheet(u"QLabel { \n"
-"	padding-left: 5px;\n"
-"	background-color: rgb(240, 240, 240); \n"
-"	border-bottom-right-radius: 15px;\n"
-"	border-top-right-radius: 15px;\n"
-"}")
-        self.base_item_6.setAlignment(Qt.AlignCenter)
-
-        self.gridLayout.addWidget(self.base_item_6, 5, 1, 1, 1)
 
         self.base_item_8 = QLabel(self.gridLayoutWidget)
         self.base_item_8.setObjectName(u"base_item_8")
@@ -611,6 +606,20 @@ class Ui_BuildingInfo(object):
         self.base_item_8.setAlignment(Qt.AlignCenter)
 
         self.gridLayout.addWidget(self.base_item_8, 4, 3, 1, 1)
+
+        self.base_item_6 = QLabel(self.gridLayoutWidget)
+        self.base_item_6.setObjectName(u"base_item_6")
+        self.base_item_6.setMinimumSize(QSize(0, 30))
+        self.base_item_6.setMaximumSize(QSize(16777215, 30))
+        self.base_item_6.setStyleSheet(u"QLabel { \n"
+"	padding-left: 5px;\n"
+"	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 15px;\n"
+"	border-top-right-radius: 15px;\n"
+"}")
+        self.base_item_6.setAlignment(Qt.AlignCenter)
+
+        self.gridLayout.addWidget(self.base_item_6, 5, 1, 1, 1)
 
         self.base_name_1 = QLabel(self.gridLayoutWidget)
         self.base_name_1.setObjectName(u"base_name_1")
@@ -643,30 +652,6 @@ class Ui_BuildingInfo(object):
 
         self.gridLayout.addWidget(self.base_item_2, 1, 1, 1, 3)
 
-        self.base_item_1 = QLabel(self.gridLayoutWidget)
-        self.base_item_1.setObjectName(u"base_item_1")
-        self.base_item_1.setMinimumSize(QSize(0, 30))
-        self.base_item_1.setMaximumSize(QSize(16777215, 30))
-        self.base_item_1.setStyleSheet(u"QLabel { \n"
-"	padding-left: 5px;\n"
-"	background-color: rgb(240, 240, 240); \n"
-"	border-bottom-right-radius: 15px;\n"
-"	border-top-right-radius: 15px;\n"
-"}")
-        self.base_item_1.setAlignment(Qt.AlignCenter)
-
-        self.gridLayout.addWidget(self.base_item_1, 0, 1, 1, 3)
-
-        self.base_name_3 = QLabel(self.gridLayoutWidget)
-        self.base_name_3.setObjectName(u"base_name_3")
-        self.base_name_3.setMinimumSize(QSize(0, 30))
-        self.base_name_3.setMaximumSize(QSize(16777215, 30))
-        self.base_name_3.setFont(font)
-        self.base_name_3.setStyleSheet(u"")
-        self.base_name_3.setAlignment(Qt.AlignCenter)
-
-        self.gridLayout.addWidget(self.base_name_3, 2, 0, 1, 1)
-
         self.base_item_3 = QLabel(self.gridLayoutWidget)
         self.base_item_3.setObjectName(u"base_item_3")
         self.base_item_3.setMinimumSize(QSize(0, 30))
@@ -681,19 +666,61 @@ class Ui_BuildingInfo(object):
 
         self.gridLayout.addWidget(self.base_item_3, 2, 1, 1, 3)
 
-        self.base_item_10 = QLabel(self.gridLayoutWidget)
-        self.base_item_10.setObjectName(u"base_item_10")
-        self.base_item_10.setMinimumSize(QSize(0, 30))
-        self.base_item_10.setMaximumSize(QSize(16777215, 30))
-        self.base_item_10.setStyleSheet(u"QLabel { \n"
+        self.base_name_3 = QLabel(self.gridLayoutWidget)
+        self.base_name_3.setObjectName(u"base_name_3")
+        self.base_name_3.setMinimumSize(QSize(0, 30))
+        self.base_name_3.setMaximumSize(QSize(16777215, 30))
+        self.base_name_3.setFont(font)
+        self.base_name_3.setStyleSheet(u"")
+        self.base_name_3.setAlignment(Qt.AlignCenter)
+
+        self.gridLayout.addWidget(self.base_name_3, 2, 0, 1, 1)
+
+        self.base_item_1 = QLabel(self.gridLayoutWidget)
+        self.base_item_1.setObjectName(u"base_item_1")
+        self.base_item_1.setMinimumSize(QSize(0, 30))
+        self.base_item_1.setMaximumSize(QSize(16777215, 30))
+        self.base_item_1.setStyleSheet(u"QLabel { \n"
 "	padding-left: 5px;\n"
 "	background-color: rgb(240, 240, 240); \n"
 "	border-bottom-right-radius: 15px;\n"
 "	border-top-right-radius: 15px;\n"
 "}")
-        self.base_item_10.setAlignment(Qt.AlignCenter)
+        self.base_item_1.setAlignment(Qt.AlignCenter)
 
-        self.gridLayout.addWidget(self.base_item_10, 6, 3, 1, 1)
+        self.gridLayout.addWidget(self.base_item_1, 0, 1, 1, 3)
+
+        self.base_name_9 = QLabel(self.gridLayoutWidget)
+        self.base_name_9.setObjectName(u"base_name_9")
+        self.base_name_9.setMinimumSize(QSize(0, 30))
+        self.base_name_9.setMaximumSize(QSize(16777215, 30))
+        self.base_name_9.setStyleSheet(u"")
+        self.base_name_9.setAlignment(Qt.AlignCenter)
+
+        self.gridLayout.addWidget(self.base_name_9, 5, 2, 1, 1)
+
+        self.base_item_7 = QLabel(self.gridLayoutWidget)
+        self.base_item_7.setObjectName(u"base_item_7")
+        self.base_item_7.setMinimumSize(QSize(0, 30))
+        self.base_item_7.setMaximumSize(QSize(16777215, 30))
+        self.base_item_7.setStyleSheet(u"QLabel { \n"
+"	padding-left: 5px;\n"
+"	background-color: rgb(240, 240, 240); \n"
+"	border-bottom-right-radius: 15px;\n"
+"	border-top-right-radius: 15px;\n"
+"}")
+        self.base_item_7.setAlignment(Qt.AlignCenter)
+
+        self.gridLayout.addWidget(self.base_item_7, 6, 1, 1, 1)
+
+        self.base_name_7 = QLabel(self.gridLayoutWidget)
+        self.base_name_7.setObjectName(u"base_name_7")
+        self.base_name_7.setMinimumSize(QSize(0, 30))
+        self.base_name_7.setMaximumSize(QSize(16777215, 30))
+        self.base_name_7.setStyleSheet(u"")
+        self.base_name_7.setAlignment(Qt.AlignCenter)
+
+        self.gridLayout.addWidget(self.base_name_7, 6, 0, 1, 1)
 
         self.widget_4 = QWidget(BuildingInfo)
         self.widget_4.setObjectName(u"widget_4")
@@ -1191,38 +1218,41 @@ class Ui_BuildingInfo(object):
 "(\ubcf8 \ud504\ub85c\uadf8\ub7a8\uc740 \uc870\ud68c\ub41c \uc815\ubcf4\uc5d0 \ub300\ud55c \ucc45\uc784\uc744 \uc9c0\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.)", None))
         self.lb_title.setText(QCoreApplication.translate("BuildingInfo", u"INFORMATION", None))
         self.lb_sub_title.setText(QCoreApplication.translate("BuildingInfo", u"(  \uac74\ucd95\ubb3c \uc870\ud68c  )", None))
+        self.btn_sharing.setText("")
+        self.btn_add.setText("")
         self.btn_viol.setText(QCoreApplication.translate("BuildingInfo", u"\uc704\ubc18 \uac74\ucd95\ubb3c \uc870\ud68c", None))
         self.lb_viol.setText("")
-        self.btn_sharing.setText(QCoreApplication.translate("BuildingInfo", u"\uacf5\uc720\ud558\uae30", None))
-        self.btn_issuance.setText(QCoreApplication.translate("BuildingInfo", u"\ubb38\uc11c \ubc1c\uae09", None))
-        self.btn_add.setText(QCoreApplication.translate("BuildingInfo", u"\ub0b4 \ub9e4\ubb3c \ub4f1\ub85d", None))
         self.btn_details.setText(QCoreApplication.translate("BuildingInfo", u"\uc0c1\uc138\uc815\ubcf4  >", None))
+        self.btn_issuance.setText("")
+        self.btn_issuance_1.setText(QCoreApplication.translate("BuildingInfo", u"\ud45c\uc81c\ubd80", None))
+        self.btn_issuance_3.setText(QCoreApplication.translate("BuildingInfo", u"\ub4f1\uae30\ubd80\ub4f1\ubcf8", None))
+        self.btn_issuance_2.setText(QCoreApplication.translate("BuildingInfo", u"\uc804\uc720\ubd80", None))
+        self.base_name_11.setText(QCoreApplication.translate("BuildingInfo", u"\ud638 / \uac00 \uad6c / \uc138 \ub300 \uc218", None))
         self.base_item_11.setText("")
         self.base_name_12.setText(QCoreApplication.translate("BuildingInfo", u"\uc0ac \uc6a9 \uc2b9 \uc778 \uc77c", None))
-        self.base_name_11.setText(QCoreApplication.translate("BuildingInfo", u"\ud638 / \uac00 \uad6c / \uc138 \ub300 \uc218", None))
-        self.base_name_4.setText(QCoreApplication.translate("BuildingInfo", u"\uc8fc \uc6a9 \ub3c4", None))
         self.base_name_2.setText(QCoreApplication.translate("BuildingInfo", u"\ub3c4 \ub85c \uba85", None))
-        self.base_item_4.setText("")
+        self.base_name_4.setText(QCoreApplication.translate("BuildingInfo", u"\uc8fc \uc6a9 \ub3c4", None))
+        self.base_item_10.setText("")
+        self.base_item_9.setText("")
+        self.base_name_10.setText(QCoreApplication.translate("BuildingInfo", u"\uc18c \uc720 \uc790", None))
+        self.base_item_5.setText("")
         self.base_name_6.setText(QCoreApplication.translate("BuildingInfo", u"\uc2b9 \uac15 \uae30", None))
+        self.base_item_4.setText("")
         self.base_name_13.setText(QCoreApplication.translate("BuildingInfo", u"\uacf5 \uc2dc \uac00 \uaca9", None))
         self.base_item_12.setText("")
-        self.base_name_8.setText(QCoreApplication.translate("BuildingInfo", u"\uc804\uc6a9\uba74\uc801", None))
         self.base_item_13.setText("")
+        self.base_name_8.setText(QCoreApplication.translate("BuildingInfo", u"\uc804\uc6a9\uba74\uc801", None))
         self.base_name_5.setText(QCoreApplication.translate("BuildingInfo", u"\uacf5\uc6a9\uba74\uc801", None))
-        self.base_name_10.setText(QCoreApplication.translate("BuildingInfo", u"\uc18c \uc720 \uc790", None))
-        self.base_item_9.setText("")
-        self.base_item_5.setText("")
+        self.base_item_8.setText("")
+        self.base_item_6.setText("")
+        self.base_name_1.setText(QCoreApplication.translate("BuildingInfo", u"\uc18c \uc7ac \uc9c0", None))
+        self.base_item_2.setText("")
+        self.base_item_3.setText("")
+        self.base_name_3.setText(QCoreApplication.translate("BuildingInfo", u"\uc0c1\uc138\uc8fc\uc18c", None))
+        self.base_item_1.setText("")
         self.base_name_9.setText(QCoreApplication.translate("BuildingInfo", u"\ucd1d \uce35 \uc218", None))
         self.base_item_7.setText("")
         self.base_name_7.setText(QCoreApplication.translate("BuildingInfo", u"\uc8fc \ucc28 \uc7a5", None))
-        self.base_item_6.setText("")
-        self.base_item_8.setText("")
-        self.base_name_1.setText(QCoreApplication.translate("BuildingInfo", u"\uc18c \uc7ac \uc9c0", None))
-        self.base_item_2.setText("")
-        self.base_item_1.setText("")
-        self.base_name_3.setText(QCoreApplication.translate("BuildingInfo", u"\uc0c1\uc138\uc8fc\uc18c", None))
-        self.base_item_3.setText("")
-        self.base_item_10.setText("")
         self.detail_name_7.setText(QCoreApplication.translate("BuildingInfo", u"\uc5f0 \uba74 \uc801", None))
         self.detail_name_4.setText(QCoreApplication.translate("BuildingInfo", u"\ub300\uc9c0\uba74\uc801", None))
         self.detail_item_6.setText("")

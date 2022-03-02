@@ -6,10 +6,11 @@ import module.issuance_building_ledger as ibl
 
 from PySide6.QtWidgets import QMainWindow, QApplication, QLabel, QFrame, QGraphicsOpacityEffect, QGraphicsDropShadowEffect
 from PySide6.QtGui import QFontMetrics, Qt, QIcon, QColor, QMovie
-from PySide6.QtCore import QRect, QObject, Signal, QEvent, QTimer, QPropertyAnimation, QSize
+from PySide6.QtCore import QRect, QObject, Signal, QEvent, QTimer, QPropertyAnimation, QSize, QPoint, QParallelAnimationGroup
 from ui.main.ui_info import Ui_BuildingInfo
 from interface.sub_interface import address_details
 from module.open_api_pars import OpenApiRequest
+from module.black_box_msg import BoxMessage
 # import fluentapp.pyqt6.windowtools as wingui
 
 # from BlurWindow.blurWindow import blur
@@ -23,7 +24,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.BULIDING_API_KEY = 'sfSPRX+xNEExRUqE4cdhNjBSk4uXIv8F1CfLen06hdPGn5cflLJqy/nxmh48uF8fvdGk68k6Z5jWsU1n6BeNPA=='
         self.VIOL_KEY = '68506e6c486a736e35377562445658'
 
-        self.activation, self.opened, self.first, self.msg_timer = False, False, False, False
+        self.activation, self.opened, self.first, self.issuance = False, False, False, False
         self.data_basic, self.data_basic_all = None, None
         self.base_list = []
 
@@ -34,6 +35,15 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.owners, self.prices, self.pk = None, None, None  # 소유자, 공시가격, 건축물대장 PK
 
         self._init_ui()
+        self._set_anim()
+
+        self.msg = BoxMessage(self)
+        self.add_btn_tip = TipBox(self.top_bar)
+        self.add_btn_tip.set_box(self.btn_add, '매물 등록', 'right')
+        self.sharing_btn_tip = TipBox(self.top_bar)
+        self.sharing_btn_tip.set_box(self.btn_sharing, '매물 공유', 'left')
+        self.issuance_btn_tip = TipBox(self.bot_bar)
+        self.issuance_btn_tip.set_box(self.btn_issuance, '건축물대장/등기부등본 발급', 'right')
 
         self.labels = {'소재지': self.base_item_1,
                        '도로명': self.base_item_2,
@@ -65,8 +75,6 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
                             '토지지역지구': self.land_item_2,
                             '토지기타지역지구': self.land_item_3}
 
-        self.pop_up_test()
-
         self._init_interaction()
 
     # UI 세팅
@@ -75,14 +83,14 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
         self.btn_search.setIcon(QIcon('../../data/img/button/search_icon.png'))
         self.btn_search.setIconSize(QSize(30, 30))
+        self.btn_add.setIcon(QIcon('../../data/img/button/plus_icon.png'))
+        self.btn_add.setIconSize(QSize(25, 25))
+        self.btn_sharing.setIcon(QIcon('../../data/img/button/share_icon.png'))
+        self.btn_sharing.setIconSize(QSize(23, 23))
+        self.btn_issuance.setIcon(QIcon('../../data/img/button/print_icon.png'))
+        self.btn_search.setIconSize(QSize(23, 23))
 
-        self.msg_background = QLabel(self)
-        self.msg_background.setAlignment(Qt.AlignCenter)
-        self.msg_background.setStyleSheet("QLabel{background-color: rgba(0,0,0,150);"
-                                          "font: 14px \uc6f0\ucef4\uccb4 Regular;"
-                                          "color: white;"
-                                          "padding-top: 3px;}")
-        self.msg_background.hide()
+        self.issuances.hide()
 
         self.edt_address.installEventFilter(self)
         self.btn_viol.installEventFilter(self)
@@ -91,53 +99,59 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.btn_issuance.installEventFilter(self)
 
         self.movie = QMovie("../../data/img/animation/btn_loading.gif")
-        self.movie.frameChanged.connect(lambda: self.btn_issuance.setIcon(QIcon(self.movie.currentPixmap())))
-
-        self.movie.start()
-
-        # self.btn_issuance.setIcon(QIcon("../../data/img/animation/btn_loading.gif"))
 
         self.show()
 
     # 상호작용 세팅
     def _init_interaction(self):
+        self.cbx_rooms.activated.connect(self.insert_room_info)
         self.edt_address.mousePressEvent = self.clicked_address_edit
         self.edt_address.returnPressed.connect(self.clicked_address_edit)
+
         self.btn_search.clicked.connect(self.clicked_address_edit)
         self.btn_details.clicked.connect(self.clicked_details_btn)
-        self.cbx_rooms.activated.connect(self.insert_room_info)
         self.btn_viol.clicked.connect(self.clicked_viol_btn)
+
         self.btn_issuance.clicked.connect(self.clicked_issuance_btn)
+        self.btn_issuance_1.clicked.connect(lambda: self.clicked_issuance_btns(0))
+        self.btn_issuance_2.clicked.connect(lambda: self.clicked_issuance_btns(1))
+        self.btn_issuance_3.clicked.connect(lambda: self.clicked_issuance_btns(2))
 
         for dic in [self.labels, self.labels_detail, self.labels_park, self.labels_land]:
             for i in dic: mouse_double_clicked(dic[i]).connect(self.clicked_labels)
 
-    # 이벤트 필터
-    def eventFilter(self, obj, event):
-        objs = {self.btn_viol: 'sub_button',
-                self.btn_sharing: 'main_button',
-                self.btn_add: 'main_button',
-                self.btn_issuance: 'main_button',
-                self.edt_address: 'edit'}
-        if obj not in objs.keys(): return
+    # 애니메이션 세팅
+    def _set_anim(self):
+        effect = QGraphicsOpacityEffect(self.issuances)
+        self.issuances.setGraphicsEffect(effect)
 
-        if event.type() == QEvent.HoverEnter:
-            obj.setGraphicsEffect(self.set_shadow(objs[obj]))
+        self.anim_move = QPropertyAnimation(self.issuances, b"pos")
+        self.anim_move.setEndValue(QPoint(70, 18))
+        self.anim_move.setDuration(150)
 
-        elif event.type() == QEvent.HoverLeave:
-            obj.setGraphicsEffect(self.set_shadow('reset'))
+        self.anim_show = QPropertyAnimation(effect, b"opacity")
+        self.anim_show.setStartValue(0)
+        self.anim_show.setEndValue(1)
+        self.anim_show.setDuration(110)
 
-        return super(BuildingInfo, self).eventFilter(obj, event)
+        self.anim_group = QParallelAnimationGroup()
+        self.anim_group.addAnimation(self.anim_move)
+        self.anim_group.addAnimation(self.anim_show)
+
+        self.anim_hide = QPropertyAnimation(effect, b"opacity")
+        self.anim_hide.setStartValue(1)
+        self.anim_hide.setEndValue(0)
+        self.anim_hide.setDuration(80)
 
     # 그림자 세팅
     def set_shadow(self, kind):
         shadow = QGraphicsDropShadowEffect(self)
 
         if kind == 'main_button':
-            shadow.setBlurRadius(20)
+            shadow.setBlurRadius(10)
             shadow.setXOffset(0)
             shadow.setYOffset(0)
-            shadow.setColor(QColor(40, 104, 176, 250))
+            shadow.setColor(QColor(0, 0, 0, 70))
 
         elif kind == 'sub_button':
             shadow.setBlurRadius(20)
@@ -164,7 +178,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         item_text = widget.text().rstrip(' ㎡').rstrip(' %').rstrip(' 대')
         if item_text != '':
             clip.copy(item_text)
-            self.info_msg(1, "클립보드에 복사 되었습니다.\n( 단축키 Ctrl + V 로 붙혀넣기 가능)")
+            self.msg.show_msg(2000, 'center', "클립보드에 복사 되었습니다.\n( 단축키 Ctrl + V 로 붙혀넣기 가능)")
 
     # 소재지 찾기 에디트 클릭
     def clicked_address_edit(self, e=None):
@@ -241,31 +255,90 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.resize_form(self.opened)
 
     # 문서 발급 버튼
-    def clicked_issuance_btn(self):
+    def clicked_issuance_btns(self, kind):
         if not self.activation: return
         address = self.address
+        num, ho = None, None
 
         if address['지'] == "0":
             old = "%s %s %s" % (address['시군구'], address['읍면동'], address['번'])
         else: old = "%s %s %s-%s" % (address['시군구'], address['읍면동'], address['번'], address['지'])
 
-        if self.binfo['타입'] == '집합':
-            ho = self.exact_detail.loc[self.cbx_rooms.currentIndex()]['호명칭'].rstrip("호")
-            self.issuance_thread = ibl.IssuanceBuildingLedger(old, address['도로명주소'], ho, 2, 0, 'haul1115', 'ks05090818@')
-            self.issuance_thread.start()
+        if kind == 0:
+            self.clicked_issuance_btn()
+            self.btn_issuance.setEnabled(False)
 
-        elif self.binfo['타입'] == '일반':
-            self.issuance_thread = ibl.IssuanceBuildingLedger(old, address['도로명주소'], '', 1, 0, 'haul1115', 'ks05090818@')
-            self.issuance_thread.start()
+            if self.binfo['타입'] == '집합': num = 0
+            elif self.binfo['타입'] == '일반': num = 1
 
-    def pop_up_test(self):
-        self.pop = QFrame(self)
-        self.pop.setGeometry(20, 20, 50, 50)
-        self.pop.setStyleSheet("background-color: blue")
+        elif kind == 1:
+            if self.binfo['타입'] == '집합':
+                self.clicked_issuance_btn()
+                self.btn_issuance.setEnabled(False)
+                ho = self.exact_detail.loc[self.cbx_rooms.currentIndex()]['호명칭'].rstrip("호")
+                num = 2
 
+            elif self.binfo['타입'] == '일반':
+                self.msg.show_msg(2000, 'center', '전유부는 집합 건물만 발급할 수 있습니다')
+                return
 
+        elif kind == 2:
+            return
 
-        return
+        self.issuance_thread = ibl.IssuanceBuildingLedger(old, address['도로명주소'], ho, num, 'haul1115', 'ks05090818@')
+        self.issuance_thread.threadEvent.workerThreadDone.connect(lambda: self.btn_issuance.setEnabled(True))
+        self.issuance_thread.threadEvent.progress.connect(self.issuance_progress_event)
+        self.issuance_thread.start()
+
+    def issuance_progress_event(self, msg):
+        print(msg)
+
+    # 발급목록 열기 버튼
+    def clicked_issuance_btn(self):
+        if not self.cbx_rooms.currentText() == '( 상세주소 / 호 선택 )':
+            if not self.issuance:
+                if self.issuances.isHidden(): self.issuances.show()
+
+                self.issuances.move(self.issuances.x()-20, self.issuances.y())
+                self.anim_group.start()
+                self.issuance_btn_tip.hide()
+                self.issuance = True
+            else:
+                self.anim_hide.start()
+                self.issuance = False
+        else:
+            self.msg.show_msg(3000, 'center', '건물 조회 후 발급이 가능합니다')
+
+    # 이벤트 필터
+    def eventFilter(self, obj, event):
+        objs = {self.btn_viol: 'sub_button',
+                self.btn_sharing: 'main_button',
+                self.btn_add: 'main_button',
+                self.btn_issuance: 'main_button',
+                self.edt_address: 'edit'}
+        if obj not in objs.keys(): return
+
+        # ON
+        if event.type() == QEvent.HoverEnter:
+            obj.setGraphicsEffect(self.set_shadow(objs[obj]))
+
+            if obj == self.btn_add: self.add_btn_tip.show()
+            elif obj == self.btn_sharing: self.sharing_btn_tip.show()
+            elif obj == self.btn_issuance:
+                if not self.issuance:
+                    self.issuance_btn_tip.show()
+
+        # OFF
+        elif event.type() == QEvent.HoverLeave:
+            obj.setGraphicsEffect(self.set_shadow('reset'))
+
+            if obj == self.btn_add: self.add_btn_tip.hide()
+            elif obj == self.btn_sharing: self.sharing_btn_tip.hide()
+            elif obj == self.btn_issuance:
+                if not self.issuance:
+                    self.issuance_btn_tip.hide()
+
+        return super(BuildingInfo, self).eventFilter(obj, event)
 
     ##### 데이터 입력
     ########################################################################################################
@@ -443,6 +516,8 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         sub_title_x = (self.width() / 2) - (self.lb_sub_title.width() / 2)
         self.lb_sub_title.move(sub_title_x, self.lb_sub_title.y())
 
+        self.btn_sharing.move(self.width() - 50, self.btn_sharing.y())
+
     # 폼 사이즈 변경
     def resize_form(self, opened):
         if opened:  # 열려있을 경우
@@ -457,63 +532,9 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             self.opened = True
 
         self.resize_title_bar()
+        self.sharing_btn_tip.set_box(self.btn_sharing, '매물 공유', 'left')
         # x = (self.width() - self.btn_details.width()) - 10
         # self.btn_details.move(x, self.btn_details.y())
-
-    # 알림 메세지
-    def info_msg(self, sec, content):
-        if self.msg_background.isHidden():
-            self.msg_background.show()
-
-        if self.msg_timer:
-            self.timer.stop()
-            self.msg_timer = False
-
-        self.msg_timer = True
-        self.msg_background.setText(content)
-        font_size = self.msg_background.fontMetrics().boundingRect(content)
-
-        if '\n' in content:
-            line_width = []
-            for i in content.split('\n'):
-                line_width.append(self.msg_background.fontMetrics().boundingRect(i).width())
-            w = max(line_width)
-        else: w = font_size.width()
-
-        h = font_size.height() * (content.count('\n') + 1)
-        self.msg_background.resize(w + 20, h + 14)
-
-        x = round((self.width() / 2) - (self.msg_background.width() / 2))
-        y = round((self.height() / 2) - (self.msg_background.height() / 2))
-
-        self.msg_background.move(x, y)
-
-        effect = QGraphicsOpacityEffect(self.msg_background)
-        self.msg_background.setGraphicsEffect(effect)
-
-        self.anim = QPropertyAnimation(effect, b"opacity")
-        self.anim.setStartValue(0)
-        self.anim.setEndValue(1)
-        self.anim.setDuration(100)
-        self.anim.start()
-
-        self.timer = QTimer(self)
-        self.timer.start(sec * 1300)
-        self.timer.timeout.connect(self.hide_msg)
-
-    # 메세지 타이머 종료
-    def hide_msg(self):
-        effect = QGraphicsOpacityEffect(self.msg_background)
-        self.msg_background.setGraphicsEffect(effect)
-
-        self.anim = QPropertyAnimation(effect, b"opacity")
-        self.anim.setStartValue(1)
-        self.anim.setEndValue(0)
-        self.anim.setDuration(500)
-        self.anim.start()
-
-        self.timer.stop()
-        self.msg_timer = False
 
 
 # 더블 클릭 이벤트
@@ -538,6 +559,40 @@ def mouse_double_clicked(widget):
 # 예외 오류 처리
 def my_exception_hook(exctype, value, traceback):
     sys.excepthook(exctype, value, traceback)
+
+
+class TipBox(QLabel):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setStyleSheet("QLabel{background-color: rgba(0,0,0,120);"
+                           "font: 14px \uc6f0\ucef4\uccb4 Regular;"
+                           "color: white;"
+                           "border-radius: 3px;"
+                           "padding-top: 3px;}")
+        self.hide()
+
+    def set_box(self, widget, text, pos):
+        self.setText(text)
+        self.setAlignment(Qt.AlignCenter)
+
+        font_size = self.fontMetrics().boundingRect(text)
+        self.resize(font_size.width() + 10, 23)
+
+        x, y = 0, 0
+        if pos == 'right':
+            x = widget.x() + widget.width() + 5
+            y = widget.y() + ((widget.height() / 2) - (self.height() / 2))
+        elif pos == 'left':
+            x = widget.x() - self.width() - 5
+            y = widget.y() + ((widget.height() / 2) - (self.height() / 2))
+        elif pos == 'top':
+            x = widget.x() + ((widget.width() / 2) - (self.width() / 2))
+            y = widget.y() - 5
+        elif pos == 'bot':
+            x = widget.x() + ((widget.width() / 2) - (self.width() / 2))
+            y = widget.y() + widget.height() + 5
+
+        self.move(x, y)
 
 
 sys._excepthook = sys.excepthook
