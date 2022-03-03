@@ -19,7 +19,7 @@ class IssuanceBuildingLedger(QThread):
     def __init__(self, old, new, ho, kind, user_id, user_pw):
         super().__init__()
         self.threadEvent = ThreadSignal()
-
+        print(old, new, ho)
         self.old_address, self.new_address, self.ho = old, new, ho  # 주소, 호
         self.kind = kind     # 건물 타입, 대장 종류
         self.user_id, self.user_pw = user_id, user_pw   # ID, PW
