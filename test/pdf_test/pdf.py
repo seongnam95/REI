@@ -106,6 +106,7 @@ def rsaEncrypt(publicKey, aesKey):
     aesCipherKey = cipher.encrypt(aesKey)
     return aesCipherKey
 
+
 # RSA 공개키(Public Key) 조회 함수
 def getPublicKey(apiHost, apiKey):
     headers = {'Content-Type': 'application/json'}
@@ -120,8 +121,15 @@ num_1 = 'P3372711'
 num_2 = '3234'
 num_pw = 'kim2588'
 
-rsp = Register_Save_PDF()
-data = rsp.get_register_data(address, user_id, user_pw, num_1, num_2, num_pw)
-if data:
-    transaction_key = data['TransactionKey']
-    print(f'transaction_key : {transaction_key}')
+# rsp = Register_Save_PDF()
+# data = rsp.get_register_data(address, user_id, user_pw, num_1, num_2, num_pw)
+# if data:
+#     transaction_key = data['TransactionKey']
+#     print(f'transaction_key : {transaction_key}')
+
+txt = 'https://cloud.eais.go.kr/moct/awp/abb01/AWPABB01F01?returnUrl=%2F'
+aesKey = os.urandom(16)
+aesIv = ('\x00' * 16).encode('utf-8')
+print(aesEncrypt(aesKey, aesIv, txt))
+print(base64.b64decode(aesEncrypt(aesKey, aesIv, txt).encode('utf-8')))
+print('%2F'.encode('utf-8'))

@@ -74,7 +74,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.labels_land = {'공시지가': self.land_item_1,
                             '토지지역지구': self.land_item_2,
                             '토지기타지역지구': self.land_item_3}
-
+        self.clicked_issuance_btns(1)
         self._init_interaction()
 
     # UI 세팅
@@ -256,13 +256,17 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
     # 문서 발급 버튼
     def clicked_issuance_btns(self, kind):
-        if not self.activation: return
-        address = self.address
+        # if not self.activation: return
+        # address = self.address
         num, ho = None, None
 
-        if address['지'] == "0":
-            old = "%s %s %s" % (address['시군구'], address['읍면동'], address['번'])
-        else: old = "%s %s %s-%s" % (address['시군구'], address['읍면동'], address['번'], address['지'])
+        # if address['지'] == "0":
+        #     old = "%s %s %s" % (address['시군구'], address['읍면동'], address['번'])
+        # else: old = "%s %s %s-%s" % (address['시군구'], address['읍면동'], address['번'], address['지'])
+        old = '면목동 90-27'
+        address = {'도로명주소': '봉우재로154'}
+        ho = '702호'
+        self.binfo = {'타입': '집합'}
 
         if kind == 0:
             self.clicked_issuance_btn()
@@ -273,9 +277,9 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
         elif kind == 1:
             if self.binfo['타입'] == '집합':
-                self.clicked_issuance_btn()
-                self.btn_issuance.setEnabled(False)
-                ho = self.exact_detail.loc[self.cbx_rooms.currentIndex()]['호명칭'].rstrip("호")
+                # self.clicked_issuance_btn()
+                # self.btn_issuance.setEnabled(False)
+                # ho = self.exact_detail.loc[self.cbx_rooms.currentIndex()]['호명칭'].rstrip("호")
                 num = 2
 
             elif self.binfo['타입'] == '일반':
