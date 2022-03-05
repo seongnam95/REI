@@ -14,6 +14,11 @@ class Register_Save_PDF:
 
         self.API_HOST = 'https://api.tilko.net/'
         self.API_KEY = '6062d22d48734cd3af82837f696730fb'
+        self.headers = None
+
+    def get_register_data(self, address, user_id, user_pw, num_1, num_2, num_pw):
+        aesKey = os.urandom(16)
+        aesIv = ('\x00' * 16).encode('utf-8')
 
         rsaPublicKey = getPublicKey(self.API_HOST, self.API_KEY)
         aesCipherKey = base64.b64encode(rsaEncrypt(rsaPublicKey, aesKey))
@@ -22,28 +27,11 @@ class Register_Save_PDF:
                         "API-KEY": self.API_KEY,
                         "ENC-KEY": aesCipherKey}
 
-        address = '중랑구 면목동 1545번지 101동 101호'
-        user_id = 'mogsin21'
-        user_pw = 'happy2588@'
-        num_1 = 'P3372711'
-        num_2 = '3234'
-        num_pw = 'kim2588'
-
-        data = self.get_register_data(address, user_id, user_pw, num_1, num_2, num_pw)
-        print(data)
-
-        transaction_key = data['TransactionKey']
-        print(f'transaction_key : {transaction_key}')
-
-    def get_register_data(self, address, user_id, user_pw, num_1, num_2, num_pw):
-        aesKey = os.urandom(16)
-        aesIv = ('\x00' * 16).encode('utf-8')
-
         # 등기 고유번호 조회
         url = {'조회': self.API_HOST + "api/v1.0/iros/risuconfirmsimplec",
                '발급': self.API_HOST + "api/v1.0/iros/risuretrieve"}
 
-        res = requests.post(url['조회'], headers=headers, json={'Address': address})
+        res = requests.post(url['조회'], headers=self.headers, json={'Address': address})
         unique_no = res.json()['ResultList'][0]['UniqueNo']
         print(f'unique : {unique_no}')
 
@@ -55,8 +43,11 @@ class Register_Save_PDF:
                   "EmoneyPwd": aesEncrypt(aesKey, aesIv, num_pw),
                   "UniqueNo": unique_no}
 
-        res = requests.post(url['발급'], headers=headers, json=params)
-        return res.json()
+        res = requests.post(url['발급'], headers=self.headers, json=params)
+        valid = validation(res.json()['Message'])
+
+        if valid is True: return res.json()
+        else: print(valid)
 
     def saved_pdf(self, transaction_key):
         url = self.API_HOST + "api/v1.0/iros/getpdffile"
@@ -71,6 +62,12 @@ class Register_Save_PDF:
 
         print('saved sucess !')
 
+
+def validation(msg):
+    if '잔액이 부족합니다' in msg:
+        return '잔액 부족'
+    else:
+        return True
 
 # AES 암호화 함수
 def aesEncrypt(key, iv, plainText):
@@ -116,4 +113,15 @@ def getPublicKey(apiHost, apiKey):
     return response.json()['PublicKey']
 
 
-Register_Save_PDF()
+address = '중랑구 면목동 1545번지 101동 101호'
+user_id = 'mogsin21'
+user_pw = 'happy2588@'
+num_1 = 'P3372711'
+num_2 = '3234'
+num_pw = 'kim2588'
+
+rsp = Register_Save_PDF()
+data = rsp.get_register_data(address, user_id, user_pw, num_1, num_2, num_pw)
+if data:
+    transaction_key = data['TransactionKey']
+    print(f'transaction_key : {transaction_key}')
