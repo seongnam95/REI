@@ -35,8 +35,12 @@ class OpenApiRequest:
             return result
 
         except (ValueError, TypeError, IndexError) as e:
-            print("에러:" + e)
-            return None
+            print(f'error: {e}')
+            return
+
+        except Exception as e:
+            print(f'error: {e}')
+            return
 
     # 주소 조회
     @classmethod
@@ -194,9 +198,15 @@ class DataRequestThread(QThread):
 
                 result_data.append(pool.apply_async(OpenApiRequest.request_data, (url, params, column, keyword, )))
 
-        for n, _ in enumerate(result_data):
-            result_data[n] = result_data[n].get()
-        pool.close()
+        try:
+            for n, _ in enumerate(result_data):
+                result_data[n] = result_data[n].get()
+            pool.close()
+
+        except Exception as e:
+            pool.close()
+            print(f'error: {e}')
+            return
 
         self.threadEvent.workerThreadDone.emit(result_data)
 

@@ -15,29 +15,39 @@ class Register_Save_PDF:
         self.API_HOST = 'https://api.tilko.net/'
         self.API_KEY = '6062d22d48734cd3af82837f696730fb'
 
-        address = '중랑구 면목동 1545번지 101동 101호'
-
-        self.saved_pdf(address)
-
-    def saved_pdf(self, address, user_id, user_pw, num_1, num_2, num_pw):
-        aesKey = os.urandom(16)
-        aesIv = ('\x00' * 16).encode('utf-8')
-
         rsaPublicKey = getPublicKey(self.API_HOST, self.API_KEY)
         aesCipherKey = base64.b64encode(rsaEncrypt(rsaPublicKey, aesKey))
 
-        url = {'조회': self.API_HOST + "api/v1.0/iros/risuconfirmsimplec",
-               '발급': self.API_HOST + "api/v1.0/iros/risuretrieve",
-               'PDF': self.API_HOST + "api/v1.0/iros/getpdffile"}
-
-        headers = {"Content-Type": "application/json",
+        self.headers = {"Content-Type": "application/json",
                         "API-KEY": self.API_KEY,
                         "ENC-KEY": aesCipherKey}
+
+        address = '중랑구 면목동 1545번지 101동 101호'
+        user_id = 'mogsin21'
+        user_pw = 'happy2588@'
+        num_1 = 'P3372711'
+        num_2 = '3234'
+        num_pw = 'kim2588'
+
+        data = self.get_register_data(address, user_id, user_pw, num_1, num_2, num_pw)
+        print(data)
+
+        transaction_key = data['TransactionKey']
+        print(f'transaction_key : {transaction_key}')
+
+    def get_register_data(self, address, user_id, user_pw, num_1, num_2, num_pw):
+        aesKey = os.urandom(16)
+        aesIv = ('\x00' * 16).encode('utf-8')
+
+        # 등기 고유번호 조회
+        url = {'조회': self.API_HOST + "api/v1.0/iros/risuconfirmsimplec",
+               '발급': self.API_HOST + "api/v1.0/iros/risuretrieve"}
 
         res = requests.post(url['조회'], headers=headers, json={'Address': address})
         unique_no = res.json()['ResultList'][0]['UniqueNo']
         print(f'unique : {unique_no}')
 
+        # 등기부등본 데이터 요청
         params = {"IrosID": aesEncrypt(aesKey, aesIv, user_id),
                   "IrosPwd": aesEncrypt(aesKey, aesIv, user_pw),
                   "EmoneyNo1": aesEncrypt(aesKey, aesIv, num_1),
@@ -46,12 +56,16 @@ class Register_Save_PDF:
                   "UniqueNo": unique_no}
 
         res = requests.post(url['발급'], headers=headers, json=params)
-        transaction_key = res.json()['TransactionKey']
-        print(f'transaction_key : {transaction_key}')
+        return res.json()
 
+    def saved_pdf(self, transaction_key):
+        url = self.API_HOST + "api/v1.0/iros/getpdffile"
         params = {"TransactionKey": transaction_key, "IsSummary": "Y"}
-        res = requests.post(url['PDF'], headers=headers, json=params)
 
+        # PDF 바이너리 요청
+        res = requests.post(url, headers=self.headers, json=params)
+
+        # 요청 된 바이너리 PDF 파일로 저장
         with open("new.pdf", "wb") as f:
             f.write(base64.b64decode(res.json()['Message']))
 
