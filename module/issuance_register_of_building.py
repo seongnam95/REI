@@ -16,11 +16,11 @@ class ThreadSignal(QObject):
 
 
 class IssuanceBuildingLedger(QThread):
-    def __init__(self, old, new, ho, kind, user_id, user_pw):
+    def __init__(self, old, new, dong, ho, kind, user_id, user_pw):
         super().__init__()
         self.threadEvent = ThreadSignal()
-        print(old, new, ho)
-        self.old_address, self.new_address, self.ho = old, new, ho  # 주소, 호
+
+        self.old_address, self.new_address, self.dong, self.ho = old, new, dong, ho  # 주소, 호
         self.kind = kind     # 건물 타입, 대장 종류
         self.user_id, self.user_pw = user_id, user_pw   # ID, PW
         self.driver = None
@@ -28,7 +28,7 @@ class IssuanceBuildingLedger(QThread):
 
     def run(self):
         chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument('headless')  # 크롬 화면 숨기기
+        # chrome_options.add_argument('headless')  # 크롬 화면 숨기기
         chrome_options.add_argument("no-sandbox")  #
         chrome_options.add_argument('window-size=1920x1080')  # 해상도 설정
         chrome_options.add_argument("--start-maximized")
@@ -61,19 +61,16 @@ class IssuanceBuildingLedger(QThread):
             self.driver.find_element(By.ID, 'membId').send_keys(self.user_id)
             self.driver.find_element(By.ID, 'pwd').send_keys(self.user_pw)
             self.driver.find_element(By.XPATH, '//*[@id="container"]/div[2]/div/div/div[1]/div[1]/button').click()
+            time.sleep(0.5)
 
-            # 비밀번호 다음에 변경
-            next_change_btn = WebDriverWait(self.driver, 3).until(
-                ec.presence_of_all_elements_located((By.CLASS_NAME, 'btnDaum.btnSolid.btnLarge')))
-            if len(next_change_btn):
-                next_change_btn[0].click()
-                WebDriverWait(self.driver, 30).until(
-                    ec.presence_of_element_located((By.CLASS_NAME, 'swal-button.swal-button--confirm'))).click()
+            self.driver.get('http://cloud.eais.go.kr')
+            self.driver.implicitly_wait(5)
 
             self.threadEvent.progress.emit('로그인 성공')
             self.issuance_document()  # 문서 열람, 발급
 
-        except:
+        except Exception as e:
+            print(e)
             self.threadEvent.workerThreadDone.emit(False)
 
         # WebDriverWait(self.driver, 3).until(EC.presence_of_element_located((By.CLASS_NAME, 'bldreDiv.bldre3'))).click()     # '신청내역' 클릭
@@ -105,15 +102,12 @@ class IssuanceBuildingLedger(QThread):
 
             self.threadEvent.progress.emit('주소 선택 완료')
 
-            # 베이스 XPATH
-
             result = False
             if self.kind == 0: result = self.bd_select()        # 표제부
             elif self.kind == 1: result = self.gen_select()     # 일반 건축물
             elif self.kind == 2: result = self.set_select()     # 전유부
 
             if result:
-
                 # 선택한 민원 발급처리
                 WebDriverWait(self.driver, 3).until(ec.presence_of_element_located((By.CLASS_NAME, 'btnAddCart'))).click()  # '신청할 민원 담기'
                 WebDriverWait(self.driver, 5).until(ec.presence_of_element_located((By.CLASS_NAME, 'btnSubmit.mt10'))).click()  # '건축물대장 발급 신청'
@@ -127,7 +121,9 @@ class IssuanceBuildingLedger(QThread):
             else:
                 self.driver.save_screenshot('fail.png')
                 self.threadEvent.progress.emit('발급 실패')
-        except:
+
+        except Exception as e:
+            print(e)
             self.threadEvent.workerThreadDone.emit(False)
 
     # 표제부
@@ -178,7 +174,7 @@ class IssuanceBuildingLedger(QThread):
             self.threadEvent.progress.emit('전유부 건축물대장 선택중')
 
             base_xpath = '//*[@id="container"]/div[2]/div/div[2]/div[1]/div[3]'
-
+            time.sleep(2)
             WebDriverWait(self.driver, 3).until(
                 ec.presence_of_element_located((By.XPATH, "%s%s" % (base_xpath, '/ul/li[5]/a')))).click()  # '전유부' 버튼
             time.sleep(1)
@@ -190,15 +186,18 @@ class IssuanceBuildingLedger(QThread):
                 if r.get_attribute("row-id"):  # Row-Id가 존재할 경우에만
                     for row in r.find_elements(By.TAG_NAME, 'div'):  # 실제 호수 리스트 반복
                         if row.get_attribute('col-id') == 'hoNm':  # 호 명칭만
-                            # print(breaker, row.get_attribute('col-id'), row.get_attribute("innerText"))
-                            if row.get_attribute("innerText") in self.ho:  # 사용자가 입력한 호수일 경우
-                                # 해당 호수의 체크박스 클릭 후 반복문 종료
-                                r.find_element(By.XPATH, 'div[1]/div/div/div/div[2]').find_element(By.TAG_NAME, 'input').click()
-                                breaker = True
-                                break
+                            print(row.get_attribute("innerText"))
+                            if row.get_attribute("innerText") in self.dong:
+
+                                if row.get_attribute("innerText") in self.ho:  # 사용자가 입력한 호수일 경우
+                                    # 해당 호수의 체크박스 클릭 후 반복문 종료
+                                    r.find_element(By.XPATH, 'div[1]/div/div/div/div[2]').find_element(By.TAG_NAME, 'input').click()
+                                    breaker = True
+                                    break
                     if breaker: return True
             return self.set_select()
-        except:
+        except Exception as e:
+            print(e)
             self.threadEvent.workerThreadDone.emit(False)
 
     # 문서 열기
@@ -224,13 +223,14 @@ class IssuanceBuildingLedger(QThread):
 
             if success:
                 self.threadEvent.progress.emit('처리 완료, 오픈 대기중')
-                time.sleep(1)
+                time.sleep(0.5)
                 self.driver.switch_to.window(self.driver.window_handles[1])
                 new_url = self.driver.current_url
 
                 self.driver.close()     # 기존 드라이브 종료
 
                 webbrowser.open_new(new_url)
+                self.threadEvent.progress.emit('건축물 대장 오픈')
                 self.threadEvent.workerThreadDone.emit(True)
             else:
                 self.threadEvent.workerThreadDone.emit(False)

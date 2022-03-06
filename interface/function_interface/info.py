@@ -2,11 +2,11 @@ import sys
 import pandas as pd
 import clipboard as clip
 import module.open_api_pars as pars
-import module.issuance_building_ledger as ibl
+import module.issuance_register_of_building as ibl
 
-from PySide6.QtWidgets import QMainWindow, QApplication, QLabel, QFrame, QGraphicsOpacityEffect, QGraphicsDropShadowEffect
-from PySide6.QtGui import QFontMetrics, Qt, QIcon, QColor, QMovie
-from PySide6.QtCore import QRect, QObject, Signal, QEvent, QTimer, QPropertyAnimation, QSize, QPoint, QParallelAnimationGroup
+from PySide6.QtWidgets import QMainWindow, QApplication, QLabel, QGraphicsOpacityEffect, QGraphicsDropShadowEffect
+from PySide6.QtGui import Qt, QIcon, QColor, QMovie
+from PySide6.QtCore import QObject, Signal, QEvent, QPropertyAnimation, QSize, QPoint, QParallelAnimationGroup
 from ui.main.ui_info import Ui_BuildingInfo
 from interface.sub_interface import address_details
 from module.open_api_pars import OpenApiRequest
@@ -74,7 +74,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.labels_land = {'공시지가': self.land_item_1,
                             '토지지역지구': self.land_item_2,
                             '토지기타지역지구': self.land_item_3}
-        self.clicked_issuance_btns(1)
+
         self._init_interaction()
 
     # UI 세팅
@@ -256,17 +256,13 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
     # 문서 발급 버튼
     def clicked_issuance_btns(self, kind):
-        # if not self.activation: return
-        # address = self.address
-        num, ho = None, None
+        if not self.activation: return
+        address = self.address
+        num, dong, ho = None, None, None
 
-        # if address['지'] == "0":
-        #     old = "%s %s %s" % (address['시군구'], address['읍면동'], address['번'])
-        # else: old = "%s %s %s-%s" % (address['시군구'], address['읍면동'], address['번'], address['지'])
-        old = '면목동 90-27'
-        address = {'도로명주소': '봉우재로154'}
-        ho = '702호'
-        self.binfo = {'타입': '집합'}
+        if address['지'] == "0":
+            old = "%s %s %s" % (address['시군구'], address['읍면동'], address['번'])
+        else: old = "%s %s %s-%s" % (address['시군구'], address['읍면동'], address['번'], address['지'])
 
         if kind == 0:
             self.clicked_issuance_btn()
@@ -277,9 +273,10 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
         elif kind == 1:
             if self.binfo['타입'] == '집합':
-                # self.clicked_issuance_btn()
-                # self.btn_issuance.setEnabled(False)
-                # ho = self.exact_detail.loc[self.cbx_rooms.currentIndex()]['호명칭'].rstrip("호")
+                self.clicked_issuance_btn()
+                self.btn_issuance.setEnabled(False)
+                dong = self.exact_detail.loc[self.cbx_rooms.currentIndex()]['동명칭'].rstrip("동")
+                ho = self.exact_detail.loc[self.cbx_rooms.currentIndex()]['호명칭'].rstrip("호")
                 num = 2
 
             elif self.binfo['타입'] == '일반':
@@ -289,7 +286,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         elif kind == 2:
             return
 
-        self.issuance_thread = ibl.IssuanceBuildingLedger(old, address['도로명주소'], ho, num, 'haul1115', 'ks05090818@')
+        self.issuance_thread = ibl.IssuanceBuildingLedger(old, address['도로명주소'], dong, ho, num, 'haul1115', 'ks05090818@')
         self.issuance_thread.threadEvent.workerThreadDone.connect(lambda: self.btn_issuance.setEnabled(True))
         self.issuance_thread.threadEvent.progress.connect(self.issuance_progress_event)
         self.issuance_thread.start()

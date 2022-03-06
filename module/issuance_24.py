@@ -156,9 +156,10 @@ class IssuanceBuildingLedger:
         self.driver.switch_to.window(self.driver.window_handles[1])
 
         new_url = self.driver.current_url
+
         # self.driver.close()  # 기존 드라이브 종료
-        time.sleep(30)
         webbrowser.open_new(new_url)
+        time.sleep(1000)
 
 
 info = {'구주소': '면목동 1545',
