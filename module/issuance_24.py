@@ -61,6 +61,7 @@ class IssuanceBuildingLedger:
 
         # 열람일 경우
         if self.work == 1:
+            print(f'열람: {self.work}')
             later = WebDriverWait(self.driver, 8).until(ec.presence_of_element_located((By.CLASS_NAME, 'element-tab')))
             later.find_elements(By.TAG_NAME, 'a')[self.work].click()    # 열람 버튼 클릭
 
@@ -149,6 +150,8 @@ class IssuanceBuildingLedger:
         self.driver.switch_to.window(self.driver.window_handles[0])
 
         WebDriverWait(self.driver, 5).until(ec.presence_of_element_located((By.ID, 'btn_end'))).click()
+
+        time.sleep(5)
         WebDriverWait(self.driver, 20).until(ec.presence_of_element_located(
             (By.XPATH, '//*[@id="EncryptionAreaID_0"]/div[1]/table/tbody/tr[1]/td[4]/p[2]/span/a'))).click()
 
@@ -158,7 +161,6 @@ class IssuanceBuildingLedger:
         new_url = self.driver.current_url
 
         # self.driver.close()  # 기존 드라이브 종료
-        webbrowser.open_new(new_url)
         time.sleep(1000)
 
 
@@ -167,7 +169,7 @@ info = {'구주소': '면목동 1545',
         '동명칭': '101동',
         '호명칭': '101',
         '타입': '집합',
-        '작업': '발급'}
+        '작업': '열람'}
 
 # info = {'구주소': '상봉동 88-85',
 #         '신주소': '봉우재로43길 28-7',
@@ -175,4 +177,4 @@ info = {'구주소': '면목동 1545',
 #         '타입': '일반',
 #         '작업': '열람'}
 
-IssuanceBuildingLedger(info['구주소'], info['신주소'], info['동명칭'], info['호명칭'], 0, 1, 2, 'haul1115', 'ks05090818@')
+IssuanceBuildingLedger(info['구주소'], info['신주소'], info['동명칭'], info['호명칭'], 1, 1, 2, 'haul1115', 'ks05090818@')
