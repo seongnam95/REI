@@ -2,7 +2,7 @@ import sys
 import pandas as pd
 import clipboard as clip
 import module.open_api_pars as pars
-import module.issuance_register_of_building as ibl
+import rei_bot.issuance_register_of_building as ibl
 
 from PySide6.QtWidgets import QMainWindow, QApplication, QLabel, QGraphicsOpacityEffect, QGraphicsDropShadowEffect
 from PySide6.QtGui import Qt, QIcon, QColor, QMovie

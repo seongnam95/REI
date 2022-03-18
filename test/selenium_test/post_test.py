@@ -9,6 +9,7 @@ import requests
 import ssl
 import clipboard as clip
 from bs4 import BeautifulSoup as bs
+import time
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -17,8 +18,40 @@ LOGIN_INFO = {
     'loginPwd': 'ks05090818@'
 }
 
+header = {
+    "Referer": "http://cloud.eais.go.kr/moct/awp/abb01/AWPABB01F01",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.104 Whale/3.13.131.36 Safari/537.36"
+}
+
+tt = {"inqireGbCd":"0","reqSigunguCd":"11260","bldrgstCurdiGbCd":"0","upperBldrgstSeqno":'100249270',"bldrgstSeqno":""}
+
+# 'http://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02F01'
+
+header2 = {"inqireGbCd":"0","reqSigunguCd":"11260","bldrgstCurdiGbCd":"0","upperBldrgstSeqno":'100249270',"bldrgstSeqno":""}
+
+header3 = {"bldrgstSeqno":'100249277',"regstrGbCd":"4","regstrKindCd":"4","mjrfmlyIssueYn":"N","locSigunguCd":"11260","locBjdongCd":"10100","locPlatGbCd":"0","locDetlAddr":"서울특별시 중랑구 면목동 90-27 동명칭 없음 402","locBldNm":"다원빌","ownrYn":"N","multiUseBildYn":"N","bldrgstCurdiGbCd":"0"}
+
+params = {
+    "addrGbCd": "1",
+    "inqireGbCd": "0",
+    "bldrgstCurdiGbCd": "0",
+    "bldrgstSeqno": "",
+    "reqSigunguCd": "11260",
+    "sidoClsfCd": "",
+    "bjdongCd": "",
+    "platGbCd": "", "mnnm": "",
+    "slno": "",
+    "splotNm": "",
+    "blockNm": "",
+    "lotNm": "",
+    "roadNmCd": "112603106002",
+    "bldMnnm": "154",
+    "bldSlno": "0",
+    "sigunguCd": ""
+}
+
 # chrome_options = webdriver.ChromeOptions()
-# chrome_options.add_argument('headless')  # 크롬 화면 숨기기
+# # chrome_options.add_argument('headless')  # 크롬 화면 숨기기
 # chrome_options.add_argument("no-sandbox")  #
 # chrome_options.add_argument('window-size=1920x1080')  # 해상도 설정
 # chrome_options.add_argument("--start-maximized")
@@ -29,41 +62,60 @@ LOGIN_INFO = {
 #
 # driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 #
-# driver.get("http://www.gov.kr/nlogin/?Mcode=10003")
-# driver.implicitly_wait(5)
-#
 # # 로그인
-# driver.find_element(By.XPATH, '//*[@id="아이디"]').click()
-# driver.find_element(By.ID, 'userId').send_keys(LOGIN_INFO['userId'])
-# driver.find_element(By.ID, 'pwd').send_keys(LOGIN_INFO['pwd'])
-# driver.find_element(By.CLASS_NAME, 'login-btn').find_element(By.TAG_NAME, 'button').click()
+# driver.get('http://cloud.eais.go.kr')
+# driver.implicitly_wait(5)
 
-header = {
-    "Referer": "https://cloud.eais.go.kr/moct/awp/abb01/AWPABB01F01?returnUrl=%2F",
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.104 Whale/3.13.131.36 Safari/537.36"
-}
+# # 알림, 공지 팝업 제거
+# notice_pop_up = driver.find_elements(By.CLASS_NAME, 'swal-button.swal-button--confirm')
+# if len(notice_pop_up): notice_pop_up[0].click()
+# notice_pop_up2 = driver.find_elements(By.CLASS_NAME, 'btnCloseToday')
+# if len(notice_pop_up2): notice_pop_up2[0].click()
 #
-# url = 'https://cloud.eais.go.kr/moct/awp/abb01/AWPABB01F01'
-# r = requests.get(url, verify=False)
+# # '로그인' 버튼 클릭
+# WebDriverWait(driver, 3).until(
+#     ec.presence_of_element_located((By.CLASS_NAME, 'btnLogin.btnLine.btnNormal.btnLine_blue'))).click()
 #
-# print(r.text)
+# # ID, PW 입력 후 로그인인
+# driver.find_element(By.ID, 'membId').send_keys(LOGIN_INFO['loginId'])
+# driver.find_element(By.ID, 'pwd').send_keys(LOGIN_INFO['loginPwd'])
+# driver.find_element(By.XPATH, '//*[@id="container"]/div[2]/div/div/div[1]/div[1]/button').click()
+# time.sleep(0.5)
+#
+# driver.get('http://cloud.eais.go.kr')
+# driver.implicitly_wait(5)
 
 with requests.Session() as s:
     s.verify = False
-    login_req = s.post('https://cloud.eais.go.kr/moct/awp/abb01/AWPABB01F01', headers=header, data=LOGIN_INFO)
-    if login_req.status_code == 200:
-        my_page = s.get('https://cloud.eais.go.kr/')
-        soup = bs(my_page.text, 'html.parser')
-        print(soup)
-    #     s.headers.update(header)
-#
-#     s.post('https://cloud.eais.go.kr/moct/awp/abb01/AWPABB01F01', data=LOGIN_INFO)
-#     a = s.get('https://cloud.eais.go.kr/moct/awp/abb01/AWPABB01F01')
-#
-#     # # 웹 드라이버 쿠키
-#     # for cookie in driver.get_cookies():
-#     #     c = {cookie['name']: cookie['value']}
-#     #     s.cookies.update(c)
+
+    login = {'loginId': 'ks050940', 'loginPwd': 'ks05090818@'}
+    login_req = s.post('https://cloud.eais.go.kr/moct/awp/abb01/AWPABB01F01/', headers=header, data=login)
+
+    print(login_req.url)
+
+    aa = s.get('https://cloud.eais.go.kr/moct/awp/aca01/AWPACA01L01', headers=header)
+
+    soup = bs(aa.text, 'lxml')
+    print(soup.prettify())
+    print(aa.url)
+
+    # # 웹 드라이버 쿠키
+    # for cookie in driver.get_cookies():
+    #     c = {cookie['name']: cookie['value']}
+    #     print(c)
+    #     s.cookies.update(c)
+
+    #
+    # login_req1 = s.post('http://cloud.eais.go.kr/bci/BCIAAA02R01', data=params)
+    #
+    # login_req2 = s.post('http://cloud.eais.go.kr/bci/BCIAAA02R04', data=tt)
+    # for i in login_req2.history:
+    #     print(i.text)
+    # for i in login_req.history:
+    #     print(i.text)
+    #
+    # soup = bs(login_req.text, 'lxml')
+    # print(soup.prettify())
 #
 #     #index2 = s.get('https://www.gov.kr/portal/myPublicPlner?Mcode=11009')
 #
