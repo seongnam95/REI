@@ -23,7 +23,7 @@ LOGIN_INFO = {
 # create a session
 def CreateSession():
     chrome_options = webdriver.ChromeOptions()
-    # chrome_options.add_argument('headless')  # 크롬 화면 숨기기
+    chrome_options.add_argument('headless')  # 크롬 화면 숨기기
     chrome_options.add_argument("no-sandbox")  #
     chrome_options.add_argument('window-size=1920x1080')  # 해상도 설정
     chrome_options.add_argument("--start-maximized")
@@ -49,7 +49,9 @@ time.sleep(0.5)
 
 s.get('https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02L01')
 s.implicitly_wait(5)
-time.sleep(1)
+
+###################################################################################################################
+
 header = {
     "Host": "cloud.eais.go.kr",
     "Content-Type": "application/json;charset=UTF-8",
@@ -57,21 +59,13 @@ header = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36"
 }
 
-datas = {"query":{"multi_match":{"query":"봉우재로154","type":"cross_fields","operator":"and","fields":["jibunAddr","roadAddr^3"],"tie_breaker":0.3}},"size":20}
-datas2 = {"sort":[{"dongNm":"asc"}],"query":{"bool":{"filter":[{"term":{"mgmUpperBldrgstPk":"11260_10100_0_0090_0029"}}]}},"size":100}
 datas3 = {"addrGbCd":"0","inqireGbCd":"0","bldrgstCurdiGbCd":"0","bldrgstSeqno":"","reqSigunguCd":"11260","sidoClsfCd":"","bjdongCd":"10100","platGbCd":"0","mnnm":"90","slno":"29","splotNm":"","blockNm":"","lotNm":"","roadNmCd":"","bldMnnm":"","bldSlno":"","sigunguCd":"11260"}
 datas4 = {"bldrgstSeqno":2455,"regstrGbCd":"2","regstrKindCd":"2","mjrfmlyIssueYn":"N","locSigunguCd":"11260","locBjdongCd":"10100","locPlatGbCd":"0","locDetlAddr":"서울특별시 중랑구 면목동 90-29 동명칭 없음","locBldNm":"건물명 없음","ownrYn":"N","multiUseBildYn":"N","bldrgstCurdiGbCd":"0"}
 
-a = s.request('POST', 'https://cloud.eais.go.kr/bldrgstmst/_search', headers=header, json=datas)
-time.sleep(0.5)
-b = s.request('POST', 'https://cloud.eais.go.kr/bldrgsttitle/_search', headers=header, json=datas2)
-time.sleep(0.5)
 c = s.request('POST', 'https://cloud.eais.go.kr/bci/BCIAAA02R01', headers=header, json=datas3)
 time.sleep(0.5)
 d = s.request('POST', 'https://cloud.eais.go.kr/bci/BCIAAA02R01', headers=header, json=datas4)
 time.sleep(0.5)
-# e = s.request('POST', 'https://cloud.eais.go.kr/bci/BCIAAA02R05', headers=header)
-# time.sleep(0.5)
 
 header2 = {
     "Host": "cloud.eais.go.kr",
@@ -87,30 +81,13 @@ header3 = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36"
 }
 
-datas5 = {"membId":"210706162108haul1115"}
-datas6 = {"lastUpdusrId":"210706162108haul1115"}
 datas7 = {"pbsvcResveDtls":[{"@id":"14b5cc1c-0716-4de2-a65d-fc7c3e73e0f6","rowStatus":"R","firstCrtnDt":"20220319214611","firstWrtrId":"210706162108haul1115","lastUpdtDt":"20220319214611","lastUpdusrId":"210706162108haul1115","untClsfCd":"1008","pbsvcResveDtlsSeqno":"1000000000000049377257","bldrgstSeqno":"2455","regstrGbCd":"2","regstrKindCd":"2","mjrfmlyIssueYn":"N","bldrgstCurdiGbCd":"0","ownrYn":"N","multiUseBildYn":"N","ownrExprsYn":"N","locSigunguCd":"11260","locBjdongCd":"10100","locPlatGbCd":"0","locDetlAddr":"서울특별시 중랑구 면목동 90-29 동명칭 없음","locBldNm":"건물명 없음"}],"ownrExprsYn":"N","pbsvcRecpInfo":{"pbsvcGbCd":"01","issueReadGbCd":"0","pbsvcResveDtlsCnt":1},"appntInfo":{"appntGbCd":"01","appntJmno1":"950509","appntJmno2":"","appntJmno":"","appntBizno":"","appntNm":"장성남","appntMtelno":"","appntSigunguCd":"","naAppntBjdongCd":"","naAppntRoadCd":"","naAppntMnnm":"","naAppntSlno":"","naAppntGrndUgrndGbCd":"0","naAppntDetlAddr":"","appntCorpno":"","appntCoprNm":""}}
 datas8 = {"membNo":"","pbsvcGbCd":"","progStateFlagArr":["01"],"pbsvcProcessGbCd":"","firstSaveStartDate":"2022-02-19","firstSaveEndDate":"2022-03-19","pageNo":0,"recordSize":10}
-# f = s.request('POST', 'https://cloud.eais.go.kr/awp/AWPACC01R03', headers=header2, json=datas5)
-# time.sleep(0.5)
-# g = s.request('POST', 'https://cloud.eais.go.kr/bci/BCIAAA02R05', headers=header2, json=datas6)
-# time.sleep(0.5)
-h = s.request('POST', 'https://cloud.eais.go.kr/bci/BCIAZA02S01', headers=header2, json=datas7)
-time.sleep(0.5)
-# i = s.request('POST', 'https://cloud.eais.go.kr/bci/BCIAAA02D02', headers=header2, json=datas6)
-# time.sleep(0.5)
-j = s.request('POST', 'https://cloud.eais.go.kr/bci/BCIAAA06R01', headers=header3, json=datas8)
-time.sleep(0.5)
-print(a.text)
-print(b.text)
+# h = s.request('POST', 'https://cloud.eais.go.kr/bci/BCIAZA02S01', headers=header2, json=datas7)
+#
 print(c.text)
 print(d.text)
-# print(e.text)
-# print(f.text)
-# print(g.text)
 # print(h.text)
-# print(i.text)
-print(j.text)
 
 # s.get("https://pro.dabangapp.com/")
 
