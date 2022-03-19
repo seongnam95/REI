@@ -114,8 +114,9 @@ def getPublicKey(apiHost, apiKey):
 
 
 ir = IssuanceRegistered()
-data = ir.get_register_data('중랑구 면목동 90-27번지 702호', 'mogsin21', 'happy2588@', 'P3372711', '3234', 'kim2588')
+data = ir.get_register_data('중랑구 면목동 154-79번지 502호', 'mogsin21', 'happy2588@', 'P3372711', '3234', 'kim2588')
 if data:
     t_key = data['TransactionKey']
+    ir.saved_pdf(t_key)
     print(f'transaction_key : {t_key}')
 

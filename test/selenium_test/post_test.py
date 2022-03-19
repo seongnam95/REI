@@ -19,7 +19,7 @@ LOGIN_INFO = {
 }
 
 header = {
-    "Referer": "http://cloud.eais.go.kr/moct/awp/abb01/AWPABB01F01",
+    "Referer": "https://cloud.eais.go.kr/moct/awp/abb01/AWPABB01F01",
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.104 Whale/3.13.131.36 Safari/537.36"
 }
 
@@ -88,16 +88,26 @@ params = {
 with requests.Session() as s:
     s.verify = False
 
+    s.get('https://cloud.eais.go.kr/')
+
     login = {'loginId': 'ks050940', 'loginPwd': 'ks05090818@'}
-    login_req = s.post('https://cloud.eais.go.kr/moct/awp/abb01/AWPABB01F01/', headers=header, data=login)
+    login_req = s.post('https://cloud.eais.go.kr/moct/awp/abb01/AWPABB01F01/', headers=header, json=login)
+    print(login_req.json()['accessToken'])
+    for c in login_req.cookies:
+        print(f'aa: {c}')
+        driver.add_cookie({'name': c.name, 'value': c.value, 'path': c.path, 'expiry': c.expires})
 
-    print(login_req.url)
+    headers = {
+        "Referer": "https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02L01",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.104 Whale/3.13.131.36 Safari/537.36"
+    }
 
-    aa = s.get('https://cloud.eais.go.kr/moct/awp/aca01/AWPACA01L01', headers=header)
+    aa = s.post('https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02L01', headers=headers, data=params)
 
-    soup = bs(aa.text, 'lxml')
-    print(soup.prettify())
-    print(aa.url)
+    params2 = {"bldrgstSeqno":'100249270',"regstrGbCd":"3","regstrKindCd":"3","mjrfmlyIssueYn":"N","locSigunguCd":"11260","locBjdongCd":"10100","locPlatGbCd":"0","locDetlAddr":"서울특별시 중랑구 면목동 90-27 동명칭 없음","locBldNm":"다원빌","ownrYn":"N","multiUseBildYn":"N","bldrgstCurdiGbCd":"0"}
+
+    bbs = s.post('https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02L01', headers=headers, data=params2)
+    #print(bbs.content)
 
     # # 웹 드라이버 쿠키
     # for cookie in driver.get_cookies():

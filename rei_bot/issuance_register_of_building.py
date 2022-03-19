@@ -44,26 +44,27 @@ class IssuanceBuildingLedger(QThread):
         try:
             self.threadEvent.progress.emit('로그인 시작')
 
-            self.driver.get("http://cloud.eais.go.kr/moct/awp/abb01/AWPABB01F01?returnUrl=%2F")
+            self.driver.get("https://cloud.eais.go.kr/moct/awp/abb01/AWPABB01F01")
             self.driver.implicitly_wait(5)
 
             # 알림, 공지 팝업 제거
-            notice_pop_up = self.driver.find_elements(By.CLASS_NAME, 'swal-button.swal-button--confirm')
-            if len(notice_pop_up): notice_pop_up[0].click()
-            notice_pop_up2 = self.driver.find_elements(By.CLASS_NAME, 'btnCloseToday')
-            if len(notice_pop_up2): notice_pop_up2[0].click()
+            # notice_pop_up = self.driver.find_elements(By.CLASS_NAME, 'swal-button.swal-button--confirm')
+            # if len(notice_pop_up): notice_pop_up[0].click()
+            # notice_pop_up2 = self.driver.find_elements(By.CLASS_NAME, 'btnCloseToday')
+            # if len(notice_pop_up2): notice_pop_up2[0].click()
 
             # '로그인' 버튼 클릭
-            WebDriverWait(self.driver, 3).until(
-                ec.presence_of_element_located((By.CLASS_NAME, 'btnLogin.btnLine.btnNormal.btnLine_blue'))).click()
+            # WebDriverWait(self.driver, 3).until(
+            #     ec.presence_of_element_located((By.CLASS_NAME, 'btnLogin.btnLine.btnNormal.btnLine_blue'))).click()
 
-            # ID, PW 입력 후 로그인인
+            # ID, PW 입력 후 로그인
             self.driver.find_element(By.ID, 'membId').send_keys(self.user_id)
             self.driver.find_element(By.ID, 'pwd').send_keys(self.user_pw)
             self.driver.find_element(By.XPATH, '//*[@id="container"]/div[2]/div/div/div[1]/div[1]/button').click()
             time.sleep(0.5)
 
-            self.driver.get('http://cloud.eais.go.kr')
+            self.driver.get('https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02L01')
+            # self.driver.get('http://cloud.eais.go.kr')
             self.driver.implicitly_wait(5)
 
             self.threadEvent.progress.emit('로그인 성공')
@@ -83,8 +84,9 @@ class IssuanceBuildingLedger(QThread):
 
             # 건축물대장 발급 페이지로 이동
             time.sleep(2)
-            WebDriverWait(self.driver, 5).until(ec.presence_of_element_located((By.XPATH, '//*[@id="menu"]/li[2]/a'))).click()  # '건축물대장' 메뉴 클릭
-            WebDriverWait(self.driver, 5).until(ec.presence_of_element_located((By.CLASS_NAME, 'bldreDiv.bldre1'))).click()  # '건축물대장 발급' 버튼
+            # self.driver.get('https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02L01')
+            # WebDriverWait(self.driver, 5).until(ec.presence_of_element_located((By.XPATH, '//*[@id="menu"]/li[2]/a'))).click()  # '건축물대장' 메뉴 클릭
+            # WebDriverWait(self.driver, 5).until(ec.presence_of_element_located((By.CLASS_NAME, 'bldreDiv.bldre1'))).click()  # '건축물대장 발급' 버튼
 
             # 주소 입력
             WebDriverWait(self.driver, 5).until(ec.presence_of_element_located((By.CLASS_NAME, 'btnAddrSrch'))).click()  # '도로명주소로 조회' 버튼
@@ -179,16 +181,15 @@ class IssuanceBuildingLedger(QThread):
                 ec.presence_of_element_located((By.XPATH, "%s%s" % (base_xpath, '/ul/li[5]/a')))).click()  # '전유부' 버튼
             time.sleep(1)
 
-            ho_list = self.driver.find_element(By.XPATH, "%s%s" % (base_xpath,
-                                                                   '/div/div[5]/table/tbody/div/div/div[1]/div[2]/div[3]/div[2]/div/div'))
+            ho_list = self.driver.find_element(
+                By.XPATH, "%s%s" % (base_xpath, '/div/div[5]/table/tbody/div/div/div[1]/div[2]/div[3]/div[2]/div/div'))
             breaker = False
             for r in ho_list.find_elements(By.TAG_NAME, 'div'):  # 태그네임 div의 수 만큼 반복
                 if r.get_attribute("row-id"):  # Row-Id가 존재할 경우에만
                     for row in r.find_elements(By.TAG_NAME, 'div'):  # 실제 호수 리스트 반복
                         if row.get_attribute('col-id') == 'hoNm':  # 호 명칭만
-                            print(row.get_attribute("innerText"))
+                            print(self.dong, row.get_attribute("innerText"))
                             if row.get_attribute("innerText") in self.dong:
-
                                 if row.get_attribute("innerText") in self.ho:  # 사용자가 입력한 호수일 경우
                                     # 해당 호수의 체크박스 클릭 후 반복문 종료
                                     r.find_element(By.XPATH, 'div[1]/div/div/div/div[2]').find_element(By.TAG_NAME, 'input').click()
