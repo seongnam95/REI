@@ -11,6 +11,7 @@ from ui.main.ui_info import Ui_BuildingInfo
 from interface.sub_interface import address_details
 from module.open_api_pars import OpenApiRequest
 from module.black_box_msg import BoxMessage
+from test.selenium_test.request_test import RequestData
 # import fluentapp.pyqt6.windowtools as wingui
 
 # from BlurWindow.blurWindow import blur
@@ -33,6 +34,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.select_building, self.total_buildings = None, None
         self.detail, self.exact_detail = None, None  # 상세 (호, 층)
         self.owners, self.prices, self.pk = None, None, None  # 소유자, 공시가격, 건축물대장 PK
+        self.issuance_data = {}
 
         self._init_ui()
         self._set_anim()
@@ -259,6 +261,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         if not self.activation: return
         address = self.address
         num, dong, ho = None, None, None
+        print(address)
 
         if address['지'] == "0":
             old = "%s %s %s" % (address['시군구'], address['읍면동'], address['번'])
@@ -349,6 +352,12 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         building = self.select_building
         address = self.address
 
+        self.issuance_data = {'시군구코드': address['주소코드'][:5],
+                              '법정동코드': address['주소코드'][5:],
+                              '번': address['번'],
+                              '지': address['지'],
+                              '동_PK': building['건축물대장PK']}
+
         self.insert_room_info()
         if address['지'] == "0":
             old = "%s %s %s %s" % (address['시도'], address['시군구'], address['읍면동'], address['번'])
@@ -378,6 +387,8 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             if i in self.labels: self.labels[i].setText(base[i])
         self.edt_address.setText(old)
 
+        print(self.issuance_data)
+
     # 기본 데이터 룸/층별 입력
     def insert_room_info(self):
         if not self.activation: return
@@ -392,6 +403,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         #### 일반일 경우
         if self.binfo['타입'] == '일반':
             detail = self.detail.loc[self.cbx_rooms.currentIndex()]
+
             room_area, public_area = detail['층면적'], detail['층면적']
             room = "%s층" % detail['층명칭'].rstrip("층")
             self.pk = self.select_building['건축물대장PK']
@@ -411,6 +423,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             detail = self.exact_detail.loc[self.cbx_rooms.currentIndex()]
             all_detail = self.detail[self.detail['호명칭'] == detail['호명칭']]
             self.pk = detail['건축물대장PK']
+            self.issuance_data['호_PK'] = self.pk
 
             room_area = detail['전용면적']
             public_area = round(pd.to_numeric(all_detail['전용면적']).sum(), 2)
