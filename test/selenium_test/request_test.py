@@ -1,3 +1,5 @@
+import webbrowser
+
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from seleniumrequests import Chrome
@@ -43,7 +45,9 @@ class RequestData(QMainWindow, Ui_Form):
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36"
         }
 
-        self.find_title_id('a')
+        self.find_title_id('11260-100249270')
+        # 상봉동 88-85 (11260-14683)
+        # 면목동 90-27 (11260-100249270)
 
         self.btn_reset.clicked.connect(self.reset_content)
         self.btn_search.clicked.connect(self.select_address)
@@ -156,17 +160,15 @@ class RequestData(QMainWindow, Ui_Form):
 
         self.cbx_ho.showPopup()
 
-    def find_title_id(self, address):
-        # if self.cbx_ho.currentIndex() == 0: return
-        address = {'시군구코드': '11260',
-                   'pk': '100261327'}
+    # 표제부, 총괄 표제부
+    def find_title_id(self, pk):
+        sigungu, seqno = pk.split('-')[0], pk.split('-')[1]
 
         headers = self.headers
         headers['Referer'] = "https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02L01"
 
         # 표제부
-        datas = {"addrGbCd": 2, "inqireGbCd": "0", "bldrgstCurdiGbCd": "0",
-                 "sigunguCd": address['시군구코드'], "bldrgstSeqno": address['pk']}
+        datas = {"addrGbCd": 2, "bldrgstCurdiGbCd": "0", "sigunguCd": sigungu, "bldrgstSeqno": seqno}
 
         # 주소 검색 (결과 값: 주소 정보)
         response_title = self.s.request('POST', 'https://cloud.eais.go.kr/bci/BCIAAA02R01', headers=headers, json=datas)
@@ -188,8 +190,6 @@ class RequestData(QMainWindow, Ui_Form):
                   "locPlatGbCd": result["platGbCd"],
                   "locDetlAddr": address,
                   "locBldNm": result["bldNm"],
-                  "ownrYn": "N",
-                  "multiUseBildYn": "N",
                   "bldrgstCurdiGbCd": "0"}
 
         # 민원 담기 (담아야 응답 값 나옴)
@@ -207,18 +207,12 @@ class RequestData(QMainWindow, Ui_Form):
 
         datas = {
             "pbsvcResveDtls": dtls,
-
-            "ownrExprsYn": "N",
-
             "pbsvcRecpInfo": {
                 "pbsvcGbCd": "01",
-                "issueReadGbCd": "0",
+                "issueReadGbCd": "0",       # 0: 발급, 1: 열람
                 "pbsvcResveDtlsCnt": 1},
-
             "appntInfo": {
                 "appntGbCd": "01",
-                "appntJmno1": "950509",
-                "appntNm": "장성남",
                 "naAppntGrndUgrndGbCd": "0"}}
 
         # 발급 신청
@@ -227,7 +221,18 @@ class RequestData(QMainWindow, Ui_Form):
         # 담은 민원 제거
         self.s.request('POST', 'https://cloud.eais.go.kr/bci/BCIAAA02D02', headers=headers,
                        json={'lastUpdusrId': dtls[0]['lastUpdusrId']})
+
+        self.s.get('https://cloud.eais.go.kr/moct/bci/aaa04/BCIAAA04L01')
+        self.s.implicitly_wait(5)
+        self.s.find_element(By.XPATH, '//*[@id="container"]/div[2]/div/div[4]/table/tbody/tr[1]/td[5]/a').click()
+        time.sleep(1)
+        self.s.switch_to.window(self.s.window_handles[1])
+        new_url = self.s.current_url
+        self.s.close()
+
+        webbrowser.open_new(new_url)
         print('발급 처리 완료')
+
 
 # 예외 오류 처리
 def my_exception_hook(exctype, value, traceback):
