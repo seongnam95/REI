@@ -11,7 +11,7 @@ from ui.main.ui_info import Ui_BuildingInfo
 from interface.sub_interface import address_details
 from module.open_api_pars import OpenApiRequest
 from module.black_box_msg import BoxMessage
-from test.selenium_test.request_test import RequestData
+
 # import fluentapp.pyqt6.windowtools as wingui
 
 # from BlurWindow.blurWindow import blur
@@ -257,39 +257,32 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.resize_form(self.opened)
 
     # 문서 발급 버튼
-    def clicked_issuance_btns(self, kind):
+    def clicked_issuance_btns(self, kind, pk=''):
         if not self.activation: return
-        address = self.address
-        num, dong, ho = None, None, None
-        print(address)
 
-        if address['지'] == "0":
-            old = "%s %s %s" % (address['시군구'], address['읍면동'], address['번'])
-        else: old = "%s %s %s-%s" % (address['시군구'], address['읍면동'], address['번'], address['지'])
-
+        # 표제부 버튼
         if kind == 0:
             self.clicked_issuance_btn()
             self.btn_issuance.setEnabled(False)
 
-            if self.binfo['타입'] == '집합': num = 0
-            elif self.binfo['타입'] == '일반': num = 1
+            pk = self.issuance_data['동_PK']
 
+        # 전유부 버튼
         elif kind == 1:
             if self.binfo['타입'] == '집합':
                 self.clicked_issuance_btn()
                 self.btn_issuance.setEnabled(False)
-                dong = self.exact_detail.loc[self.cbx_rooms.currentIndex()]['동명칭'].rstrip("동")
-                ho = self.exact_detail.loc[self.cbx_rooms.currentIndex()]['호명칭'].rstrip("호")
-                num = 2
+                pk = self.issuance_data['호_PK']
 
             elif self.binfo['타입'] == '일반':
                 self.msg.show_msg(2000, 'center', '전유부는 집합 건물만 발급할 수 있습니다')
                 return
 
+        # 등기부등본 버튼
         elif kind == 2:
             return
 
-        self.issuance_thread = ibl.IssuanceBuildingLedger(old, address['도로명주소'], dong, ho, num, 'haul1115', 'ks05090818@')
+        self.issuance_thread = ibl.IssuanceBuildingLedger(pk, kind, 'haul1115', 'ks05090818@')
         self.issuance_thread.threadEvent.workerThreadDone.connect(lambda: self.btn_issuance.setEnabled(True))
         self.issuance_thread.threadEvent.progress.connect(self.issuance_progress_event)
         self.issuance_thread.start()

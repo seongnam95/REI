@@ -5,9 +5,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from webdriver_manager.chrome import ChromeDriverManager
+from seleniumrequests import Chrome
 
 import time
 import webbrowser
+import json
 
 
 class ThreadSignal(QObject):
@@ -16,19 +18,24 @@ class ThreadSignal(QObject):
 
 
 class IssuanceBuildingLedger(QThread):
-    def __init__(self, old, new, dong, ho, kind, user_id, user_pw):
+    def __init__(self, pk, kind, user_id, user_pw):
         super().__init__()
         self.threadEvent = ThreadSignal()
 
-        self.old_address, self.new_address, self.dong, self.ho = old, new, dong, ho  # 주소, 호
+        self.sigungu, self.seqno = pk.split('-')[0], pk.split('-')[1]   # PK
         self.kind = kind     # 건물 타입, 대장 종류
         self.user_id, self.user_pw = user_id, user_pw   # ID, PW
-        self.driver = None
-        self.threadEvent.progress.emit('건축물대장 발급 시작')
+        self.address, self.driver = '', None
+
+        self.headers = {
+            "Host": "cloud.eais.go.kr",
+            "Content-Type": "application/json;charset=UTF-8",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36"
+        }
 
     def run(self):
         chrome_options = webdriver.ChromeOptions()
-        # chrome_options.add_argument('headless')  # 크롬 화면 숨기기
+        chrome_options.add_argument('headless')  # 크롬 화면 숨기기
         chrome_options.add_argument("no-sandbox")  #
         chrome_options.add_argument('window-size=1920x1080')  # 해상도 설정
         chrome_options.add_argument("--start-maximized")
@@ -36,7 +43,7 @@ class IssuanceBuildingLedger(QThread):
         chrome_options.add_argument("lang=ko_KR")  # 가짜 플러그인 탑재
         chrome_options.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) "
                                     "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36")  # user-agent 이름 설정
-        self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+        self.driver = Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
         self.practice_sign_in()
 
     # 세움터 로그인
@@ -47,194 +54,131 @@ class IssuanceBuildingLedger(QThread):
             self.driver.get("https://cloud.eais.go.kr/moct/awp/abb01/AWPABB01F01")
             self.driver.implicitly_wait(5)
 
-            # 알림, 공지 팝업 제거
-            # notice_pop_up = self.driver.find_elements(By.CLASS_NAME, 'swal-button.swal-button--confirm')
-            # if len(notice_pop_up): notice_pop_up[0].click()
-            # notice_pop_up2 = self.driver.find_elements(By.CLASS_NAME, 'btnCloseToday')
-            # if len(notice_pop_up2): notice_pop_up2[0].click()
-
-            # '로그인' 버튼 클릭
-            # WebDriverWait(self.driver, 3).until(
-            #     ec.presence_of_element_located((By.CLASS_NAME, 'btnLogin.btnLine.btnNormal.btnLine_blue'))).click()
-
-            # ID, PW 입력 후 로그인
             self.driver.find_element(By.ID, 'membId').send_keys(self.user_id)
             self.driver.find_element(By.ID, 'pwd').send_keys(self.user_pw)
             self.driver.find_element(By.XPATH, '//*[@id="container"]/div[2]/div/div/div[1]/div[1]/button').click()
             time.sleep(0.5)
 
-            self.driver.get('https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02L01')
-            # self.driver.get('http://cloud.eais.go.kr')
-            self.driver.implicitly_wait(5)
-
             self.threadEvent.progress.emit('로그인 성공')
-            self.issuance_document()  # 문서 열람, 발급
+
+            self.issuance_document()
 
         except Exception as e:
             print(e)
             self.threadEvent.workerThreadDone.emit(False)
-
-        # WebDriverWait(self.driver, 3).until(EC.presence_of_element_located((By.CLASS_NAME, 'bldreDiv.bldre3'))).click()     # '신청내역' 클릭
-        # self.open_document()    # 대장 열기
 
     # 문서 발급, 열람
     def issuance_document(self):
-        try:
-            self.threadEvent.progress.emit('선택한 주소 조회중')
+        # try:
+        self.threadEvent.progress.emit('건축물대장 발급 요청중')
 
-            # 건축물대장 발급 페이지로 이동
-            time.sleep(2)
-            # self.driver.get('https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02L01')
-            # WebDriverWait(self.driver, 5).until(ec.presence_of_element_located((By.XPATH, '//*[@id="menu"]/li[2]/a'))).click()  # '건축물대장' 메뉴 클릭
-            # WebDriverWait(self.driver, 5).until(ec.presence_of_element_located((By.CLASS_NAME, 'bldreDiv.bldre1'))).click()  # '건축물대장 발급' 버튼
+        headers = self.headers
+        headers['Referer'] = "https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02L01"
 
-            # 주소 입력
-            WebDriverWait(self.driver, 5).until(ec.presence_of_element_located((By.CLASS_NAME, 'btnAddrSrch'))).click()  # '도로명주소로 조회' 버튼
-            self.driver.find_element(By.CSS_SELECTOR, '#keyword').send_keys(self.new_address)  # 도로명 주소 입력
-            WebDriverWait(self.driver, 5).until(ec.presence_of_element_located((By.CLASS_NAME, 'btnNext.btnSolid.btnNormal.btn_dark'))).click()  # '조회하기' 버튼
+        result, ho = None, ''
+        if self.kind == 0:
+            datas = {"addrGbCd": 2, "bldrgstCurdiGbCd": "0", "sigunguCd": self.sigungu, "bldrgstSeqno": self.seqno}
+            response_title = self.driver.request('POST', 'https://cloud.eais.go.kr/bci/BCIAAA02R01', headers=headers, json=datas)
+            result = json.loads(response_title.text)['jibunAddr'][0]
 
-            # 주소 리스트 선택
-            address_form = WebDriverWait(self.driver, 3).until(ec.presence_of_element_located((By.CLASS_NAME, 'addrList'))).find_element(By.TAG_NAME, 'ul')
-            for n, row in enumerate(address_form.find_elements(By.TAG_NAME, 'li')):
-                adr = row.text.split('\n선택')[0]
-                if self.old_address in adr:  # 구주소가 맞다면 클릭
-                    button = WebDriverWait(row, 3).until(ec.presence_of_element_located((By.TAG_NAME, 'button')))
-                    button.click()
-                    break
+        elif self.kind == 1:
+            datas = {"inqireGbCd": "1", "bldrgstCurdiGbCd": "0", "reqSigunguCd": self.sigungu, "bldrgstSeqno": self.seqno}
+            response_title = self.driver.request('POST', 'https://cloud.eais.go.kr/bci/BCIAAA02R04', headers=headers, json=datas)
+            result = json.loads(response_title.text)['findExposList'][0]
 
-            self.threadEvent.progress.emit('주소 선택 완료')
+        bun, ji = result['mnnm'].lstrip('0'), result['slno'].lstrip('0')
+        if ji: ji = f'-{ji}'
+        if "hoNm" in result: ho = ' ' + result["hoNm"]
 
-            result = False
-            if self.kind == 0: result = self.bd_select()        # 표제부
-            elif self.kind == 1: result = self.gen_select()     # 일반 건축물
-            elif self.kind == 2: result = self.set_select()     # 전유부
+        self.address = f'{result["sigunguNm"]} {result["bjdongNm"]} {bun}{ji} {result["dongNm"]}{ho}'
 
-            if result:
-                # 선택한 민원 발급처리
-                WebDriverWait(self.driver, 3).until(ec.presence_of_element_located((By.CLASS_NAME, 'btnAddCart'))).click()  # '신청할 민원 담기'
-                WebDriverWait(self.driver, 5).until(ec.presence_of_element_located((By.CLASS_NAME, 'btnSubmit.mt10'))).click()  # '건축물대장 발급 신청'
+        datas2 = {"bldrgstSeqno": result["bldrgstSeqno"],
+                  "regstrGbCd": result["regstrGbCd"],
+                  "regstrKindCd": result["regstrKindCd"],
+                  "mjrfmlyIssueYn": "N",
+                  "locSigunguCd": result["sigunguCd"],
+                  "locBjdongCd": result["bjdongCd"],
+                  "locPlatGbCd": result["platGbCd"],
+                  "locDetlAddr": self.address,
+                  "locBldNm": result["bldNm"],
+                  "bldrgstCurdiGbCd": "0"}
 
-                self.driver.find_elements(By.XPATH, '//*[@id="container"]/div[2]/div/div[2]/ul/li/ul/li')[0].click()
-                self.driver.find_element(By.XPATH, '//*[@id="container"]/div[2]/div/div[5]/button[2]').click()   # '신청하기' 버튼
+        # 민원 담기 (담아야 응답 값 나옴)
+        self.driver.request('POST', 'https://cloud.eais.go.kr/bci/BCIAAA02C01', headers=headers, json=datas2)
 
-                self.threadEvent.progress.emit('건축물대장 발급 완료')
-                self.open_document()
+        # 담은 민원 처리 (응답 값 필요)
+        response_put_in = self.driver.request('POST', 'https://cloud.eais.go.kr/bci/BCIAAA02R05', headers=headers)
+        result = json.loads(response_put_in.text)
 
-            else:
-                self.driver.save_screenshot('fail.png')
-                self.threadEvent.progress.emit('발급 실패')
+        headers['Referer'] = "https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02F01"
+        datas = {
+            "pbsvcResveDtls": result['findPbsvcResveDtls'],
+            "pbsvcRecpInfo": {
+                "pbsvcGbCd": "01",
+                "issueReadGbCd": "0",  # 0: 발급, 1: 열람
+                "pbsvcResveDtlsCnt": 1},
+            "appntInfo": {
+                "appntGbCd": "01",
+                "naAppntGrndUgrndGbCd": "0"}}
 
-        except Exception as e:
-            print(e)
-            self.threadEvent.workerThreadDone.emit(False)
+        # 발급 신청, 담은 민원 제거
+        self.driver.request('POST', 'https://cloud.eais.go.kr/bci/BCIAZA02S01', headers=headers, json=datas)
+        self.driver.request('POST', 'https://cloud.eais.go.kr/bci/BCIAAA02D02', headers=headers,
+                            json={'lastUpdusrId': result['findPbsvcResveDtls'][0]['lastUpdusrId']})
 
-    # 표제부
-    def bd_select(self):
-        try:
-            self.threadEvent.progress.emit('표제부 건축물대장 선택중')
+        self.open_document()
 
-            base_xpath = '//*[@id="container"]/div[2]/div/div[2]/div[1]/div[3]'
-
-            WebDriverWait(self.driver, 3).until(
-                ec.presence_of_element_located((By.XPATH, "%s%s" % (base_xpath, '/ul/li[4]/a')))).click()  # '표제부' 버튼
-            time.sleep(1)
-
-            gen_xpath = "%s%s" % (base_xpath,
-                                  '/div/div[4]/table/tbody/div/div/div[1]/div[2]/div[3]/div[2]/div/div/div/div[1]/div/div/div/div[2]')
-            btn = self.driver.find_element(By.XPATH, gen_xpath).find_elements(By.TAG_NAME, 'input')
-            if len(btn):
-                btn[0].click()
-                return True
-            else: self.gen_select()
-        except:
-            self.threadEvent.workerThreadDone.emit(False)
-
-    # 일반건축물
-    def gen_select(self):
-        try:
-            self.threadEvent.progress.emit('일반 건축물대장 선택중')
-
-            base_xpath = '//*[@id="container"]/div[2]/div/div[2]/div[1]/div[3]'
-
-            WebDriverWait(self.driver, 3).until(
-                ec.presence_of_element_located((By.XPATH, "%s%s" % (base_xpath, '/ul/li[2]/a')))).click()  # '표제부' 버튼
-            time.sleep(1)
-
-            gen_xpath = "%s%s" % (base_xpath,
-                                  '/div/div[2]/table/tbody/div/div/div[1]/div[2]/div[3]/div[2]/div/div/div/div[1]/div/div/div/div[2]')
-            btn = self.driver.find_element(By.XPATH, gen_xpath).find_elements(By.TAG_NAME, 'input')
-            if len(btn):
-                btn[0].click()
-                return True
-            else: self.gen_select()
-        except:
-            self.threadEvent.workerThreadDone.emit(False)
-
-    # 전유부
-    def set_select(self):
-        try:
-            self.threadEvent.progress.emit('전유부 건축물대장 선택중')
-
-            base_xpath = '//*[@id="container"]/div[2]/div/div[2]/div[1]/div[3]'
-            time.sleep(2)
-            WebDriverWait(self.driver, 3).until(
-                ec.presence_of_element_located((By.XPATH, "%s%s" % (base_xpath, '/ul/li[5]/a')))).click()  # '전유부' 버튼
-            time.sleep(1)
-
-            ho_list = self.driver.find_element(
-                By.XPATH, "%s%s" % (base_xpath, '/div/div[5]/table/tbody/div/div/div[1]/div[2]/div[3]/div[2]/div/div'))
-            breaker = False
-            for r in ho_list.find_elements(By.TAG_NAME, 'div'):  # 태그네임 div의 수 만큼 반복
-                if r.get_attribute("row-id"):  # Row-Id가 존재할 경우에만
-                    for row in r.find_elements(By.TAG_NAME, 'div'):  # 실제 호수 리스트 반복
-                        if row.get_attribute('col-id') == 'hoNm':  # 호 명칭만
-                            print(self.dong, row.get_attribute("innerText"))
-                            if row.get_attribute("innerText") in self.dong:
-                                if row.get_attribute("innerText") in self.ho:  # 사용자가 입력한 호수일 경우
-                                    # 해당 호수의 체크박스 클릭 후 반복문 종료
-                                    r.find_element(By.XPATH, 'div[1]/div/div/div/div[2]').find_element(By.TAG_NAME, 'input').click()
-                                    breaker = True
-                                    break
-                    if breaker: return True
-            return self.set_select()
-        except Exception as e:
-            print(e)
-            self.threadEvent.workerThreadDone.emit(False)
+        # except Exception as e:
+        #     print('err: ', e)
+        #     self.threadEvent.workerThreadDone.emit(False)
 
     # 문서 열기
     def open_document(self):
-        try:
-            self.threadEvent.progress.emit('선택 완료, 신청 문서 처리 대기중')
+        # try:
+        try_cnt = 0
+        success = False
+        while try_cnt < 5:
+            self.threadEvent.progress.emit('발급 완료, 민원 처리 중..' + str(try_cnt))
 
-            time.sleep(2)
-            self.driver.refresh()   # '처리중' 대기 후 새로고침
-            time.sleep(1)
+            # 완료 처리 된 문서 열기
+            self.driver.get('https://cloud.eais.go.kr/moct/bci/aaa04/BCIAAA04L01')
+            self.driver.implicitly_wait(5)
 
-            list_form = WebDriverWait(self.driver, 3).until(ec.presence_of_element_located((By.XPATH, '//*[@id="container"]/div[2]/div/div[4]/table/tbody')))
-
+            list_form = self.driver.find_element(By.XPATH, '//*[@id="container"]/div[2]/div/div[4]/table/tbody')
             document_list = list_form.find_elements(By.TAG_NAME, 'tr')  # 문서 리스트
-            success = False
+
             for i in document_list:    # 문서 리스트 Row 수만큼 반복
                 content = i.get_attribute("innerText")
-                if self.old_address in content:  # 주소가 맞을 경우
+                if self.address in content:  # 주소가 맞을 경우
                     if '발급' in content:   # '발급'인 항목 클릭
                         i.find_element(By.XPATH, 'td[5]/a').click()
                         success = True
-                if success: break
 
-            if success:
-                self.threadEvent.progress.emit('처리 완료, 오픈 대기중')
-                time.sleep(0.5)
-                self.driver.switch_to.window(self.driver.window_handles[1])
-                new_url = self.driver.current_url
+                        time.sleep(1)
+                        try_cnt += 1
+                        break
 
-                self.driver.close()     # 기존 드라이브 종료
+                    else:
+                        time.sleep(1)
+                        try_cnt += 1
+                        break
 
-                webbrowser.open_new(new_url)
-                self.threadEvent.progress.emit('건축물 대장 오픈')
-                self.threadEvent.workerThreadDone.emit(True)
-            else:
-                self.threadEvent.workerThreadDone.emit(False)
-        except:
+            if success: break
+
+        if success:
+            self.threadEvent.progress.emit('처리 완료, 오픈 대기중')
+            time.sleep(0.5)
+            self.driver.switch_to.window(self.driver.window_handles[1])
+            new_url = self.driver.current_url
+
+            self.driver.close()     # 기존 드라이브 종료
+
+            webbrowser.open_new(new_url)
+            self.threadEvent.progress.emit('건축물 대장 오픈')
+            self.threadEvent.workerThreadDone.emit(True)
+
+        else:
             self.threadEvent.workerThreadDone.emit(False)
+        # except:
+        #     self.threadEvent.workerThreadDone.emit(False)
 

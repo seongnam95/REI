@@ -1,5 +1,6 @@
 import webbrowser
 
+import clipboard
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from seleniumrequests import Chrome
@@ -45,15 +46,12 @@ class RequestData(QMainWindow, Ui_Form):
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36"
         }
 
-        self.find_title_id('11260-100249270')
-        # 상봉동 88-85 (11260-14683)
-        # 면목동 90-27 (11260-100249270)
-
         self.btn_reset.clicked.connect(self.reset_content)
         self.btn_search.clicked.connect(self.select_address)
 
         self.cbx_address.activated.connect(self.select_dong)
         self.cbx_dong.activated.connect(self.select_ho)
+        self.cbx_ho.activated.connect(self.start_issue)
 
     def reset_content(self):
         self.result_address.clear()
@@ -155,12 +153,17 @@ class RequestData(QMainWindow, Ui_Form):
                   'dong_nm': i['_source']['dongNm'],
                   'ho_nm': i['_source']['hoNm']}
 
-            self.cbx_ho.addItem('%s, %s (%s)' % (ho['dong_nm'], ho['ho_nm'], ho['pk']))
+            self.cbx_ho.addItem('%s, %s (%s)' % (ho['dong_nm'], ho['ho_nm'], ho['id']))
             self.result_ho.append(ho)
 
         self.cbx_ho.showPopup()
 
-    # 표제부, 총괄 표제부
+    def start_issue(self):
+        if self.cbx_ho.currentIndex() == 0: return
+        pk = dict(self.result_ho[self.cbx_ho.currentIndex() - 1])['id']
+        self.find_title_id(pk)
+
+    # 대장 발급
     def find_title_id(self, pk):
         sigungu, seqno = pk.split('-')[0], pk.split('-')[1]
 
@@ -168,18 +171,20 @@ class RequestData(QMainWindow, Ui_Form):
         headers['Referer'] = "https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02L01"
 
         # 표제부
-        datas = {"addrGbCd": 2, "bldrgstCurdiGbCd": "0", "sigunguCd": sigungu, "bldrgstSeqno": seqno}
+        # datas = {"addrGbCd": 2, "bldrgstCurdiGbCd": "0", "sigunguCd": sigungu, "bldrgstSeqno": seqno}
+        # response_title = self.s.request('POST', 'https://cloud.eais.go.kr/bci/BCIAAA02R01', headers=headers, json=datas)
+        # result = json.loads(response_title.text)['jibunAddr'][0]
 
-        # 주소 검색 (결과 값: 주소 정보)
-        response_title = self.s.request('POST', 'https://cloud.eais.go.kr/bci/BCIAAA02R01', headers=headers, json=datas)
-        result = json.loads(response_title.text)['jibunAddr'][0]
+        # 전유부
+        datas = {"inqireGbCd": "1", "bldrgstCurdiGbCd": "0", "reqSigunguCd": sigungu, "bldrgstSeqno": seqno}
+        response_title = self.s.request('POST', 'https://cloud.eais.go.kr/bci/BCIAAA02R04', headers=headers, json=datas)
+        result = json.loads(response_title.text)['findExposList'][0]
 
         bun, ji = result['mnnm'].lstrip('0'), result['slno'].lstrip('0')
+        if ji: ji = f'-{ji}'
+        if {result["hoNm"]} is not None: ho = ' ' + result["hoNm"]
 
-        if ji:
-            address = f'{result["sigunguNm"]} {result["bjdongNm"]} {bun}-{ji} {result["dongNm"]}'
-        else:
-            address = f'{result["sigunguNm"]} {result["bjdongNm"]} {bun} {result["dongNm"]}'
+        address = f'{result["sigunguNm"]} {result["bjdongNm"]} {bun}{ji} {result["dongNm"]}{ho}'
 
         datas2 = {"bldrgstSeqno": result["bldrgstSeqno"],
                   "regstrGbCd": result["regstrGbCd"],
@@ -192,12 +197,15 @@ class RequestData(QMainWindow, Ui_Form):
                   "locBldNm": result["bldNm"],
                   "bldrgstCurdiGbCd": "0"}
 
-        # 민원 담기 (담아야 응답 값 나옴)
-        self.s.request('POST', 'https://cloud.eais.go.kr/bci/BCIAAA02C01', headers=headers, json=datas2)
+        print(datas2)
 
+        # 민원 담기 (담아야 응답 값 나옴)
+        a = self.s.request('POST', 'https://cloud.eais.go.kr/bci/BCIAAA02C01', headers=headers, json=datas2)
+        print(a.text)
         # 담은 민원 처리 (응답 값 필요)
         response_put_in = self.s.request('POST', 'https://cloud.eais.go.kr/bci/BCIAAA02R05', headers=headers)
         result = json.loads(response_put_in.text)
+        print(result)
 
         self.issuance_data(result['findPbsvcResveDtls'])
 
@@ -227,10 +235,17 @@ class RequestData(QMainWindow, Ui_Form):
         self.s.find_element(By.XPATH, '//*[@id="container"]/div[2]/div/div[4]/table/tbody/tr[1]/td[5]/a').click()
         time.sleep(1)
         self.s.switch_to.window(self.s.window_handles[1])
+        print(self.s.current_url)
+
+        aa = self.s.request('GET', self.s.current_url)
+        print(aa.content)
+        return
+        clipboard.copy(aa.content)
+
         new_url = self.s.current_url
         self.s.close()
 
-        webbrowser.open_new(new_url)
+        webbrowser.open(new_url, new=1)
         print('발급 처리 완료')
 
 
