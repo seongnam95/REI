@@ -25,47 +25,53 @@ class IssuanceRegistered:
                         "API-KEY": self.API_KEY,
                         "ENC-KEY": aesCipherKey}
 
+        datas = {'Address': address,    # 주소
+                 'Sangtae': 0,          # 현행:0/폐쇄:1 / 현행폐쇄:2
+                 'KindClsFlag': 1}   # 전체:0 / 집합건물:1 / 건물:2 / 토지:3
+
         # 등기 고유번호 조회
         url = {'조회': self.API_HOST + "api/v1.0/iros/risuconfirmsimplec",
                '발급': self.API_HOST + "api/v1.0/iros/risuretrieve"}
 
-        res = requests.post(url['조회'], headers=self.headers, json={'Address': address})
-        unique_no = res.json()['ResultList'][0]['UniqueNo']
-        print(f'unique : {unique_no}')
+        response = requests.post(url['조회'], headers=self.headers, json=datas)
+        result = response.json()
 
-        # 등기부등본 데이터 요청
-        params = {"IrosID": aesEncrypt(aesKey, aesIv, user_id),
-                  "IrosPwd": aesEncrypt(aesKey, aesIv, user_pw),
-                  "EmoneyNo1": aesEncrypt(aesKey, aesIv, num_1),
-                  "EmoneyNo2": aesEncrypt(aesKey, aesIv, num_2),
-                  "EmoneyPwd": aesEncrypt(aesKey, aesIv, num_pw),
-                  "UniqueNo": unique_no}
+        if result['Status'] == 'OK':
+            unique_no = result['ResultList'][0]['UniqueNo']
 
-        res = requests.post(url['발급'], headers=self.headers, json=params)
-        valid = validation(res.json()['Message'])
+            # 등기부등본 데이터 요청
+            params = {"IrosID": aesEncrypt(aesKey, aesIv, user_id),
+                      "IrosPwd": aesEncrypt(aesKey, aesIv, user_pw),
+                      "EmoneyNo1": aesEncrypt(aesKey, aesIv, num_1),
+                      "EmoneyNo2": aesEncrypt(aesKey, aesIv, num_2),
+                      "EmoneyPwd": aesEncrypt(aesKey, aesIv, num_pw),
+                      "UniqueNo": unique_no}
 
-        if valid is True: return res.json()
-        else: print(valid)
+            response = requests.post(url['발급'], headers=self.headers, json=params)
+            result = response.json()
+            print(result)
+
+            if result['Status'] == 'OK':
+                return result
+            else:
+                print(result['Message'])
+                return
+        else:
+            print(result['Message'])
+            return
 
     def saved_pdf(self, transaction_key):
         url = self.API_HOST + "api/v1.0/iros/getpdffile"
         params = {"TransactionKey": transaction_key, "IsSummary": "Y"}
 
         # PDF 바이너리 요청
-        res = requests.post(url, headers=self.headers, json=params)
+        response = requests.post(url, headers=self.headers, json=params)
 
         # 요청 된 바이너리 PDF 파일로 저장
         with open("new.pdf", "wb") as f:
-            f.write(base64.b64decode(res.json()['Message']))
+            f.write(base64.b64decode(response.json()['Message']))
 
         print('saved sucess !')
-
-
-def validation(msg):
-    if '잔액이 부족합니다' in msg:
-        return '잔액 부족'
-    else:
-        return True
 
 
 # AES 암호화 함수
@@ -114,7 +120,10 @@ def getPublicKey(apiHost, apiKey):
 
 
 ir = IssuanceRegistered()
-data = ir.get_register_data('면목동 91-79', 'mogsin21', 'happy2588@', 'P3372711', '3234', 'kim2588')
+data = ir.get_register_data('면목동 90-27 702호', 'mogsin21', 'happy2588@', 'P3372711', '3234', 'kim2588')
+print(data['Message'])
+
+
 if data:
     t_key = data['TransactionKey']
     ir.saved_pdf(t_key)
