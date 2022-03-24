@@ -111,15 +111,9 @@ class IssuanceBuildingLedger(QThread):
         result = json.loads(response_put_in.text)
 
         headers['Referer'] = "https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02F01"
-        datas = {
-            "pbsvcResveDtls": result['findPbsvcResveDtls'],
-            "pbsvcRecpInfo": {
-                "pbsvcGbCd": "01",
-                "issueReadGbCd": "0",  # 0: 발급, 1: 열람
-                "pbsvcResveDtlsCnt": 1},
-            "appntInfo": {
-                "appntGbCd": "01",
-                "naAppntGrndUgrndGbCd": "0"}}
+        datas = {"pbsvcResveDtls": result['findPbsvcResveDtls'],    # issueReadGbCd (0: 발급, 1: 열람)
+                 "pbsvcRecpInfo": {"pbsvcGbCd": "01", "issueReadGbCd": "0", "pbsvcResveDtlsCnt": 1},
+                 "appntInfo": {"appntGbCd": "01", "naAppntGrndUgrndGbCd": "0"}}
 
         # 발급 신청, 담은 민원 제거
         self.driver.request('POST', 'https://cloud.eais.go.kr/bci/BCIAZA02S01', headers=headers, json=datas)
@@ -138,6 +132,7 @@ class IssuanceBuildingLedger(QThread):
         try_cnt = 0
         success = False
         while try_cnt < 5:
+            try_cnt += 1
             self.threadEvent.progress.emit('발급 완료, 민원 처리 중..' + str(try_cnt))
 
             # 완료 처리 된 문서 열기
@@ -153,17 +148,9 @@ class IssuanceBuildingLedger(QThread):
                     if '발급' in content:   # '발급'인 항목 클릭
                         i.find_element(By.XPATH, 'td[5]/a').click()
                         success = True
-
-                        time.sleep(1)
-                        try_cnt += 1
                         break
-
-                    else:
-                        time.sleep(1)
-                        try_cnt += 1
-                        break
-
             if success: break
+            time.sleep(1)
 
         if success:
             self.threadEvent.progress.emit('처리 완료, 오픈 대기중')
@@ -171,7 +158,7 @@ class IssuanceBuildingLedger(QThread):
             self.driver.switch_to.window(self.driver.window_handles[1])
             new_url = self.driver.current_url
 
-            self.driver.close()     # 기존 드라이브 종료
+            self.driver.quit()     # 기존 드라이브 종료
 
             webbrowser.open_new(new_url)
             self.threadEvent.progress.emit('건축물 대장 오픈')
