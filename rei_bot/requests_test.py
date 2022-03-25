@@ -16,6 +16,7 @@ import base64
 from pathlib import Path
 from urllib import parse
 
+
 headers = {
     "Host": "cloud.eais.go.kr",
     "Content-Type": "application/json;charset=UTF-8",
@@ -45,12 +46,23 @@ headers = {
 # with open("test.txt") as f:
 #     content = f.read().encode('utf-8')
 
-content = Path("test.txt").read_text()
-output_image = base64.b64decode(content)
-data = parse.unquote(output_image)
-res = data.replace('+', ' ')
-print(res)
+a = {'a': 'a', 'b': 'b'}
 
+content = Path("test.txt").read_text()
+decode_64 = base64.b64decode(content)
+con = json.loads(decode_64)
+print(con)
+# parse.unquote(con)
+content = con['pageList'][0]
+
+# print(content['d'][2]['b'][0][0][6][0][6][0][0][2][0][0])
+# with open("tests.png", 'wb') as f:
+#     f.write(output_image)
+
+
+# data = parse.unquote(output_image)
+# res = data.replace('+', ' ')
+# print(res)
 #
 # img = Image.open('test1.png')
 # img_rgb = img.convert('RGB')
