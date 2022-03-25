@@ -9,6 +9,8 @@ pd.set_option('display.width', None)
 def table_trim(path):
     tables = camelot.read_pdf(path, pages="all")
     keys, result = [], []
+    aa = tables[0].df
+    print(aa[5])
 
     # 테이블 수 만큼 반복
     for table in tables:
@@ -89,11 +91,10 @@ def extract(frame):
     print(result['소유자'])
 
 
-file_name = 'test_pdf2.pdf'
+file_name = 'ggg.pdf'
 response = table_trim(file_name)
 for i in response:
     a = i.replace('\n', ' ')
     print(a)
     print("#" * 100)
 
-extract(response)

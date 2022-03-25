@@ -15,7 +15,9 @@ import requests
 import base64
 from pathlib import Path
 from urllib import parse
-
+import cv2
+import numpy as np
+from PIL import Image
 
 headers = {
     "Host": "cloud.eais.go.kr",
@@ -46,14 +48,62 @@ headers = {
 # with open("test.txt") as f:
 #     content = f.read().encode('utf-8')
 
-a = {'a': 'a', 'b': 'b'}
 
-content = Path("test.txt").read_text()
-decode_64 = base64.b64decode(content)
-con = json.loads(decode_64)
-print(con)
-# parse.unquote(con)
-content = con['pageList'][0]
+def detect_box(image, line_min_width=15):
+    gray_scale = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    th1, img_bin = cv2.threshold(gray_scale, 150, 225, cv2.THRESH_BINARY)
+    kernal_h = np.ones((1, line_min_width), np.uint8)
+    kernal_v = np.ones((line_min_width,1), np.uint8)
+    img_bin_h = cv2.morphologyEx(~img_bin, cv2.MORPH_OPEN, kernal_h)
+    img_bin_v = cv2.morphologyEx(~img_bin, cv2.MORPH_OPEN, kernal_v)
+    img_bin_final = img_bin_h | img_bin_v
+    final_kernel = np.ones((3, 3), np.uint8)
+    img_bin_final = cv2.dilate(img_bin_final, final_kernel, iterations=1)
+    ret, labels, stats, centroids = cv2.connectedComponentsWithStats(~img_bin_final, connectivity=8, ltype=cv2.CV_32S)
+
+    cv2.imshow('img', img_bin_final)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    print(labels)
+    return stats, labels
+
+
+image_path = 'tab.png'
+image = cv2.imread(image_path)
+
+img = detect_box(image)
+
+# img = np.full(shape=(512,512,3),fill_value=255,dtype=np.uint8)
+# text="Hello OpenCV!(한글)"
+# org=(50,100)
+# font=cv2.FONT_HERSHEY_SIMPLEX
+# cv2.putText(img,text,org,font,1,(255,0,0),2)
+# size, BaseLine=cv2.getTextSize(text,font,1,2)
+# cv2.rectangle(img,org,(org[0]+size[0],org[1]-size[1]),(0,0,255))
+# cv2.circle(img,org,3,(255,0,255),2)
+# cv2.imshow("A",img)
+# cv2.waitKey()
+# cv2.destroyAllWindows()
+
+
+#
+# image = cv2.imread(image_path)
+#
+# gray_scale = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+# th1, img_bin = cv2.threshold(gray_scale, 150, 225, cv2.THRESH_BINARY)
+# img_bin = ~img_bin
+#
+# line_min_width = 15
+# kernal_h = np.ones((1, line_min_width), np.uint8)
+# kernal_v = np.ones((line_min_width, 1), np.uint8)
+#
+# img_bin_final = kernal_h|kernal_v
+#
+# print(img_bin_final)
+# image = Image.open('tab.png')
+# scale = cv2.cvtColor('tab.png', cv2.COLOR_BGR2GRAY)
+# _, img_bin = cv2.threshold(scale, 150, 225, cv2.THRESH_BINARY)
+# img_bin = ~ img_bin
 
 # print(content['d'][2]['b'][0][0][6][0][6][0][0][2][0][0])
 # with open("tests.png", 'wb') as f:
