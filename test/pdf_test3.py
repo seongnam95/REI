@@ -56,6 +56,7 @@ def extract(frame):
     for f in frame:
         if f.iloc[0][0] == '표제부':
             val = f.iloc[2][2].replace('\n', ' ')
+
             if '[도로명주소]' in val:
                 result['소재지'] = val.split(' [도로명주소] ')[0]
                 result['도로명주소'] = val.split(' [도로명주소] ')[1]
