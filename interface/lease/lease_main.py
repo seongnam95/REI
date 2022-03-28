@@ -514,22 +514,22 @@ class MainLease(QMainWindow, Ui_MainWindow):
         self.edt_agreement.setText(content_text)
 
     # 특약사항 추가 이벤트
-    def clicked_add_btn(self):
-        dialog = agr_add.AgrAdd(self.agrs_data)
-        dialog.exec()
-
-        if dialog.response is not None:
-            response = dialog.response
-
-            self.agrs_data = self.agrs_data.append(response)
-
-            self.agrs_data.reset_index(drop=True, inplace=True)
-            self.agrs_data.to_csv("../../data/val/agrs.csv", sep=",", index=False)
-
-            keyword = response['keyword'].iloc[0]
-            title = response['title'].iloc[0]
-
-            self.visit_item(keyword, title)
+    # def clicked_add_btn(self):
+    #     dialog = agr_add.AgrAdd(self.agrs_data)
+    #     dialog.exec()
+    #
+    #     if dialog.response is not None:
+    #         response = dialog.response
+    #
+    #         self.agrs_data = self.agrs_data.append(response)
+    #
+    #         self.agrs_data.reset_index(drop=True, inplace=True)
+    #         self.agrs_data.to_csv("../../data/val/agrs.csv", sep=",", index=False)
+    #
+    #         keyword = response['keyword'].iloc[0]
+    #         title = response['title'].iloc[0]
+    #
+    #         self.visit_item(keyword, title)
 
     # 특약사항 편집 이벤트
     def clicked_edit_btn(self):
