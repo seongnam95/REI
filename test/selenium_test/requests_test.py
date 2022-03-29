@@ -15,7 +15,6 @@ import json
 import requests
 import base64
 import urllib3
-import cv2
 import numpy as np
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -137,6 +136,7 @@ class RegisterScraping:
         print(content)
         # result = content[2]['b'][0]
         return
+
 
 def creation_uid(referer, file_id, mgm_no):
     data = f"isEncoding=false&isBigData=false&isMemoryDump=false&ClipID=R01&oof=%3C%3Fxml%20version%3D'1.0'%20encoding%3D'utf-8'%3F%3E%3Coof%20version%3D'3.0'%3E%3Cdocument%20title%3D''%20enable-thread%3D'0'%3E%3Cfile-list%3E%3Cfile%20type%3D'crf.root'%20path%3D'%25root%25%2Fcrf%2Fbci%2FdjrBldrgstGnrl.crf'%3E%3C%2Ffile%3E%3C%2Ffile-list%3E%3Cconnection-list%3E%3Cconnection%20type%3D'file'%20namespace%3D'XML1'%3E%3Cconfig-param-list%3E%3Cconfig-param%20name%3D'path'%3E%2Fcais_data%2Fissue%2F{mgm_no}%2F{mgm_no}.xml%3C%2Fconfig-param%3E%3C%2Fconfig-param-list%3E%3Ccontent%20content-type%3D'xml'%20namespace%3D'*'%3E%3Ccontent-param%20name%3D'encoding'%3Eeuc-kr%3C%2Fcontent-param%3E%3Ccontent-param%20name%3D'root'%3E%7B%25dataset.xml.root%25%7D%3C%2Fcontent-param%3E%3C%2Fcontent%3E%3C%2Fconnection%3E%3C%2Fconnection-list%3E%3Cfield-list%20type%3D%22name%22%3E%3Cfield%20name%3D'ISSUE_READ_GB_CD'%20trim%3D'true'%3E0%3C%2Ffield%3E%3Cfield%20name%3D'FILE_ID'%20trim%3D'true'%3E{file_id}%3C%2Ffield%3E%3Cfield%20name%3D'CHANG_MATR_COUNT'%20trim%3D'true'%3E9%3C%2Ffield%3E%3Cfield%20name%3D'WCLF_INFO_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'BLD_CURST_INFO_COUNT'%20trim%3D'true'%3E3%3C%2Ffield%3E%3Cfield%20name%3D'RELAT_RNM_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'LC_INFO_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'RELAT_JIBUN_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'OWNR_CURST_INFO_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'ETC_RCD_MATR_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'SVR_GB'%20trim%3D'true'%3Epm3%3C%2Ffield%3E%3Cfield%20name%3D'SVR_HOST'%20trim%3D'true'%3E176%3A7000%3C%2Ffield%3E%3Cfield%20name%3D'FILE_PATH'%20trim%3D'true'%3E%2Fcais_data%2Fissue%2F2022%2F03%2F29%2F{mgm_no}%2F{mgm_no}.png%3C%2Ffield%3E%3C%2Ffield-list%3E%3C%2Fdocument%3E%3C%2Foof%3E"
