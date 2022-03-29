@@ -136,7 +136,6 @@ class RegisterScraping:
         content = json.loads(dec)['pageList'][0]
         print(content)
         # result = content[2]['b'][0]
-
         return
 
 def creation_uid(referer, file_id, mgm_no):
