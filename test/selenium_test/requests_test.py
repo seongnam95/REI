@@ -6,32 +6,21 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from webdriver_manager.chrome import ChromeDriverManager
 from seleniumrequests import Chrome
-from PIL import Image
+from pathlib import Path
+from urllib import parse
 
 import time
 import webbrowser
 import json
 import requests
 import base64
-from pathlib import Path
-from urllib import parse
+import urllib3
 import cv2
 import numpy as np
-from PIL import Image
 
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-#
-# chrome_options = webdriver.ChromeOptions()
-# chrome_options.add_argument('headless')  # 크롬 화면 숨기기
-# chrome_options.add_argument("no-sandbox")  #
-# chrome_options.add_argument('window-size=1920x1080')  # 해상도 설정
-# chrome_options.add_argument("--start-maximized")
-# chrome_options.add_argument("disable-gpu")  # 가속 사용 x
-# chrome_options.add_argument("lang=ko_KR")  # 가짜 플러그인 탑재
-# chrome_options.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) "
-#                             "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36")  # user-agent 이름 설정
-#
-# driver = Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+# driver = Chrome(service=Service('chromedriver.exe'), options=chrome_options)
 
 # driver.get(url)
 # driver.implicitly_wait(5)
@@ -115,7 +104,7 @@ def find_floors_1(pages, page_3=None):
 
 class RegisterScraping:
     def __init__(self, referer, reportkey):
-
+        self.reportkey = reportkey
         self.payload = {'uid': reportkey,
                         'clipUID': reportkey,
                         'ClipType': 'DocumentPageView'}
@@ -124,34 +113,88 @@ class RegisterScraping:
                           "isMakeDocument": 'True'}
         self.headers = {
             "Referer": referer,
-            "Host": "cloud.eais.go.kr",
-            "Content-Type": "application/json;charset=UTF-8",
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36"
         }
 
     def request_page(self, page_num):
-        clip = self.clip_data
-        clip['pageMethod'] = page_num
+        # self.reportkey = 'cd6004da49eab4f009ca0d09debe45d9b'
+        print(self.reportkey)
+        clip = '{"reportkey":"%s","isMakeDocument":true,"pageMethod":%s}' % (self.reportkey, page_num)
 
         datas = self.payload
-        datas['ClipData'] = parse.quote(json.dumps(clip).replace(' ', ''))
+        datas['ClipData'] = parse.quote(clip)
 
-        res = requests.post('https://cloud.eais.go.kr/report/RPTCAA02R02', headers=self.headers, json=datas)
-        print(res.text)
-        data = json.loads(res.text)
+        s = requests.Session()
+        s.verify = False
+        d = "uid=%s&clipUID=%s&ClipType=DocumentPageView&ClipData=%s" % (self.reportkey, self.reportkey, parse.quote(clip))
+        print(d)
+        res = s.post(url='https://cloud.eais.go.kr/report/RPTCAA02R02', headers=self.headers, data=d)
 
+        data = json.loads(res.text)['resValue']
         dec = base64.b64decode(data['viewData'])
         content = json.loads(dec)['pageList'][0]
-        result = content[2]['b'][0]
+        print(content)
+        # result = content[2]['b'][0]
 
-        return result
+        return
 
-ref = 'https://cloud.eais.go.kr/report/BCIAAA04V01?param=U2FsdGVkX19vbKyRlpCMlY%2FJrcE%2FNCgFyoBRlPxcJcn6ryhh7vZ5EGQDI%2BfqPPWvTro%2BBjNeHDaYcfePSfIvZYSGK2XZLnXPmrowLfdyciXefqhPAtEaccEN%2ByGDwwAIOrA9mFLjNda7OitBOGp7a6m2XOLFJ6vCwp%2Bg38BZOhD29FDnlYu5srrztYKw5jJc3SguYlvRXFbOWwvhAg0FmnH2SNw%2B4BHjzJ43mwYUPiUSHGdjHzk5pniavuC4%2BE4ttK2UhK%2FoikwH4u1oZI7WjEDszHIRAs5tzcGthZG6%2Bqt9cp50e8ti0ikl2YVbkVKfojMESLq1PxVf9ujzRsZ6LGboCsmaBYTk1Hr%2Fj2Sn7hZ64%2FD%2FyIsfDFZG0py%2FKptxu0G%2F3Gil%2FoVsIXK19t4Jfw8yLuacOPyjXAx4RYJmbxjE0R%2Bnq4PmrErGqfah%2BM0a6helj9SaSMCJ7vlZlsyZ1U8QhhQdO%2FeS1LOMh58RoyN7WRmEXgA%2BWnafKEMg00JA%2FeNugVSSnYThWDzKIT9DWwgpNc3g46pu7CSTO4Wo7XlZx9XhpaICBUjtZeg%2BInU5COZKb0spzq7p4cBHEqjBqV%2B1b3J0rXRvL1Xi%2F7LjABPx6srWXWZsrwpdkWBuv2Ha0MZVgkf2XDb5xJlfutelsNDn87JeUgfdvuy0PjEUUt8BW9yd4QXJwmoKCMlOUR%2Bt&actionId=BCIAAA04L01'
-key = 'c94c86bd42c304524b3210a8ca52e7632'
-report = RegisterScraping(ref, key)
-result = report.request_page(1)
+def creation_uid(referer, file_id, mgm_no):
+    data = f"isEncoding=false&isBigData=false&isMemoryDump=false&ClipID=R01&oof=%3C%3Fxml%20version%3D'1.0'%20encoding%3D'utf-8'%3F%3E%3Coof%20version%3D'3.0'%3E%3Cdocument%20title%3D''%20enable-thread%3D'0'%3E%3Cfile-list%3E%3Cfile%20type%3D'crf.root'%20path%3D'%25root%25%2Fcrf%2Fbci%2FdjrBldrgstGnrl.crf'%3E%3C%2Ffile%3E%3C%2Ffile-list%3E%3Cconnection-list%3E%3Cconnection%20type%3D'file'%20namespace%3D'XML1'%3E%3Cconfig-param-list%3E%3Cconfig-param%20name%3D'path'%3E%2Fcais_data%2Fissue%2F{mgm_no}%2F{mgm_no}.xml%3C%2Fconfig-param%3E%3C%2Fconfig-param-list%3E%3Ccontent%20content-type%3D'xml'%20namespace%3D'*'%3E%3Ccontent-param%20name%3D'encoding'%3Eeuc-kr%3C%2Fcontent-param%3E%3Ccontent-param%20name%3D'root'%3E%7B%25dataset.xml.root%25%7D%3C%2Fcontent-param%3E%3C%2Fcontent%3E%3C%2Fconnection%3E%3C%2Fconnection-list%3E%3Cfield-list%20type%3D%22name%22%3E%3Cfield%20name%3D'ISSUE_READ_GB_CD'%20trim%3D'true'%3E0%3C%2Ffield%3E%3Cfield%20name%3D'FILE_ID'%20trim%3D'true'%3E{file_id}%3C%2Ffield%3E%3Cfield%20name%3D'CHANG_MATR_COUNT'%20trim%3D'true'%3E9%3C%2Ffield%3E%3Cfield%20name%3D'WCLF_INFO_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'BLD_CURST_INFO_COUNT'%20trim%3D'true'%3E3%3C%2Ffield%3E%3Cfield%20name%3D'RELAT_RNM_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'LC_INFO_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'RELAT_JIBUN_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'OWNR_CURST_INFO_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'ETC_RCD_MATR_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'SVR_GB'%20trim%3D'true'%3Epm3%3C%2Ffield%3E%3Cfield%20name%3D'SVR_HOST'%20trim%3D'true'%3E176%3A7000%3C%2Ffield%3E%3Cfield%20name%3D'FILE_PATH'%20trim%3D'true'%3E%2Fcais_data%2Fissue%2F2022%2F03%2F29%2F{mgm_no}%2F{mgm_no}.png%3C%2Ffield%3E%3C%2Ffield-list%3E%3C%2Fdocument%3E%3C%2Foof%3E"
+    headers = {
+        "Referer": referer,
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36"
+    }
+    s = requests.Session()
+    s.verify = False
 
-print(find_owners(result))
+    res = s.post(url='https://cloud.eais.go.kr/report/RPTCAA02R02', headers=headers, data=data)
+    # uid = res.text.split("uid':'")[1].split("'")[0]
+    uid = 'cd6004da49eab4f009ca0d09debe45d9b'
+    print(res.text)
+    data = f"ClipID=R03&uid={uid}&clipUID={uid}&s_time="
+    res = s.post(url='https://cloud.eais.go.kr/report/RPTCAA02R02', headers=headers, data=data)
+    print(res.text)
+    return uid
+
+
+chrome_options = webdriver.ChromeOptions()
+chrome_options.add_argument('headless')  # 크롬 화면 숨기기
+chrome_options.add_argument("no-sandbox")  #
+chrome_options.add_argument('window-size=1920x1080')  # 해상도 설정
+chrome_options.add_argument("--start-maximized")
+chrome_options.add_argument("disable-gpu")  # 가속 사용 x
+chrome_options.add_argument("lang=ko_KR")  # 가짜 플러그인 탑재
+chrome_options.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) "
+                            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36")  # user-agent 이름 설정
+
+driver = Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+
+driver.get("https://cloud.eais.go.kr/moct/awp/abb01/AWPABB01F01")
+driver.implicitly_wait(5)
+
+driver.find_element(By.ID, 'membId').send_keys('haul1115')
+driver.find_element(By.ID, 'pwd').send_keys('ks05090818@')
+driver.find_element(By.XPATH, '//*[@id="container"]/div[2]/div/div/div[1]/div[1]/button').click()
+time.sleep(0.5)
+
+driver.get('https://cloud.eais.go.kr/moct/bci/aaa04/BCIAAA04L01')
+driver.implicitly_wait(5)
+
+driver.find_element(By.XPATH, '//*[@id="container"]/div[2]/div/div[4]/table/tbody/tr[1]/td[5]/a').click()
+driver.implicitly_wait(5)
+time.sleep(0.5)
+
+driver.switch_to.window(driver.window_handles[1])
+
+ref = driver.current_url
+# print(ref)
+# report = RegisterScraping(ref, creation_uid(ref))
+# report.request_page(1)
+
+creation_uid(ref)
+
 #
 # page_1 = base64.b64decode(Path("test_1p.txt").read_text())
 # page_1 = json.loads(page_1)['pageList'][0]

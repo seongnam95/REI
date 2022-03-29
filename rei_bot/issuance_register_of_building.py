@@ -78,12 +78,12 @@ class IssuanceBuildingLedger(QThread):
         result, ho = None, ''
         if self.kind == 0:
             datas = {"addrGbCd": 2, "bldrgstCurdiGbCd": "0", "sigunguCd": self.sigungu, "bldrgstSeqno": self.seqno}
-            response_title = self.driver.request('POST', 'https://cloud.eais.go.kr/bci/BCIAAA02R01', headers=headers, json=datas)
+            response_title = self.driver.request('POST', 'https://cloud.eais.go.kr/bci/BCIAAA02R01', verify=False, headers=headers, json=datas)
             result = json.loads(response_title.text)['jibunAddr'][0]
 
         elif self.kind == 1:
             datas = {"inqireGbCd": "1", "bldrgstCurdiGbCd": "0", "reqSigunguCd": self.sigungu, "bldrgstSeqno": self.seqno}
-            response_title = self.driver.request('POST', 'https://cloud.eais.go.kr/bci/BCIAAA02R04', headers=headers, json=datas)
+            response_title = self.driver.request('POST', 'https://cloud.eais.go.kr/bci/BCIAAA02R04', verify=False, headers=headers, json=datas)
             result = json.loads(response_title.text)['findExposList'][0]
 
         bun, ji = result['mnnm'].lstrip('0'), result['slno'].lstrip('0')
@@ -104,11 +104,13 @@ class IssuanceBuildingLedger(QThread):
                   "bldrgstCurdiGbCd": "0"}
 
         # 민원 담기 (담아야 응답 값 나옴)
-        self.driver.request('POST', 'https://cloud.eais.go.kr/bci/BCIAAA02C01', headers=headers, json=datas2)
+        a = self.driver.request('POST', 'https://cloud.eais.go.kr/bci/BCIAAA02C01', verify=False, headers=headers, json=datas2)
+        print(a.text)
 
         # 담은 민원 처리 (응답 값 필요)
-        response_put_in = self.driver.request('POST', 'https://cloud.eais.go.kr/bci/BCIAAA02R05', headers=headers)
+        response_put_in = self.driver.request('POST', 'https://cloud.eais.go.kr/bci/BCIAAA02R05', verify=False, headers=headers)
         result = json.loads(response_put_in.text)
+        print(result)
 
         headers['Referer'] = "https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02F01"
         datas = {"pbsvcResveDtls": result['findPbsvcResveDtls'],    # issueReadGbCd (0: 발급, 1: 열람)
@@ -116,10 +118,11 @@ class IssuanceBuildingLedger(QThread):
                  "appntInfo": {"appntGbCd": "01", "naAppntGrndUgrndGbCd": "0"}}
 
         # 발급 신청, 담은 민원 제거
-        self.driver.request('POST', 'https://cloud.eais.go.kr/bci/BCIAZA02S01', headers=headers, json=datas)
-        self.driver.request('POST', 'https://cloud.eais.go.kr/bci/BCIAAA02D02', headers=headers,
+        b = self.driver.request('POST', 'https://cloud.eais.go.kr/bci/BCIAZA02S01', verify=False, headers=headers, json=datas)
+        c = self.driver.request('POST', 'https://cloud.eais.go.kr/bci/BCIAAA02D02', verify=False, headers=headers,
                             json={'lastUpdusrId': result['findPbsvcResveDtls'][0]['lastUpdusrId']})
-
+        print(b.text)
+        print(c.text)
         self.open_document()
 
         # except Exception as e:
@@ -131,26 +134,30 @@ class IssuanceBuildingLedger(QThread):
         # try:
         try_cnt = 0
         success = False
+        self.driver.get('https://cloud.eais.go.kr/moct/bci/aaa04/BCIAAA04L01')
+        self.driver.implicitly_wait(5)
         while try_cnt < 5:
             try_cnt += 1
             self.threadEvent.progress.emit('발급 완료, 민원 처리 중..' + str(try_cnt))
+            time.sleep(2)
 
             # 완료 처리 된 문서 열기
-            self.driver.get('https://cloud.eais.go.kr/moct/bci/aaa04/BCIAAA04L01')
-            self.driver.implicitly_wait(5)
-
             list_form = self.driver.find_element(By.XPATH, '//*[@id="container"]/div[2]/div/div[4]/table/tbody')
             document_list = list_form.find_elements(By.TAG_NAME, 'tr')  # 문서 리스트
 
             for i in document_list:    # 문서 리스트 Row 수만큼 반복
                 content = i.get_attribute("innerText")
                 if self.address in content:  # 주소가 맞을 경우
+                    print(content)
                     if '발급' in content:   # '발급'인 항목 클릭
                         i.find_element(By.XPATH, 'td[5]/a').click()
                         success = True
                         break
             if success: break
-            time.sleep(1)
+            time.sleep(2)
+
+            self.driver.refresh()
+            self.driver.implicitly_wait(5)
 
         if success:
             self.threadEvent.progress.emit('처리 완료, 오픈 대기중')

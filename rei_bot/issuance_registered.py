@@ -26,7 +26,7 @@ class IssuanceRegistered:
                         "ENC-KEY": aesCipherKey}
 
         datas = {'Address': address,    # 주소
-                 'Sangtae': 0,          # 현행:0/폐쇄:1 / 현행폐쇄:2
+                 'Sangtae': 0,          # 현행:0/ 폐쇄:1 / 현행폐쇄:2
                  'KindClsFlag': 1}   # 전체:0 / 집합건물:1 / 건물:2 / 토지:3
 
         # 등기 고유번호 조회
@@ -45,7 +45,8 @@ class IssuanceRegistered:
                       "EmoneyNo1": aesEncrypt(aesKey, aesIv, num_1),
                       "EmoneyNo2": aesEncrypt(aesKey, aesIv, num_2),
                       "EmoneyPwd": aesEncrypt(aesKey, aesIv, num_pw),
-                      "UniqueNo": unique_no}
+                      "UniqueNo": unique_no,
+                      "ValidYn": "Y"}
 
             response = requests.post(url['발급'], headers=self.headers, json=params)
             result = response.json()
@@ -120,7 +121,7 @@ def getPublicKey(apiHost, apiKey):
 
 
 ir = IssuanceRegistered()
-data = ir.get_register_data('면목동 90-27 702호', 'mogsin21', 'happy2588@', 'P3372711', '3234', 'kim2588')
+data = ir.get_register_data('면목동 137-34 302호', 'mogsin21', 'happy2588@', 'P3372711', '3234', 'kim2588')
 print(data['Message'])
 
 
