@@ -134,12 +134,14 @@ class IssuanceBuildingLedger(QThread):
         # try:
         try_cnt = 0
         success = False
-        self.driver.get('https://cloud.eais.go.kr/moct/bci/aaa04/BCIAAA04L01')
-        self.driver.implicitly_wait(5)
+        time.sleep(1)   # 처리중 대기
+
         while try_cnt < 5:
-            try_cnt += 1
+            self.driver.get('https://cloud.eais.go.kr/moct/bci/aaa04/BCIAAA04L01')
+            self.driver.implicitly_wait(5)
+
             self.threadEvent.progress.emit('발급 완료, 민원 처리 중..' + str(try_cnt))
-            time.sleep(2)
+            try_cnt += 1
 
             # 완료 처리 된 문서 열기
             list_form = self.driver.find_element(By.XPATH, '//*[@id="container"]/div[2]/div/div[4]/table/tbody')
@@ -147,17 +149,15 @@ class IssuanceBuildingLedger(QThread):
 
             for i in document_list:    # 문서 리스트 Row 수만큼 반복
                 content = i.get_attribute("innerText")
+                print('1::', content)
                 if self.address in content:  # 주소가 맞을 경우
-                    print(content)
+                    print('2::', content)
                     if '발급' in content:   # '발급'인 항목 클릭
                         i.find_element(By.XPATH, 'td[5]/a').click()
                         success = True
                         break
             if success: break
-            time.sleep(2)
-
-            self.driver.refresh()
-            self.driver.implicitly_wait(5)
+            time.sleep(3)
 
         if success:
             self.threadEvent.progress.emit('처리 완료, 오픈 대기중')

@@ -102,97 +102,151 @@ def find_floors_1(pages, page_3=None):
 
 
 class RegisterScraping:
-    def __init__(self, referer, reportkey):
-        self.reportkey = reportkey
-        self.payload = {'uid': reportkey,
-                        'clipUID': reportkey,
-                        'ClipType': 'DocumentPageView'}
-
-        self.clip_data = {"reportkey": reportkey,
-                          "isMakeDocument": 'True'}
+    def __init__(self, referer):
         self.headers = {
             "Referer": referer,
             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36"
         }
+        self.recp_no, self.file_id = None, None
+        self.referer = referer
+
+        # Requests에 로그인 세션 넘기기
+        self.s = requests.Session()
+        self.s.verify = False
+
+        self.driver, cookies = sign_in_saumter()
+        for cookie in cookies:
+            self.s.cookies.set(cookie['name'], cookie['value'])
+
+        self.reportkey = self.get_reportkey('망우동 521-23')
+        self.payload = {'uid': self.reportkey,
+                        'clipUID': self.reportkey,
+                        'ClipType': 'DocumentPageView'}
+
+        self.clip_data = {"reportkey": self.reportkey,
+                          "isMakeDocument": 'True'}
+
+        content_sort = json.dumps(self.request_page(0), indent=4)
+        print(parse.unquote(content_sort))
+
+    # UID 조회
+    def get_reportkey(self, address):
+        headers = {
+            "Referer": 'https://cloud.eais.go.kr/moct/bci/aaa04/BCIAAA04L01',
+            "Content-Type": "application/json;charset=UTF-8",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36"
+        }
+
+        # 발급 목록 조회
+        response_doc_list = self.s.post(url='https://cloud.eais.go.kr/bci/BCIAAA06R01', headers=headers, json={"recordSize": 20})
+        result_list = json.loads(response_doc_list.text)['IssueReadHistList']
+
+        # 해당 주소의 'pbsvcRecpNo' 파싱
+        recp_no, iss_date = None, None
+        for i in result_list:
+            if address in i['locDetlAddr']:
+                recp_no = i['pbsvcRecpNo']
+                iss_date = i['recpDate'].replace('-', '')
+                break
+
+        # 'File ID' 파싱
+        file_id = None
+        if recp_no:
+            r = self.s.post(url='https://cloud.eais.go.kr/report/BCIAAA06R03', headers=headers,
+                                            json={"issueReadAppDate": iss_date, "pbsvcRecpNo": recp_no})
+            print(r.text)
+            get_uid_json = self.s.post(url='https://cloud.eais.go.kr/bci/BCIAAA06R03', headers=headers,
+                                         json={"issueReadAppDate": iss_date, "pbsvcRecpNo": recp_no})
+            response = json.loads(get_uid_json.text)
+            print(response)
+            file_id = response['count']['FILE_ID']
+
+        if file_id:
+            data = f"""isEncoding=false&isBigData=false&isMemoryDump=false&ClipID=R01&oof=%3C%3Fxml%20version%3D'1.0'%20encoding%3D'utf-8'%3F%3E%3Coof%20version%3D'3.0'%3E%3Cdocument%20title%3D''%20enable-thread%3D'0'%3E%3Cfile-list%3E%3Cfile%20type%3D'crf.root'%20path%3D'%25root%25%2Fcrf%2Fbci%2FdjrBldrgstGnrl.crf'%3E%3C%2Ffile%3E%3C%2Ffile-list%3E%3Cconnection-list%3E%3Cconnection%20type%3D'file'%20namespace%3D'XML1'%3E%3Cconfig-param-list%3E%3Cconfig-param%20name%3D'path'%3E%2Fcais_data%2Fissue%2F{recp_no}%2F{recp_no}.xml%3C%2Fconfig-param%3E%3C%2Fconfig-param-list%3E%3Ccontent%20content-type%3D'xml'%20namespace%3D'*'%3E%3Ccontent-param%20name%3D'encoding'%3Eeuc-kr%3C%2Fcontent-param%3E%3Ccontent-param%20name%3D'root'%3E%7B%25dataset.xml.root%25%7D%3C%2Fcontent-param%3E%3C%2Fcontent%3E%3C%2Fconnection%3E%3C%2Fconnection-list%3E%3Cfield-list%20type%3D%22name%22%3E%3Cfield%20name%3D'ISSUE_READ_GB_CD'%20trim%3D'true'%3E0%3C%2Ffield%3E%3Cfield%20name%3D'FILE_ID'%20trim%3D'true'%3E{file_id}%3C%2Ffield%3E%3Cfield%20name%3D'CHANG_MATR_COUNT'%20trim%3D'true'%3E9%3C%2Ffield%3E%3Cfield%20name%3D'WCLF_INFO_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'BLD_CURST_INFO_COUNT'%20trim%3D'true'%3E3%3C%2Ffield%3E%3Cfield%20name%3D'RELAT_RNM_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'LC_INFO_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'RELAT_JIBUN_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'OWNR_CURST_INFO_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'ETC_RCD_MATR_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'SVR_GB'%20trim%3D'true'%3Epm3%3C%2Ffield%3E%3Cfield%20name%3D'SVR_HOST'%20trim%3D'true'%3E176%3A7000%3C%2Ffield%3E%3Cfield%20name%3D'FILE_PATH'%20trim%3D'true'%3E%2Fcais_data%2Fissue%2F2022%2F03%2F29%2F{recp_no}%2F{recp_no}.png%3C%2Ffield%3E%3C%2Ffield-list%3E%3C%2Fdocument%3E%3C%2Foof%3E"""
+            headers = {
+                "Referer": self.referer,
+                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36"
+            }
+
+            # uid 등록
+            res = self.s.post(url='https://cloud.eais.go.kr/report/RPTCAA02R02', headers=headers, data=data)
+            print(res.text)
+            uid = res.text.split("uid':'")[1].split("'")[0]
+
+            return uid
 
     def request_page(self, page_num):
-        # self.reportkey = 'cd6004da49eab4f009ca0d09debe45d9b'
-        print(self.reportkey)
         clip = '{"reportkey":"%s","isMakeDocument":true,"pageMethod":%s}' % (self.reportkey, page_num)
 
         datas = self.payload
         datas['ClipData'] = parse.quote(clip)
 
-        s = requests.Session()
-        s.verify = False
+        d = "ClipID=R03&uid=%s&clipUID=%s&s_time=1648631977504" % (self.reportkey, self.reportkey)
+        res = self.s.post(url='https://cloud.eais.go.kr/report/RPTCAA02R02', headers=self.headers, data=d)
+        print(res.text)
+
         d = "uid=%s&clipUID=%s&ClipType=DocumentPageView&ClipData=%s" % (self.reportkey, self.reportkey, parse.quote(clip))
-        print(d)
-        res = s.post(url='https://cloud.eais.go.kr/report/RPTCAA02R02', headers=self.headers, data=d)
+        res = self.s.post(url='https://cloud.eais.go.kr/report/RPTCAA02R02', headers=self.headers, data=d)
 
         data = json.loads(res.text)['resValue']
         dec = base64.b64decode(data['viewData'])
         content = json.loads(dec)['pageList'][0]
-        print(content)
-        # result = content[2]['b'][0]
-        return
+
+        result = content['d'][2]['b'][0]
+        return result
+
+# 세움터 로그인
+def sign_in_saumter():
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument('headless')  # 크롬 화면 숨기기
+    chrome_options.add_argument("no-sandbox")  #
+    chrome_options.add_argument('window-size=1920x1080')  # 해상도 설정
+    chrome_options.add_argument("--start-maximized")
+    chrome_options.add_argument("disable-gpu")  # 가속 사용 x
+    chrome_options.add_argument("lang=ko_KR")  # 가짜 플러그인 탑재
+    chrome_options.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) "
+                                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36")  # user-agent 이름 설정
+
+    driver = Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+
+    # 로그인 페이지로 이동
+    driver.get("https://cloud.eais.go.kr/moct/awp/abb01/AWPABB01F01")
+    driver.implicitly_wait(5)
+
+    # 로그인 이벤트
+    driver.find_element(By.ID, 'membId').send_keys('haul1115')
+    driver.find_element(By.ID, 'pwd').send_keys('ks05090818@')
+    driver.find_element(By.XPATH, '//*[@id="container"]/div[2]/div/div/div[1]/div[1]/button').click()
+    time.sleep(0.5)
+
+    cookies = driver.get_cookies()
+    return driver, cookies
 
 
-def creation_uid(referer, file_id, mgm_no):
-    data = f"isEncoding=false&isBigData=false&isMemoryDump=false&ClipID=R01&oof=%3C%3Fxml%20version%3D'1.0'%20encoding%3D'utf-8'%3F%3E%3Coof%20version%3D'3.0'%3E%3Cdocument%20title%3D''%20enable-thread%3D'0'%3E%3Cfile-list%3E%3Cfile%20type%3D'crf.root'%20path%3D'%25root%25%2Fcrf%2Fbci%2FdjrBldrgstGnrl.crf'%3E%3C%2Ffile%3E%3C%2Ffile-list%3E%3Cconnection-list%3E%3Cconnection%20type%3D'file'%20namespace%3D'XML1'%3E%3Cconfig-param-list%3E%3Cconfig-param%20name%3D'path'%3E%2Fcais_data%2Fissue%2F{mgm_no}%2F{mgm_no}.xml%3C%2Fconfig-param%3E%3C%2Fconfig-param-list%3E%3Ccontent%20content-type%3D'xml'%20namespace%3D'*'%3E%3Ccontent-param%20name%3D'encoding'%3Eeuc-kr%3C%2Fcontent-param%3E%3Ccontent-param%20name%3D'root'%3E%7B%25dataset.xml.root%25%7D%3C%2Fcontent-param%3E%3C%2Fcontent%3E%3C%2Fconnection%3E%3C%2Fconnection-list%3E%3Cfield-list%20type%3D%22name%22%3E%3Cfield%20name%3D'ISSUE_READ_GB_CD'%20trim%3D'true'%3E0%3C%2Ffield%3E%3Cfield%20name%3D'FILE_ID'%20trim%3D'true'%3E{file_id}%3C%2Ffield%3E%3Cfield%20name%3D'CHANG_MATR_COUNT'%20trim%3D'true'%3E9%3C%2Ffield%3E%3Cfield%20name%3D'WCLF_INFO_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'BLD_CURST_INFO_COUNT'%20trim%3D'true'%3E3%3C%2Ffield%3E%3Cfield%20name%3D'RELAT_RNM_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'LC_INFO_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'RELAT_JIBUN_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'OWNR_CURST_INFO_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'ETC_RCD_MATR_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'SVR_GB'%20trim%3D'true'%3Epm3%3C%2Ffield%3E%3Cfield%20name%3D'SVR_HOST'%20trim%3D'true'%3E176%3A7000%3C%2Ffield%3E%3Cfield%20name%3D'FILE_PATH'%20trim%3D'true'%3E%2Fcais_data%2Fissue%2F2022%2F03%2F29%2F{mgm_no}%2F{mgm_no}.png%3C%2Ffield%3E%3C%2Ffield-list%3E%3C%2Fdocument%3E%3C%2Foof%3E"
-    headers = {
-        "Referer": referer,
-        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36"
-    }
-    s = requests.Session()
-    s.verify = False
-
-    res = s.post(url='https://cloud.eais.go.kr/report/RPTCAA02R02', headers=headers, data=data)
-    # uid = res.text.split("uid':'")[1].split("'")[0]
-    uid = 'cd6004da49eab4f009ca0d09debe45d9b'
-    print(res.text)
-    data = f"ClipID=R03&uid={uid}&clipUID={uid}&s_time="
-    res = s.post(url='https://cloud.eais.go.kr/report/RPTCAA02R02', headers=headers, data=data)
-    print(res.text)
-    return uid
+ref = 'https://cloud.eais.go.kr/report/BCIAAA04V01?param=U2FsdGVkX18wH2wyuerAHcLnwPccTO7wO2aymYCDziurSZdBJT4wZ%2BGE2RxT3mo3pSSkwHqYHhdbptmvwaw9sESaRgyKMOKaTNoYodRfPtX9jya8pIN3jbUWNwNMOUPoqPAwW%2BxSqBy01kQU6d04pgz71o5%2BmWraftQOs2prdncOWwNUENcAYBTi%2FBhEBtkadBtXStyvVoje6AZnOXa3FlSeTt2wqu8v%2BZY8%2FUMhSYgYeH0yNMd01atKkupgexAIg1xntnPUmTOIbJlbNNK9ep%2F%2F0reRttv5eGhBINgEjui5%2FP1UXA1AwJbrlKNKx%2Bwd0hWyhOWx6xH40l53rrSNf%2F2tGgYmWCYbPVi0DFemQL3p%2FffapJpjBK1%2FbQE%2FMKxyueHjwUcmZnG8uRLOckN7c8Lcs%2B2%2FnbN5PDPk7cggJxPzOZHx2f%2BllmUJYTZMMCqDuE9sDPcfhwdFIjEf8hXPAJQWCLzGvgV8n6iyoT0JpZgTme03BvAaCvn8Dsuo1KWj1JNmtSotBllgDc0kByCfHJBI3ZJ9FlIelgoq8R94bPsluSFkTvb1Icrl1ZYzYL6FoqM%2BU3OkBoeFWALX%2BjlGgR9YFAowMfuhKBHxBTobkHZPT6XmwZbRi9EX9CvghBzhj0YXBA0US6RoCIbfO2hJheyHArNgVxrCQJrNI6HJEnugFmyVm%2BoPstOUVC%2BYiJzs&actionId=BCIAAA04L01'
+RegisterScraping(ref)
 
 
-chrome_options = webdriver.ChromeOptions()
-chrome_options.add_argument('headless')  # 크롬 화면 숨기기
-chrome_options.add_argument("no-sandbox")  #
-chrome_options.add_argument('window-size=1920x1080')  # 해상도 설정
-chrome_options.add_argument("--start-maximized")
-chrome_options.add_argument("disable-gpu")  # 가속 사용 x
-chrome_options.add_argument("lang=ko_KR")  # 가짜 플러그인 탑재
-chrome_options.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) "
-                            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36")  # user-agent 이름 설정
+# ref = 'https://cloud.eais.go.kr/report/BCIAAA04V01?param=U2FsdGVkX19qdcYuyon%2BedPMAIfGsEtA0CxV3kMoteiGKcaXHAF%2B26nszrmYvN2hDZeN5cbotIHbOPBHXmlwDi9lprLZktGYbUwVUFIgHp62pmhpUoTpAkkgV1K2kAqMakkDFnihIxYYcmavhb1JVJXeUVfL5KNKmjX%2Fqicd1gBaR51Xhy3oEVV84o8mCMepRBzy6uIiC5ggKXES%2BFno6mPHG82rqTOVRBmkCh6xGZ%2F25%2BDKLq0XoMZaYuk95zUtj5nlj%2BHCSVOADB%2BTTH7bZ0f4B6%2FBPLIf7tQVlD8Wgo9CJUTKZPyuoFAlR%2BwHrWvhwyuVHQ%2B4BIIZLH%2FsXNYPvoVXnBeHcrAEMoKq1zurYlR%2FpypAXExN%2Bf9Q0oJ5Gmv4IFzNq%2FAxIQ%2FcgDt1HBm9%2F5w2aRieA0TTQB%2Bb9Wn9rmplRNo1sFDSFG8BSKXTHLt5oyGehX8eK4ThEUrQtiJyzq4bfYueToxGFYT99FVPYWyJZtVv0n1rOm2%2FR05xzNkqW401TRjLfLXCOv2ek6Zj0F3wi5OoADdG%2BpuO89FL5wWyw93EkAn3UfYMo34fs%2BzdrOtSNRqToEggOkoOsgYZMtpo7hr%2BJ5glx8DsKPqGd0bH2a7rJNYqGmr9Qurm7kxCw3eZDZnKbIm%2BUTIDq%2BlvyMXz0KiXcFJqUnp1gMsnD9TSgeKe0hhzA1TzULeIAw2K&actionId=BCIAAA04L01'
+# f_id = ''
+# print(get_uid(ref, f_id, get_recp_no('망우동 521-23')))
 
-driver = Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
-
-driver.get("https://cloud.eais.go.kr/moct/awp/abb01/AWPABB01F01")
-driver.implicitly_wait(5)
-
-driver.find_element(By.ID, 'membId').send_keys('haul1115')
-driver.find_element(By.ID, 'pwd').send_keys('ks05090818@')
-driver.find_element(By.XPATH, '//*[@id="container"]/div[2]/div/div/div[1]/div[1]/button').click()
-time.sleep(0.5)
-
-driver.get('https://cloud.eais.go.kr/moct/bci/aaa04/BCIAAA04L01')
-driver.implicitly_wait(5)
-
-driver.find_element(By.XPATH, '//*[@id="container"]/div[2]/div/div[4]/table/tbody/tr[1]/td[5]/a').click()
-driver.implicitly_wait(5)
-time.sleep(0.5)
-
-driver.switch_to.window(driver.window_handles[1])
-
-ref = driver.current_url
+# driver.find_element(By.XPATH, '//*[@id="container"]/div[2]/div/div[4]/table/tbody/tr[1]/td[5]/a').click()
+# driver.implicitly_wait(5)
+# time.sleep(0.5)
+#
+# driver.switch_to.window(driver.window_handles[1])
+#
+# ref = driver.current_url
+# fi = '87f27ec0-01b0-4b0d-865b-dc60ec9ddcf6'
+# mgm = '20223220000P417394'
 # print(ref)
 # report = RegisterScraping(ref, creation_uid(ref))
 # report.request_page(1)
-
-creation_uid(ref)
+#
+# creation_uid(ref, fi, mgm)
 
 #
 # page_1 = base64.b64decode(Path("test_1p.txt").read_text())
