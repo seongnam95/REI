@@ -122,8 +122,7 @@ class RegisterScraping:
         for cookie in cookies:
             self.s.cookies.set(cookie['name'], cookie['value'])
 
-        self.reportkey = self.get_reportkey('망우동 521-23')
-        # self.reportkey = 'c42636e35e6c84d74be1ffbf40259b34b'
+        self.reportkey = self.get_reportkey('청담동 49-24')
 
         self.payload = {'uid': self.reportkey,
                         'clipUID': self.reportkey,
@@ -132,7 +131,9 @@ class RegisterScraping:
         self.clip_data = {"reportkey": self.reportkey,
                           "isMakeDocument": 'True'}
 
-        print(self.request_page(2))
+        page_1 = self.request_page(0)
+        print(page_1)
+        print(find_owners(page_1))
 
         # pages = [self.request_page(0)]
         # page_cnt = int(pages[0][8][2][0][0][3][1][0][0][0][1][0][1])
@@ -199,7 +200,7 @@ class RegisterScraping:
         datas = self.payload
         datas['ClipData'] = parse.quote(clip)
 
-        d = "ClipID=R03&uid=%s&clipUID=%s&s_time=1648631977504" % (self.reportkey, self.reportkey)
+        d = "ClipID=R03&uid=%s&clipUID=%s" % (self.reportkey, self.reportkey)
         self.s.post(url='https://cloud.eais.go.kr/report/RPTCAA02R02', headers=self.headers, data=d)
 
         d = "uid=%s&clipUID=%s&ClipType=DocumentPageView&ClipData=%s" % (self.reportkey, self.reportkey, parse.quote(clip))
@@ -240,7 +241,7 @@ def sign_in_saumter():
     return driver, cookies
 
 
-ref = 'https://cloud.eais.go.kr/report/BCIAAA04V01?param=U2FsdGVkX18vJRz6W7CdF4DzALzAHMS3bkucfWMmQGZpyCPbceDqvgrmWIiWKnTJzXcZiLsgufT74FzNId9Yq7LqthsnyPW6PK46p0NxlSYq1SoUaRzy48l75h8h9QeYIeHitSlJlgpMM6YGOnSVSKPWH2UvoVzSQRFzUd4yElCpm1xFyM%2B8fHU%2FxfWXNyO33MSP3s%2FrGPVRPtGZZ6u9%2Bepo5bqSi0XHrNYWK6IHVRG9yhVimQxP7lh0yPKY04lTKG6O6zuQBSNmCMKNARHHPKyq9T3OOjaFMUsfVMpaHFNNzYUm%2F0OmraxRcbqdMq9vI2AvMY6e0Udbh%2BJBuSm3Ob9MCCFQiJ5QmfzVOfyi3Jocv4aCPvQpzgTv%2F0KhDVLm6BH8khl20wk9bOldK8teKbm84jb4azZB3DMFPrDiHY409JbUxyvYZqoo%2F42euUPeARqRNgoRkZWoVMs9dRjdO2LigjzpjgafyLUCwtpJCCIv0aF%2F6de4SmWdfgG%2BRbgYxszZI%2FnxP2bOFTIzU9qMA08j7Z5mJzySScrCWK9l6a%2FBcfEPs92cuAiZf4aYNqKky%2BQH9VCjQF8mEmOruFaJwwZgubDDBCplTVqa%2BpgnyASq5LM10MfI7sJnh34tOEPhtve9yfbJrS0otKNoW6S8fGh%2F8qVEY3ZpWDgVFe2bBymN9KRrkHLTOc1rXr6c%2BNUj&actionId=BCIAAA04L01'
+ref = 'https://cloud.eais.go.kr/report/BCIAAA04V01?param=U2FsdGVkX19WJY3ynWRBTe%2BhOH4bg%2BFD5Gvxnf1xW3GDren%2FI7aFGV%2Fod4OGb6pvxgFdlxlzqWhYe%2Fo1ex4QGt3SnC%2BxdsFuS%2FRXHCTSooHqcF9CvU0bNZeXXSphhuk7kUrEeRdOfbRHZ9koBKAdyqeRahsTsd3yjTKPNzPW6Bq3YJlySt0OMc3lws0nJb5jslNS0hjAb01rNkr5%2FdIysPHFe63Tg%2BfGIwdd1lgL7%2BBgatVqeE0fMiw6aMQBYfUcB3dhLpvdrTh%2FMckUlb4jE8o6q%2FRM3hUBB1%2FO5Lix8qi0y7EtlDIuHEMThAGV%2BJ2fimvTCr9Ax5zEYqQ7tdvtoyGOKi9gNKzXYObQ5QOEtwKkcYIscqB655%2BvP3VPqCFNt78CdLeWzrgxiJ2%2FhMkbp3Ag6WxIU8LiWvmUTnJRE5XxVb0CYhGUEBSAKgXb1HFS2K8qwMYBIJkE24ByneD5PQ7qPxVReN0C5L9WTVPtpODkrEC3P%2Fll972D%2FQUaeQPnfzySrDEi76l5Lc1Z%2F1GbMU7SZh1HZWMoeykI2DCC505mLE%2Bkc4UUqoIMlp46mmTu6WhwsJm%2FgxzyDF2lpV3lWo%2FctucOpVKaLg0BLmtQe%2Fzq52x8rXYeVLoxZCZLSFvSBZTTAWeEd0uObg8rYXQQLhUkKLdyQrwj6U5kjbG0idOm6VKS7Ed1ZHpMN5RaQyLd&actionId=BCIAAA04L01'
 RegisterScraping(ref)
 
 
