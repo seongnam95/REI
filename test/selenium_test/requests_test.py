@@ -39,16 +39,19 @@ def find_owners(content):
     owners = []
     for o in owners_table:
         row = o[6][0][0][2]
+        if row is None: break
+
         owner_list = []
         for r in row:
-            columns = r
-            for c in columns:
+            for c in r:
                 if type(c) == list and len(c) > 3:
                     result = parse.unquote(c[7]).replace('+', ' ').lstrip(' ')
                     owner_list.append(result)
+
         owner = {'성명': owner_list[0], '주소': owner_list[1], '지분': owner_list[2],
                  '변동일': owner_list[3], '번호': owner_list[4], '변동원인': owner_list[5]}
         owners.append(owner)
+
     return owners
 
 
@@ -120,6 +123,8 @@ class RegisterScraping:
             self.s.cookies.set(cookie['name'], cookie['value'])
 
         self.reportkey = self.get_reportkey('망우동 521-23')
+        # self.reportkey = 'c42636e35e6c84d74be1ffbf40259b34b'
+
         self.payload = {'uid': self.reportkey,
                         'clipUID': self.reportkey,
                         'ClipType': 'DocumentPageView'}
@@ -127,8 +132,17 @@ class RegisterScraping:
         self.clip_data = {"reportkey": self.reportkey,
                           "isMakeDocument": 'True'}
 
-        content_sort = json.dumps(self.request_page(0), indent=4)
-        print(parse.unquote(content_sort))
+        print(self.request_page(2))
+
+        # pages = [self.request_page(0)]
+        # page_cnt = int(pages[0][8][2][0][0][3][1][0][0][0][1][0][1])
+        #
+        # for i in range(page_cnt):
+        #     if i != 0:
+        #         pages.append(self.request_page(i))
+        #
+        # content_sort = json.dumps(pages[1], indent=4)
+        # print(parse.unquote(content_sort))
 
     # UID 조회
     def get_reportkey(self, address):
@@ -147,23 +161,25 @@ class RegisterScraping:
         for i in result_list:
             if address in i['locDetlAddr']:
                 recp_no = i['pbsvcRecpNo']
-                iss_date = i['recpDate'].replace('-', '')
+                iss_date = i['recpDate'].split('-')
                 break
 
         # 'File ID' 파싱
         file_id = None
         if recp_no:
+            issue_read_date = "%s%s%s" % (iss_date[0], iss_date[1], iss_date[2])
             r = self.s.post(url='https://cloud.eais.go.kr/report/BCIAAA06R03', headers=headers,
-                                            json={"issueReadAppDate": iss_date, "pbsvcRecpNo": recp_no})
+                                            json={"issueReadAppDate": issue_read_date, "pbsvcRecpNo": recp_no})
             print(r.text)
             get_uid_json = self.s.post(url='https://cloud.eais.go.kr/bci/BCIAAA06R03', headers=headers,
-                                         json={"issueReadAppDate": iss_date, "pbsvcRecpNo": recp_no})
+                                         json={"issueReadAppDate": issue_read_date, "pbsvcRecpNo": recp_no})
             response = json.loads(get_uid_json.text)
             print(response)
             file_id = response['count']['FILE_ID']
 
         if file_id:
             data = f"""isEncoding=false&isBigData=false&isMemoryDump=false&ClipID=R01&oof=%3C%3Fxml%20version%3D'1.0'%20encoding%3D'utf-8'%3F%3E%3Coof%20version%3D'3.0'%3E%3Cdocument%20title%3D''%20enable-thread%3D'0'%3E%3Cfile-list%3E%3Cfile%20type%3D'crf.root'%20path%3D'%25root%25%2Fcrf%2Fbci%2FdjrBldrgstGnrl.crf'%3E%3C%2Ffile%3E%3C%2Ffile-list%3E%3Cconnection-list%3E%3Cconnection%20type%3D'file'%20namespace%3D'XML1'%3E%3Cconfig-param-list%3E%3Cconfig-param%20name%3D'path'%3E%2Fcais_data%2Fissue%2F{recp_no}%2F{recp_no}.xml%3C%2Fconfig-param%3E%3C%2Fconfig-param-list%3E%3Ccontent%20content-type%3D'xml'%20namespace%3D'*'%3E%3Ccontent-param%20name%3D'encoding'%3Eeuc-kr%3C%2Fcontent-param%3E%3Ccontent-param%20name%3D'root'%3E%7B%25dataset.xml.root%25%7D%3C%2Fcontent-param%3E%3C%2Fcontent%3E%3C%2Fconnection%3E%3C%2Fconnection-list%3E%3Cfield-list%20type%3D%22name%22%3E%3Cfield%20name%3D'ISSUE_READ_GB_CD'%20trim%3D'true'%3E0%3C%2Ffield%3E%3Cfield%20name%3D'FILE_ID'%20trim%3D'true'%3E{file_id}%3C%2Ffield%3E%3Cfield%20name%3D'CHANG_MATR_COUNT'%20trim%3D'true'%3E9%3C%2Ffield%3E%3Cfield%20name%3D'WCLF_INFO_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'BLD_CURST_INFO_COUNT'%20trim%3D'true'%3E3%3C%2Ffield%3E%3Cfield%20name%3D'RELAT_RNM_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'LC_INFO_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'RELAT_JIBUN_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'OWNR_CURST_INFO_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'ETC_RCD_MATR_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'SVR_GB'%20trim%3D'true'%3Epm3%3C%2Ffield%3E%3Cfield%20name%3D'SVR_HOST'%20trim%3D'true'%3E176%3A7000%3C%2Ffield%3E%3Cfield%20name%3D'FILE_PATH'%20trim%3D'true'%3E%2Fcais_data%2Fissue%2F2022%2F03%2F29%2F{recp_no}%2F{recp_no}.png%3C%2Ffield%3E%3C%2Ffield-list%3E%3C%2Fdocument%3E%3C%2Foof%3E"""
+            data = f"""isEncoding=false&isBigData=false&isMemoryDump=false&ClipID=R01&oof=%3C%3Fxml%20version%3D'1.0'%20encoding%3D'utf-8'%3F%3E%3Coof%20version%3D'3.0'%3E%3Cdocument%20title%3D''%20enable-thread%3D'0'%3E%3Cfile-list%3E%3Cfile%20type%3D'crf.root'%20path%3D'%25root%25%2Fcrf%2Fbci%2FdjrBldrgstGnrl.crf'%3E%3C%2Ffile%3E%3C%2Ffile-list%3E%3Cconnection-list%3E%3Cconnection%20type%3D'file'%20namespace%3D'XML1'%3E%3Cconfig-param-list%3E%3Cconfig-param%20name%3D'path'%3E%2Fcais_data%2Fissue%2F{iss_date[0]}%2F{iss_date[1]}%2F{iss_date[2]}%2F{recp_no}%2F{recp_no}.xml%3C%2Fconfig-param%3E%3C%2Fconfig-param-list%3E%3Ccontent%20content-type%3D'xml'%20namespace%3D'*'%3E%3Ccontent-param%20name%3D'encoding'%3Eeuc-kr%3C%2Fcontent-param%3E%3Ccontent-param%20name%3D'root'%3E%7B%25dataset.xml.root%25%7D%3C%2Fcontent-param%3E%3C%2Fcontent%3E%3C%2Fconnection%3E%3C%2Fconnection-list%3E%3Cfield-list%20type%3D%22name%22%3E%3Cfield%20name%3D'ISSUE_READ_GB_CD'%20trim%3D'true'%3E0%3C%2Ffield%3E%3Cfield%20name%3D'FILE_ID'%20trim%3D'true'%3E{file_id}%3C%2Ffield%3E%3Cfield%20name%3D'CHANG_MATR_COUNT'%20trim%3D'true'%3E4%3C%2Ffield%3E%3Cfield%20name%3D'WCLF_INFO_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'BLD_CURST_INFO_COUNT'%20trim%3D'true'%3E4%3C%2Ffield%3E%3Cfield%20name%3D'RELAT_RNM_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'LC_INFO_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'RELAT_JIBUN_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'OWNR_CURST_INFO_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'ETC_RCD_MATR_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'SVR_GB'%20trim%3D'true'%3Epm3%3C%2Ffield%3E%3Cfield%20name%3D'SVR_HOST'%20trim%3D'true'%3E156.178%3A7000%3C%2Ffield%3E%3Cfield%20name%3D'FILE_PATH'%20trim%3D'true'%3E%2Fcais_data%2Fissue%2F{iss_date[0]}%2F{iss_date[1]}%2F{iss_date[2]}%2F{recp_no}%2F{recp_no}.png%3C%2Ffield%3E%3C%2Ffield-list%3E%3C%2Fdocument%3E%3C%2Foof%3E"""
             headers = {
                 "Referer": self.referer,
                 "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
@@ -184,12 +200,11 @@ class RegisterScraping:
         datas['ClipData'] = parse.quote(clip)
 
         d = "ClipID=R03&uid=%s&clipUID=%s&s_time=1648631977504" % (self.reportkey, self.reportkey)
-        res = self.s.post(url='https://cloud.eais.go.kr/report/RPTCAA02R02', headers=self.headers, data=d)
-        print(res.text)
+        self.s.post(url='https://cloud.eais.go.kr/report/RPTCAA02R02', headers=self.headers, data=d)
 
         d = "uid=%s&clipUID=%s&ClipType=DocumentPageView&ClipData=%s" % (self.reportkey, self.reportkey, parse.quote(clip))
         res = self.s.post(url='https://cloud.eais.go.kr/report/RPTCAA02R02', headers=self.headers, data=d)
-
+        print('::', res.text)
         data = json.loads(res.text)['resValue']
         dec = base64.b64decode(data['viewData'])
         content = json.loads(dec)['pageList'][0]
@@ -225,7 +240,7 @@ def sign_in_saumter():
     return driver, cookies
 
 
-ref = 'https://cloud.eais.go.kr/report/BCIAAA04V01?param=U2FsdGVkX18wH2wyuerAHcLnwPccTO7wO2aymYCDziurSZdBJT4wZ%2BGE2RxT3mo3pSSkwHqYHhdbptmvwaw9sESaRgyKMOKaTNoYodRfPtX9jya8pIN3jbUWNwNMOUPoqPAwW%2BxSqBy01kQU6d04pgz71o5%2BmWraftQOs2prdncOWwNUENcAYBTi%2FBhEBtkadBtXStyvVoje6AZnOXa3FlSeTt2wqu8v%2BZY8%2FUMhSYgYeH0yNMd01atKkupgexAIg1xntnPUmTOIbJlbNNK9ep%2F%2F0reRttv5eGhBINgEjui5%2FP1UXA1AwJbrlKNKx%2Bwd0hWyhOWx6xH40l53rrSNf%2F2tGgYmWCYbPVi0DFemQL3p%2FffapJpjBK1%2FbQE%2FMKxyueHjwUcmZnG8uRLOckN7c8Lcs%2B2%2FnbN5PDPk7cggJxPzOZHx2f%2BllmUJYTZMMCqDuE9sDPcfhwdFIjEf8hXPAJQWCLzGvgV8n6iyoT0JpZgTme03BvAaCvn8Dsuo1KWj1JNmtSotBllgDc0kByCfHJBI3ZJ9FlIelgoq8R94bPsluSFkTvb1Icrl1ZYzYL6FoqM%2BU3OkBoeFWALX%2BjlGgR9YFAowMfuhKBHxBTobkHZPT6XmwZbRi9EX9CvghBzhj0YXBA0US6RoCIbfO2hJheyHArNgVxrCQJrNI6HJEnugFmyVm%2BoPstOUVC%2BYiJzs&actionId=BCIAAA04L01'
+ref = 'https://cloud.eais.go.kr/report/BCIAAA04V01?param=U2FsdGVkX18vJRz6W7CdF4DzALzAHMS3bkucfWMmQGZpyCPbceDqvgrmWIiWKnTJzXcZiLsgufT74FzNId9Yq7LqthsnyPW6PK46p0NxlSYq1SoUaRzy48l75h8h9QeYIeHitSlJlgpMM6YGOnSVSKPWH2UvoVzSQRFzUd4yElCpm1xFyM%2B8fHU%2FxfWXNyO33MSP3s%2FrGPVRPtGZZ6u9%2Bepo5bqSi0XHrNYWK6IHVRG9yhVimQxP7lh0yPKY04lTKG6O6zuQBSNmCMKNARHHPKyq9T3OOjaFMUsfVMpaHFNNzYUm%2F0OmraxRcbqdMq9vI2AvMY6e0Udbh%2BJBuSm3Ob9MCCFQiJ5QmfzVOfyi3Jocv4aCPvQpzgTv%2F0KhDVLm6BH8khl20wk9bOldK8teKbm84jb4azZB3DMFPrDiHY409JbUxyvYZqoo%2F42euUPeARqRNgoRkZWoVMs9dRjdO2LigjzpjgafyLUCwtpJCCIv0aF%2F6de4SmWdfgG%2BRbgYxszZI%2FnxP2bOFTIzU9qMA08j7Z5mJzySScrCWK9l6a%2FBcfEPs92cuAiZf4aYNqKky%2BQH9VCjQF8mEmOruFaJwwZgubDDBCplTVqa%2BpgnyASq5LM10MfI7sJnh34tOEPhtve9yfbJrS0otKNoW6S8fGh%2F8qVEY3ZpWDgVFe2bBymN9KRrkHLTOc1rXr6c%2BNUj&actionId=BCIAAA04L01'
 RegisterScraping(ref)
 
 
