@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='utf-8'?>
+<oof version="3.0">
+   <document title="" enable-thread="0">
+      <file-list>
+         <file type="crf.root" path="%root%/crf/bci/djrBldrgstGnrl.crf" />
+      </file-list>
+      <connection-list>
+         <connection type="file" namespace="XML1">
+            <config-param-list>
+               <config-param name="path"> </config-param>
+            </config-param-list>
+            <content content-type="xml" namespace="*">
+               <content-param name="encoding">euc-kr</content-param>
+               <content-param name="root">{%dataset.xml.root%}</content-param>
+            </content>
+         </connection>
+      </connection-list>
+      <field-list type="name">
+         <field name="ISSUE_READ_GB_CD" trim="true">0</field>
+         <field name="FILE_ID" trim="true"> </field>
+         <field name="CHANG_MATR_COUNT" trim="true"> </field>
+         <field name="WCLF_INFO_COUNT" trim="true"> </field>
+         <field name="BLD_CURST_INFO_COUNT" trim="true"> </field>
+         <field name="RELAT_RNM_COUNT" trim="true"> </field>
+         <field name="LC_INFO_COUNT" trim="true"> </field>
+         <field name="RELAT_JIBUN_COUNT" trim="true"> </field>
+         <field name="OWNR_CURST_INFO_COUNT" trim="true"> </field>
+         <field name="ETC_RCD_MATR_COUNT" trim="true"> </field>
+         <field name="SVR_GB" trim="true">pm3</field>
+         <field name="SVR_HOST" trim="true">156.177:7000</field>
+         <field name="FILE_PATH" trim="true"> </field>
+      </field-list>
+   </document>
+</oof>

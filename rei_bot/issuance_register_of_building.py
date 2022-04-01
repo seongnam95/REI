@@ -2,9 +2,8 @@ from PySide6.QtCore import QThread, QObject, Signal
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as ec
 from webdriver_manager.chrome import ChromeDriverManager
+import rei_bot.requests_test as rt
 
 import webbrowser
 import requests
@@ -60,7 +59,7 @@ class IssuanceBuildingLedger(QThread):
 
         self.sigungu, self.seqno = pk.split('-')[0], pk.split('-')[1]   # PK
         self.kind, self.address = kind, ''     # 건물 타입, 대장 종류
-        self.driver = driver
+        self.driver, self.cookies = driver, driver.get_cookies()
 
         self.s = requests.Session()
         self.s.verify = False
@@ -146,7 +145,7 @@ class IssuanceBuildingLedger(QThread):
         self.driver.implicitly_wait(5)
         time.sleep(1)   # 리스트 로딩 대기
 
-        while try_cnt < 5:
+        while try_cnt < 10:
             self.threadEvent.progress.emit('발급 완료, 민원 처리 중..' + str(try_cnt))
             try_cnt += 1
 
@@ -173,6 +172,9 @@ class IssuanceBuildingLedger(QThread):
             time.sleep(0.5)
             self.driver.switch_to.window(self.driver.window_handles[1])
             new_url = self.driver.current_url
+
+            self.issuance_thread = rt.RegisterScraping(self.driver, self.cookies, self.address, new_url)
+            self.issuance_thread.start()
 
             self.driver.close()
             self.driver.switch_to.window(self.driver.window_handles[0])
