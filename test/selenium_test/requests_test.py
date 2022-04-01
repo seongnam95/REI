@@ -16,6 +16,8 @@ import requests
 import base64
 import urllib3
 import numpy as np
+import os
+import xml.etree.ElementTree as Et
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -105,7 +107,7 @@ def find_floors_1(pages, page_3=None):
 
 
 class RegisterScraping:
-    def __init__(self, referer):
+    def __init__(self, address, referer):
         self.headers = {
             "Referer": referer,
             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
@@ -122,28 +124,23 @@ class RegisterScraping:
         for cookie in cookies:
             self.s.cookies.set(cookie['name'], cookie['value'])
 
-        self.reportkey = self.get_reportkey('청담동 49-24')
-
-        self.payload = {'uid': self.reportkey,
-                        'clipUID': self.reportkey,
-                        'ClipType': 'DocumentPageView'}
-
-        self.clip_data = {"reportkey": self.reportkey,
-                          "isMakeDocument": 'True'}
-
-        page_1 = self.request_page(0)
-        print(page_1)
-        print(find_owners(page_1))
+        self.reportkey = self.get_reportkey(address)
 
         # pages = [self.request_page(0)]
         # page_cnt = int(pages[0][8][2][0][0][3][1][0][0][0][1][0][1])
+        # print(page_cnt)
+
+        page = self.request_page(0)
+        content_sort = json.dumps(page, indent=4)
+        print(parse.unquote(content_sort))
+
         #
         # for i in range(page_cnt):
-        #     if i != 0:
-        #         pages.append(self.request_page(i))
+        #     if i == 0: continue
+        #     pages.append(self.request_page(i))
         #
-        # content_sort = json.dumps(pages[1], indent=4)
-        # print(parse.unquote(content_sort))
+        # print(len(pages))
+        # print(find_owners(pages[0]))
 
     # UID 조회
     def get_reportkey(self, address):
@@ -179,8 +176,14 @@ class RegisterScraping:
             file_id = response['count']['FILE_ID']
 
         if file_id:
-            data = f"""isEncoding=false&isBigData=false&isMemoryDump=false&ClipID=R01&oof=%3C%3Fxml%20version%3D'1.0'%20encoding%3D'utf-8'%3F%3E%3Coof%20version%3D'3.0'%3E%3Cdocument%20title%3D''%20enable-thread%3D'0'%3E%3Cfile-list%3E%3Cfile%20type%3D'crf.root'%20path%3D'%25root%25%2Fcrf%2Fbci%2FdjrBldrgstGnrl.crf'%3E%3C%2Ffile%3E%3C%2Ffile-list%3E%3Cconnection-list%3E%3Cconnection%20type%3D'file'%20namespace%3D'XML1'%3E%3Cconfig-param-list%3E%3Cconfig-param%20name%3D'path'%3E%2Fcais_data%2Fissue%2F{recp_no}%2F{recp_no}.xml%3C%2Fconfig-param%3E%3C%2Fconfig-param-list%3E%3Ccontent%20content-type%3D'xml'%20namespace%3D'*'%3E%3Ccontent-param%20name%3D'encoding'%3Eeuc-kr%3C%2Fcontent-param%3E%3Ccontent-param%20name%3D'root'%3E%7B%25dataset.xml.root%25%7D%3C%2Fcontent-param%3E%3C%2Fcontent%3E%3C%2Fconnection%3E%3C%2Fconnection-list%3E%3Cfield-list%20type%3D%22name%22%3E%3Cfield%20name%3D'ISSUE_READ_GB_CD'%20trim%3D'true'%3E0%3C%2Ffield%3E%3Cfield%20name%3D'FILE_ID'%20trim%3D'true'%3E{file_id}%3C%2Ffield%3E%3Cfield%20name%3D'CHANG_MATR_COUNT'%20trim%3D'true'%3E9%3C%2Ffield%3E%3Cfield%20name%3D'WCLF_INFO_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'BLD_CURST_INFO_COUNT'%20trim%3D'true'%3E3%3C%2Ffield%3E%3Cfield%20name%3D'RELAT_RNM_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'LC_INFO_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'RELAT_JIBUN_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'OWNR_CURST_INFO_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'ETC_RCD_MATR_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'SVR_GB'%20trim%3D'true'%3Epm3%3C%2Ffield%3E%3Cfield%20name%3D'SVR_HOST'%20trim%3D'true'%3E176%3A7000%3C%2Ffield%3E%3Cfield%20name%3D'FILE_PATH'%20trim%3D'true'%3E%2Fcais_data%2Fissue%2F2022%2F03%2F29%2F{recp_no}%2F{recp_no}.png%3C%2Ffield%3E%3C%2Ffield-list%3E%3C%2Fdocument%3E%3C%2Foof%3E"""
             data = f"""isEncoding=false&isBigData=false&isMemoryDump=false&ClipID=R01&oof=%3C%3Fxml%20version%3D'1.0'%20encoding%3D'utf-8'%3F%3E%3Coof%20version%3D'3.0'%3E%3Cdocument%20title%3D''%20enable-thread%3D'0'%3E%3Cfile-list%3E%3Cfile%20type%3D'crf.root'%20path%3D'%25root%25%2Fcrf%2Fbci%2FdjrBldrgstGnrl.crf'%3E%3C%2Ffile%3E%3C%2Ffile-list%3E%3Cconnection-list%3E%3Cconnection%20type%3D'file'%20namespace%3D'XML1'%3E%3Cconfig-param-list%3E%3Cconfig-param%20name%3D'path'%3E%2Fcais_data%2Fissue%2F{iss_date[0]}%2F{iss_date[1]}%2F{iss_date[2]}%2F{recp_no}%2F{recp_no}.xml%3C%2Fconfig-param%3E%3C%2Fconfig-param-list%3E%3Ccontent%20content-type%3D'xml'%20namespace%3D'*'%3E%3Ccontent-param%20name%3D'encoding'%3Eeuc-kr%3C%2Fcontent-param%3E%3Ccontent-param%20name%3D'root'%3E%7B%25dataset.xml.root%25%7D%3C%2Fcontent-param%3E%3C%2Fcontent%3E%3C%2Fconnection%3E%3C%2Fconnection-list%3E%3Cfield-list%20type%3D%22name%22%3E%3Cfield%20name%3D'ISSUE_READ_GB_CD'%20trim%3D'true'%3E0%3C%2Ffield%3E%3Cfield%20name%3D'FILE_ID'%20trim%3D'true'%3E{file_id}%3C%2Ffield%3E%3Cfield%20name%3D'CHANG_MATR_COUNT'%20trim%3D'true'%3E4%3C%2Ffield%3E%3Cfield%20name%3D'WCLF_INFO_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'BLD_CURST_INFO_COUNT'%20trim%3D'true'%3E4%3C%2Ffield%3E%3Cfield%20name%3D'RELAT_RNM_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'LC_INFO_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'RELAT_JIBUN_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'OWNR_CURST_INFO_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'ETC_RCD_MATR_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'SVR_GB'%20trim%3D'true'%3Epm3%3C%2Ffield%3E%3Cfield%20name%3D'SVR_HOST'%20trim%3D'true'%3E156.178%3A7000%3C%2Ffield%3E%3Cfield%20name%3D'FILE_PATH'%20trim%3D'true'%3E%2Fcais_data%2Fissue%2F{iss_date[0]}%2F{iss_date[1]}%2F{iss_date[2]}%2F{recp_no}%2F{recp_no}.png%3C%2Ffield%3E%3C%2Ffield-list%3E%3C%2Fdocument%3E%3C%2Foof%3E"""
+
+            xml = Et.parse('oof.xml')
+            root = xml.getroot()
+
+            oof = Et.tostring(root).decode('utf-8')
+            o = "<?xml version='1.0' encoding='utf-8'?>" + oof
+            data = "isEncoding=false&isBigData=false&isMemoryDump=false&ClipID=R01&oof=" + parse.quote(o)
             headers = {
                 "Referer": self.referer,
                 "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
@@ -197,21 +200,19 @@ class RegisterScraping:
     def request_page(self, page_num):
         clip = '{"reportkey":"%s","isMakeDocument":true,"pageMethod":%s}' % (self.reportkey, page_num)
 
-        datas = self.payload
-        datas['ClipData'] = parse.quote(clip)
-
         d = "ClipID=R03&uid=%s&clipUID=%s" % (self.reportkey, self.reportkey)
         self.s.post(url='https://cloud.eais.go.kr/report/RPTCAA02R02', headers=self.headers, data=d)
 
         d = "uid=%s&clipUID=%s&ClipType=DocumentPageView&ClipData=%s" % (self.reportkey, self.reportkey, parse.quote(clip))
         res = self.s.post(url='https://cloud.eais.go.kr/report/RPTCAA02R02', headers=self.headers, data=d)
-        print('::', res.text)
+
         data = json.loads(res.text)['resValue']
         dec = base64.b64decode(data['viewData'])
         content = json.loads(dec)['pageList'][0]
 
         result = content['d'][2]['b'][0]
         return result
+
 
 # 세움터 로그인
 def sign_in_saumter():
@@ -241,33 +242,40 @@ def sign_in_saumter():
     return driver, cookies
 
 
-ref = 'https://cloud.eais.go.kr/report/BCIAAA04V01?param=U2FsdGVkX19WJY3ynWRBTe%2BhOH4bg%2BFD5Gvxnf1xW3GDren%2FI7aFGV%2Fod4OGb6pvxgFdlxlzqWhYe%2Fo1ex4QGt3SnC%2BxdsFuS%2FRXHCTSooHqcF9CvU0bNZeXXSphhuk7kUrEeRdOfbRHZ9koBKAdyqeRahsTsd3yjTKPNzPW6Bq3YJlySt0OMc3lws0nJb5jslNS0hjAb01rNkr5%2FdIysPHFe63Tg%2BfGIwdd1lgL7%2BBgatVqeE0fMiw6aMQBYfUcB3dhLpvdrTh%2FMckUlb4jE8o6q%2FRM3hUBB1%2FO5Lix8qi0y7EtlDIuHEMThAGV%2BJ2fimvTCr9Ax5zEYqQ7tdvtoyGOKi9gNKzXYObQ5QOEtwKkcYIscqB655%2BvP3VPqCFNt78CdLeWzrgxiJ2%2FhMkbp3Ag6WxIU8LiWvmUTnJRE5XxVb0CYhGUEBSAKgXb1HFS2K8qwMYBIJkE24ByneD5PQ7qPxVReN0C5L9WTVPtpODkrEC3P%2Fll972D%2FQUaeQPnfzySrDEi76l5Lc1Z%2F1GbMU7SZh1HZWMoeykI2DCC505mLE%2Bkc4UUqoIMlp46mmTu6WhwsJm%2FgxzyDF2lpV3lWo%2FctucOpVKaLg0BLmtQe%2Fzq52x8rXYeVLoxZCZLSFvSBZTTAWeEd0uObg8rYXQQLhUkKLdyQrwj6U5kjbG0idOm6VKS7Ed1ZHpMN5RaQyLd&actionId=BCIAAA04L01'
-RegisterScraping(ref)
+# xml_path = root.find('document').find('connection-list').find('connection').find('config-param-list').find('config-param')
+# con = root.find('document').find('field-list')
+#
+# # print(xml_path.text)
+# a = root.iter('config-param')
+#
+# for neighbor in root.iter('config-param'):
+#     print(neighbor.text)
+
+# root = tree.getroot()
+#
+# ##수정할 부분
+# target_tag = root.find("path")
+#
+# original = target_tag.text  # 원본 String
+# modified = original.replace(r"/home/ailsb", r"C:\Users\lab_research")
+# modified = modified.replace("/", "\\")
+# target_tag.text = modified  # 수정
+#
+# tree.write(target_path)
 
 
-# ref = 'https://cloud.eais.go.kr/report/BCIAAA04V01?param=U2FsdGVkX19qdcYuyon%2BedPMAIfGsEtA0CxV3kMoteiGKcaXHAF%2B26nszrmYvN2hDZeN5cbotIHbOPBHXmlwDi9lprLZktGYbUwVUFIgHp62pmhpUoTpAkkgV1K2kAqMakkDFnihIxYYcmavhb1JVJXeUVfL5KNKmjX%2Fqicd1gBaR51Xhy3oEVV84o8mCMepRBzy6uIiC5ggKXES%2BFno6mPHG82rqTOVRBmkCh6xGZ%2F25%2BDKLq0XoMZaYuk95zUtj5nlj%2BHCSVOADB%2BTTH7bZ0f4B6%2FBPLIf7tQVlD8Wgo9CJUTKZPyuoFAlR%2BwHrWvhwyuVHQ%2B4BIIZLH%2FsXNYPvoVXnBeHcrAEMoKq1zurYlR%2FpypAXExN%2Bf9Q0oJ5Gmv4IFzNq%2FAxIQ%2FcgDt1HBm9%2F5w2aRieA0TTQB%2Bb9Wn9rmplRNo1sFDSFG8BSKXTHLt5oyGehX8eK4ThEUrQtiJyzq4bfYueToxGFYT99FVPYWyJZtVv0n1rOm2%2FR05xzNkqW401TRjLfLXCOv2ek6Zj0F3wi5OoADdG%2BpuO89FL5wWyw93EkAn3UfYMo34fs%2BzdrOtSNRqToEggOkoOsgYZMtpo7hr%2BJ5glx8DsKPqGd0bH2a7rJNYqGmr9Qurm7kxCw3eZDZnKbIm%2BUTIDq%2BlvyMXz0KiXcFJqUnp1gMsnD9TSgeKe0hhzA1TzULeIAw2K&actionId=BCIAAA04L01'
-# f_id = ''
-# print(get_uid(ref, f_id, get_recp_no('망우동 521-23')))
+a = "%3C%3Fxml%20version%3D'1.0'%20encoding%3D'utf-8'%3F%3E%3Coof%20version%3D'3.0'%3E%3Cdocument%20title%3D''%20enable-thread%3D'0'%3E%3Cfile-list%3E%3Cfile%20type%3D'crf.root'%20path%3D'%25root%25%2Fcrf%2Fbci%2FdjrBldrgstGnrl.crf'%3E%3C%2Ffile%3E%3C%2Ffile-list%3E%3Cconnection-list%3E%3Cconnection%20type%3D'file'%20namespace%3D'XML1'%3E%3Cconfig-param-list%3E%3Cconfig-param%20name%3D'path'%3E%2Fcais_data%2Fissue%2F2022%2F04%2F01%2F20223060000P106262%2F20223060000P106262.xml%3C%2Fconfig-param%3E%3C%2Fconfig-param-list%3E%3Ccontent%20content-type%3D'xml'%20namespace%3D'*'%3E%3Ccontent-param%20name%3D'encoding'%3Eeuc-kr%3C%2Fcontent-param%3E%3Ccontent-param%20name%3D'root'%3E%7B%25dataset.xml.root%25%7D%3C%2Fcontent-param%3E%3C%2Fcontent%3E%3C%2Fconnection%3E%3C%2Fconnection-list%3E%3Cfield-list%20type%3D%22name%22%3E%3Cfield%20name%3D'ISSUE_READ_GB_CD'%20trim%3D'true'%3E0%3C%2Ffield%3E%3Cfield%20name%3D'FILE_ID'%20trim%3D'true'%3E70961d3d-53c5-44ca-a6bf-9ecebea43265%3C%2Ffield%3E%3Cfield%20name%3D'CHANG_MATR_COUNT'%20trim%3D'true'%3E4%3C%2Ffield%3E%3Cfield%20name%3D'WCLF_INFO_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'BLD_CURST_INFO_COUNT'%20trim%3D'true'%3E4%3C%2Ffield%3E%3Cfield%20name%3D'RELAT_RNM_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'LC_INFO_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'RELAT_JIBUN_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'OWNR_CURST_INFO_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'ETC_RCD_MATR_COUNT'%20trim%3D'true'%3E1%3C%2Ffield%3E%3Cfield%20name%3D'SVR_GB'%20trim%3D'true'%3Epm3%3C%2Ffield%3E%3Cfield%20name%3D'SVR_HOST'%20trim%3D'true'%3E156.172%3A7000%3C%2Ffield%3E%3Cfield%20name%3D'FILE_PATH'%20trim%3D'true'%3E%2Fcais_data%2Fissue%2F2022%2F04%2F01%2F20223060000P106262%2F20223060000P106262.png%3C%2Ffield%3E%3C%2Ffield-list%3E%3C%2Fdocument%3E%3C%2Foof%3E"
+print(parse.unquote(a))
 
-# driver.find_element(By.XPATH, '//*[@id="container"]/div[2]/div/div[4]/table/tbody/tr[1]/td[5]/a').click()
-# driver.implicitly_wait(5)
-# time.sleep(0.5)
-#
-# driver.switch_to.window(driver.window_handles[1])
-#
-# ref = driver.current_url
-# fi = '87f27ec0-01b0-4b0d-865b-dc60ec9ddcf6'
-# mgm = '20223220000P417394'
-# print(ref)
-# report = RegisterScraping(ref, creation_uid(ref))
-# report.request_page(1)
-#
-# creation_uid(ref, fi, mgm)
+ref = 'https://cloud.eais.go.kr/report/BCIAAA04V01?param=U2FsdGVkX1%2BjguSZLobNdP%2BwWhrVGfNBfBzUBOiyy2DElBx6UaS756begr9%2FwbM6awv%2FxxJKXS7q%2BgvG9b8PkqltaqPaWhQLWVW%2FjBkMZP%2F8eNukB4rPQcP22qtyc6m0%2BTTZoct1xTpsvPaLCkd5tPfMDy%2BIuzz%2FIetw8WezNlteaxf%2BMBHJI9ZKjXfidh5hDGElIP5%2FNW4bGf6BW0hlLVPTs%2Fsz6Ye3QA9zYyjAbW%2B0%2FPgoDa%2FAeh6OwKwd6%2FD8%2BagkyfEwQ%2FKEfXLS3ReKQw6gQQM7XL5Fqao5Z6tAy%2FIaHUl9%2BbA9uEbrr0CFscs5kD37kFLeFAO%2BBacEDSct61dXpfqzZFYiT2g3rDY%2BWoi%2FS6As5I%2BMSYhwzeM6nZy%2Bpz%2FNBjh%2BLCHvxQLTxB%2F8yxR%2B19Fmvx%2F3f49Uh1Us5Kx0iTn5NpYlYjbsTra5TDIcIjJAKtnIU6grajuhrHA8ytRO98rgY1BZkUk4wdAqEVy7EiKjCanKATBijtJmiyrwDyRNCeBlfbUq8paHhF%2FpLgjDjv6WCafUnlwCJ8PG9%2Fzq9feWf%2B4i3AHmZRsTLo8OML9vJ9CGZBDELLk1LhbG96yNMkAJSSnxXykcuAZ9LVfeQsF6DcYHmpAwYFFsXIeFmaTIBCnTHJYEcntPsQElJvxsyxB%2FiaORWbeq6nFsYp%2BFyvSew3Qy1Y4CidyT51B5&actionId=BCIAAA04L01'
+RegisterScraping('서울특별시 중랑구 상봉동 111-51', ref)
 
-#
-# page_1 = base64.b64decode(Path("test_1p.txt").read_text())
+# page_1 = base64.b64decode(Path("test.txt").read_text())
 # page_1 = json.loads(page_1)['pageList'][0]
 # page_1 = page_1['d'][2]['b'][0]
+# content_sort = json.dumps(page_1, indent=4)
+# print(parse.unquote(content_sort))
+
 #
 # page_2 = base64.b64decode(Path("test_2p.txt").read_text())
 # page_2 = json.loads(page_2)['pageList'][0]
@@ -284,8 +292,6 @@ RegisterScraping(ref)
 #     # content_sort = json.dumps(page_3, indent=4)
 #     # print(parse.unquote(content_sort))
 
-
-
 # find_floors_1(page_1, page_3) if page_3 else find_floors_1(page_1)
 # content_sort = json.dumps(content, indent=4)
 # print(parse.unquote(content_sort))
@@ -298,14 +304,3 @@ RegisterScraping(ref)
 # img = Image.open('test1.png')
 # img_rgb = img.convert('RGB')
 # img_rgb.save('aa.pdf')
-#
-# with open("test.txt", 'wb') as f:
-#     f.write(output_image)
-#
-# with open("test.pdf", 'wb') as f:
-#     f.write(output_image)
-
-#
-# driver.find_element(By.ID, 'membId').send_keys('haul1115')
-# driver.find_element(By.ID, 'pwd').send_keys('ks05090818@')
-# driver.find_element(By.XPATH, '//*[@id="container"]/div[2]/div/div/div[1]/div[1]/button').click()

@@ -34,6 +34,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.select_building, self.total_buildings = None, None
         self.detail, self.exact_detail = None, None  # 상세 (호, 층)
         self.owners, self.prices, self.pk = None, None, None  # 소유자, 공시가격, 건축물대장 PK
+        self.driver, self.login_cookies = None, None
         self.issuance_data = {}
 
         self._init_ui()
@@ -78,6 +79,10 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
                             '토지기타지역지구': self.land_item_3}
 
         self._init_interaction()
+
+        self.issuance_thread = ibl.SetChrome('haul1115', 'ks05090818@')
+        self.issuance_thread.threadEvent.chromeDriver.connect(self.get_chrome_driver)
+        self.issuance_thread.start()
 
     # UI 세팅
     def _init_ui(self):
@@ -171,6 +176,12 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             shadow.setEnabled(False)
 
         return shadow
+
+    # 셀러리움 로그인 소스
+    def get_chrome_driver(self, driver):
+        self.driver = driver
+        self.login_cookies = driver.get_cookies()
+        print("로그인 OK")
 
     ##### 시그널 이벤트
     ########################################################################################################
@@ -282,7 +293,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         elif kind == 2:
             return
 
-        self.issuance_thread = ibl.IssuanceBuildingLedger(pk, kind, 'haul1115', 'ks05090818@')
+        self.issuance_thread = ibl.IssuanceBuildingLedger(pk, kind, self.driver, self.login_cookies)
         self.issuance_thread.threadEvent.workerThreadDone.connect(lambda: self.btn_issuance.setEnabled(True))
         self.issuance_thread.threadEvent.progress.connect(self.issuance_progress_event)
         self.issuance_thread.start()
