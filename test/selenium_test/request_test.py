@@ -202,6 +202,7 @@ class RequestData(QMainWindow, Ui_Form):
         # 민원 담기 (담아야 응답 값 나옴)
         a = self.s.request('POST', 'https://cloud.eais.go.kr/bci/BCIAAA02C01', headers=headers, json=datas2)
         print(a.text)
+
         # 담은 민원 처리 (응답 값 필요)
         response_put_in = self.s.request('POST', 'https://cloud.eais.go.kr/bci/BCIAAA02R05', headers=headers)
         result = json.loads(response_put_in.text)

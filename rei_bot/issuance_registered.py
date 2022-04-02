@@ -121,7 +121,7 @@ def getPublicKey(apiHost, apiKey):
 
 
 ir = IssuanceRegistered()
-data = ir.get_register_data('면목동 137-34 302호', 'mogsin21', 'happy2588@', 'P3372711', '3234', 'kim2588')
+data = ir.get_register_data('상봉동 120-46 301', 'mogsin21', 'happy2588@', 'P3372711', '3234', 'kim2588')
 print(data['Message'])
 
 

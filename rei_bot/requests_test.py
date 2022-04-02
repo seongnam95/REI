@@ -17,23 +17,44 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 # 소유자 조회
-def find_owners(content):
-    owners_table = content[0][6]
+def find_owners(pages):
     owners = []
-    for o in owners_table:
-        row = o[6][0][0][2]
-        if row is None: break
+    for p in pages:
+        if p[0] == 'PAGE_1':
+            content = p[1][0][6]
 
-        owner_list = []
-        for r in row:
-            for c in r:
-                if type(c) == list and len(c) > 3:
-                    result = parse.unquote(c[7]).replace('+', ' ').lstrip(' ')
-                    owner_list.append(result)
+            for c in content:       # 소유자 만큼 반복
+                rows = c[6][0][0][2]
+                if rows is None: break
 
-        owner = {'성명': owner_list[0], '주소': owner_list[1], '지분': owner_list[2],
-                 '변동일': owner_list[3], '번호': owner_list[4], '변동원인': owner_list[5]}
-        owners.append(owner)
+                owner_list = []
+                for row in rows:    # 정보 파싱
+                    for r in row:
+                        if type(r) == list and len(r) > 3:
+                            result = parse.unquote(r[7]).replace('+', ' ').lstrip(' ')
+                            owner_list.append(result)
+
+                owner = {'성명': owner_list[0], '번호': owner_list[4], '주소': owner_list[1],
+                         '지분': owner_list[2], '변동일': owner_list[3], '변동원인': owner_list[5]}
+                owners.append(owner)
+
+        elif p[0] == '소유자현황':
+            content = p[1][1][6]
+
+            for c in content:       # 소유자 만큼 반복
+                rows = c[6][0][0][2]
+                if rows is None: break
+
+                owner_list = []
+                for row in rows:    # 정보 파싱
+                    for r in row:
+                        if type(r) == list and len(r) > 3:
+                            result = parse.unquote(r[7]).replace('+', ' ').lstrip(' ')
+                            owner_list.append(result)
+
+                owner = {'성명': owner_list[0], '번호': owner_list[1], '주소': owner_list[2],
+                         '지분': owner_list[3], '변동일': owner_list[4], '변동원인': owner_list[5]}
+                owners.append(owner)
 
     return owners
 
@@ -105,7 +126,6 @@ def get_oof(options, iss_date, recp_no):
 
     decode_oof = Et.tostring(root).decode('utf-8')
     oof = f"<?xml version='1.0' encoding='utf-8'?>{decode_oof}".strip('\n\t')
-
     return parse.quote(oof)
 
 
@@ -117,10 +137,10 @@ class RegisterScraping(QThread):
             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36"
         }
-        self.recp_no, self.file_id, self.reportkey = None, None, None
+        self.recp_no, self.file_id, self.reportkey, self.page_cnt = None, None, None, 0
         self.address, self.referer = address, referer
         self.driver, self.cookies = driver, cookies
-        print(address, referer)
+
         # Requests에 로그인 세션 넘기기
         self.s = requests.Session()
         self.s.verify = False
@@ -131,22 +151,39 @@ class RegisterScraping(QThread):
 
         self.reportkey = self.get_reportkey(self.address)
 
-        pages = [self.request_page(0)]
-        print(find_owners(pages[0]))
+        d = "ClipID=R03&uid=%s&clipUID=%s" % (self.reportkey, self.reportkey)
+        cnt = self.s.post(url='https://cloud.eais.go.kr/report/RPTCAA02R02', headers=self.headers, data=d)
+        time.sleep(0.5)
+        self.page_cnt = int(cnt.text.split("'count':")[1].split(',')[0])
+        print('PAGE_COUNT :: ', self.page_cnt)
 
-        # content_sort = json.dumps(pages[0], indent=4)
-        # print(parse.unquote(content_sort))
+        page_list = []
+        for i in range(self.page_cnt):
+            page_list.append(self.parsing_page(i))
 
-        page_cnt = int(pages[0][8][2][0][0][3][1][0][0][0][1][0][1])
-        print("cnt", page_cnt)
+        print('RESULT_PAGE_COUNT :: ', len(page_list))
 
-        #
-        # for i in range(page_cnt):
-        #     if i == 0: continue
-        #     pages.append(self.request_page(i))
-        #
-        # print(len(pages))
-        # print(find_owners(pages[0]))
+        title_name = parse.unquote(page_list[0][3][5])
+        print('대장명칭 :: ', title_name)
+
+        viol = parse.unquote(page_list[0][5][5])        # 위반
+        print('위반 :: ', viol)
+
+        # 페이지명 등록
+        pages = [['PAGE_1', page_list[0]], ['PAGE_2', page_list[1]]]
+        if self.page_cnt > 2:
+            for i in range(2, self.page_cnt):
+                sub_title_name = parse.unquote(page_list[i][2][5])
+                sub_title_name = sub_title_name.split('(을)')[1].replace('+', '')
+
+                page = [sub_title_name, page_list[i]]
+                pages.append(page)
+
+        for i in find_owners(pages):
+            print(i)
+
+        # content_sort = json.dumps(pages[2][1], indent=4)
+        # print(parse.unquote(content_sort.replace('+', ' ')))
 
     # UID 조회
     def get_reportkey(self, address):
@@ -177,7 +214,6 @@ class RegisterScraping(QThread):
                                     json={"issueReadAppDate": issue_read_date, "pbsvcRecpNo": recp_no})
             time.sleep(0.5)
             result_count = json.loads(res_count.text)['count']
-            print(result_count)
 
             self.s.post(url='https://cloud.eais.go.kr/bci/BCIAAA06R03', headers=headers,
                         json={"issueReadAppDate": issue_read_date, "pbsvcRecpNo": recp_no})
@@ -196,22 +232,20 @@ class RegisterScraping(QThread):
 
                 # uid 등록
                 res = self.s.post(url='https://cloud.eais.go.kr/report/RPTCAA02R02', headers=headers, data=data)
-                time.sleep(0.5)
+                time.sleep(1)
                 uid = res.text.split("uid':'")[1].split("'")[0]
 
-                print(res.text)
+                print(uid)
                 return uid
 
-    def request_page(self, page_num):
+    # 페이지 파싱
+    def parsing_page(self, page_num):
+        # try:
         clip = '{"reportkey":"%s","isMakeDocument":true,"pageMethod":%s}' % (self.reportkey, page_num)
 
-        d = "ClipID=R03&uid=%s&clipUID=%s" % (self.reportkey, self.reportkey)
-        self.s.post(url='https://cloud.eais.go.kr/report/RPTCAA02R02', headers=self.headers, data=d)
-        time.sleep(0.5)
-
         d = "uid=%s&clipUID=%s&ClipType=DocumentPageView&ClipData=%s" % (self.reportkey, self.reportkey, parse.quote(clip))
-        time.sleep(0.5)
         res = self.s.post(url='https://cloud.eais.go.kr/report/RPTCAA02R02', headers=self.headers, data=d)
+        time.sleep(0.1)
 
         data = json.loads(res.text)['resValue']
         dec = base64.b64decode(data['viewData'])
@@ -219,6 +253,10 @@ class RegisterScraping(QThread):
 
         result = content['d'][2]['b'][0]
         return result
+
+        # except Exception as e:
+        #     print('request_page_err :: ', e)
+        #     return None
 
 
 # 세움터 로그인
@@ -248,41 +286,3 @@ def sign_in_saumter():
     cookies = driver.get_cookies()
     return driver, cookies
 
-
-# ref = 'https://cloud.eais.go.kr/report/BCIAAA04V01?param=U2FsdGVkX1%2BQSTMCyDp7lAayu0QGv%2B1QNPqyUEb5feEipZ23KITeiAtzxZ9UmySBnBxv8LLEJBQq0Ul%2F3A%2BLqzgP1fzId6Ew4uwXjo3wvYxAVf0q2SaoS24CulFugGIDy6hK8rpemiYs8pfNvj4jpBhYt%2F5331AePJ9S0FQAFaJ1g%2B%2BFn6YCxNky1RDN%2B9B1kM9gznVgf7TxUej%2FnZHGAyO2dNC2HN5YfBA23E4JCpHrjkK1dINzfs8FVoS21Xq1%2FbLL2Qss%2BmOQVlV6e2iKp0r4NiLVDVwUr4FGX87DiS5EJdRxGC6PR8Vm14N8ol11i6hSo1R%2FCp9eQKkXvpiTpKucq3Ccv7DhVSjInm5faEPe6kWmV1gxTFX0I6N3OiQCZnny5%2Fjo5fTYoDgPQ%2FaoVvCd6FKRFxbrIXNYUXNq6v4KEBi%2BzIgNXcI0uXeS8uoAdTPBKGq4Utzi7dM45giT8DS4acFFnCh74lWm5rummkPuGwfkKZ3Ghfm5IpgvRZ5kcO7vyxxqn8%2BvwpFY6GjCyMq%2BleAzTF%2BLbFeTBgvg2Ncxxu9CW%2FUJlkb7ltucyyyKVDGq2eFNHEtWc7Uuq5pp6vbH0tivd04dcn3Vm7s%2BjoDheOmtKojIgdHicQhXFmBYrAUXADNjkqdqWd8BxYds%2FhZu%2BsTCcooBeRwJLDv8qfNcxDbiG%2FE%2BchMzMxuR744M&actionId=BCIAAA04L01'
-# RegisterScraping('상봉동 88-85', ref)
-
-# page_1 = base64.b64decode(Path("test.txt").read_text())
-# page_1 = json.loads(page_1)['pageList'][0]
-# page_1 = page_1['d'][2]['b'][0]
-# content_sort = json.dumps(page_1, indent=4)
-# print(parse.unquote(content_sort))
-
-#
-# page_2 = base64.b64decode(Path("test_2p.txt").read_text())
-# page_2 = json.loads(page_2)['pageList'][0]
-# page_2 = page_2['d'][2]['b'][0]
-#
-# page_3 = None
-#
-# page_cnt = int(page_1[8][2][0][0][3][1][0][0][0][1][0][1])
-# page_cnt = 3
-# if page_cnt > 2:
-#     page_3 = base64.b64decode(Path("test_3p.txt").read_text())
-#     page_3 = json.loads(page_3)['pageList'][0]
-#     page_3 = page_3['d'][2]['b'][0][1][6]
-#     # content_sort = json.dumps(page_3, indent=4)
-#     # print(parse.unquote(content_sort))
-
-# find_floors_1(page_1, page_3) if page_3 else find_floors_1(page_1)
-# content_sort = json.dumps(content, indent=4)
-# print(parse.unquote(content_sort))
-
-
-# data = parse.unquote(output_image)
-# res = data.replace('+', ' ')
-# print(res)
-#
-# img = Image.open('test1.png')
-# img_rgb = img.convert('RGB')
-# img_rgb.save('aa.pdf')

@@ -58,7 +58,7 @@ class IssuanceBuildingLedger(QThread):
         self.threadEvent = ThreadSignal()
 
         self.sigungu, self.seqno = pk.split('-')[0], pk.split('-')[1]   # PK
-        self.kind, self.address = kind, ''     # 건물 타입, 대장 종류
+        self.kind, self.address, self.file_id = kind, '', ''     # 건물 타입, 대장 종류
         self.driver, self.cookies = driver, driver.get_cookies()
 
         self.s = requests.Session()
@@ -82,14 +82,16 @@ class IssuanceBuildingLedger(QThread):
         headers['Referer'] = "https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02L01"
 
         result, ho = None, ''
-        if self.kind == 0:
+        if self.kind == 0:      # 표제부, 일반 건축물 요청
             datas = {"addrGbCd": 2, "bldrgstCurdiGbCd": "0", "sigunguCd": self.sigungu, "bldrgstSeqno": self.seqno}
             response_title = self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02R01', headers=headers, json=datas)
+            time.sleep(0.5)
             result = json.loads(response_title.text)['jibunAddr'][0]
 
-        elif self.kind == 1:
+        elif self.kind == 1:    # 전유부 요청
             datas = {"inqireGbCd": "1", "bldrgstCurdiGbCd": "0", "reqSigunguCd": self.sigungu, "bldrgstSeqno": self.seqno}
             response_title = self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02R04', headers=headers, json=datas)
+            time.sleep(0.5)
             result = json.loads(response_title.text)['findExposList'][0]
 
         bun, ji = result['mnnm'].lstrip('0'), result['slno'].lstrip('0')
@@ -98,7 +100,7 @@ class IssuanceBuildingLedger(QThread):
 
         self.address = f'{result["sigunguNm"]} {result["bjdongNm"]} {bun}{ji} {result["dongNm"]}{ho}'
 
-        datas2 = {"bldrgstSeqno": result["bldrgstSeqno"],
+        datas = {"bldrgstSeqno": result["bldrgstSeqno"],
                   "regstrGbCd": result["regstrGbCd"],
                   "regstrKindCd": result["regstrKindCd"],
                   "mjrfmlyIssueYn": "N",
@@ -109,26 +111,28 @@ class IssuanceBuildingLedger(QThread):
                   "locBldNm": result["bldNm"],
                   "bldrgstCurdiGbCd": "0"}
 
-        # 민원 담기 (담아야 응답 값 나옴)
-        a = self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02C01', headers=headers, json=datas2)
-        print(a.text)
+        # 1. 민원 담기 (담아야 2번 요청 시 응답 값 나옴)
+        self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02C01', headers=headers, json=datas)
 
-        # 담은 민원 처리 (응답 값 필요)
+        # 2. 담은 민원 처리 (응답 값 필요)
         response_put_in = self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02R05', headers=headers)
+        time.sleep(0.5)
         result = json.loads(response_put_in.text)
-        print(result)
+        print('## 담은 민원 처리중 ##\n', result)
 
         headers['Referer'] = "https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02F01"
         datas = {"pbsvcResveDtls": result['findPbsvcResveDtls'],    # issueReadGbCd (0: 발급, 1: 열람)
                  "pbsvcRecpInfo": {"pbsvcGbCd": "01", "issueReadGbCd": "0", "pbsvcResveDtlsCnt": 1},
                  "appntInfo": {"appntGbCd": "01", "naAppntGrndUgrndGbCd": "0"}}
 
-        # 발급 신청, 담은 민원 제거
-        b = self.s.post('https://cloud.eais.go.kr/bci/BCIAZA02S01', headers=headers, json=datas)
-        c = self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02D02', headers=headers,
+        # 3. 발급 신청, 담은 민원 제거
+        self.s.post('https://cloud.eais.go.kr/bci/BCIAZA02S01', headers=headers, json=datas)
+        time.sleep(0.5)
+        self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02D02', headers=headers,
                         json={'lastUpdusrId': result['findPbsvcResveDtls'][0]['lastUpdusrId']})
-        print(b.text)
-        print(c.text)
+        time.sleep(0.5)
+        print('## 발급 신청, 담은 민원 제거 ##')
+
         self.open_document()
 
         # except Exception as e:
@@ -155,16 +159,14 @@ class IssuanceBuildingLedger(QThread):
 
             for i in document_list:    # 문서 리스트 Row 수만큼 반복
                 content = i.get_attribute("innerText")
-                if content == '조회된 신청내역이 없습니다.':
-                    self.driver.save_screenshot('err.png')
-                    break
-
                 if self.address in content:  # 주소가 맞을 경우
                     if '발급' in content:   # '발급'인 항목 클릭
                         i.find_element(By.XPATH, 'td[5]/a').click()
                         success = True
                         break
             if success: break
+
+            self.driver.save_screenshot('err.png')
             time.sleep(1)
 
         if success:
