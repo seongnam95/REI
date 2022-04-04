@@ -86,7 +86,8 @@ class IssuanceBuildingLedger(QThread):
             datas = {"addrGbCd": 2, "bldrgstCurdiGbCd": "0", "sigunguCd": self.sigungu, "bldrgstSeqno": self.seqno}
             response_title = self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02R01', headers=headers, json=datas)
             time.sleep(0.5)
-            result = json.loads(response_title.text)['jibunAddr'][0]
+            json_data = json.loads(response_title.text)
+            result = json_data['jibunAddr'][0]
 
         elif self.kind == 1:    # 전유부 요청
             datas = {"inqireGbCd": "1", "bldrgstCurdiGbCd": "0", "reqSigunguCd": self.sigungu, "bldrgstSeqno": self.seqno}

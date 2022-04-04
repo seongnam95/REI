@@ -39,6 +39,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
         self._init_ui()
         self._set_anim()
+        self.btn_issuance.setEnabled(False)
 
         self.msg = BoxMessage(self)
         self.add_btn_tip = TipBox(self.top_bar)
@@ -181,6 +182,8 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
     def get_chrome_driver(self, driver):
         self.driver = driver
         self.login_cookies = driver.get_cookies()
+
+        self.btn_issuance.setEnabled(True)
         print("로그인 OK")
 
     ##### 시그널 이벤트

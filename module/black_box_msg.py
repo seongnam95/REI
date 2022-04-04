@@ -3,6 +3,7 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QButtonGroup, QWidget, 
 from PySide6.QtCore import QPropertyAnimation, Qt, QSize, QRegularExpression, QRect, QEvent, QTimer, QPoint
 from PySide6.QtGui import QIcon, QRegularExpressionValidator, QPixmap
 
+
 class BoxMessage(QLabel):
     def __init__(self, parent=None):
         super().__init__(parent)
