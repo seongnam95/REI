@@ -93,8 +93,8 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.btn_search.setIconSize(QSize(30, 30))
         self.btn_add.setIcon(QIcon('../../data/img/button/plus_icon.png'))
         self.btn_add.setIconSize(QSize(25, 25))
-        self.btn_sharing.setIcon(QIcon('../../data/img/button/share_icon.png'))
-        self.btn_sharing.setIconSize(QSize(23, 23))
+        self.btn_sharing.setIcon(QIcon('../../data/img/button/menu_icon.png'))
+        self.btn_sharing.setIconSize(QSize(20, 20))
         self.btn_issuance.setIcon(QIcon('../../data/img/button/print_icon.png'))
         self.btn_search.setIconSize(QSize(23, 23))
 

@@ -246,25 +246,23 @@ class GeneralParsing:
         pages = [pages[0], pages[1]]
         result = []
 
+        # 모든 페이지 반복
         for p in pages:
             floors = p[1][1][6] if p[0] == "PAGE_1" else p[1][4][6] if p[0] == "PAGE_2" else None
-            if floors is None: continue
+            if floors is None: continue     # PAGE_1, PAGE_2만 파싱
 
-            for floor in floors:
+            for floor in floors:    # 층 수 만큼 반복
                 floor = floor[6][0][0][2][0]
                 if floor is None: break
 
                 items = []
-                for row in floor:
+                for row in floor:   # 해당 층의 항목 만큼 반복
                     if type(row) == list and len(row) > 3:
                         item = parse.unquote(row[7]).replace('+', ' ')
                         items.append(item)
 
-                        if '여백' in item:
-                            items = []
-                            continue
-
-                if len(items) > 4:
+                blank = not any("여백" in i for i in items)       # '이하여백' 여부
+                if len(items) > 4 and blank:
                     dic_floor = {'구분': items[0], '층명칭': items[1], '구조': items[2], '용도': items[3], '면적': items[4]}
                     result.append(dic_floor)
         return result
@@ -329,8 +327,8 @@ def sign_in_saumter():
         sign_in_saumter()
 
 
-d, c = sign_in_saumter()
+# d, c = sign_in_saumter()
 a = '서울특별시 중랑구 면목동 1550 201동 601호'
 r = 'https://cloud.eais.go.kr/report/BCIAAA04V01?param=U2FsdGVkX1%2FGfSBSVnFrB%2F6%2B50TlF5JA%2FtMWM1T%2BbjbsSkWvEMokcI5i%2B4nIuNwSRkyPmOOxfIeICOi3RMwXsZ9NipI4SyiGKghsPlz8ndqcYY7tWC9r%2FBARWxKRnDSlsyzNEpLV57%2FdPDwT58YZMXLZ8S%2FGW6DAy%2BQPUyIQ%2B80B9N0sOtcv6KXQ0aIh7PRwW3yQ2BOq0XrnogTKz5358NRG%2B8krY8ChbBnC8n%2FfEAthYY5XQe1CK3ire4lP6Jo3rhaeARRtFbqpsaYrTeyJ9L6UjEZZOy%2Btoo5M9MTUcQjFJV1uoK1CMu76ojJNTHEtZKeiaBUL1YtNDQeb9q1pBLuix%2F%2F46bJvDpcvrGq4Qwv%2BH36NleSX0nMjvuJrLIRhB5xGnI9jBVMx8VT3k8dQH1S%2Bf1%2BFCkIyBcfDAfhrB67oGxe8%2BYNYdufLrIAfSY0iaNm4Lq8IT58I13zqQTUBDN3O8tv6HC1Faq1nLRMAAdh4VKTS93NVALl%2FwZ7AhaF90BbHvIlj7xRYFeH9xvc6FCq1iVRCggnc5HYjTKxTzT6p7fDDPlkx2SaEE%2F51WmklF5uARc61s2NpR3X3rXkA0rWRI1tArVP7ew1aQdl6eEY%3D&actionId=BCIAAA04L01'
 
-RegisterScraping(d, c, a, r)
+# RegisterScraping(d, c, a, r)

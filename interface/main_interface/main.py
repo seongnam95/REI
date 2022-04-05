@@ -64,7 +64,7 @@ class ReiMain(QMainWindow, FROM_CLASS):
         self.bt_max.setIconSize(QSize(13, 13))
         self.bt_max.clicked.connect(self.clicked_max_mini)
 
-        self.bt_menu.setIcon(QIcon('../../data/img/button/menu.png'))
+        self.bt_menu.setIcon(QIcon('../../data/img/button/menu_icon.png'))
         self.bt_menu.setIconSize(QSize(12, 12))
         self.bt_menu.clicked.connect(self.clicked_menu)
 
