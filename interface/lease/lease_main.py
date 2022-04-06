@@ -134,7 +134,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
         self.btn_next.clicked.connect(lambda: self.page_change_event("next"))
         self.btn_back.clicked.connect(lambda: self.page_change_event("back"))
         self.btn_search.clicked.connect(self.clicked_address_edit)
-        self.btn_add.clicked.connect(self.clicked_add_btn)
+        # self.btn_add.clicked.connect(self.clicked_add_btn)
         self.btn_del.clicked.connect(self.clicked_remove_btn)
         self.btn_edit.clicked.connect(self.clicked_edit_btn)
         self.cbx_down_pay.activated.connect(self.activated_deposit_cbx)
