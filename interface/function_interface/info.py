@@ -1,16 +1,20 @@
 import sys
-import pandas as pd
+
 import clipboard as clip
+import pandas as pd
+from PySide6.QtCore import QObject, Signal, QEvent, QPropertyAnimation, QSize, QPoint, QParallelAnimationGroup
+from PySide6.QtGui import Qt, QIcon, QColor, QMovie
+from PySide6.QtWidgets import QMainWindow, QApplication, QLabel, QGraphicsOpacityEffect, QGraphicsDropShadowEffect
+
 import module.open_api_pars as pars
 import rei_bot.issuance_register_of_building as ibl
 
-from PySide6.QtWidgets import QMainWindow, QApplication, QLabel, QGraphicsOpacityEffect, QGraphicsDropShadowEffect
-from PySide6.QtGui import Qt, QIcon, QColor, QMovie
-from PySide6.QtCore import QObject, Signal, QEvent, QPropertyAnimation, QSize, QPoint, QParallelAnimationGroup
-from ui.main.ui_info import Ui_BuildingInfo
 from interface.sub_interface import address_details
-from module.open_api_pars import OpenApiRequest
 from module.black_box_msg import BoxMessage
+from module.open_api_pars import OpenApiRequest
+from ui.main.ui_info import Ui_BuildingInfo
+from module.menu_widget import MenuWidget
+
 
 # import fluentapp.pyqt6.windowtools as wingui
 
@@ -44,10 +48,17 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.msg = BoxMessage(self)
         self.add_btn_tip = TipBox(self.top_bar)
         self.add_btn_tip.set_box(self.btn_add, '매물 등록', 'right')
-        self.sharing_btn_tip = TipBox(self.top_bar)
-        self.sharing_btn_tip.set_box(self.btn_sharing, '매물 공유', 'left')
         self.issuance_btn_tip = TipBox(self.bot_bar)
         self.issuance_btn_tip.set_box(self.btn_issuance, '건축물대장/등기부등본 발급', 'right')
+
+        items = [{'name': '내 매물로 등록', 'img': '../../data/img/button/plus_icon.png'},
+                 {'name': '매물 공유하기', 'img': '../../data/img/button/share_icon.png'},
+                 {'name': '계약서 작성', 'img': '../../data/img/button/plus_icon.png'}]
+
+        self.menu_widget = MenuWidget(self)
+        self.menu_widget.add_item(items)
+        self.menu_widget.set_size(self.menu_widget)
+        self.menu_widget.itemClicked.connect(self.test)
 
         self.labels = {'소재지': self.base_item_1,
                        '도로명': self.base_item_2,
@@ -85,6 +96,9 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.issuance_thread.threadEvent.chromeDriver.connect(self.get_chrome_driver)
         self.issuance_thread.start()
 
+    def test(self):
+        print(self.menu_widget.currentRow())
+
     # UI 세팅
     def _init_ui(self):
         self._setupUi(self)
@@ -119,6 +133,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.btn_search.clicked.connect(self.clicked_address_edit)
         self.btn_details.clicked.connect(self.clicked_details_btn)
         self.btn_viol.clicked.connect(self.clicked_viol_btn)
+        self.btn_sharing.clicked.connect(lambda: self.menu_widget.clicked_event(self.btn_sharing))
 
         self.btn_issuance.clicked.connect(self.clicked_issuance_btn)
         self.btn_issuance_1.clicked.connect(lambda: self.clicked_issuance_btns(0))
@@ -334,7 +349,6 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             obj.setGraphicsEffect(self.set_shadow(objs[obj]))
 
             if obj == self.btn_add: self.add_btn_tip.show()
-            elif obj == self.btn_sharing: self.sharing_btn_tip.show()
             elif obj == self.btn_issuance:
                 if not self.issuance:
                     self.issuance_btn_tip.show()
@@ -344,7 +358,6 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             obj.setGraphicsEffect(self.set_shadow('reset'))
 
             if obj == self.btn_add: self.add_btn_tip.hide()
-            elif obj == self.btn_sharing: self.sharing_btn_tip.hide()
             elif obj == self.btn_issuance:
                 if not self.issuance:
                     self.issuance_btn_tip.hide()
@@ -553,7 +566,6 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             self.opened = True
 
         self.resize_title_bar()
-        self.sharing_btn_tip.set_box(self.btn_sharing, '매물 공유', 'left')
         # x = (self.width() - self.btn_details.width()) - 10
         # self.btn_details.move(x, self.btn_details.y())
 

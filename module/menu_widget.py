@@ -1,28 +1,11 @@
-from PySide6.QtWidgets import QApplication, QMainWindow, QButtonGroup, QWidget, QLabel, QLineEdit, QComboBox, \
-    QListWidget, QListWidgetItem, QGraphicsOpacityEffect, QHBoxLayout
-from PySide6.QtCore import QPropertyAnimation, Qt, QSize, QRegularExpression, QRect, QEvent, QTimer, QPoint
-from PySide6.QtGui import QIcon, QRegularExpressionValidator, QPixmap, QFont
-
-class MainWidgetTest(QMainWindow):
-    def __init__(self):
-        super(MainWidgetTest, self).__init__()
-        self.setGeometry(0, 0, 400, 400)
-
-        self.bx = BoxMessage(self)
-        self.bx.setGeometry(0, 0, 150, 200)
-        self.bx.add_item('내 매물에 추가', 'a.png')
-        self.bx.add_item('본 매물 공유하기', 'a.png')
-        self.bx.add_item('매물 추가', 'a.png')
-
-        self.bx.set_size(self.bx)
-
-        self.show()
+from PySide6.QtCore import QPropertyAnimation, Qt, QSize
+from PySide6.QtGui import QPixmap
+from PySide6.QtWidgets import QApplication, QWidget, QLabel, QListWidget, QListWidgetItem, QGraphicsOpacityEffect
 
 
-class BoxMessage(QListWidget):
+class MenuWidget(QListWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-
         self.setStyleSheet("""QListWidget {
                                 font: 14px "웰컴체 Regular";
                                 color: white;
@@ -38,16 +21,75 @@ class BoxMessage(QListWidget):
                                 background-color: rgba(255, 255, 255, 80);
                             }""")
 
-    def add_item(self, txt, icon):
-        custom_item = MenuItem(txt, icon)
-        item = QListWidgetItem()
-        item.setSizeHint(QSize(self.width() - 10, 30))
-        self.addItem(item)
-        self.setItemWidget(item, custom_item)
+        effect = QGraphicsOpacityEffect(self)
+        self.setGraphicsEffect(effect)
+        self.anim_hide = QPropertyAnimation(effect, b"opacity")
+        self.anim_show = QPropertyAnimation(effect, b"opacity")
+        self.menu_toggle = False
 
+        self.hide()
+
+    # 버튼 클릭 이벤트
+    def clicked_event(self, btn):
+        self.hide_menu() if self.menu_toggle else self.show_menu(btn)
+        self.menu_toggle = not self.menu_toggle
+
+    # 아이템 추가
+    def add_item(self, items):
+        for i in items:
+            custom_item = MenuItem(i['name'], i['img'])
+            widget_item = QListWidgetItem()
+            widget_item.setSizeHint(QSize(0, 30))
+            self.addItem(widget_item)
+            self.setItemWidget(widget_item, custom_item)
+
+    # 메뉴, 항목 크기 설정
     def set_size(self, bx):
+        font_sizes = []
+        for i in range(bx.count()):
+            item = bx.itemWidget(bx.item(i))
+            txt = item.lb_text.text()
+            font_size = bx.fontMetrics().boundingRect(txt).width()
+            font_sizes.append(font_size)
+
+        w = max(font_sizes) + 80
         h = (30 * bx.count()) + 10
-        self.setFixedSize(bx.width(), h)
+        self.setFixedSize(w, h)
+
+        for i in range(bx.count()):
+            item = bx.itemWidget(bx.item(i))
+            txt = item.lb_text
+            txt.resize(max(font_sizes) + 25, txt.height())
+
+            x = self.width() - max(font_sizes) - 40
+            item.lb_text.move(x, item.lb_text.y())
+
+    def show_menu(self, btn):
+        if self.isHidden(): self.show()
+
+        self.set_position(btn)
+
+        self.anim_show.setStartValue(0)
+        self.anim_show.setEndValue(1)
+        self.anim_show.setDuration(100)
+        self.anim_show.start()
+
+    def hide_menu(self):
+        self.anim_hide.setStartValue(1)
+        self.anim_hide.setEndValue(0)
+        self.anim_hide.setDuration(100)
+        self.anim_hide.start()
+
+    # 메뉴 위치 설정
+    def set_position(self, btn):
+        btn_x, btn_y, btn_w, btn_h = btn.x(), btn.y(), btn.width(), btn.height()
+        menu_w, menu_h = self.width(), self.height()
+
+        # X, Y 축 정렬
+        x = (btn_x - menu_w - 5) if (btn_x - menu_w) > 0 else (btn_x + btn_w + 5)
+        y = btn_y if (btn_y - (menu_h - btn_h - 10)) < 0 else (btn_y - menu_h + btn_h)
+
+        self.move(x, y)
 
 
 class MenuItem(QWidget):
@@ -58,16 +100,12 @@ class MenuItem(QWidget):
         self.lb_icon = QLabel(self)
         self.lb_icon.setFixedSize(23, 23)
         self.lb_icon.setPixmap(icon)
-        self.lb_icon.setGeometry(5, 3, 23, 23)
+        self.lb_icon.setGeometry(5, 4, 23, 23)
 
         self.lb_text = QLabel(self)
         self.lb_text.setFixedHeight(20)
         self.lb_text.setStyleSheet("QLabel {font: 14px '웰컴체 Regular'; color: white;}")
         self.lb_text.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         self.lb_text.setText(txt)
-        self.lb_text.setGeometry(30, 6, 105, 25)
+        self.lb_text.setGeometry(30, 7, 105, 25)
 
-
-app = QApplication()
-window = MainWidgetTest()
-app.exec()
