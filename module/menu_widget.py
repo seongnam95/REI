@@ -46,23 +46,23 @@ class MenuWidget(QListWidget):
     # 메뉴, 항목 크기 설정
     def set_size(self, bx):
         font_sizes = []
-        for i in range(bx.count()):
+        for i in range(bx.count()):     # 텍스트 길이 추출
             item = bx.itemWidget(bx.item(i))
             txt = item.lb_text.text()
             font_size = bx.fontMetrics().boundingRect(txt).width()
             font_sizes.append(font_size)
 
-        w = max(font_sizes) + 80
+        w = max(font_sizes) + 50
         h = (30 * bx.count()) + 10
         self.setFixedSize(w, h)
 
         for i in range(bx.count()):
             item = bx.itemWidget(bx.item(i))
             txt = item.lb_text
-            txt.resize(max(font_sizes) + 25, txt.height())
+            txt.resize(max(font_sizes), txt.height())
 
-            x = self.width() - max(font_sizes) - 40
-            item.lb_text.move(x, item.lb_text.y())
+            # x = self.width() - max(font_sizes) - 40
+            # item.lb_text.move(x, item.lb_text.y())
 
     def show_menu(self, btn):
         if self.isHidden(): self.show()
@@ -107,5 +107,5 @@ class MenuItem(QWidget):
         self.lb_text.setStyleSheet("QLabel {font: 14px '웰컴체 Regular'; color: white;}")
         self.lb_text.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         self.lb_text.setText(txt)
-        self.lb_text.setGeometry(30, 7, 105, 25)
+        self.lb_text.move(35, 7)
 

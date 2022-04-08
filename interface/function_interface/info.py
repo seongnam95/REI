@@ -92,9 +92,9 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
         self._init_interaction()
 
-        self.issuance_thread = ibl.SetChrome('haul1115', 'ks05090818@')
-        self.issuance_thread.threadEvent.chromeDriver.connect(self.get_chrome_driver)
-        self.issuance_thread.start()
+        # self.issuance_thread = ibl.SetChrome('haul1115', 'ks05090818@')
+        # self.issuance_thread.threadEvent.chromeDriver.connect(self.get_chrome_driver)
+        # self.issuance_thread.start()
 
     def test(self):
         print(self.menu_widget.currentRow())
