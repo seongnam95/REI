@@ -295,36 +295,36 @@ def get_oof(file_nm, options, iss_date, recp_no):
 
 # 세움터 로그인
 def sign_in_saumter():
-    try:
-        chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument('headless')  # 크롬 화면 숨기기
-        chrome_options.add_argument("no-sandbox")  #
-        chrome_options.add_argument('window-size=1920x1080')  # 해상도 설정
-        chrome_options.add_argument("--start-maximized")
-        chrome_options.add_argument("disable-gpu")  # 가속 사용 x
-        chrome_options.add_argument("lang=ko_KR")  # 가짜 플러그인 탑재
-        chrome_options.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) "
-                                    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36")  # user-agent 이름 설정
+    for i in range(3):
+        try:
+            chrome_options = webdriver.ChromeOptions()
+            chrome_options.add_argument('headless')  # 크롬 화면 숨기기
+            chrome_options.add_argument("no-sandbox")  #
+            chrome_options.add_argument('window-size=1920x1080')  # 해상도 설정
+            chrome_options.add_argument("--start-maximized")
+            chrome_options.add_argument("disable-gpu")  # 가속 사용 x
+            chrome_options.add_argument("lang=ko_KR")  # 가짜 플러그인 탑재
+            chrome_options.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) "
+                                        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36")  # user-agent 이름 설정
 
-        driver = Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+            driver = Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
-        # 로그인 페이지로 이동
-        driver.get("https://cloud.eais.go.kr/moct/awp/abb01/AWPABB01F01")
-        driver.implicitly_wait(5)
+            # 로그인 페이지로 이동
+            driver.get("https://cloud.eais.go.kr/moct/awp/abb01/AWPABB01F01")
+            driver.implicitly_wait(5)
 
-        # 로그인 이벤트
-        driver.find_element(By.ID, 'membId').send_keys('haul1115')
-        driver.find_element(By.ID, 'pwd').send_keys('ks05090818@')
-        driver.find_element(By.XPATH, '//*[@id="container"]/div[2]/div/div/div[1]/div[1]/button').click()
-        time.sleep(0.5)
+            # 로그인 이벤트
+            driver.find_element(By.ID, 'membId').send_keys('haul1115')
+            driver.find_element(By.ID, 'pwd').send_keys('ks05090818@')
+            driver.find_element(By.XPATH, '//*[@id="container"]/div[2]/div/div/div[1]/div[1]/button').click()
+            time.sleep(0.5)
 
-        cookies = driver.get_cookies()
-        return driver, cookies
+            cookies = driver.get_cookies()
+            return driver, cookies
 
-    except:
-        print('로그인 실패, 재시도')
-        time.sleep(5)
-        sign_in_saumter()
+        except:
+            print('로그인 실패, 재시도')
+            time.sleep(5)
 
 
 # d, c = sign_in_saumter()

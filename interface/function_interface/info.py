@@ -60,6 +60,17 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.menu_widget.set_size(self.menu_widget)
         self.menu_widget.itemClicked.connect(self.test)
 
+        issuance_items = [{'name': '건축물대장(표제부)', 'img': '../../data/img/button/plus_icon.png'},
+                          {'name': '건축물대장(총괄표제부)', 'img': '../../data/img/button/share_icon.png'},
+                          {'name': '건축물대장(전유부)', 'img': '../../data/img/button/share_icon.png'},
+                          {'name': '등기부등본(토지)', 'img': '../../data/img/button/share_icon.png'},
+                          {'name': '등기부등본(건물)', 'img': '../../data/img/button/plus_icon.png'}]
+
+        self.issuance_menu = MenuWidget(self)
+        self.issuance_menu.add_item(issuance_items)
+        self.issuance_menu.set_size(self.issuance_menu)
+        self.issuance_menu.itemClicked.connect(self.test)
+
         self.labels = {'소재지': self.base_item_1,
                        '도로명': self.base_item_2,
                        '상세주소': self.base_item_3,
@@ -92,9 +103,9 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
         self._init_interaction()
 
-        # self.issuance_thread = ibl.SetChrome('haul1115', 'ks05090818@')
-        # self.issuance_thread.threadEvent.chromeDriver.connect(self.get_chrome_driver)
-        # self.issuance_thread.start()
+        self.issuance_thread = ibl.SetChrome('haul1115', 'ks05090818@')
+        self.issuance_thread.threadEvent.chromeDriver.connect(self.get_chrome_driver)
+        self.issuance_thread.start()
 
     def test(self):
         print(self.menu_widget.currentRow())
@@ -135,10 +146,11 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.btn_viol.clicked.connect(self.clicked_viol_btn)
         self.btn_sharing.clicked.connect(lambda: self.menu_widget.clicked_event(self.btn_sharing))
 
-        self.btn_issuance.clicked.connect(self.clicked_issuance_btn)
-        self.btn_issuance_1.clicked.connect(lambda: self.clicked_issuance_btns(0))
-        self.btn_issuance_2.clicked.connect(lambda: self.clicked_issuance_btns(1))
-        self.btn_issuance_3.clicked.connect(lambda: self.clicked_issuance_btns(2))
+        # self.btn_issuance.clicked.connect(self.clicked_issuance_btn)
+        self.btn_issuance.clicked.connect(lambda: self.issuance_menu.clicked_event(self.btn_issuance))
+        # self.btn_issuance_1.clicked.connect(lambda: self.clicked_issuance_btns(0))
+        # self.btn_issuance_2.clicked.connect(lambda: self.clicked_issuance_btns(1))
+        # self.btn_issuance_3.clicked.connect(lambda: self.clicked_issuance_btns(2))
 
         for dic in [self.labels, self.labels_detail, self.labels_park, self.labels_land]:
             for i in dic: mouse_double_clicked(dic[i]).connect(self.clicked_labels)
@@ -316,6 +328,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.issuance_thread.threadEvent.progress.connect(self.issuance_progress_event)
         self.issuance_thread.start()
 
+    # 진행 메세지
     def issuance_progress_event(self, msg):
         print(msg)
 

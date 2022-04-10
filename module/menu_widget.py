@@ -1,15 +1,17 @@
-from PySide6.QtCore import QPropertyAnimation, Qt, QSize
+from PySide6.QtCore import QPropertyAnimation, Qt, QSize, QPoint
 from PySide6.QtGui import QPixmap
-from PySide6.QtWidgets import QApplication, QWidget, QLabel, QListWidget, QListWidgetItem, QGraphicsOpacityEffect
+from PySide6.QtWidgets import QWidget, QLabel, QListWidget, QListWidgetItem, QGraphicsOpacityEffect
 
 
 class MenuWidget(QListWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.parent = parent
+
         self.setStyleSheet("""QListWidget {
                                 font: 14px "웰컴체 Regular";
                                 color: white;
-                                background-color: rgba(0,0,0,150);
+                                background-color: rgba(0,0,0,160);
                                 border-radius: 5px;
                                 padding: 5px;
                                 outline: none;
@@ -82,7 +84,9 @@ class MenuWidget(QListWidget):
 
     # 메뉴 위치 설정
     def set_position(self, btn):
-        btn_x, btn_y, btn_w, btn_h = btn.x(), btn.y(), btn.width(), btn.height()
+        btn_pos = btn.mapToParent(btn.parent().pos())
+        btn_x, btn_y = btn_pos.x(), btn_pos.y()
+        btn_w, btn_h = btn.width(), btn.height()
         menu_w, menu_h = self.width(), self.height()
 
         # X, Y 축 정렬
@@ -105,7 +109,7 @@ class MenuItem(QWidget):
         self.lb_text = QLabel(self)
         self.lb_text.setFixedHeight(20)
         self.lb_text.setStyleSheet("QLabel {font: 14px '웰컴체 Regular'; color: white;}")
-        self.lb_text.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.lb_text.setAlignment(Qt.AlignVCenter)
         self.lb_text.setText(txt)
         self.lb_text.move(35, 7)
 
