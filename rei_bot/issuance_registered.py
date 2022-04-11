@@ -36,7 +36,7 @@ class IssuanceRegistered(QThread):
                         "ENC-KEY": aesCipherKey}
 
         datas = {'Address': self.address,    # 주소
-                 'Sangtae': 0,          # 현행:0/ 폐쇄:1 / 현행폐쇄:2
+                 'Sangtae': 0,               # 현행:0 / 폐쇄:1 / 현행폐쇄:2
                  'KindClsFlag': self.kind}   # 전체:0 / 집합건물:1 / 건물:2 / 토지:3
 
         # 등기 고유번호 조회
