@@ -54,6 +54,9 @@ class MenuWidget(QListWidget):
             font_size = bx.fontMetrics().boundingRect(txt).width()
             font_sizes.append(font_size)
 
+        # icon_item = bx.itemWidget(bx.item(0))
+        # if icon_item.lb_icon: w = max(font_sizes) + icon_item.lb_icon.width() + 10
+        # else: w = max(font_sizes) + 10
         w = max(font_sizes) + 50
         h = (30 * bx.count()) + 10
         self.setFixedSize(w, h)
@@ -63,12 +66,9 @@ class MenuWidget(QListWidget):
             txt = item.lb_text
             txt.resize(max(font_sizes), txt.height())
 
-            # x = self.width() - max(font_sizes) - 40
-            # item.lb_text.move(x, item.lb_text.y())
-
     def show_menu(self, btn):
         if self.isHidden(): self.show()
-
+        self.menu_toggle = False
         self.set_position(btn)
 
         self.anim_show.setStartValue(0)
@@ -77,6 +77,7 @@ class MenuWidget(QListWidget):
         self.anim_show.start()
 
     def hide_menu(self):
+        self.menu_toggle = True
         self.anim_hide.setStartValue(1)
         self.anim_hide.setEndValue(0)
         self.anim_hide.setDuration(100)
@@ -97,19 +98,20 @@ class MenuWidget(QListWidget):
 
 
 class MenuItem(QWidget):
-    def __init__(self, txt, icon):
+    def __init__(self, txt, icon=None):
         super(MenuItem, self).__init__()
 
-        icon = QPixmap(icon).scaled(23, 23)
-        self.lb_icon = QLabel(self)
-        self.lb_icon.setFixedSize(23, 23)
-        self.lb_icon.setPixmap(icon)
-        self.lb_icon.setGeometry(5, 4, 23, 23)
+        if icon:
+            icon = QPixmap(icon).scaled(23, 23)
+            self.lb_icon = QLabel(self)
+            self.lb_icon.setFixedSize(23, 23)
+            self.lb_icon.setPixmap(icon)
+            self.lb_icon.setGeometry(5, 4, 23, 23)
 
         self.lb_text = QLabel(self)
         self.lb_text.setFixedHeight(20)
         self.lb_text.setStyleSheet("QLabel {font: 14px '웰컴체 Regular'; color: white;}")
         self.lb_text.setAlignment(Qt.AlignVCenter)
         self.lb_text.setText(txt)
-        self.lb_text.move(35, 7)
+        self.lb_text.move(QPoint(35, 7) if icon else QPoint(5, 7))
 

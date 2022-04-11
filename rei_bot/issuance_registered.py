@@ -4,17 +4,27 @@ import requests
 
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5, AES
+from PySide6.QtCore import QThread, QObject, Signal
 
 
-class IssuanceRegistered:
-    def __init__(self):
+class ThreadSignal(QObject):
+    workerThreadDone = Signal(bool)
+
+
+class IssuanceRegistered(QThread):
+    def __init__(self, address, user, kind):
         super(IssuanceRegistered, self).__init__()
 
         self.API_HOST = 'https://api.tilko.net/'
         self.API_KEY = '6062d22d48734cd3af82837f696730fb'
         self.headers = None
 
-    def get_register_data(self, address, user_id, user_pw, num_1, num_2, num_pw):
+        self.address, self.user, self.kind = address, user, kind
+
+    def run(self):
+        user_id, user_pw = self.user['user_id'], self.user['user_pw']
+        num_1, num_2, num_pw = self.user['num_1'], self.user['num_2'], self.user['num_pw']
+
         aesKey = os.urandom(16)
         aesIv = ('\x00' * 16).encode('utf-8')
 
@@ -25,9 +35,9 @@ class IssuanceRegistered:
                         "API-KEY": self.API_KEY,
                         "ENC-KEY": aesCipherKey}
 
-        datas = {'Address': address,    # 주소
+        datas = {'Address': self.address,    # 주소
                  'Sangtae': 0,          # 현행:0/ 폐쇄:1 / 현행폐쇄:2
-                 'KindClsFlag': 1}   # 전체:0 / 집합건물:1 / 건물:2 / 토지:3
+                 'KindClsFlag': self.kind}   # 전체:0 / 집합건물:1 / 건물:2 / 토지:3
 
         # 등기 고유번호 조회
         url = {'조회': self.API_HOST + "api/v1.0/iros/risuconfirmsimplec",
@@ -121,7 +131,7 @@ def getPublicKey(apiHost, apiKey):
 
 
 ir = IssuanceRegistered()
-data = ir.get_register_data('면목동 143-70 501호', 'mogsin21', 'happy2588@', 'P3372711', '3234', 'kim2588')
+data = ir.get_register_data('면목동 137-34 302호', 'mogsin21', 'happy2588@', 'P3372711', '3234', 'kim2588')
 print(data['Message'])
 
 

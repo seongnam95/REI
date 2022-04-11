@@ -44,6 +44,7 @@ class SetChrome(QThread):
         self.driver.get("https://cloud.eais.go.kr/moct/awp/abb01/AWPABB01F01")
         self.driver.implicitly_wait(5)
 
+        time.sleep(0.5)
         self.driver.find_element(By.ID, 'membId').send_keys(self.user_id)
         self.driver.find_element(By.ID, 'pwd').send_keys(self.user_pw)
         self.driver.find_element(By.XPATH, '//*[@id="container"]/div[2]/div/div/div[1]/div[1]/button').click()
@@ -76,20 +77,20 @@ class IssuanceBuildingLedger(QThread):
     # 문서 발급, 열람
     def run(self):
         # try:
-        self.threadEvent.progress.emit('건축물대장 발급 요청중')
+        self.threadEvent.progress.emit('건축물대장 발급 요청중..')
 
         headers = self.headers
         headers['Referer'] = "https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02L01"
 
         result, ho = None, ''
-        if self.kind == 0:      # 표제부, 일반 건축물 요청
+        if self.kind == 1:      # 표제부, 일반 건축물 요청
             datas = {"addrGbCd": 2, "bldrgstCurdiGbCd": "0", "sigunguCd": self.sigungu, "bldrgstSeqno": self.seqno}
             response_title = self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02R01', headers=headers, json=datas)
             time.sleep(0.5)
             json_data = json.loads(response_title.text)
             result = json_data['jibunAddr'][0]
 
-        elif self.kind == 1:    # 전유부 요청
+        elif self.kind == 2:    # 전유부 요청
             datas = {"inqireGbCd": "1", "bldrgstCurdiGbCd": "0", "reqSigunguCd": self.sigungu, "bldrgstSeqno": self.seqno}
             response_title = self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02R04', headers=headers, json=datas)
             time.sleep(0.5)
@@ -171,19 +172,20 @@ class IssuanceBuildingLedger(QThread):
             time.sleep(1)
 
         if success:
-            self.threadEvent.progress.emit('처리 완료, 오픈 대기중')
+            self.threadEvent.progress.emit('처리 완료, 오픈 대기중..')
             time.sleep(0.5)
             self.driver.switch_to.window(self.driver.window_handles[1])
             new_url = self.driver.current_url
 
-            self.issuance_thread = rt.RegisterScraping(self.driver, self.cookies, self.address, new_url)
-            self.issuance_thread.start()
+            # self.issuance_thread = rt.RegisterScraping(self.driver, self.cookies, self.address, new_url)
+            # self.issuance_thread.start()
 
             self.driver.close()
             self.driver.switch_to.window(self.driver.window_handles[0])
 
             webbrowser.open_new(new_url)
             self.threadEvent.progress.emit('건축물 대장 오픈')
+            self.threadEvent.progress.emit('END')
             self.threadEvent.workerThreadDone.emit(True)
 
         else:

@@ -16,8 +16,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QComboBox, QFrame, QGridLayout,
-    QLabel, QLayout, QLineEdit, QPushButton,
-    QSizePolicy, QWidget)
+    QLabel, QLayout, QLineEdit, QProgressBar,
+    QPushButton, QSizePolicy, QWidget)
 
 class Ui_BuildingInfo(object):
     def _setupUi(self, BuildingInfo):
@@ -232,27 +232,18 @@ class Ui_BuildingInfo(object):
 "	border: 0px;\n"
 "}")
         self.lb_sub_title.setAlignment(Qt.AlignCenter)
-        self.btn_sharing = QPushButton(self.top_bar)
-        self.btn_sharing.setObjectName(u"btn_sharing")
-        self.btn_sharing.setEnabled(True)
-        self.btn_sharing.setGeometry(QRect(380, 12, 40, 40))
-        self.btn_sharing.setStyleSheet(u"")
+        self.btn_menu = QPushButton(self.top_bar)
+        self.btn_menu.setObjectName(u"btn_menu")
+        self.btn_menu.setEnabled(True)
+        self.btn_menu.setGeometry(QRect(380, 12, 40, 40))
+        self.btn_menu.setStyleSheet(u"")
         icon = QIcon()
         icon.addFile(u"../../1814119_launch_open_share_icon.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.btn_sharing.setIcon(icon)
-        self.btn_sharing.setIconSize(QSize(23, 23))
-        self.btn_add = QPushButton(self.top_bar)
-        self.btn_add.setObjectName(u"btn_add")
-        self.btn_add.setGeometry(QRect(10, 12, 40, 40))
-        self.btn_add.setStyleSheet(u"")
-        icon1 = QIcon()
-        icon1.addFile(u"../../1814113_add_more_plus_icon.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.btn_add.setIcon(icon1)
-        self.btn_add.setIconSize(QSize(25, 25))
+        self.btn_menu.setIcon(icon)
+        self.btn_menu.setIconSize(QSize(23, 23))
         self.lb_sub_title.raise_()
         self.lb_title.raise_()
-        self.btn_sharing.raise_()
-        self.btn_add.raise_()
+        self.btn_menu.raise_()
         self.bot_bar = QWidget(BuildingInfo)
         self.bot_bar.setObjectName(u"bot_bar")
         self.bot_bar.setGeometry(QRect(0, 690, 840, 71))
@@ -281,9 +272,9 @@ class Ui_BuildingInfo(object):
 "QPushButton:disabled {\n"
 "	background-color: rgb(166, 168, 171);\n"
 "}")
-        icon2 = QIcon()
-        icon2.addFile(u"E:/PyProject/Project/REI/building_info/image/bt_search.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.btn_viol.setIcon(icon2)
+        icon1 = QIcon()
+        icon1.addFile(u"E:/PyProject/Project/REI/building_info/image/bt_search.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.btn_viol.setIcon(icon1)
         self.btn_viol.setIconSize(QSize(23, 23))
         self.lb_viol = QLabel(self.bot_bar)
         self.lb_viol.setObjectName(u"lb_viol")
@@ -329,64 +320,32 @@ class Ui_BuildingInfo(object):
 "QPushButton:pressed {\n"
 "	background-color: rgb(215, 215, 215);\n"
 "}")
-        icon3 = QIcon()
-        icon3.addFile(u"../../print.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.btn_issuance.setIcon(icon3)
+        icon2 = QIcon()
+        icon2.addFile(u"../../print.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.btn_issuance.setIcon(icon2)
         self.btn_issuance.setIconSize(QSize(23, 23))
-        self.issuances = QFrame(self.bot_bar)
-        self.issuances.setObjectName(u"issuances")
-        self.issuances.setGeometry(QRect(70, 18, 237, 35))
-        self.issuances.setStyleSheet(u"QFrame{\n"
-"	background-color: rgba(0, 0, 0, 140);\n"
-"	border-radius: 5px;\n"
+        self.progress_bar = QProgressBar(self.bot_bar)
+        self.progress_bar.setObjectName(u"progress_bar")
+        self.progress_bar.setGeometry(QRect(81, 41, 141, 5))
+        self.progress_bar.setStyleSheet(u"#progress_bar {\n"
+"    min-height: 5px;\n"
+"    max-height: 5px;\n"
+"    border-radius: 2px;\n"
 "}\n"
-"\n"
-"QPushButton {\n"
-"	font: 15px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: white;\n"
-"	background-color: rgba(0, 0, 0, 0);\n"
-"	padding-top: 2px;\n"
-"	padding-right: 2px;\n"
-"	border-radius: 3px\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"	background-color: rgba(255,255,255,30);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"	background-color: rgba(0,0,0,40);\n"
-"}\n"
-"")
-        self.issuances.setFrameShape(QFrame.StyledPanel)
-        self.issuances.setFrameShadow(QFrame.Raised)
-        self.btn_issuance_1 = QPushButton(self.issuances)
-        self.btn_issuance_1.setObjectName(u"btn_issuance_1")
-        self.btn_issuance_1.setEnabled(True)
-        self.btn_issuance_1.setGeometry(QRect(10, 5, 61, 25))
-        self.btn_issuance_1.setStyleSheet(u"")
-        self.btn_issuance_1.setIcon(icon2)
-        self.btn_issuance_1.setIconSize(QSize(23, 23))
-        self.btn_issuance_3 = QPushButton(self.issuances)
-        self.btn_issuance_3.setObjectName(u"btn_issuance_3")
-        self.btn_issuance_3.setGeometry(QRect(140, 5, 91, 25))
-        self.btn_issuance_3.setStyleSheet(u"")
-        self.btn_issuance_3.setIcon(icon2)
-        self.btn_issuance_3.setIconSize(QSize(23, 23))
-        self.btn_issuance_2 = QPushButton(self.issuances)
-        self.btn_issuance_2.setObjectName(u"btn_issuance_2")
-        self.btn_issuance_2.setGeometry(QRect(70, 5, 61, 25))
-        self.btn_issuance_2.setStyleSheet(u"")
-        self.btn_issuance_2.setIcon(icon2)
-        self.btn_issuance_2.setIconSize(QSize(23, 23))
-        self.issuance_line = QFrame(self.issuances)
-        self.issuance_line.setObjectName(u"issuance_line")
-        self.issuance_line.setGeometry(QRect(135, 8, 1, 19))
-        self.issuance_line.setStyleSheet(u"#issuance_line {\n"
-"	background-color: rgba(255,255,255,120);\n"
+"#progress_bar::chunk {\n"
+"    border-radius: 6px;\n"
+"    background-color: #2196F3;\n"
 "}")
-        self.issuance_line.setFrameShape(QFrame.VLine)
-        self.issuance_line.setFrameShadow(QFrame.Sunken)
+        self.progress_bar.setMaximum(0)
+        self.progress_bar.setValue(0)
+        self.progress_bar.setTextVisible(False)
+        self.lb_progress = QLabel(self.bot_bar)
+        self.lb_progress.setObjectName(u"lb_progress")
+        self.lb_progress.setGeometry(QRect(80, 23, 141, 16))
+        self.lb_progress.setStyleSheet(u"#lb_progress {\n"
+"	font: 12px \"\uc6f0\ucef4\uccb4 Regular\";\n"
+"	color: rgb(127, 140, 141);\n"
+"}")
         self.widget_3 = QWidget(BuildingInfo)
         self.widget_3.setObjectName(u"widget_3")
         self.widget_3.setGeometry(QRect(20, 255, 391, 331))
@@ -1218,15 +1177,12 @@ class Ui_BuildingInfo(object):
 "(\ubcf8 \ud504\ub85c\uadf8\ub7a8\uc740 \uc870\ud68c\ub41c \uc815\ubcf4\uc5d0 \ub300\ud55c \ucc45\uc784\uc744 \uc9c0\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.)", None))
         self.lb_title.setText(QCoreApplication.translate("BuildingInfo", u"INFORMATION", None))
         self.lb_sub_title.setText(QCoreApplication.translate("BuildingInfo", u"(  \uac74\ucd95\ubb3c \uc870\ud68c  )", None))
-        self.btn_sharing.setText("")
-        self.btn_add.setText("")
+        self.btn_menu.setText("")
         self.btn_viol.setText(QCoreApplication.translate("BuildingInfo", u"\uc704\ubc18 \uac74\ucd95\ubb3c \uc870\ud68c", None))
         self.lb_viol.setText("")
         self.btn_details.setText(QCoreApplication.translate("BuildingInfo", u"\uc0c1\uc138\uc815\ubcf4  >", None))
         self.btn_issuance.setText("")
-        self.btn_issuance_1.setText(QCoreApplication.translate("BuildingInfo", u"\ud45c\uc81c\ubd80", None))
-        self.btn_issuance_3.setText(QCoreApplication.translate("BuildingInfo", u"\ub4f1\uae30\ubd80\ub4f1\ubcf8", None))
-        self.btn_issuance_2.setText(QCoreApplication.translate("BuildingInfo", u"\uc804\uc720\ubd80", None))
+        self.lb_progress.setText(QCoreApplication.translate("BuildingInfo", u"\uc138\uc6c0\ud130 \ub85c\uadf8\uc778\uc911..", None))
         self.base_name_11.setText(QCoreApplication.translate("BuildingInfo", u"\ud638 / \uac00 \uad6c / \uc138 \ub300 \uc218", None))
         self.base_item_11.setText("")
         self.base_name_12.setText(QCoreApplication.translate("BuildingInfo", u"\uc0ac \uc6a9 \uc2b9 \uc778 \uc77c", None))
