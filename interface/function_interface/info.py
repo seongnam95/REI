@@ -14,6 +14,7 @@ from module.black_box_msg import BoxMessage
 from module.open_api_pars import OpenApiRequest
 from ui.main.ui_info import Ui_BuildingInfo
 from module.menu_widget import MenuWidget
+from ui.sub.register_pop_up import RegisterPopUp
 
 
 # import fluentapp.pyqt6.windowtools as wingui
@@ -43,6 +44,9 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
         self._init_ui()
         self.btn_issuance.setEnabled(False)
+
+        self.pop = RegisterPopUp(self)
+        self.pop.show_pop()
 
         self.msg = BoxMessage(self)
         self.issuance_btn_tip = TipBox(self.bot_bar)
@@ -98,9 +102,9 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self._init_interaction()
 
         self.login_progress(True)
-        self.issuance_thread = ibl.SetChrome('haul1115', 'ks05090818@')
-        self.issuance_thread.threadEvent.chromeDriver.connect(self.get_chrome_driver)
-        self.issuance_thread.start()
+        # self.issuance_thread = ibl.SetChrome('haul1115', 'ks05090818@')
+        # self.issuance_thread.threadEvent.chromeDriver.connect(self.get_chrome_driver)
+        # self.issuance_thread.start()
 
     def test(self):
         print(self.main_menu.currentRow())
