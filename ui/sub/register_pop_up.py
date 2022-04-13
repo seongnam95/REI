@@ -5,6 +5,7 @@ from PySide6.QtWidgets import QComboBox, QFrame, QLabel, QPushButton, QRadioButt
 class RegisterPopUp(QFrame):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.parent = parent
 
         self.resize(240, 180)
         self.setGeometry(QRect(0, 0, 240, 180))
@@ -14,14 +15,8 @@ class RegisterPopUp(QFrame):
             color: white;
         }
         QFrame {
-            background: rgba(0,0,0,200);
+            background: rgba(0,0,0,210);
             border-radius: 10px;
-        }
-        #line_1 {
-            color: rgba(255,255,255,90);
-        }
-        #line_2 {
-            color: rgba(255,255,255,90);
         }
         """
         self.setStyleSheet(main_style)
@@ -31,14 +26,14 @@ class RegisterPopUp(QFrame):
         self.lb_title.setText("등기부등본 발급")
         self.lb_title.setStyleSheet("""QLabel { font: 15px "웰컴체 Regular";
                                                 color: white;
-                                                backgrond: white; } """)
+                                                background: rgba(0,0,0,0); } """)
 
         self.lb_name = QLabel(self)
         self.lb_name.setGeometry(QRect(20, 57, 71, 16))
         self.lb_name.setText("등기기록상태")
         self.lb_name.setStyleSheet("""QLabel { font: 14px "웰컴체 Regular";
                                                color: white;
-                                               backgrond: white; } """)
+                                               background: rgba(0,0,0,0); } """)
 
         cbx_style = """
         QComboBox {
@@ -119,9 +114,29 @@ class RegisterPopUp(QFrame):
 
         self.line_1 = QFrame(self)
         self.line_1.setGeometry(QRect(10, 35, 222, 1))
+        self.line_1.setFrameShape(QFrame.HLine)  # Vertical Line
+        self.line_1.setFrameShadow(QFrame.Sunken)
+        self.line_1.setStyleSheet("""
+        QFrame {
+            background-color: rgba(255,255,255,90);
+            color: rgba(255,255,255,90);
+        }""")
 
         self.line_2 = QFrame(self)
         self.line_2.setGeometry(QRect(10, 120, 222, 1))
+        self.line_2.setStyleSheet("""
+        QFrame {
+            background-color: rgba(255,255,255,90);
+            color: rgba(255,255,255,90);
+        }""")
 
     def show_pop(self):
+        parent_w, parent_h = self.parent.width(), self.parent.height()
+        x = (parent_w / 2) - (self.width() / 2)
+        y = (parent_h / 2) - (self.height() / 2)
+        self.move(int(x), int(y))
+
+
+
         self.show()
+

@@ -45,9 +45,6 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self._init_ui()
         self.btn_issuance.setEnabled(False)
 
-        self.pop = RegisterPopUp(self)
-        self.pop.show_pop()
-
         self.msg = BoxMessage(self)
         self.issuance_btn_tip = TipBox(self.bot_bar)
         self.issuance_btn_tip.set_box(self.btn_issuance, '건축물대장/등기부등본 발급', 'right')
@@ -101,10 +98,13 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
         self._init_interaction()
 
+        self.pop = RegisterPopUp(self)
+        self.pop.show_pop()
+
         self.login_progress(True)
-        # self.issuance_thread = ibl.SetChrome('haul1115', 'ks05090818@')
-        # self.issuance_thread.threadEvent.chromeDriver.connect(self.get_chrome_driver)
-        # self.issuance_thread.start()
+        self.issuance_thread = ibl.SetChrome('haul1115', 'ks05090818@')
+        self.issuance_thread.threadEvent.chromeDriver.connect(self.get_chrome_driver)
+        self.issuance_thread.start()
 
     def test(self):
         print(self.main_menu.currentRow())
