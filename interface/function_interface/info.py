@@ -44,6 +44,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
         self._init_ui()
         self.btn_issuance.setEnabled(False)
+        self.register_pop = RegisterPopUp(self)
 
         self.msg = BoxMessage(self)
         self.issuance_btn_tip = TipBox(self.bot_bar)
@@ -57,11 +58,9 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.main_menu.add_item(items)
         self.main_menu.set_size(self.main_menu)
 
-        issuance_items = [{'name': '건축물대장 (총괄)', 'img': None},
-                          {'name': '건축물대장 (표제부)', 'img': None},
-                          {'name': '건축물대장 (전유부)', 'img': None},
-                          {'name': '등기부등본 (토지)', 'img': None},
-                          {'name': '등기부등본 (건물)', 'img': None}]
+        issuance_items = [{'name': '건축물대장', 'img': None},
+                          {'name': '등기부등본', 'img': None},
+                          {'name': '토지이용계획', 'img': None}]
         self.issuance_menu = MenuWidget(self)
         self.issuance_menu.add_item(issuance_items)
         self.issuance_menu.set_size(self.issuance_menu)
@@ -98,13 +97,11 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
         self._init_interaction()
 
-        self.pop = RegisterPopUp(self)
-        self.pop.show_pop()
-
         self.login_progress(True)
         self.issuance_thread = ibl.SetChrome('haul1115', 'ks05090818@')
         self.issuance_thread.threadEvent.chromeDriver.connect(self.get_chrome_driver)
-        self.issuance_thread.start()
+        # self.issuance_thread.start()
+        self.btn_issuance.setEnabled(True)
 
     def test(self):
         print(self.main_menu.currentRow())
@@ -146,6 +143,10 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
         for dic in [self.labels, self.labels_detail, self.labels_park, self.labels_land]:
             for i in dic: mouse_double_clicked(dic[i]).connect(self.clicked_labels)
+
+        ###
+
+        self.register_pop.btn_save.clicked.connect(self.register_pop.clicked_save_btn(lambda: self.register_data))
 
     # 그림자 세팅
     def set_shadow(self, kind):
@@ -267,39 +268,38 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
     # 문서 발급 버튼
     def clicked_issuance_menu(self, pk=''):
-        if not self.activation: return
+        # if not self.activation: return
         item_row = self.issuance_menu.currentRow()
+        self.issuance_menu.hide_menu()
 
-        # 표제부 버튼
-        if item_row == 1:
-            self.clicked_issuance_btn()
-            self.btn_issuance.setEnabled(False)
-            pk = self.issuance_data['동_PK']
-
-        # 전유부 버튼
-        elif item_row == 2:
+        # 건축물대장
+        if item_row == 0:
             if self.binfo['타입'] == '집합':
-                self.clicked_issuance_btn()
                 self.btn_issuance.setEnabled(False)
                 pk = self.issuance_data['호_PK']
 
             elif self.binfo['타입'] == '일반':
                 self.msg.show_msg(2000, 'center', '전유부는 집합 건물만 발급할 수 있습니다')
                 return
+            self.btn_issuance.setEnabled(False)
+            pk = self.issuance_data['동_PK']
+            self.issuance_thread = ibl.IssuanceBuildingLedger(pk, item_row, self.driver, self.login_cookies)
+            self.issuance_thread.threadEvent.workerThreadDone.connect(lambda: self.btn_issuance.setEnabled(True))
+            self.issuance_thread.threadEvent.progress.connect(self.issuance_progress_event)
+            self.issuance_thread.start()
 
-        # 등기부등본 버튼
-        elif item_row == 3:
+        # 등기부등본
+        elif item_row == 1:
+            self.register_pop.show_pop()
+            return
+
+        # 토지이용계획
+        elif item_row == 2:
             return
 
         self.progress_bar.setMaximum(0)
         self.lb_progress.setHidden(False)
         self.progress_bar.setHidden(False)
-
-        self.issuance_menu.hide_menu()
-        self.issuance_thread = ibl.IssuanceBuildingLedger(pk, item_row, self.driver, self.login_cookies)
-        self.issuance_thread.threadEvent.workerThreadDone.connect(lambda: self.btn_issuance.setEnabled(True))
-        self.issuance_thread.threadEvent.progress.connect(self.issuance_progress_event)
-        self.issuance_thread.start()
 
     # 진행 메세지
     def issuance_progress_event(self, msg):
@@ -310,8 +310,10 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
     # 발급목록 열기 버튼
     def clicked_issuance_btn(self):
-        self.issuance_menu.clicked_event(self.btn_issuance)
         if self.issuance_menu.menu_toggle:
+            self.issuance_menu.hide_menu()
+        else:
+            self.issuance_menu.show_menu(self.btn_issuance)
             self.issuance_btn_tip.hide()
 
     # 이벤트 필터

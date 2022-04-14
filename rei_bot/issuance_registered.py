@@ -8,23 +8,22 @@ from PySide6.QtCore import QThread, QObject, Signal
 
 
 class ThreadSignal(QObject):
-    workerThreadDone = Signal(bool)
+    workerThreadDone = Signal(bytes)
+    workingMsg = Signal(str)
 
 
 class IssuanceRegistered(QThread):
-    def __init__(self, address, user, kind):
+    def __init__(self, api_data, user, address, flag, kind):
         super(IssuanceRegistered, self).__init__()
+        self.threadEvent = ThreadSignal()
 
-        self.API_HOST = 'https://api.tilko.net/'
-        self.API_KEY = '6062d22d48734cd3af82837f696730fb'
+        self.API_HOST = api_data['HOST']
+        self.API_KEY = api_data['KEY']
         self.headers = None
 
-        self.address, self.user, self.kind = address, user, kind
+        self.address, self.user, self.flag, self.kind = address, user, flag, kind
 
     def run(self):
-        user_id, user_pw = self.user['user_id'], self.user['user_pw']
-        num_1, num_2, num_pw = self.user['num_1'], self.user['num_2'], self.user['num_pw']
-
         aesKey = os.urandom(16)
         aesIv = ('\x00' * 16).encode('utf-8')
 
@@ -36,7 +35,7 @@ class IssuanceRegistered(QThread):
                         "ENC-KEY": aesCipherKey}
 
         datas = {'Address': self.address,    # 주소
-                 'Sangtae': 0,               # 현행:0 / 폐쇄:1 / 현행폐쇄:2
+                 'Sangtae': self.flag,       # 현행:0 / 폐쇄:1 / 현행폐쇄:2
                  'KindClsFlag': self.kind}   # 전체:0 / 집합건물:1 / 건물:2 / 토지:3
 
         # 등기 고유번호 조회
@@ -46,29 +45,32 @@ class IssuanceRegistered(QThread):
         response = requests.post(url['조회'], headers=self.headers, json=datas)
         result = response.json()
 
+        # 등기 고유번호 조회가 됐을 경우
         if result['Status'] == 'OK':
             unique_no = result['ResultList'][0]['UniqueNo']
 
             # 등기부등본 데이터 요청
-            params = {"IrosID": aesEncrypt(aesKey, aesIv, user_id),
-                      "IrosPwd": aesEncrypt(aesKey, aesIv, user_pw),
-                      "EmoneyNo1": aesEncrypt(aesKey, aesIv, num_1),
-                      "EmoneyNo2": aesEncrypt(aesKey, aesIv, num_2),
-                      "EmoneyPwd": aesEncrypt(aesKey, aesIv, num_pw),
+            params = {"IrosID": aesEncrypt(aesKey, aesIv, self.user['user_id']),
+                      "IrosPwd": aesEncrypt(aesKey, aesIv, self.user['user_pw']),
+                      "EmoneyNo1": aesEncrypt(aesKey, aesIv, self.user['num_1']),
+                      "EmoneyNo2": aesEncrypt(aesKey, aesIv, self.user['num_2']),
+                      "EmoneyPwd": aesEncrypt(aesKey, aesIv, self.user['num_pw']),
                       "UniqueNo": unique_no,
                       "ValidYn": "Y"}
 
             response = requests.post(url['발급'], headers=self.headers, json=params)
-            result = response.json()
-            print(result)
+            result = response.json()    # 등기부등본 데이터
 
+            # 등기 데이터가 정상 조회 되었을 경우
             if result['Status'] == 'OK':
                 return result
+
             else:
-                print(result['Message'])
+                self.threadEvent.workingMsg.emit(result['Message'])
                 return
+
         else:
-            print(result['Message'])
+            self.threadEvent.workingMsg.emit(result['Message'])
             return
 
     def saved_pdf(self, transaction_key):
@@ -130,13 +132,4 @@ def getPublicKey(apiHost, apiKey):
     return response.json()['PublicKey']
 
 
-ir = IssuanceRegistered()
-data = ir.get_register_data('면목동 137-34 302호', 'mogsin21', 'happy2588@', 'P3372711', '3234', 'kim2588')
-print(data['Message'])
-
-
-if data:
-    t_key = data['TransactionKey']
-    ir.saved_pdf(t_key)
-    print(f'transaction_key : {t_key}')
 

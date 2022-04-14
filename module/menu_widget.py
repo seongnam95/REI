@@ -31,11 +31,6 @@ class MenuWidget(QListWidget):
 
         self.hide()
 
-    # 버튼 클릭 이벤트
-    def clicked_event(self, btn):
-        self.hide_menu() if self.menu_toggle else self.show_menu(btn)
-        self.menu_toggle = not self.menu_toggle
-
     # 아이템 추가
     def add_item(self, items):
         for i in items:
@@ -67,21 +62,22 @@ class MenuWidget(QListWidget):
             txt.resize(max(font_sizes), txt.height())
 
     def show_menu(self, btn):
-        if self.isHidden(): self.show()
-        self.menu_toggle = False
-        self.set_position(btn)
+        if self.isHidden():
+            self.show()
+            self.set_position(btn)
 
         self.anim_show.setStartValue(0)
         self.anim_show.setEndValue(1)
         self.anim_show.setDuration(100)
         self.anim_show.start()
+        self.menu_toggle = True
 
     def hide_menu(self):
-        self.menu_toggle = True
         self.anim_hide.setStartValue(1)
         self.anim_hide.setEndValue(0)
         self.anim_hide.setDuration(100)
         self.anim_hide.start()
+        self.menu_toggle = False
 
     # 메뉴 위치 설정
     def set_position(self, btn):
