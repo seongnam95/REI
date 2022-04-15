@@ -57,13 +57,21 @@ class IssuanceRegistered(QThread):
                       "EmoneyPwd": aesEncrypt(aesKey, aesIv, self.user['num_pw']),
                       "UniqueNo": unique_no,
                       "ValidYn": "Y"}
-
             response = requests.post(url['발급'], headers=self.headers, json=params)
             result = response.json()    # 등기부등본 데이터
 
             # 등기 데이터가 정상 조회 되었을 경우
             if result['Status'] == 'OK':
-                return result
+
+                # PDF 바이너리 요청
+                transaction_key = result['TransactionKey']
+                url = self.API_HOST + "api/v1.0/iros/getpdffile"
+                params = {"TransactionKey": transaction_key, "IsSummary": "Y"}
+                response = requests.post(url, headers=self.headers, json=params)
+
+                # 요청 된 바이너리 PDF 파일로 저장
+                with open("new.pdf", "wb") as f:
+                    f.write(base64.b64decode(response.json()['Message']))
 
             else:
                 self.threadEvent.workingMsg.emit(result['Message'])
@@ -72,19 +80,6 @@ class IssuanceRegistered(QThread):
         else:
             self.threadEvent.workingMsg.emit(result['Message'])
             return
-
-    def saved_pdf(self, transaction_key):
-        url = self.API_HOST + "api/v1.0/iros/getpdffile"
-        params = {"TransactionKey": transaction_key, "IsSummary": "Y"}
-
-        # PDF 바이너리 요청
-        response = requests.post(url, headers=self.headers, json=params)
-
-        # 요청 된 바이너리 PDF 파일로 저장
-        with open("new.pdf", "wb") as f:
-            f.write(base64.b64decode(response.json()['Message']))
-
-        print('saved sucess !')
 
 
 # AES 암호화 함수

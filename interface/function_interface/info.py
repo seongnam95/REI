@@ -35,11 +35,11 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.base_list = []
 
         self.get_building_thread, self.issuance_thread = None, None     # 토지, 지역지구, 공시지가 스레드
-        self.binfo, self.address = None, None
+        self.binfo, self.address, self.address_old = None, None, None
         self.select_building, self.total_buildings = None, None
         self.detail, self.exact_detail = None, None  # 상세 (호, 층)
         self.owners, self.prices, self.pk = None, None, None  # 소유자, 공시가격, 건축물대장 PK
-        self.driver, self.login_cookies = None, None
+        self.driver, self.login_cookies, self.register_data = None, None, None
         self.issuance_data = {}
 
         self._init_ui()
@@ -135,7 +135,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.btn_search.clicked.connect(self.clicked_address_edit)
         self.btn_details.clicked.connect(self.clicked_details_btn)
         self.btn_viol.clicked.connect(self.clicked_viol_btn)
-        self.btn_menu.clicked.connect(lambda: self.main_menu.clicked_event(self.btn_menu))
+        self.btn_menu.clicked.connect(lambda: self.main_menu.show_menu(self.btn_menu))
         self.btn_issuance.clicked.connect(self.clicked_issuance_btn)
 
         self.main_menu.itemClicked.connect(self.test)
@@ -143,10 +143,6 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
         for dic in [self.labels, self.labels_detail, self.labels_park, self.labels_land]:
             for i in dic: mouse_double_clicked(dic[i]).connect(self.clicked_labels)
-
-        ###
-
-        self.register_pop.btn_save.clicked.connect(self.register_pop.clicked_save_btn(lambda: self.register_data))
 
     # 그림자 세팅
     def set_shadow(self, kind):
@@ -290,7 +286,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
         # 등기부등본
         elif item_row == 1:
-            self.register_pop.show_pop()
+            self.register_pop.show_pop(self.address_old)
             return
 
         # 토지이용계획
@@ -356,7 +352,6 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
                               '지': address['지'],
                               '동_PK': building['건축물대장PK']}
 
-        self.insert_room_info()
         if address['지'] == "0":
             old = "%s %s %s %s" % (address['시도'], address['시군구'], address['읍면동'], address['번'])
         else:
@@ -384,6 +379,8 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         for i in base:
             if i in self.labels: self.labels[i].setText(base[i])
         self.edt_address.setText(old)
+        self.address_old = old
+        self.insert_room_info()
 
         print(self.issuance_data)
 
@@ -422,6 +419,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             all_detail = self.detail[self.detail['호명칭'] == detail['호명칭']]
             self.pk = detail['건축물대장PK']
             self.issuance_data['호_PK'] = self.pk
+            self.address_old = '%s %s' % (self.address_old, detail['호명칭'].rstrip("호"))
 
             room_area = detail['전용면적']
             public_area = round(pd.to_numeric(all_detail['전용면적']).sum(), 2)
@@ -550,9 +548,9 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
     # 메뉴 외부 영역 클릭시 메뉴 숨김
     def mousePressEvent(self, event):
         if self.issuance_menu.menu_toggle:
-            self.issuance_menu.clicked_event(self.btn_issuance)
+            self.issuance_menu.hide_menu()
         if self.main_menu.menu_toggle:
-            self.main_menu.clicked_event(self.btn_menu)
+            self.main_menu.hide_menu()
 
     def login_progress(self, active):
         if active:
@@ -563,6 +561,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         else:
             self.lb_progress.setHidden(True)
             self.progress_bar.setHidden(True)
+
 
 # 더블 클릭 이벤트
 def mouse_double_clicked(widget):
