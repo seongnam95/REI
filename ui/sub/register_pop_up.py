@@ -2,11 +2,13 @@ import os
 import sys
 import base64
 import requests
+from PySide6.QtGui import QMovie
+
 import rei_bot.issuance_registered as ir
 
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5, AES
-from PySide6.QtCore import QRect, QThread, QObject, Signal
+from PySide6.QtCore import QRect, QThread, QObject, Signal, QByteArray
 from PySide6.QtWidgets import QComboBox, QFrame, QLabel, QPushButton, QRadioButton, QWidget, QFileDialog
 
 
@@ -14,6 +16,7 @@ class RegisterPopUp(QFrame):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.parent = parent
+
         self._setup_ui()
 
         self.btn_save.clicked.connect(self.clicked_save_btn)
@@ -23,7 +26,7 @@ class RegisterPopUp(QFrame):
                          'KEY': '6062d22d48734cd3af82837f696730fb'}
         self.user = {'user_id': 'mogsin21', 'user_pw': 'happy2588@',
                      'num_1': 'P3372711', 'num_2': '3234', 'num_pw': 'kim2588'}
-        self.address, self.flag, self.kind = None, None, None
+        self.address, self.flag, self.kind, self.ty = None, None, None, None
 
     def _setup_ui(self):
         self.resize(240, 180)
@@ -161,14 +164,34 @@ class RegisterPopUp(QFrame):
             color: rgba(255,255,255,90);
         }""")
 
+        # 동적 이미지 추가
+        self.movie = QMovie('../../data/img/animation/btn_loading_.gif', QByteArray(), self)
+        self.movie.setCacheMode(QMovie.CacheAll)
+
+        self.loading_icon = QLabel(self)
+        self.loading_icon.setGeometry(148, 139, 25, 25)
+        self.loading_icon.setStyleSheet('QLabel{background: rgba(0,0,0,0)}')
+        self.loading_icon.setMovie(self.movie)
+        self.movie.start()
+        self.loading_icon.hide()
+
         self.hide()
 
-    def show_pop(self, address):
+    def show_pop(self, address, ty):
         self.address = address
+
         parent_w, parent_h = self.parent.width(), self.parent.height()
         x = (parent_w / 2) - (self.width() / 2)
         y = (parent_h / 2) - (self.height() / 2)
         self.move(int(x), int(y))
+
+        if ty == '일반':
+            self.rbtn_set.setEnabled(False)
+            self.rbtn_building.setChecked(True)
+
+        elif ty == '집합':
+            self.rbtn_set.setEnabled(True)
+            self.rbtn_set.setChecked(True)
 
         self.show()
 
@@ -183,16 +206,43 @@ class RegisterPopUp(QFrame):
         elif self.rbtn_land.isChecked(): kind = 3
         else: kind = 2
 
+        self.loading(True)
+
         self.issuance_thread = IssuanceRegistered(self.api_data, self.user, self.address, flag, kind)
         self.issuance_thread.threadEvent.workerThreadDone.connect(self.saved_pdf)
         self.issuance_thread.start()
 
+    # 요청 된 바이너리 PDF 파일로 저장
     def saved_pdf(self, data):
+
         file_name = self.address.replace(' ', '_')
-        # 요청 된 바이너리 PDF 파일로 저장
-        fileName = QFileDialog.getSaveFileName(self, "등기부등본 PDF 저장", f"./{file_name}.pdf", "PDF 문서 (*.pdf)")
-        with open(fileName[0], "wb") as f:
-            f.write(base64.b64decode(data.json()['Message']))
+        save_path = QFileDialog.getSaveFileName(self, "등기부등본 PDF 저장", f"~/{file_name}.pdf", "PDF 문서 (*.pdf)")
+
+        if save_path:
+            with open(save_path[0], "wb") as f:
+                f.write(base64.b64decode(data.json()['Message']))
+        self.loading(False)
+
+    def loading(self, whether):
+        if whether:
+            self.rbtn_set.setEnabled(False)
+            self.rbtn_building.setEnabled(False)
+            self.rbtn_land.setEnabled(False)
+            self.cbx_flag.setEnabled(False)
+
+            self.loading_icon.show()
+            self.btn_save.setText('')
+            self.btn_save.setDisabled(True)
+
+        else:
+            self.rbtn_set.setEnabled(True)
+            self.rbtn_building.setEnabled(True)
+            self.rbtn_land.setEnabled(True)
+            self.cbx_flag.setEnabled(True)
+
+            self.loading_icon.hide()
+            self.btn_save.setText('PDF 저장')
+            self.btn_save.setDisabled(False)
 
 
 class ThreadSignal(QObject):
@@ -249,7 +299,7 @@ class IssuanceRegistered(QThread):
             print(2, result)
 
             # 등기 데이터가 정상 조회 되었을 경우
-            if result['Status'] == 'OK':
+            if result['TransactionKey'] is not None:
 
                 # PDF 바이너리 요청
                 transaction_key = result['TransactionKey']
@@ -257,7 +307,7 @@ class IssuanceRegistered(QThread):
                 url = self.API_HOST + "api/v1.0/iros/getpdffile"
                 params = {"TransactionKey": transaction_key, "IsSummary": "Y"}
                 response = requests.post(url, headers=self.headers, json=params)
-
+                print('PDF 바이너리 요청')
                 self.threadEvent.workerThreadDone.emit(response)
 
             else:

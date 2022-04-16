@@ -517,6 +517,7 @@ class AddressDetails(QDialog, Ui_FindAddress):
 
     ########################################################################################################
 
+
 # 정확한 전유 호수 찾기
 def get_exact_value(data):
     try:
@@ -544,6 +545,7 @@ def get_exact_value(data):
 
     except ValueError: return data
 
+
 # 일반건물 층 정렬
 def sort_value_layer(data):
     low = data[data['층구분'] == '지하'].sort_values(by=['층번호', '층명칭'], axis=0)
@@ -552,6 +554,7 @@ def sort_value_layer(data):
     result = pd.concat([low, mid, top])
     result.reset_index(drop=True, inplace=True)
     return result
+
 
 # 집합건물 호수 정렬
 def sorted_rooms_len(data):
@@ -582,6 +585,7 @@ def sorted_rooms_len(data):
     except (ValueError, IndexError, TypeError) as e:
         print(e)
         return existing
+
 
 # 호수 정규식
 def mask_ho(un, val):
@@ -635,7 +639,7 @@ def mask_ho(un, val):
 
             elif len(i) == 4:
                 com1 = re.compile('(\d)(\d)(\d)(\d)')         # 1001
-                com2 = re.compile('(\w)(\d)(\d)(\d)')  # B101, 지101
+                com2 = re.compile('(\w)(\d)(\d)(\d)')         # B101, 지101
                 com3 = re.compile('(\w)(\w)(\d)(\d)')         # 지층01
 
                 mat = re.match(com1, i)
@@ -709,6 +713,7 @@ class AddressListItem(QWidget):
         grid_box.addWidget(self.lb_new, 1, 1)
 
         self.setLayout(grid_box)
+
 
 # 예외 오류 처리
 def my_exception_hook(exctype, value, traceback):

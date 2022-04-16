@@ -2,9 +2,9 @@ import sys
 
 import clipboard as clip
 import pandas as pd
-from PySide6.QtCore import QObject, Signal, QEvent, QPropertyAnimation, QSize, QPoint, QParallelAnimationGroup
-from PySide6.QtGui import Qt, QIcon, QColor, QMovie
-from PySide6.QtWidgets import QMainWindow, QApplication, QLabel, QGraphicsOpacityEffect, QGraphicsDropShadowEffect
+from PySide6.QtCore import QObject, Signal, QEvent, QSize
+from PySide6.QtGui import QIcon, QColor
+from PySide6.QtWidgets import QMainWindow, QApplication, QGraphicsDropShadowEffect
 
 import module.open_api_pars as pars
 import rei_bot.issuance_register_of_building as ibl
@@ -13,7 +13,7 @@ from interface.sub_interface import address_details
 from module.black_box_msg import BoxMessage
 from module.open_api_pars import OpenApiRequest
 from ui.main.ui_info import Ui_BuildingInfo
-from module.menu_widget import MenuWidget
+from ui.custom.MenuWidget import MenuWidget
 from ui.sub.register_pop_up import RegisterPopUp
 
 
@@ -30,10 +30,9 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.BULIDING_API_KEY = 'sfSPRX+xNEExRUqE4cdhNjBSk4uXIv8F1CfLen06hdPGn5cflLJqy/nxmh48uF8fvdGk68k6Z5jWsU1n6BeNPA=='
         self.VIOL_KEY = '68506e6c486a736e35377562445658'
 
+        # 변수 선언
         self.activation, self.opened, self.first, self.issuance = False, False, False, False
         self.data_basic, self.data_basic_all = None, None
-        self.base_list = []
-
         self.get_building_thread, self.issuance_thread = None, None     # 토지, 지역지구, 공시지가 스레드
         self.binfo, self.address, self.address_old = None, None, None
         self.select_building, self.total_buildings = None, None
@@ -42,14 +41,28 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.driver, self.login_cookies, self.register_data = None, None, None
         self.issuance_data = {}
 
+        # 폼 설정
         self._init_ui()
-        self.btn_issuance.setEnabled(False)
+        self._init_interaction()
+
+        # self.btn_issuance.setEnabled(False)
+
+        self.login_progress(False)
+        # self.issuance_thread = ibl.SetChrome('haul1115', 'ks05090818@')
+        # self.issuance_thread.threadEvent.chromeDriver.connect(self.get_chrome_driver)
+        # self.issuance_thread.start()
+
+    def test(self):
+        print(self.main_menu.currentRow())
+
+    # UI 세팅
+    def _init_ui(self):
+        self._setupUi(self)
+
         self.register_pop = RegisterPopUp(self)
-
         self.msg = BoxMessage(self)
-        self.issuance_btn_tip = TipBox(self.bot_bar)
-        self.issuance_btn_tip.set_box(self.btn_issuance, '건축물대장/등기부등본 발급', 'right')
 
+        # 메뉴 위젯 설정
         items = [{'name': '내 매물로 등록', 'img': '../../data/img/button/plus_icon.png'},
                  {'name': '계약서 작성', 'img': '../../data/img/button/share_icon.png'},
                  {'name': '광고 업로드', 'img': '../../data/img/button/share_icon.png'},
@@ -65,6 +78,21 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.issuance_menu.add_item(issuance_items)
         self.issuance_menu.set_size(self.issuance_menu)
 
+        # 버튼 이미지 설정
+        self.btn_search.setIcon(QIcon('../../data/img/button/search_icon.png'))
+        self.btn_search.setIconSize(QSize(30, 30))
+        self.btn_menu.setIcon(QIcon('../../data/img/button/menu_icon.png'))
+        self.btn_menu.setIconSize(QSize(20, 20))
+        self.btn_issuance.setIcon(QIcon('../../data/img/button/print_icon.png'))
+        self.btn_search.setIconSize(QSize(23, 23))
+
+        # 이벤트 필터 (마우스 HOVER 시, 그림자 효과 관련)
+        self.edt_address.installEventFilter(self)
+        self.btn_viol.installEventFilter(self)
+        self.btn_menu.installEventFilter(self)
+        self.btn_issuance.installEventFilter(self)
+
+        # 라벨 위젯 리스트에 추가
         self.labels = {'소재지': self.base_item_1,
                        '도로명': self.base_item_2,
                        '상세주소': self.base_item_3,
@@ -95,52 +123,28 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
                             '토지지역지구': self.land_item_2,
                             '토지기타지역지구': self.land_item_3}
 
-        self._init_interaction()
-
-        self.login_progress(True)
-        self.issuance_thread = ibl.SetChrome('haul1115', 'ks05090818@')
-        self.issuance_thread.threadEvent.chromeDriver.connect(self.get_chrome_driver)
-        # self.issuance_thread.start()
-        self.btn_issuance.setEnabled(True)
-
-    def test(self):
-        print(self.main_menu.currentRow())
-
-    # UI 세팅
-    def _init_ui(self):
-        self._setupUi(self)
-
-        self.btn_search.setIcon(QIcon('../../data/img/button/search_icon.png'))
-        self.btn_search.setIconSize(QSize(30, 30))
-        self.btn_menu.setIcon(QIcon('../../data/img/button/menu_icon.png'))
-        self.btn_menu.setIconSize(QSize(20, 20))
-        self.btn_issuance.setIcon(QIcon('../../data/img/button/print_icon.png'))
-        self.btn_search.setIconSize(QSize(23, 23))
-
-        self.edt_address.installEventFilter(self)
-        self.btn_viol.installEventFilter(self)
-        self.btn_menu.installEventFilter(self)
-        self.btn_issuance.installEventFilter(self)
-
-        self.movie = QMovie("../../data/img/animation/btn_loading.gif")
-
         self.show()
 
     # 상호작용 세팅
     def _init_interaction(self):
+
+        # 기타 상호작용 이벤트
         self.cbx_rooms.activated.connect(self.insert_room_info)
         self.edt_address.mousePressEvent = self.clicked_address_edit
         self.edt_address.returnPressed.connect(self.clicked_address_edit)
 
+        # 버튼 클릭 이벤트
         self.btn_search.clicked.connect(self.clicked_address_edit)
         self.btn_details.clicked.connect(self.clicked_details_btn)
         self.btn_viol.clicked.connect(self.clicked_viol_btn)
-        self.btn_menu.clicked.connect(lambda: self.main_menu.show_menu(self.btn_menu))
-        self.btn_issuance.clicked.connect(self.clicked_issuance_btn)
 
+        # 메뉴 클릭 이벤트
+        self.btn_menu.clicked.connect(self.clicked_menu_btn)
+        self.btn_issuance.clicked.connect(self.clicked_issuance_btn)
         self.main_menu.itemClicked.connect(self.test)
         self.issuance_menu.itemClicked.connect(self.clicked_issuance_menu)
 
+        # 라벨 더블 클릭 이벤트
         for dic in [self.labels, self.labels_detail, self.labels_park, self.labels_land]:
             for i in dic: mouse_double_clicked(dic[i]).connect(self.clicked_labels)
 
@@ -171,7 +175,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
         return shadow
 
-    # 셀러리움 로그인 소스
+    # 셀러리움 로그인 정보
     def get_chrome_driver(self, driver):
         self.driver = driver
         self.login_cookies = driver.get_cookies()
@@ -267,7 +271,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         # if not self.activation: return
         item_row = self.issuance_menu.currentRow()
         self.issuance_menu.hide_menu()
-
+        self.binfo = {'타입': '집합'}
         # 건축물대장
         if item_row == 0:
             if self.binfo['타입'] == '집합':
@@ -277,6 +281,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             elif self.binfo['타입'] == '일반':
                 self.msg.show_msg(2000, 'center', '전유부는 집합 건물만 발급할 수 있습니다')
                 return
+
             self.btn_issuance.setEnabled(False)
             pk = self.issuance_data['동_PK']
             self.issuance_thread = ibl.IssuanceBuildingLedger(pk, item_row, self.driver, self.login_cookies)
@@ -284,18 +289,15 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             self.issuance_thread.threadEvent.progress.connect(self.issuance_progress_event)
             self.issuance_thread.start()
 
+            self.progress_bar.setMaximum(0)
+            self.lb_progress.setHidden(False)
+            self.progress_bar.setHidden(False)
+
         # 등기부등본
-        elif item_row == 1:
-            self.register_pop.show_pop(self.address_old)
-            return
+        elif item_row == 1: self.register_pop.show_pop(self.address_old, self.binfo['타입'])
 
         # 토지이용계획
-        elif item_row == 2:
-            return
-
-        self.progress_bar.setMaximum(0)
-        self.lb_progress.setHidden(False)
-        self.progress_bar.setHidden(False)
+        elif item_row == 2: return
 
     # 진행 메세지
     def issuance_progress_event(self, msg):
@@ -304,15 +306,17 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             self.progress_bar.setHidden(True)
         self.lb_progress.setText(msg)
 
+    # 메뉴 열기 버튼
+    def clicked_menu_btn(self):
+        if self.main_menu.menu_toggle: self.main_menu.hide_menu()
+        else: self.main_menu.show_menu(self.btn_menu)
+
     # 발급목록 열기 버튼
     def clicked_issuance_btn(self):
-        if self.issuance_menu.menu_toggle:
-            self.issuance_menu.hide_menu()
-        else:
-            self.issuance_menu.show_menu(self.btn_issuance)
-            self.issuance_btn_tip.hide()
+        if self.issuance_menu.menu_toggle: self.issuance_menu.hide_menu()
+        else: self.issuance_menu.show_menu(self.btn_issuance)
 
-    # 이벤트 필터
+    # 이벤트 필터 (버튼 이펙트)
     def eventFilter(self, obj, event):
         objs = {self.btn_viol: 'sub_button',
                 self.btn_menu: 'main_button',
@@ -320,21 +324,11 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
                 self.edt_address: 'edit'}
         if obj not in objs.keys(): return
 
-        # ON
-        if event.type() == QEvent.HoverEnter:
+        # 버튼 이펙트 (쉐도우)
+        if event.type() == QEvent.HoverEnter:    # ON
             obj.setGraphicsEffect(self.set_shadow(objs[obj]))
-
-            if obj == self.btn_issuance:
-                if not self.issuance_menu.menu_toggle:
-                    self.issuance_btn_tip.show()
-
-        # OFF
-        elif event.type() == QEvent.HoverLeave:
+        elif event.type() == QEvent.HoverLeave:  # OFF
             obj.setGraphicsEffect(self.set_shadow('reset'))
-
-            if obj == self.btn_issuance:
-                if not self.issuance_menu.menu_toggle:
-                    self.issuance_btn_tip.hide()
 
         return super(BuildingInfo, self).eventFilter(obj, event)
 
@@ -460,7 +454,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             if i in self.labels:
                 self.labels[i].setText(base[i])
 
-    # 상세 정보 로드
+    # 상세 정보 입력
     def insert_detail_info(self, val):
 
         building = self.select_building
@@ -552,6 +546,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         if self.main_menu.menu_toggle:
             self.main_menu.hide_menu()
 
+    # 로그인 프로그래스 바
     def login_progress(self, active):
         if active:
             self.progress_bar.setMaximum(0)
@@ -581,43 +576,10 @@ def mouse_double_clicked(widget):
     return evt_filter.clicked
     ########################################################################################################
 
+
 # 예외 오류 처리
 def my_exception_hook(exctype, value, traceback):
     sys.excepthook(exctype, value, traceback)
-
-
-class TipBox(QLabel):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setStyleSheet("QLabel{background-color: rgba(0,0,0,120);"
-                           "font: 14px \uc6f0\ucef4\uccb4 Regular;"
-                           "color: white;"
-                           "border-radius: 3px;"
-                           "padding-top: 3px;}")
-        self.hide()
-
-    def set_box(self, widget, text, pos):
-        self.setText(text)
-        self.setAlignment(Qt.AlignCenter)
-
-        font_size = self.fontMetrics().boundingRect(text)
-        self.resize(font_size.width() + 10, 23)
-
-        x, y = 0, 0
-        if pos == 'right':
-            x = widget.x() + widget.width() + 5
-            y = widget.y() + ((widget.height() / 2) - (self.height() / 2))
-        elif pos == 'left':
-            x = widget.x() - self.width() - 5
-            y = widget.y() + ((widget.height() / 2) - (self.height() / 2))
-        elif pos == 'top':
-            x = widget.x() + ((widget.width() / 2) - (self.width() / 2))
-            y = widget.y() - 5
-        elif pos == 'bot':
-            x = widget.x() + ((widget.width() / 2) - (self.width() / 2))
-            y = widget.y() + widget.height() + 5
-
-        self.move(x, y)
 
 
 sys._excepthook = sys.excepthook
