@@ -188,8 +188,9 @@ class RegisterPopUp(QFrame):
         self.issuance_thread.start()
 
     def saved_pdf(self, data):
+        file_name = self.address.replace(' ', '_')
         # 요청 된 바이너리 PDF 파일로 저장
-        fileName = QFileDialog.getSaveFileName(self, self.tr("등기부등본 PDF 저장"), "./", self.tr("PDF 문서 (*.pdf)"))
+        fileName = QFileDialog.getSaveFileName(self, "등기부등본 PDF 저장", f"./{file_name}.pdf", "PDF 문서 (*.pdf)")
         with open(fileName[0], "wb") as f:
             f.write(base64.b64decode(data.json()['Message']))
 
@@ -222,7 +223,7 @@ class IssuanceRegistered(QThread):
         datas = {'Address': self.address,    # 주소
                  'Sangtae': self.flag,       # 현행:0 / 폐쇄:1 / 현행폐쇄:2
                  'KindClsFlag': self.kind}   # 전체:0 / 집합건물:1 / 건물:2 / 토지:3
-
+        print(self.address, self.flag, self.kind)
         # 등기 고유번호 조회
         url = {'조회': self.API_HOST + "api/v1.0/iros/risuconfirmsimplec",
                '발급': self.API_HOST + "api/v1.0/iros/risuretrieve"}
@@ -256,7 +257,7 @@ class IssuanceRegistered(QThread):
                 url = self.API_HOST + "api/v1.0/iros/getpdffile"
                 params = {"TransactionKey": transaction_key, "IsSummary": "Y"}
                 response = requests.post(url, headers=self.headers, json=params)
-                print(3, response.json())
+
                 self.threadEvent.workerThreadDone.emit(response)
 
             else:
