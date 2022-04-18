@@ -8,7 +8,7 @@ from PySide6.QtWidgets import QWidget, QApplication, QDialog, QLabel, QMessageBo
 from PySide6.QtCore import Qt, QEvent, QRect, QSize
 from PySide6.QtGui import QTextCursor, QFontMetrics
 
-from hanspell import spell_checker
+# from hanspell import spell_checker
 from ui.custom.TitleBarWidget import TitleBarWidget
 from module.black_box_msg import BoxMessage
 
