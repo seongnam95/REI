@@ -66,7 +66,8 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         items = [{'name': '내 매물로 등록', 'img': '../../data/img/button/plus_icon.png'},
                  {'name': '계약서 작성', 'img': '../../data/img/button/share_icon.png'},
                  {'name': '광고 업로드', 'img': '../../data/img/button/share_icon.png'},
-                 {'name': '매물 공유하기', 'img': '../../data/img/button/plus_icon.png'}]
+                 {'name': '매물 공유하기', 'img': '../../data/img/button/plus_icon.png'},
+                 {'name': '설정', 'img': '../../data/img/button/plus_icon.png'}]
         self.main_menu = MenuWidget(self)
         self.main_menu.add_item(items)
         self.main_menu.set_size(self.main_menu)
