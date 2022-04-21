@@ -9,9 +9,9 @@ from PySide6.QtGui import QIcon, QRegularExpressionValidator, QFont
 from urllib3.connectionpool import xrange
 
 from ui.main.ui_lease import Ui_MainWindow
-from module.black_box_msg import BoxMessage
+from ui.custom.BlackBoxMsg import BoxMessage
 from interface.sub_interface import address_details
-from interface.lease import agr_add, agr_edit
+from interface.lease_interface import agr_edit
 
 
 class MainLease(QMainWindow, Ui_MainWindow):

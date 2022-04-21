@@ -1,30 +1,35 @@
 import sys
-import csv
 import pandas as pd
 
 from ui.dialog.ui_agr_editor import Ui_AgreementEditor
-from PySide6.QtWidgets import QWidget, QApplication, QDialog, QLabel, QMessageBox, QHBoxLayout, QListWidgetItem, QMenu
-from PySide6.QtCore import Qt, QEvent, QRect, QSize
-from PySide6.QtGui import QTextCursor, QFontMetrics
+from PySide6.QtWidgets import QWidget, QDialog, QLabel, QHBoxLayout, QListWidgetItem, QMenu, QComboBox
+from PySide6.QtCore import Qt, QEvent, QSize
 
 # from hanspell import spell_checker
-from ui.custom.TitleBarWidget import TitleBarWidget
-from module.black_box_msg import BoxMessage
+from ui.custom.BlackBoxMsg import BoxMessage
 
 
-class AgrEditor(QDialog, Ui_AgreementEditor):
-    def __init__(self, agr, select_agr):
+class AgrAdd(QDialog, Ui_AgreementEditor):
+    def __init__(self, agr):
         super().__init__()
         self._setupUi(self)
+        
+        self.lb_sub_title.setText("( 특약사항 추가 )")
+        self.cbx_keyword.setEnabled(True)
 
-        self.msg = BoxMessage(self)
-        self.agr, self.select_agr, self.response = agr, select_agr, None
+        # 선언문
+        self.agr, self.response = agr, None
         self.editing, self.editing_row, self.save_row = False, 0, 0
+        self.cbx_keyword.setInsertPolicy(QComboBox.NoInsert)
+        self.msg = BoxMessage(self)
 
-        self.btn_add.clicked.connect(self.add_item)
+        # UI 이벤트 설정
+        self.btn_add.clicked.connect(self.clicked_add)
         self.btn_save.clicked.connect(self.clicked_save_btn)
+        self.cbx_keyword.activated.connect(self.activated_keyword_cbx)
         self.lst_content.installEventFilter(self)
 
+        # 특약사항 로드
         self.load_content()
 
     ## 상호작용 이벤트
@@ -65,27 +70,28 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
 
             return True
 
-        return super(AgrEditor, self).eventFilter(source, event)
+        return super(AgrAdd, self).eventFilter(source, event)
 
     # 저장 버튼 클릭
     def clicked_save_btn(self):
         keyword = self.cbx_keyword.currentText().strip()
         title = self.edt_title.text().strip()
 
-        if not title:
+        if keyword == "( 선택 )":
+            self.msg.show_msg(1500, 'center', "키워드를 선택해주세요.")
+            return
+        elif not title:
             self.msg.show_msg(1500, 'center', "My 특약 제목을 입력해주세요.")
-
-        elif not self.lst_content.count():
+            return
+        elif self.lst_content.count() == 0:
             self.msg.show_msg(1500, 'center', "My 특약 리스트가 비어있습니다.")
-
+            return
         else:
             result = self.agr[self.agr['keyword'] == keyword]
 
             if title in result['title'].values.tolist():
-                current_title = self.select_agr['title'].iloc[0]
-                if title != current_title:
-                    self.msg.show_msg(1500, 'center', "이미 존재하는 특약 제목입니다.")
-                    return
+                self.msg.show_msg(1500, 'center', "이미 존재하는 특약 제목입니다.")
+                return
 
         column = ['keyword', 'title', 'num', 'content']
         response = pd.DataFrame(columns=column)
@@ -107,12 +113,10 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
     ############################################################################
 
     # 항목 추가
-    def add_item(self):
+    def clicked_add(self):
         content = self.edt_add.toPlainText()
 
-        if not content:
-            self.msg.show_msg(1800, 'center', "특약사항 내용을 입력해주세요.")
-            return
+        if not content: return
 
         # '수정' 클릭 이벤트
         if self.editing:
@@ -127,7 +131,7 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
         # '추가' 클릭 이벤트
         else:
             count = self.lst_content.count() + 1
-            self.add_conent_item(count, content)
+            self.add_content_item(count, content)
 
         self.lb_number.setText(str(self.lst_content.count() + 1))
 
@@ -167,17 +171,16 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
 
     ############################################################################
 
-    # 특약사항 세팅
+    # 내용 로드
     def load_content(self):
-        keyword = self.select_agr['keyword'].iloc[0]
-        title = self.select_agr['title'].iloc[0]
+        # 키워드 추가
+        keyword = self.agr['keyword'].values.tolist()
+        keyword = list(dict.fromkeys(keyword))
 
-        self.cbx_keyword.addItem(keyword)
-        self.edt_title.setText(title)
-
-        [self.add_conent_item(count, content) for count, content in zip(self.select_agr['num'], self.select_agr['content'])]
-
-        self.lb_number.setText(str(self.lst_content.count() + 1))
+        self.cbx_keyword.addItem('( 선택 )')
+        self.cbx_keyword.addItems(keyword)
+        self.cbx_keyword.addItem('( 직접입력 )')
+        self.cbx_keyword.showPopup()
 
     # 리스트 순서 정렬
     def sorted_row(self):
@@ -190,19 +193,34 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
         self.lb_number.setText(str(self.lst_content.count() + 1))
 
     # 특약 아이템 추가 함수
-    def add_conent_item(self, count, content):
+    def add_content_item(self, count, content):
         custom_item = MyItem(str(count), content)
         item = QListWidgetItem()
-        item.setSizeHint(QSize(self.lst_content.width() - 10, 15))
         item.setSizeHint(QSize(custom_item.sizeHint()))
         self.lst_content.addItem(item)
         self.lst_content.setItemWidget(item, custom_item)
+        self.lst_content.setCurrentRow(self.lst_content.count() - 1)
+
+    # 키워드 선택 이벤트
+    def activated_keyword_cbx(self):
+        item = self.cbx_keyword.currentText()
+        if item == "( 직접입력 )":
+            self.cbx_keyword.setEditable(True)
+            self.cbx_keyword.setCurrentText("")
+        else:
+            self.cbx_keyword.removeItem(self.cbx_keyword.count() - 1)
+            self.cbx_keyword.addItem('( 직접입력 )')
+            self.cbx_keyword.setEditable(False)
 
 
 # 맞춤법, 띄어쓰기 교정
 def spell_check_module(content):
     content = spell_checker.check(content).checked
     return content
+
+# 예외 오류 처리
+def my_exception_hook(exctype, value, traceback):
+    sys.excepthook(exctype, value, traceback)
 
 
 # 리스트 아이템
@@ -241,11 +259,6 @@ class MyItem(QWidget):
         h_box.addWidget(self.lb_content)
 
         self.setLayout(h_box)
-
-
-# 예외 오류 처리
-def my_exception_hook(exctype, value, traceback):
-    sys.excepthook(exctype, value, traceback)
 
 
 sys._excepthook = sys.excepthook

@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QMainWindow, QApplication
-from PySide6.QtCore import QRect, QPoint
+from PySide6.QtCore import QPoint
 from ui.custom.TitleBarWidget import TitleBarWidget
-from module.black_box_msg import BoxMessage
+from ui.custom.BlackBoxMsg import BoxMessage
 import sys
 
 

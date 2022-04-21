@@ -10,7 +10,7 @@ import module.open_api_pars as pars
 import rei_bot.issuance_register_of_building as ibl
 
 from interface.sub_interface import address_details
-from module.black_box_msg import BoxMessage
+from ui.custom.BlackBoxMsg import BoxMessage
 from module.open_api_pars import OpenApiRequest
 from ui.main.ui_info import Ui_BuildingInfo
 from ui.custom.MenuWidget import MenuWidget
