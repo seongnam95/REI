@@ -24,7 +24,7 @@ class AddressDetails(QDialog, Ui_FindAddress):
     def __init__(self, call_type, content=None):
         super().__init__()
 
-        self._setupUi(self)
+        self.setupUi(self)
 
         # 데이터 호출출
         # 0: 기본 데이터만 호출, 1: 모든 데이터 호출
@@ -49,6 +49,7 @@ class AddressDetails(QDialog, Ui_FindAddress):
 
         self._init_ui()
         self._init_interaction()
+        self._init_shadow()
 
         if self.content:
             self.edt_address.setText(self.content)
@@ -116,6 +117,28 @@ class AddressDetails(QDialog, Ui_FindAddress):
         self.edt_address.installEventFilter(self)
         self.edt_result_address.installEventFilter(self)
 
+    def _init_shadow(self):
+        shadow = QGraphicsDropShadowEffect(self)
+        shadow.setBlurRadius(30)
+        shadow.setXOffset(3)
+        shadow.setYOffset(3)
+        shadow.setColor(QColor(0, 0, 0, 40))
+        self.address_frame.setGraphicsEffect(shadow)
+
+        shadow = QGraphicsDropShadowEffect(self)
+        shadow.setBlurRadius(30)
+        shadow.setXOffset(3)
+        shadow.setYOffset(3)
+        shadow.setColor(QColor(0, 0, 0, 40))
+        self.list_frame.setGraphicsEffect(shadow)
+
+        shadow = QGraphicsDropShadowEffect(self)
+        shadow.setBlurRadius(30)
+        shadow.setXOffset(3)
+        shadow.setYOffset(3)
+        shadow.setColor(QColor(0, 0, 0, 40))
+        self.detail_frame.setGraphicsEffect(shadow)
+
     def eventFilter(self, obj, event):
         objs = {self.btn_input: 'button',
                 self.list_address: 'edit',
@@ -178,7 +201,7 @@ class AddressDetails(QDialog, Ui_FindAddress):
             new = result['도로명주소'] + bld_name
             old = "%s %s %s %s-%s" % (result['시도'], result['시군구'], result['읍면동'], result['번'], result['지'])
 
-            if len(new) > 35: new = new[0:35] + '···'
+            if len(new) > 33: new = new[0:33] + '···'
 
             custom_item = AddressListItem(new, old)
             item = QListWidgetItem(self.list_address)
@@ -679,29 +702,39 @@ def mask_ho(un, val):
 class AddressListItem(QWidget):
     def __init__(self, new, old):
         super(AddressListItem, self).__init__()
-        border_txt = """QLabel { font: 12px "웰컴체 Regular";
-                        color: rgb(52, 152, 219);
-                        border: 1px solid #3498db;
-                        padding: 5px 3px 3px 3px;
+        border_txt_old = """QLabel { font: 12px "웰컴체 Regular";
+                        color: white;
+                        border: none;
+                        background: rgb(148,148,255);
+                        padding-left: 5px;
+                        padding-top: 3px;
+                        border-radius: 5px;}"""
+
+        border_txt_new = """QLabel { font: 12px "웰컴체 Regular";
+                        color: white;
+                        border: none;
+                        background: rgb(148,148,255);
+                        padding-left: 4px;
+                        padding-top: 3px;
                         border-radius: 5px;}"""
 
         self.lb_old_icon = QLabel()
         self.lb_old_icon.setMaximumSize(44, 23)
         self.lb_old_icon.setText("지   번")
-        self.lb_old_icon.setStyleSheet(border_txt)
+        self.lb_old_icon.setStyleSheet(border_txt_old)
 
         self.lb_old = QLabel()
         self.lb_old.setText(old)
-        self.lb_old.setStyleSheet("""QLabel { font: 15px "웰컴체 Regular"; color: rgb(44, 62, 80); padding-top: 2px;}""")
+        self.lb_old.setStyleSheet("""QLabel { font: 15px "웰컴체 Regular"; color: rgb(65,65,65); padding-top: 2px;}""")
 
         self.lb_new_icon = QLabel()
         self.lb_new_icon.setMaximumSize(44, 23)
         self.lb_new_icon.setText("도로명")
-        self.lb_new_icon.setStyleSheet(border_txt)
+        self.lb_new_icon.setStyleSheet(border_txt_new)
 
         self.lb_new = QLabel()
         self.lb_new.setText(new)
-        self.lb_new.setStyleSheet("""QLabel { font: 14px "웰컴체 Regular"; color: rgb(75, 101, 132); padding-top: 2px;}""")
+        self.lb_new.setStyleSheet("""QLabel { font: 14px "웰컴체 Regular"; color: rgb(125,125,125); padding-left: 2px; padding-top: 2px;}""")
 
         self.set_ui()
 

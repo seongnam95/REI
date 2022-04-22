@@ -214,7 +214,6 @@ class RegisterPopUp(QFrame):
 
     # 요청 된 바이너리 PDF 파일로 저장
     def saved_pdf(self, data):
-
         file_name = self.address.replace(' ', '_')
         save_path = QFileDialog.getSaveFileName(self, "등기부등본 PDF 저장", f"~/{file_name}.pdf", "PDF 문서 (*.pdf)")
 

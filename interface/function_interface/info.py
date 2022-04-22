@@ -7,7 +7,6 @@ from PySide6.QtGui import QIcon, QColor
 from PySide6.QtWidgets import QMainWindow, QApplication, QGraphicsDropShadowEffect
 
 import module.open_api_pars as pars
-import rei_bot.issuance_register_of_building as ibl
 
 from interface.sub_interface import address_details
 from ui.custom.BlackBoxMsg import BoxMessage
@@ -272,7 +271,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         # if not self.activation: return
         item_row = self.issuance_menu.currentRow()
         self.issuance_menu.hide_menu()
-        self.binfo = {'타입': '집합'}
+
         # 건축물대장
         if item_row == 0:
             if self.binfo['타입'] == '집합':
