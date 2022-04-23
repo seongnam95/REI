@@ -2,7 +2,7 @@ import sys
 
 from PySide6.QtGui import QColor, QIcon
 from PySide6.QtCore import Qt, QSize
-from PySide6.QtWidgets import QDialog, QApplication, QGraphicsDropShadowEffect
+from PySide6.QtWidgets import QDialog, QApplication, QGraphicsDropShadowEffect, QFrame
 from ui.dialog.ui_register import Ui_Dialog
 
 from interface.sub_interface import address_details
@@ -27,19 +27,13 @@ class LedgerDialog(QDialog, Ui_Dialog):
 
     # UI 그림자 설정
     def set_shadow(self):
-        shadow = QGraphicsDropShadowEffect(self)
-        shadow.setBlurRadius(30)
-        shadow.setXOffset(3)
-        shadow.setYOffset(3)
-        shadow.setColor(QColor(0, 0, 0, 40))
-        self.address_frame.setGraphicsEffect(shadow)
-
-        shadow = QGraphicsDropShadowEffect(self)
-        shadow.setBlurRadius(30)
-        shadow.setXOffset(3)
-        shadow.setYOffset(3)
-        shadow.setColor(QColor(0, 0, 0, 40))
-        self.type_frame.setGraphicsEffect(shadow)
+        for child in [self.address_frame, self.type_frame]:
+            shadow = QGraphicsDropShadowEffect(self)
+            shadow.setBlurRadius(30)
+            shadow.setXOffset(3)
+            shadow.setYOffset(3)
+            shadow.setColor(QColor(0, 0, 0, 40))
+            child.setGraphicsEffect(shadow)
 
         shadow = QGraphicsDropShadowEffect(self)
         shadow.setBlurRadius(30)
@@ -66,14 +60,25 @@ class LedgerDialog(QDialog, Ui_Dialog):
 
             self.edt_address.setText(old)
 
+            if self.binfo['타입'] == '일반':
+                self.rbtn_building.setEnabled(True)
+                self.rbtn_room.setEnabled(False)
+                self.rbtn_building.setChecked(True)
+
+            elif self.binfo['타입'] == '집합':
+                self.rbtn_building.setEnabled(False)
+                self.rbtn_room.setEnabled(True)
+                self.rbtn_room.setChecked(True)
+
     def clicked_issuance_btn(self):
-        if self.binfo['타입'] == '집합':
-            self.btn_issuance.setEnabled(False)
+        if self.rbtn_total.isChecked():
             pk = self.issuance_data['호_PK']
 
-        elif self.binfo['타입'] == '일반':
-            self.msg.show_msg(2000, 'center', '전유부는 집합 건물만 발급할 수 있습니다')
-            return
+        elif self.rbtn_building.isChecked():
+            pk = self.issuance_data['호_PK']
+
+        elif self.rbtn_room.isChecked():
+            pk = self.issuance_data['호_PK']
 
         self.btn_issuance.setEnabled(False)
         pk = self.issuance_data['동_PK']

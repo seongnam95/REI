@@ -113,9 +113,9 @@ class AddressDetails(QDialog, Ui_FindAddress):
         self.btn_input.clicked.connect(self.address_input_event)
         self.ckb_part.clicked.connect(self.part_check_event)
 
-        self.btn_input.installEventFilter(self)
-        self.edt_address.installEventFilter(self)
-        self.edt_result_address.installEventFilter(self)
+        # self.btn_input.installEventFilter(self)
+        # self.edt_address.installEventFilter(self)
+        # self.edt_result_address.installEventFilter(self)
 
     def _init_shadow(self):
         shadow = QGraphicsDropShadowEffect(self)
