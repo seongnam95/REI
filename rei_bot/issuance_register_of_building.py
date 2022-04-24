@@ -3,7 +3,6 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
-import rei_bot.requests_test as rt
 
 import webbrowser
 import requests
@@ -83,12 +82,18 @@ class IssuanceBuildingLedger(QThread):
         headers['Referer'] = "https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02L01"
 
         result, ho = None, ''
-        if self.kind == 1:      # 표제부, 일반 건축물 요청
+        if self.kind == 0:
             datas = {"addrGbCd": 2, "bldrgstCurdiGbCd": "0", "sigunguCd": self.sigungu, "bldrgstSeqno": self.seqno}
             response_title = self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02R01', headers=headers, json=datas)
             time.sleep(0.5)
             json_data = json.loads(response_title.text)
             result = json_data['jibunAddr'][0]
+
+        elif self.kind == 1:      # 표제부, 일반 건축물 요청
+            datas = {"addrGbCd": 2, "bldrgstCurdiGbCd": "0", "sigunguCd": self.sigungu, "bldrgstSeqno": self.seqno}
+            response_title = self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02R01', headers=headers, json=datas)
+            time.sleep(0.5)
+            result = json.loads(response_title.text)['jibunAddr'][0]
 
         elif self.kind == 2:    # 전유부 요청
             datas = {"inqireGbCd": "1", "bldrgstCurdiGbCd": "0", "reqSigunguCd": self.sigungu, "bldrgstSeqno": self.seqno}
@@ -100,7 +105,10 @@ class IssuanceBuildingLedger(QThread):
         if ji: ji = f'-{ji}'
         if "hoNm" in result: ho = ' ' + result["hoNm"]
 
-        self.address = f'{result["sigunguNm"]} {result["bjdongNm"]} {bun}{ji} {result["dongNm"]}{ho}'
+        if 'dongNm' in result.keys():
+            self.address = f'{result["sigunguNm"]} {result["bjdongNm"]} {bun}{ji} {result["dongNm"]}{ho}'
+        else:
+            self.address = f'{result["sigunguNm"]} {result["bjdongNm"]} {bun}{ji}'
 
         datas = {"bldrgstSeqno": result["bldrgstSeqno"],
                   "regstrGbCd": result["regstrGbCd"],

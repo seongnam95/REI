@@ -70,10 +70,74 @@ class Ui_Dialog(object):
             outline: none;}
         """)
 
+        self.cbx_buildings = QComboBox(self.address_frame)
+        self.cbx_buildings.addItem("( 건물명칭 / 동 )")
+        self.cbx_buildings.setObjectName(u"cbx_rooms")
+        self.cbx_buildings.setGeometry(QRect(20, 95, 161, 40))
+        self.cbx_buildings.setStyleSheet("""
+        QComboBox {
+            border: 2px solid rgb(235,235,235);
+            padding-top: 4px;
+            padding-left: 10px;
+            min-width: 6em;
+            background: rgb(255, 255, 255);
+            font: 14px "웰컴체 Regular";
+            color: rgb(65, 65, 65);
+            border-radius: 5px;
+        }
+
+        QComboBox QAbstractItemView { 
+            border: 1px solid lightgray;
+            outline: none;
+            padding: 5px;
+        }      
+
+        QComboBox QAbstractItemView::item { 
+            color: rgb(65, 65, 65);
+            border-radius: 5px;
+            padding-left: 10px;
+            padding-top: 3px;
+            min-height: 30px; 
+        }    
+
+        QComboBox QAbstractItemView::item:hover { 
+            selection-color: white;
+            background-color: rgb(128,128,255);
+        }
+
+        QComboBox::drop-down {
+            width: 30px;
+
+            border-top-right-radius: 3px;
+            border-bottom-right-radius: 3px;
+        }
+
+        QComboBox::down-arrow {
+            image: url(../../data/img/system/down_arrow_icon.png);
+            width: 8px;
+            height: 8px;
+        }
+
+        QScrollBar:vertical {
+            width: 5px;
+            border: none;
+        }
+
+        QScrollBar::handle {
+            background: rgb(235,235,235);
+            border: none;
+        }
+
+        QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+            border: none;
+            background: none;
+        }
+        """)
+
         self.cbx_rooms = QComboBox(self.address_frame)
-        self.cbx_rooms.addItem("")
+        self.cbx_rooms.addItem("( 상세주소 / 호)")
         self.cbx_rooms.setObjectName(u"cbx_rooms")
-        self.cbx_rooms.setGeometry(QRect(20, 95, 321, 40))
+        self.cbx_rooms.setGeometry(QRect(185, 95, 156, 40))
         self.cbx_rooms.setStyleSheet("""
         QComboBox {
             border: 2px solid rgb(235,235,235);
@@ -201,7 +265,6 @@ class Ui_Dialog(object):
         self.rbtn_total.setText(QCoreApplication.translate("Dialog", u"\ucd1d\uad04\ud45c\uc81c\ubd80", None))
         self.rbtn_building.setText(QCoreApplication.translate("Dialog", u"\ud45c\uc81c\ubd80 (\uc77c\ubc18\uac74\ucd95\ubb3c)", None))
         self.rbtn_room.setText(QCoreApplication.translate("Dialog", u"\uc804\uc720\ubd80", None))
-        self.cbx_rooms.setItemText(0, QCoreApplication.translate("Dialog", u"( \uc0c1\uc138\uc8fc\uc18c / \ud638 \uc120\ud0dd )", None))
 
         self.lb_sub_title_1.setText(QCoreApplication.translate("Dialog", u"\uc18c\uc7ac\uc9c0 \uac80\uc0c9", None))
         self.btn_issuance.setText(QCoreApplication.translate("Dialog", "건축물 대장 열람", None))

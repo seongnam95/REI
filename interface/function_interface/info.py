@@ -4,9 +4,10 @@ import clipboard as clip
 import pandas as pd
 from PySide6.QtCore import QObject, Signal, QEvent, QSize
 from PySide6.QtGui import QIcon, QColor
-from PySide6.QtWidgets import QMainWindow, QApplication, QGraphicsDropShadowEffect
+from PySide6.QtWidgets import QMainWindow, QApplication, QGraphicsDropShadowEffect, QFrame
 
 import module.open_api_pars as pars
+from interface.sub_interface import pop_up_ledger
 
 from interface.sub_interface import address_details
 from ui.custom.BlackBoxMsg import BoxMessage
@@ -60,6 +61,10 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
         self.register_pop = RegisterPopUp(self)
         self.msg = BoxMessage(self)
+
+        self.block_frame = QFrame(self)
+        self.block_frame.setStyleSheet("QFrame { background: rgba(0, 0, 0, 160)}")
+        self.block_frame.hide()
 
         # 메뉴 위젯 설정
         items = [{'name': '내 매물로 등록', 'img': '../../data/img/button/plus_icon.png'},
@@ -274,24 +279,14 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
         # 건축물대장
         if item_row == 0:
-            if self.binfo['타입'] == '집합':
-                self.btn_issuance.setEnabled(False)
-                pk = self.issuance_data['호_PK']
+            self.block_frame.setGeometry(0, 0, self.width(), self.height())
+            self.block_frame.show()
+            print(self.issuance_data)
 
-            elif self.binfo['타입'] == '일반':
-                self.msg.show_msg(2000, 'center', '전유부는 집합 건물만 발급할 수 있습니다')
-                return
+            dialog = pop_up_ledger.LedgerDialog(self.address)
+            dialog.exec()
 
-            self.btn_issuance.setEnabled(False)
-            pk = self.issuance_data['동_PK']
-            self.issuance_thread = ibl.IssuanceBuildingLedger(pk, item_row, self.driver, self.login_cookies)
-            self.issuance_thread.threadEvent.workerThreadDone.connect(lambda: self.btn_issuance.setEnabled(True))
-            self.issuance_thread.threadEvent.progress.connect(self.issuance_progress_event)
-            self.issuance_thread.start()
-
-            self.progress_bar.setMaximum(0)
-            self.lb_progress.setHidden(False)
-            self.progress_bar.setHidden(False)
+            self.block_frame.hide()
 
         # 등기부등본
         elif item_row == 1: self.register_pop.show_pop(self.address_old, self.binfo['타입'])
@@ -346,10 +341,8 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
                               '지': address['지'],
                               '동_PK': building['건축물대장PK']}
 
-        if address['지'] == "0":
-            old = "%s %s %s %s" % (address['시도'], address['시군구'], address['읍면동'], address['번'])
-        else:
-            old = "%s %s %s %s-%s" % (address['시도'], address['시군구'], address['읍면동'], address['번'], address['지'])
+        old = "%s %s %s %s" % (address['시도'], address['시군구'], address['읍면동'], address['번'])
+        if address['지'] == "0": old = "%s-%s" % (old, address['지'])
 
         layer = "-%s 층 / %s 층" % (building['지하층수'], building['지상층수'])
         elevator = "%s대 (비상 %s대)" % (building['승강기'], building['비상용승강기'])
@@ -372,11 +365,10 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         # 같은 키에 값 입력
         for i in base:
             if i in self.labels: self.labels[i].setText(base[i])
+
         self.edt_address.setText(old)
         self.address_old = old
         self.insert_room_info()
-
-        print(self.issuance_data)
 
     # 기본 데이터 룸/층별 입력
     def insert_room_info(self):
