@@ -15,6 +15,7 @@ from module.open_api_pars import OpenApiRequest
 from ui.main.ui_info import Ui_BuildingInfo
 from ui.custom.MenuWidget import MenuWidget
 from ui.sub.register_pop_up import RegisterPopUp
+from ui.custom.LoadingBox import LoadingBox
 
 
 # import fluentapp.pyqt6.windowtools as wingui
@@ -43,14 +44,27 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
         # 폼 설정
         self._init_ui()
+        self.set_shadows()
         self._init_interaction()
+
+        self.loading_box = LoadingBox(self)
 
         # self.btn_issuance.setEnabled(False)
 
-        self.login_progress(False)
+        # self.login_progress(False)
         # self.issuance_thread = ibl.SetChrome('haul1115', 'ks05090818@')
         # self.issuance_thread.threadEvent.chromeDriver.connect(self.get_chrome_driver)
         # self.issuance_thread.start()
+
+    def set_shadows(self):
+        frame_list = [self.address_frame, self.info_frame, self.detail_frame, self.parking_frame, self.land_frame]
+        for child in frame_list:
+            shadow = QGraphicsDropShadowEffect(self)
+            shadow.setBlurRadius(15)
+            shadow.setXOffset(1)
+            shadow.setYOffset(1)
+            shadow.setColor(QColor(0, 0, 0, 35))
+            child.setGraphicsEffect(shadow)
 
     def test(self):
         print(self.main_menu.currentRow())
@@ -198,7 +212,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
     # 소재지 찾기 에디트 클릭
     def clicked_address_edit(self, e=None):
-        dialog = address_details.AddressDetails(1, self.edt_address.text())
+        dialog = address_details.AddressDetails(self.edt_address.text())
         dialog.exec()
 
         if dialog.result:
@@ -390,14 +404,12 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             self.pk = self.select_building['건축물대장PK']
 
             try:
-                price = str("{:,}".format(int(self.prices['개별주택가격'])) + ' 원')
                 price_day = self.prices['공시일자'].values[0].split('-')
-                price_day = "(%s년 %s월)" % (price_day[0], price_day[1])
-                self.base_name_13.setText(f"공시가격 {price_day}")
+                price = str("{:,}".format(int(self.prices['개별주택가격'])) + ' 원')
+                price = '%s (%s년 %s월)' % (price, price_day[0], price_day[1])
 
             except (ValueError, IndexError, TypeError):
                 price = "조회 결과 없음"
-                self.base_name_13.setText("공 시 가 격")
 
         #### 집합일 경우
         elif self.binfo['타입'] == '집합':
@@ -415,14 +427,12 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
             try:
                 prices = self.prices[self.prices['호명칭'] == detail['호명칭']]
-                price = str("{:,}".format(int(prices['공동주택가격'].values[0])) + ' 원')
                 price_day = prices['공시일자'].values[0].split('-')
-                price_day = "(%s년 %s월)" % (price_day[0], price_day[1])
-                self.base_name_13.setText(f"공시가격 {price_day}")
+                price = str("{:,}".format(int(prices['공동주택가격'].values[0])) + ' 원')
+                price = '%s (%s년 %s월)' % (price, price_day[0], price_day[1])
 
             except (ValueError, IndexError, TypeError):
                 price = "조회 결과 없음"
-                self.base_name_13.setText("공 시 가 격")
 
         # 건물 명칭이 있을 경우
         if address['건물명칭']:
@@ -517,13 +527,13 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
     # 폼 사이즈 변경
     def resize_form(self, opened):
         if opened:  # 열려있을 경우
-            self.setMinimumWidth(430)   # 닫기
-            self.setMaximumWidth(430)
+            self.setMinimumWidth(471)   # 닫기
+            self.setMaximumWidth(471)
             self.btn_details.setText("상세정보  >")
             self.opened = False
         else:
-            self.setMinimumWidth(840)   # 열기
-            self.setMaximumWidth(840)
+            self.setMinimumWidth(921)   # 열기
+            self.setMaximumWidth(921)
             self.btn_details.setText("접 기  <")
             self.opened = True
 

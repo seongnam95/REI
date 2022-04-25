@@ -9,6 +9,7 @@ from PySide6.QtWidgets import QDialog, QLabel, QListWidgetItem, QMessageBox, QWi
 from PySide6.QtCore import Qt, QPropertyAnimation, QTimer, QSize, QEvent
 
 from ui.dialog.ui_address import Ui_FindAddress
+from ui.custom.LoadingBox import LoadingBox
 
 
 class MsgContext:
@@ -21,15 +22,9 @@ class MsgContext:
 
 
 class AddressDetails(QDialog, Ui_FindAddress):
-    def __init__(self, call_type, content=None):
+    def __init__(self, content=None):
         super().__init__()
-
         self.setupUi(self)
-
-        # 데이터 호출출
-        # 0: 기본 데이터만 호출, 1: 모든 데이터 호출
-        self.call_type = call_type
-        self.content = content
 
         # OPEN API KEY
         self.BULIDING_API_KEY = 'sfSPRX+xNEExRUqE4cdhNjBSk4uXIv8F1CfLen06hdPGn5cflLJqy/nxmh48uF8fvdGk68k6Z5jWsU1n6BeNPA=='
@@ -51,57 +46,18 @@ class AddressDetails(QDialog, Ui_FindAddress):
         self._init_interaction()
         self._init_shadow()
 
-        if self.content:
-            self.edt_address.setText(self.content)
+        if content:
+            self.edt_address.setText(content)
             self.get_address_request()
 
     # init UI
     def _init_ui(self):
         self.edt_address.setFocus()
-        
-        # 메세지
-        self.msg_background = QLabel(self)
-        self.msg_background.setAlignment(Qt.AlignCenter)
-        self.msg_background.setStyleSheet("QLabel{background-color: rgba(0,0,0,150);"
-                                          "font: 14px \uc6f0\ucef4\uccb4 Regular;"
-                                          "color: white;"
-                                          "padding-top: 3px;}")
-        self.msg_background.hide()
 
         self.btn_search.setIcon(QIcon('../../data/img/button/search_icon.png'))
         self.btn_search.setIconSize(QSize(30, 30))
 
-        # 로딩 구성
-        self.movie = QMovie("../../data/img/animation/loading.gif")
-        self.lb_back = QLabel(self)
-        self.lb_loading = QLabel(self)
-        self.lb_back_txt = QLabel(self)
-
-        self.lb_back.hide()
-        self.lb_back.setGeometry(0, 61, 461, 469)
-        self.lb_back.setStyleSheet("QLabel{background-color: rgba(0,0,0,40);}")
-
-        self.lb_loading.resize(70, 100)
-        x = (self.lb_back.width() / 2) + self.lb_back.x()
-        y = (self.lb_back.height() / 2) + (self.lb_back.y()) - self.lb_loading.height()
-
-        self.lb_loading.hide()
-        self.lb_loading.move(int(x - (self.lb_loading.width() / 2)), int(y))
-        self.lb_loading.setMovie(self.movie)
-        self.lb_loading.setScaledContents(True)
-
-        self.lb_back_txt.hide()
-        self.lb_back_txt.resize(225, 80)
-        self.lb_back_txt.setText(MsgContext.loading_msg)
-        self.lb_back_txt.setAlignment(Qt.AlignCenter)
-        self.lb_back_txt.move(int(x - (self.lb_back_txt.width() / 2)), int(y + self.lb_loading.height() - 20))
-        self.lb_back_txt.setStyleSheet("QLabel{background-color: rgba(0,0,0,150);"
-                                       "font: 14px \uc6f0\ucef4\uccb4 Regular;"
-                                       "color: white;"
-                                       "padding-top: 3px;"
-                                       "padding-left: 5px;}")
-
-        self.ckb_part.setEnabled(False)
+        self.loading = LoadingBox(self)
 
     # 상호작용
     def _init_interaction(self):
@@ -111,33 +67,15 @@ class AddressDetails(QDialog, Ui_FindAddress):
         self.btn_search.clicked.connect(self.get_address_request)
         self.list_address.itemDoubleClicked.connect(self.select_address_event)
         self.btn_input.clicked.connect(self.address_input_event)
-        self.ckb_part.clicked.connect(self.part_check_event)
-
-        # self.btn_input.installEventFilter(self)
-        # self.edt_address.installEventFilter(self)
-        # self.edt_result_address.installEventFilter(self)
 
     def _init_shadow(self):
-        shadow = QGraphicsDropShadowEffect(self)
-        shadow.setBlurRadius(30)
-        shadow.setXOffset(3)
-        shadow.setYOffset(3)
-        shadow.setColor(QColor(0, 0, 0, 40))
-        self.address_frame.setGraphicsEffect(shadow)
-
-        shadow = QGraphicsDropShadowEffect(self)
-        shadow.setBlurRadius(30)
-        shadow.setXOffset(3)
-        shadow.setYOffset(3)
-        shadow.setColor(QColor(0, 0, 0, 40))
-        self.list_frame.setGraphicsEffect(shadow)
-
-        shadow = QGraphicsDropShadowEffect(self)
-        shadow.setBlurRadius(30)
-        shadow.setXOffset(3)
-        shadow.setYOffset(3)
-        shadow.setColor(QColor(0, 0, 0, 40))
-        self.detail_frame.setGraphicsEffect(shadow)
+        for c in [self.address_frame, self.list_frame, self.detail_frame]:
+            shadow = QGraphicsDropShadowEffect(self)
+            shadow.setBlurRadius(15)
+            shadow.setXOffset(1)
+            shadow.setYOffset(1)
+            shadow.setColor(QColor(0, 0, 0, 35))
+            c.setGraphicsEffect(shadow)
 
     def eventFilter(self, obj, event):
         objs = {self.btn_input: 'button',
@@ -156,26 +94,6 @@ class AddressDetails(QDialog, Ui_FindAddress):
 
         return super(AddressDetails, self).eventFilter(obj, event)
 
-    def set_shadow(self, kind):
-        shadow = QGraphicsDropShadowEffect(self)
-
-        if kind == 'button':
-            shadow.setBlurRadius(30)
-            shadow.setXOffset(0)
-            shadow.setYOffset(0)
-            shadow.setColor(QColor(40, 104, 176, 150))
-
-        elif kind == 'edit':
-            shadow.setBlurRadius(15)
-            shadow.setXOffset(0)
-            shadow.setYOffset(0)
-            shadow.setColor(QColor(52, 152, 219, 150))
-
-        elif kind == 'reset':
-            shadow.setEnabled(False)
-
-        return shadow
-
     ########################################################################################################
 
     # 주소 리스트 추가
@@ -191,7 +109,9 @@ class AddressDetails(QDialog, Ui_FindAddress):
         if self.address is None: self.info_msg(1, "검색 결과가 없습니다."); return
         if self.address.empty: self.info_msg(1, "검색 결과가 없습니다."); return
 
+        # 메세지 숨기기
         self.lb_hint_2.hide()
+
         # 불러온 주소 리스트에 추가
         for i in range(len(self.address)):
             result = self.address.iloc[i]
@@ -210,15 +130,16 @@ class AddressDetails(QDialog, Ui_FindAddress):
 
     # 건물명칭(동) 콤보박스 추가
     def add_building_list(self, val):
-        self.loading(False)
-
+        # 데이터가 없을 경우
         if val[0] is None: 
             self.msg("정보", MsgContext.failed_in_search)
             return
-        
+
+        # 표제부 '주건축물'만 조회
         buildings = val[0][val[0]['주부속구분'] == '주건축물']
         self.total_buildings = val[1]
 
+        # 주건축물 조회가 안 될 경우
         if buildings is None:
             self.msg('정보', MsgContext.failed_to_search)
             return
@@ -226,30 +147,13 @@ class AddressDetails(QDialog, Ui_FindAddress):
             self.msg('오류', MsgContext.network_err % buildings)
             return
 
-        if self.binfo['타입'] == '일반':
-            if buildings[buildings['대장구분'] == '일반'].empty:
-                buildings = buildings[buildings['대장구분'] == '집합']
-                self.msg('정보', MsgContext.no_gen_msg)
-
-                self.binfo['타입'] = '집합'
-                self.rbt_set.setChecked(True)
-
-            else: buildings = buildings[buildings['대장구분'] == '일반']
-
-        elif self.binfo['타입'] == '집합':
-            if buildings[buildings['대장구분'] == '집합'].empty:
-                buildings = buildings[buildings['대장구분'] == '일반']
-                self.msg('정보', MsgContext.no_set_msg)
-
-                self.binfo['타입'] = '일반'
-                self.rbt_solo.setChecked(True)
-            else: buildings = buildings[buildings['대장구분'] == '집합']
-
+        # 건물 데이터 정렬
         buildings = buildings.sort_values(by=['동명칭'], axis=0)
         buildings.reset_index(drop=True, inplace=True)
 
         self.clear_cbx(True)
 
+        # 콤보박스 아이템 추가
         for i in range(len(buildings)):
             result = buildings.iloc[i]
             if result['건물명칭'] == '':
@@ -258,22 +162,23 @@ class AddressDetails(QDialog, Ui_FindAddress):
                     if result['동명칭'] == '': item = "건물 명칭 없음 | " + result['기타용도']
 
                     # 건물 이름만 없을 경우 (건물 명칭 없음 | 101동)
-                    else: item = "건물 명칭 없음 | %s동" % result['동명칭'].rstrip('동')
+                    else: item = "%s동 | 건물 명칭 없음" % result['동명칭'].rstrip('동')
                 else:
                     # 동 이름만 없을 경우 (다원빌 | 오피스텔)
                     if result['동명칭'] == '': item = "%s | %s" % (self.select_address['건물명칭'], result['기타용도'])
 
                     # 건물 이름, 동 이름이 모두 있는 경우 (다원빌 | A동)
-                    else: item = "%s | %s동" % (self.select_address['건물명칭'], result['동명칭'].rstrip('동'))
+                    else: item = "%s동 | %s" % (result['동명칭'].rstrip('동'), self.select_address['건물명칭'])
             else:
                 # 동 이름만 없을 경우 (다원빌 | 오피스텔)
                 if result['동명칭'] == '': item = "%s | %s" % (result['건물명칭'], result['기타용도'])
 
                 # 건물 이름, 동 이름이 모두 있는 경우 (다원빌 | 101동)
-                else: item = "%s | %s동" % (result['건물명칭'], result['동명칭'].rstrip('동'))
+                else: item = "%s동 | %s" % (result['동명칭'].rstrip('동'), result['건물명칭'])
 
             self.cbx_buildings.addItem(item)
 
+        self.loading.hide_loading()
         self.buildings = buildings
         self.cbx_buildings.showPopup()
 
@@ -282,24 +187,24 @@ class AddressDetails(QDialog, Ui_FindAddress):
         if val[0] is None:
             self.msg('정보', MsgContext.failed_in_search)
             return
-        if self.call_type == 1:
-            if val[1] is not None: self.land = val[1]
-            if val[2] is not None: self.owners = val[2]
-            if val[3] is not None: self.prices = val[3]
+
+        if val[1] is not None: self.land = val[1]
+        if val[2] is not None: self.owners = val[2]
+        if val[3] is not None: self.prices = val[3]
+        print('진입')
 
         self.detail, self.land = val[0], val[1]
         self.exact_detail = details = sorted_rooms_len(get_exact_value(self.detail))
 
         for i in range(len(details)):
             ho = details.iloc[i]['호명칭'].rstrip('호')
-            purps = details.iloc[i]['기타용도']
             area = round(pd.to_numeric(details.iloc[i]['전용면적']), 2)
-            item = '%s호 | %s m² | %s' % (ho, str(area), purps)
+            item = '%s호 | %s m²' % (ho, str(area))
 
             self.cbx_rooms.addItem(item)
             self.detail_list.append(item)
 
-        self.loading(False)
+        self.loading.hide_loading()
         self.cbx_rooms.showPopup()
 
     # 일반건물(층) 콤보박스 추가
@@ -308,9 +213,10 @@ class AddressDetails(QDialog, Ui_FindAddress):
             self.msg("정보", MsgContext.failed_in_search)
             return
 
-        if self.call_type == 1:
-            if val[2] is not None: self.owners = val[2]
-            if val[3] is not None: self.prices = val[3]
+        print('진입')
+
+        if val[2] is not None: self.owners = val[2]
+        if val[3] is not None: self.prices = val[3]
 
         self.detail, self.land = val[0], val[1]
         self.detail = sort_value_layer(val[0])
@@ -319,13 +225,12 @@ class AddressDetails(QDialog, Ui_FindAddress):
         for i in range(len(self.detail)):
             layer = self.detail.loc[i]['층명칭']
             purps = self.detail.loc[i]['기타용도']
-            area = round(pd.to_numeric(self.detail.iloc[i]['층면적']), 2)
-            item = '%s | %s m² | %s' % (layer, str(area), purps)
+            item = '%s | %s' % (layer, purps)
 
             self.cbx_rooms.addItem(item)
             self.detail_list.append(item)
 
-        self.loading(False)
+        self.loading.hide_loading()
         self.cbx_rooms.showPopup()
 
     ########################################################################################################
@@ -343,12 +248,9 @@ class AddressDetails(QDialog, Ui_FindAddress):
                       '건물본번': result['건물본번'],
                       '건물부번': result['건물부번'],
                       '지하여부': result['지하여부'],
-                      '동명칭': '', '일부': False}
+                      '동명칭': ''}
 
-        if self.rbt_set.isChecked(): self.binfo['타입'] = '집합'
-        elif self.rbt_solo.isChecked(): self.binfo['타입'] = '일반'
-
-        self.loading(True)
+        self.loading.show_loading()
         self.clear_cbx(True)
 
         # 표제부, 총괄표제부 파싱 쓰레드
@@ -363,23 +265,23 @@ class AddressDetails(QDialog, Ui_FindAddress):
         self.cbx_rooms.clear()
         self.cbx_rooms.addItem("( 상세주소 / 호 선택 )")
 
-        self.loading(True)
+        self.loading.show_loading()
         self.select_building = self.buildings.iloc[self.cbx_buildings.currentIndex() - 1]
 
+        # 대장구분 담기 (일반, 집합)
+        self.binfo['타입'] = self.select_building['대장구분'][0]
+
+        print('시작')
         # 일반일 경우
         if self.binfo['타입'] == '일반':
-            if self.call_type == 0:
-                self.get_building_thread = pars.DataRequestThread(self.binfo, self.BULIDING_API_KEY, ['층별', '토지'])
-            if self.call_type == 1:
-                self.get_building_thread = pars.DataRequestThread(self.binfo, self.BULIDING_API_KEY, ['층별', '토지', '소유자', '개별주택가격'])
+            self.get_building_thread = pars.DataRequestThread(self.binfo, self.BULIDING_API_KEY, ['층별', '토지', '소유자', '개별주택가격'])
             self.get_building_thread.start()
             self.get_building_thread.threadEvent.workerThreadDone.connect(self.add_layer_list)
 
         # 건물 타입이 집합일 경우
         if self.binfo['타입'] == '집합':
             if len(self.buildings) > 1: self.binfo['동명칭'] = self.select_building['동명칭']
-            if self.call_type == 0: self.get_building_thread = pars.DataRequestThread(self.binfo, self.BULIDING_API_KEY, ['전유부', '토지'])
-            if self.call_type == 1: self.get_building_thread = pars.DataRequestThread(self.binfo, self.BULIDING_API_KEY, ['전유부', '토지', '소유자', '공동주택가격'])
+            self.get_building_thread = pars.DataRequestThread(self.binfo, self.BULIDING_API_KEY, ['전유부', '토지', '소유자', '공동주택가격'])
             self.get_building_thread.start()
             self.get_building_thread.threadEvent.workerThreadDone.connect(self.add_room_list)
 
@@ -388,7 +290,6 @@ class AddressDetails(QDialog, Ui_FindAddress):
         if self.cbx_rooms.currentIndex() == 0:
             self.edt_result_address.clear()
             return
-        if self.call_type == 0: self.ckb_part.setEnabled(True)
 
         select_index = self.cbx_rooms.currentIndex() - 1
         result = self.select_address
@@ -412,32 +313,11 @@ class AddressDetails(QDialog, Ui_FindAddress):
     # 소재지 입력 버튼
     def address_input_event(self):
         if self.edt_result_address.text() != "":
-            if self.ckb_part.isChecked(): self.binfo['일부'] = True
             self.select_index = self.cbx_rooms.currentIndex() - 1
             self.result = True
-            self.hide()
+            self.close()
 
     ########################################################################################################
-
-    # 일부 체크
-    def part_check_event(self):
-        if self.cbx_rooms.currentIndex() == 0: return
-        if self.ckb_part.isChecked():
-            result = self.select_address
-            old = "%s %s %s %s-%s" % (result['시도'], result['시군구'], result['읍면동'], result['번'], result['지'])
-
-            # 일반일 경우
-            if self.binfo['타입'] == '일반':
-                self.edt_result_address.setText("%s, %s %s" % (old, self.select_detail['층명칭'], "일부"))
-
-            # 집합일 경우
-            elif self.binfo['타입'] == '집합':
-                dong = self.select_detail['동명칭'].rstrip('동')
-                ho = self.select_detail['호명칭'].rstrip('호')
-                if not dong == 0: self.edt_result_address.setText("%s, %s호 %s" % (old, ho, "일부"))
-                else: self.edt_result_address.setText("%s, %s동 %s호 %s" % (old, dong, ho, "일부"))
-
-        else: self.edt_result_address.setText(self.edt_result_address.text().replace("일부", ""))
 
     # 클리어 함수
     def clear_cbx(self, all_clear):
@@ -456,24 +336,6 @@ class AddressDetails(QDialog, Ui_FindAddress):
         elif ty == "정보": QMessageBox.information(self, self.windowTitle(), content, QMessageBox.Ok)
         elif ty == "경고": QMessageBox.warning(self, self.windowTitle(), content, QMessageBox.Ok)
         elif ty == "위험": QMessageBox.critical(self, self.windowTitle(), content, QMessageBox.Ok)
-
-    # 로딩 함수
-    def loading(self, run):
-        if run:
-            self.lb_loading.show()
-            self.lb_back.show()
-            self.lb_back_txt.show()
-            self.btn_search.setEnabled(False)
-            self.btn_input.setEnabled(False)
-            self.movie.start()
-
-        else:
-            self.lb_loading.hide()
-            self.lb_back.hide()
-            self.lb_back_txt.hide()
-            self.btn_search.setEnabled(True)
-            self.btn_input.setEnabled(True)
-            self.movie.stop()
 
     # 다이얼로그 엔터키 막기
     def keyPressEvent(self, event):

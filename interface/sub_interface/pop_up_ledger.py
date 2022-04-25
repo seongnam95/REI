@@ -10,6 +10,7 @@ from PySide6.QtWidgets import QDialog, QApplication, QGraphicsDropShadowEffect
 import rei_bot.issuance_register_of_building as ibl
 from interface.sub_interface import find_address_lite
 from ui.dialog.ui_register import Ui_Dialog
+from ui.custom.LoadingBox import LoadingBox
 
 
 class LedgerDialog(QDialog, Ui_Dialog):
@@ -66,17 +67,17 @@ class LedgerDialog(QDialog, Ui_Dialog):
     def set_shadow(self):
         for child in [self.address_frame, self.type_frame]:
             shadow = QGraphicsDropShadowEffect(self)
-            shadow.setBlurRadius(20)
+            shadow.setBlurRadius(15)
             shadow.setXOffset(1)
             shadow.setYOffset(1)
-            shadow.setColor(QColor(0, 0, 0, 80))
+            shadow.setColor(QColor(0, 0, 0, 35))
             child.setGraphicsEffect(shadow)
 
         shadow = QGraphicsDropShadowEffect(self)
-        shadow.setBlurRadius(50)
+        shadow.setBlurRadius(40)
         shadow.setXOffset(3)
         shadow.setYOffset(3)
-        shadow.setColor(QColor(0, 0, 0, 120))
+        shadow.setColor(QColor(0, 0, 0, 60))
         self.btn_issuance.setGraphicsEffect(shadow)
 
     # 주소 검색

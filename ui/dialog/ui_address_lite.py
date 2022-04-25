@@ -86,30 +86,39 @@ class Ui_FindAddress(object):
         self.list_frame = QFrame(FindAddress)
         self.list_frame.setObjectName(u"list_frame")
         self.list_frame.setGeometry(QRect(20, 140, 431, 321))
-        self.list_frame.setStyleSheet(u"#list_frame {\n"
-"	background-color: white;\n"
-"	border-radius: 15px;\n"
-"}")
+        self.list_frame.setStyleSheet("""
+        QScrollBar:vertical {
+            width: 5px;
+            border: none;
+        }
+        
+        QScrollBar::handle {
+            background: rgb(235,235,235);
+            border: none;
+        }
+        
+        QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+            border: none;
+            background: none;
+        }
+        
+        #list_frame {
+            background-color: white;
+            border-radius: 15px;
+        }
+        """)
         self.list_frame.setFrameShape(QFrame.StyledPanel)
         self.list_frame.setFrameShadow(QFrame.Raised)
         self.list_address = QListWidget(self.list_frame)
         self.list_address.setObjectName(u"list_address")
         self.list_address.setGeometry(QRect(10, 10, 411, 301))
-        self.list_address.setStyleSheet(u"QListWidget {\n"
-"	border: none;\n"
-"	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-"	color: #2c3e50;\n"
-"}\n"
-"\n"
-"QScrollBar:vertical {\n"
-"	background: white;\n"
-"	width: 4px;    \n"
-"}\n"
-"\n"
-"QScrollBar::handle:vertical {         \n"
-"	border-radius: 2px;\n"
-"	background-color: rgb(215, 215, 215);\n"
-"}")
+        self.list_address.setStyleSheet("""
+        QListWidget {
+            border: none;
+            font: 13px "웰컴체 Regular";
+            color: #2c3e50;
+        }
+        """)
         self.lb_hint_2 = QLabel(self.list_frame)
         self.lb_hint_2.setObjectName(u"lb_hint_2")
         self.lb_hint_2.setGeometry(QRect(20, 125, 391, 61))

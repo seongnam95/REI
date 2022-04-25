@@ -40,10 +40,10 @@ class FindAddressLite(QDialog, Ui_FindAddress):
     def _init_shadow(self):
         for c in [self.address_frame, self.list_frame]:
             shadow = QGraphicsDropShadowEffect(self)
-            shadow.setBlurRadius(20)
+            shadow.setBlurRadius(15)
             shadow.setXOffset(1)
             shadow.setYOffset(1)
-            shadow.setColor(QColor(0, 0, 0, 80))
+            shadow.setColor(QColor(0, 0, 0, 35))
             c.setGraphicsEffect(shadow)
 
     ########################################################################################################
