@@ -9,9 +9,9 @@ class MenuWidget(QListWidget):
         self.parent = parent
 
         self.setStyleSheet("""QListWidget {
-                                font: 14px "웰컴체 Regular";
+                                font: 15px "웰컴체 Regular";
                                 color: white;
-                                background-color: rgba(0,0,0,160);
+                                background-color: rgba(0,0,0,190);
                                 border-radius: 5px;
                                 padding: 5px;
                                 outline: none;
@@ -72,7 +72,7 @@ class MenuWidget(QListWidget):
             self.setItemWidget(widget_item, custom_item)
 
     def show_menu(self, btn):
-        if self.isHidden(): self.show()
+        self.show()
 
         self.set_position(btn)
         self.anim_show.setStartValue(0)
@@ -82,10 +82,7 @@ class MenuWidget(QListWidget):
         self.menu_toggle = True
 
     def hide_menu(self):
-        self.anim_hide.setStartValue(1)
-        self.anim_hide.setEndValue(0)
-        self.anim_hide.setDuration(100)
-        self.anim_hide.start()
+        self.hide()
         self.menu_toggle = False
 
 

@@ -2,24 +2,28 @@ import sys
 import json
 import requests
 import pandas as pd
+import time
 
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QColor, QIcon
-from PySide6.QtWidgets import QDialog, QApplication, QGraphicsDropShadowEffect
+from PySide6.QtWidgets import QDialog, QApplication, QGraphicsDropShadowEffect, QMessageBox
 
 import rei_bot.issuance_register_of_building as ibl
 from interface.sub_interface import find_address_lite
-from ui.dialog.ui_register import Ui_Dialog
+from interface.sub_interface import address_details
+from ui.dialog.ui_ledger import Ui_Ledger
 from ui.custom.LoadingBox import LoadingBox
 
 
-class LedgerDialog(QDialog, Ui_Dialog):
+class LedgerLedger(QDialog, Ui_Ledger):
     def __init__(self, data=None):
         super().__init__()
         self.setupUi(self)
+        self.show()
 
-        self.address, self.info = None, {'타입': ''}
+        self.address, self.info = None, {}
         self.title_pk, self.expos_pk = None, None
+        self.issuance_thread = None
 
         # 리퀘스트, 셀러리움 세팅
         self.s = requests.Session()
@@ -37,8 +41,6 @@ class LedgerDialog(QDialog, Ui_Dialog):
             self.address = data
             self.input_address_edit()
 
-        self.show()
-
     # UI 세팅
     def _init_ui(self):
         self.set_shadow()
@@ -51,16 +53,20 @@ class LedgerDialog(QDialog, Ui_Dialog):
 
     # 시그널 세팅
     def _init_interaction(self):
-        self.btn_issuance.clicked.connect(self.clicked_issuance_btn)
         self.edt_address.mousePressEvent = self.clicked_address_edit
+        self.edt_address.returnPressed.connect(self.clicked_address_edit)
         self.btn_search.clicked.connect(self.clicked_address_edit)
+
         self.cbx_buildings.activated.connect(self.add_room_list)
         self.cbx_rooms.activated.connect(self.select_room)
+
+        self.btn_issuance.clicked.connect(self.clicked_issuance_btn)
 
     # 셀러리움 로그인 정보
     def get_chrome_driver(self, driver):
         self.driver = driver
         self.login_cookies = driver.get_cookies()
+        self.btn_issuance.setEnabled(True)
         print('로그인 완료 !')
         
     # UI 그림자 설정
@@ -82,13 +88,15 @@ class LedgerDialog(QDialog, Ui_Dialog):
 
     # 주소 검색
     def clicked_address_edit(self, e=None):
-        dialog = find_address_lite.FindAddressLite()
+        address = self.edt_address.text()
+        dialog = find_address_lite.FindAddressLite(address)
         dialog.exec()
 
         if dialog.result is None: return
         if len(dialog.result) != 0:
             self.address = dialog.result
             self.input_address_edit()
+            self.edt_address.clearFocus()
 
     # 주소 정보 입력
     def input_address_edit(self):
@@ -101,12 +109,18 @@ class LedgerDialog(QDialog, Ui_Dialog):
         if pk:
             self.edt_address.setText(old)
             self.info['건물'] = pk
+
             self.add_building_list()
 
         else: print('검색 결과 없음')
 
+    # 동 리스트 추가
     def add_building_list(self):
         self.title_pk = self.get_title(self.info['건물']['ID'])
+
+        # 총괄표제부 표시 여부
+        if '-' not in self.info['건물']['ID']: self.rbtn_total.setEnabled(False)
+        else: self.rbtn_total.setEnabled(True)
 
         # 일반 건축물일 경우
         if self.title_pk.empty:
@@ -134,7 +148,7 @@ class LedgerDialog(QDialog, Ui_Dialog):
             self.cbx_rooms.addItem('( 상세주소 / 호)')
 
             self.cbx_buildings.setEnabled(True)
-            self.cbx_rooms.setEnabled(False)
+            self.cbx_rooms.setEnabled(True)
             self.rbtn_room.setEnabled(True)
             self.rbtn_room.setChecked(True)
 
@@ -149,6 +163,7 @@ class LedgerDialog(QDialog, Ui_Dialog):
 
             self.cbx_buildings.showPopup()
 
+    # 호 리스트 추가
     def add_room_list(self):
         self.info['동'] = self.title_pk.loc[self.cbx_buildings.currentIndex()]
         self.expos_pk = self.get_expos(self.info['동']['PK'])
@@ -162,15 +177,18 @@ class LedgerDialog(QDialog, Ui_Dialog):
 
         self.cbx_rooms.showPopup()
 
+    # 호 선택
     def select_room(self):
         self.info['호'] = self.expos_pk.loc[self.cbx_rooms.currentIndex()]
         self.btn_issuance.setEnabled(True)
 
+    # 발급 버튼 클릭
     def clicked_issuance_btn(self):
         kind, pk = None, None
-        print(self.info)
+
         if self.rbtn_total.isChecked():
             kind, pk = 0, self.info['건물']['ID']
+            print(pk)
 
         elif self.rbtn_building.isChecked():
             kind, pk = 1, self.info['건물']['PK'] if self.info['타입'] == '일반' else self.info['동']['PK']
@@ -233,11 +251,8 @@ class LedgerDialog(QDialog, Ui_Dialog):
             info = i['_source']
             result.loc[n] = {'동명칭': info['dongNm'], '호명칭': info['hoNm'], 'PK': i['_id']}
 
-        try:
-            result['호명칭'] = pd.to_numeric(result['호명칭'])
-
-        except:
-            pass
+        try: result['호명칭'] = pd.to_numeric(result['호명칭'])
+        except: pass
 
         result = result.sort_values(by=['호명칭'], axis=0)
         result.reset_index(drop=True, inplace=True)
@@ -256,7 +271,8 @@ class LedgerDialog(QDialog, Ui_Dialog):
              event.key() == Qt.Key_Return) or
                 (event.modifiers() == Qt.KeypadModifier)):
             event.accept()
-        else: super(LedgerDialog, self).keyPressEvent(event)
+        else: super(LedgerLedger, self).keyPressEvent(event)
+
 
 
 # 예외 오류 처리
@@ -268,6 +284,6 @@ sys._excepthook = sys.excepthook
 sys.excepthook = my_exception_hook
 
 
-# app = QApplication()
-# window = LedgerDialog()
-# app.exec()
+app = QApplication()
+window = LedgerLedger()
+app.exec()

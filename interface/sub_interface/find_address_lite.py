@@ -9,9 +9,10 @@ from ui.dialog.ui_address_lite import Ui_FindAddress
 
 
 class FindAddressLite(QDialog, Ui_FindAddress):
-    def __init__(self):
+    def __init__(self, address=None):
         super().__init__()
         self.setupUi(self)
+        if address: self.edt_address.setText(address)
 
         # OPEN API KEY
         self.ADDRESS_API_KEY = 'U01TX0FVVEgyMDIxMTIwMjEzNTc0MzExMTk4Mjc='
@@ -34,7 +35,7 @@ class FindAddressLite(QDialog, Ui_FindAddress):
     def _init_interaction(self):
         self.edt_address.returnPressed.connect(self.get_address_request)
         self.btn_search.clicked.connect(self.get_address_request)
-        self.list_address.itemDoubleClicked.connect(self.select_address_event)
+        self.btn_input.clicked.connect(self.select_address_event)
 
     # 프레임 그림자 효과
     def _init_shadow(self):

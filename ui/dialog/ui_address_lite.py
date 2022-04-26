@@ -25,9 +25,9 @@ class Ui_FindAddress(object):
     def setupUi(self, FindAddress):
         if not FindAddress.objectName():
             FindAddress.setObjectName(u"FindAddress")
-        FindAddress.resize(471, 501)
-        FindAddress.setMinimumSize(QSize(471, 501))
-        FindAddress.setMaximumSize(QSize(471, 501))
+        FindAddress.resize(471, 571)
+        FindAddress.setMinimumSize(QSize(471, 571))
+        FindAddress.setMaximumSize(QSize(471, 71))
         FindAddress.setStyleSheet(u"#FindAddress {\n"
 "	background-color: white;\n"
 "}")
@@ -128,6 +128,37 @@ class Ui_FindAddress(object):
 "	color: rgb(80, 80, 80);\n"
 "}")
         self.lb_hint_2.setAlignment(Qt.AlignCenter)
+
+        self.btn_input = QPushButton(FindAddress)
+        self.btn_input.setObjectName(u"btn_issuance")
+        self.btn_input.setGeometry(QRect(115, 490, 241, 45))
+        self.btn_input.setStyleSheet("""
+        QPushButton {
+            font: 17px "웰컴체 Regular";
+            color: white;
+            border: none;
+            padding-top: 3px;
+            padding-left: 2px;
+            background: rgb(128,128,255);
+            border-radius: 22px;
+            outline: none;
+        }
+
+        QPushButton:hover {
+            background-color: rgb(148,148,255);
+        }
+
+        QPushButton:pressed {
+            padding-left: 5px;
+            padding-top: 6px;
+            background-color: rgb(108,108,235);
+        }
+
+        QPushButton:disabled {
+            background-color: rgb(166, 168, 171);
+        }
+        """)
+
         QWidget.setTabOrder(self.edt_address, self.list_address)
 
         self.retranslateUi(FindAddress)
@@ -138,6 +169,7 @@ class Ui_FindAddress(object):
     def retranslateUi(self, FindAddress):
         FindAddress.setWindowTitle(QCoreApplication.translate("FindAddress", u"\ub808\uc774 - Real estate Information", None))
         self.btn_search.setText("")
+        self.btn_input.setText("소재지 선택")
         self.edt_address.setText("")
         self.lb_hint_1.setText(QCoreApplication.translate("FindAddress", u"\uc608\uc2dc) \ub3c4\ub85c\uba85 \uac80\uc0c9: (\ub3d9\uc77c\ub85c112\uae38 45), \uc9c0\ubc88 \uac80\uc0c9: (\uc0c1\ubd09\ub3d9 122-76)", None))
         self.lb_hint_2.setText(QCoreApplication.translate("FindAddress", u"\uac80\uc0c9 \ub41c \uacb0\uacfc\ub294 \uac01\uc885 \uacf5\uacf5\ub370\uc774\ud130 \ud3ec\ud138\uc5d0\uc11c \uc81c\uacf5\ud558\ub294 API \ub370\uc774\ud130\ub85c\n"

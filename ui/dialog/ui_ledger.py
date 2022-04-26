@@ -1,13 +1,3 @@
-# -*- coding: utf-8 -*-
-
-################################################################################
-## Form generated from reading UI file 'ui_register.ui'
-##
-## Created by: Qt User Interface Compiler version 6.2.2
-##
-## WARNING! All changes made in this file will be lost when recompiling UI file!
-################################################################################
-
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
     QMetaObject, QObject, QPoint, QRect,
     QSize, QTime, QUrl, Qt)
@@ -19,7 +9,7 @@ from PySide6.QtWidgets import (QApplication, QComboBox, QDialog, QFrame,
     QLabel, QLineEdit, QPushButton, QRadioButton,
     QSizePolicy, QWidget)
 
-class Ui_Dialog(object):
+class Ui_Ledger(object):
     def setupUi(self, Dialog):
         Dialog.resize(401, 362)
         Dialog.setStyleSheet("QDialog { background-color: rgb(255,255,255) }")
@@ -236,7 +226,7 @@ class Ui_Dialog(object):
             padding-top: 3px;
             padding-left: 2px;
             background: rgb(128,128,255);
-            border-radius: 15px;
+            border-radius: 22px;
             outline: none;
         }
         

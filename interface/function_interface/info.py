@@ -297,7 +297,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             self.block_frame.show()
             print(self.issuance_data)
 
-            dialog = pop_up_ledger.LedgerDialog(self.address)
+            dialog = pop_up_ledger.LedgerLedger(self.address)
             dialog.exec()
 
             self.block_frame.hide()
@@ -444,7 +444,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             if owner_count == 1:
                 owner = "%s | %s" % (owners.iloc[0]['소유자명'], owners.iloc[0]['소유구분명'])
             else:
-                owner = "%s | %s 외 %s명" % (owners.iloc[0]['소유자명'], owners.iloc[0]['소유구분명'], str(len(owners) - 1))
+                owner = "%s명 (%s|%s)" % (str(len(owners)), owners.iloc[0]['소유자명'], owners.iloc[0]['소유구분명'])
         except (ValueError, TypeError, IndexError):
             owner = "소유자 확인 불가"
 

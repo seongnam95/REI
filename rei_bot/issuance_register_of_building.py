@@ -77,38 +77,45 @@ class IssuanceBuildingLedger(QThread):
     def run(self):
         # try:
         self.threadEvent.progress.emit('건축물대장 발급 요청중..')
+        result, ho = None, ''
 
         headers = self.headers
         headers['Referer'] = "https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02L01"
 
-        result, ho = None, ''
+        # 총괄 표제부
         if self.kind == 0:
             datas = {"addrGbCd": 2, "bldrgstCurdiGbCd": "0", "sigunguCd": self.sigungu, "bldrgstSeqno": self.seqno}
             response_title = self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02R01', headers=headers, json=datas)
             time.sleep(0.5)
             json_data = json.loads(response_title.text)
-            result = json_data['jibunAddr'][0]
+            if json_data['jibunAddr'] is not None:
+                result = json_data['jibunAddr'][0]
+            else:
+                print(json_data)
 
-        elif self.kind == 1:      # 표제부, 일반 건축물 요청
+        # 표제부, 일반 건축물
+        elif self.kind == 1:
             datas = {"addrGbCd": 2, "bldrgstCurdiGbCd": "0", "sigunguCd": self.sigungu, "bldrgstSeqno": self.seqno}
             response_title = self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02R01', headers=headers, json=datas)
             time.sleep(0.5)
             result = json.loads(response_title.text)['jibunAddr'][0]
 
-        elif self.kind == 2:    # 전유부 요청
+        # 전유부
+        elif self.kind == 2:
             datas = {"inqireGbCd": "1", "bldrgstCurdiGbCd": "0", "reqSigunguCd": self.sigungu, "bldrgstSeqno": self.seqno}
             response_title = self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02R04', headers=headers, json=datas)
             time.sleep(0.5)
             result = json.loads(response_title.text)['findExposList'][0]
 
+        #
         bun, ji = result['mnnm'].lstrip('0'), result['slno'].lstrip('0')
         if ji: ji = f'-{ji}'
-        if "hoNm" in result: ho = ' ' + result["hoNm"]
 
+        if "hoNm" in result: ho = ' ' + result["hoNm"].strip()
         if 'dongNm' in result.keys():
-            self.address = f'{result["sigunguNm"]} {result["bjdongNm"]} {bun}{ji} {result["dongNm"]}{ho}'
-        else:
-            self.address = f'{result["sigunguNm"]} {result["bjdongNm"]} {bun}{ji}'
+            dong_nm = result["dongNm"].strip()
+            self.address = f'{result["sigunguNm"]} {result["bjdongNm"]} {bun}{ji} {dong_nm}{ho}'
+        else: self.address = f'{result["sigunguNm"]} {result["bjdongNm"]} {bun}{ji}'
 
         datas = {"bldrgstSeqno": result["bldrgstSeqno"],
                   "regstrGbCd": result["regstrGbCd"],
@@ -166,7 +173,6 @@ class IssuanceBuildingLedger(QThread):
             # 완료 처리 된 문서 열기
             list_form = self.driver.find_element(By.XPATH, '//*[@id="container"]/div[2]/div/div[4]/table/tbody')
             document_list = list_form.find_elements(By.TAG_NAME, 'tr')  # 문서 리스트
-
             for i in document_list:    # 문서 리스트 Row 수만큼 반복
                 content = i.get_attribute("innerText")
                 if self.address in content:  # 주소가 맞을 경우
@@ -177,7 +183,7 @@ class IssuanceBuildingLedger(QThread):
             if success: break
 
             self.driver.save_screenshot('err.png')
-            time.sleep(1)
+            time.sleep(2)
 
         if success:
             self.threadEvent.progress.emit('처리 완료, 오픈 대기중..')

@@ -116,6 +116,8 @@ class DataRequestThread(QThread):
         self.bun, self.ji = binfo['번'], binfo['지']
         self.dong = binfo['동명칭']
 
+        print(binfo, key, parsing_type_list)
+
     def run(self):
         result_data = []
         parsing_type, column = None, None

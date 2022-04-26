@@ -212,9 +212,6 @@ class AddressDetails(QDialog, Ui_FindAddress):
         if val[0] is None:
             self.msg("정보", MsgContext.failed_in_search)
             return
-
-        print('진입')
-
         if val[2] is not None: self.owners = val[2]
         if val[3] is not None: self.prices = val[3]
 
@@ -269,11 +266,11 @@ class AddressDetails(QDialog, Ui_FindAddress):
         self.select_building = self.buildings.iloc[self.cbx_buildings.currentIndex() - 1]
 
         # 대장구분 담기 (일반, 집합)
-        self.binfo['타입'] = self.select_building['대장구분'][0]
+        self.binfo['타입'] = self.select_building['대장구분']
 
-        print('시작')
         # 일반일 경우
         if self.binfo['타입'] == '일반':
+            print('스레드 진입')
             self.get_building_thread = pars.DataRequestThread(self.binfo, self.BULIDING_API_KEY, ['층별', '토지', '소유자', '개별주택가격'])
             self.get_building_thread.start()
             self.get_building_thread.threadEvent.workerThreadDone.connect(self.add_layer_list)
