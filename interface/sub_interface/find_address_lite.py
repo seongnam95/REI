@@ -36,16 +36,24 @@ class FindAddressLite(QDialog, Ui_FindAddress):
         self.edt_address.returnPressed.connect(self.get_address_request)
         self.btn_search.clicked.connect(self.get_address_request)
         self.btn_input.clicked.connect(self.select_address_event)
+        self.list_address.clicked.connect(lambda: self.btn_input.setEnabled(True))
 
     # 프레임 그림자 효과
     def _init_shadow(self):
-        for c in [self.address_frame, self.list_frame]:
+        for child in [self.address_frame, self.list_frame]:
             shadow = QGraphicsDropShadowEffect(self)
             shadow.setBlurRadius(15)
             shadow.setXOffset(1)
             shadow.setYOffset(1)
             shadow.setColor(QColor(0, 0, 0, 35))
-            c.setGraphicsEffect(shadow)
+            child.setGraphicsEffect(shadow)
+
+        shadow = QGraphicsDropShadowEffect(self)
+        shadow.setBlurRadius(15)
+        shadow.setXOffset(3)
+        shadow.setYOffset(3)
+        shadow.setColor(QColor(0, 0, 0, 80))
+        self.btn_input.setGraphicsEffect(shadow)
 
     ########################################################################################################
 
@@ -53,6 +61,7 @@ class FindAddressLite(QDialog, Ui_FindAddress):
     def get_address_request(self):
         if self.edt_address.text() == "": return
         self.list_address.clear()
+        self.btn_input.setEnabled(False)
 
         # 주소 양끝 공백제거 후 파싱
         txt = self.edt_address.text().strip()

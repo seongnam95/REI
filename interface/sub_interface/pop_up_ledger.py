@@ -1,18 +1,16 @@
-import sys
 import json
-import requests
-import pandas as pd
-import time
+import sys
 
+import pandas as pd
+import requests
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QColor, QIcon
-from PySide6.QtWidgets import QDialog, QApplication, QGraphicsDropShadowEffect, QMessageBox
+from PySide6.QtWidgets import QDialog, QApplication, QGraphicsDropShadowEffect
 
 import rei_bot.issuance_register_of_building as ibl
 from interface.sub_interface import find_address_lite
-from interface.sub_interface import address_details
-from ui.dialog.ui_ledger import Ui_Ledger
 from ui.custom.LoadingBox import LoadingBox
+from ui.dialog.ui_ledger import Ui_Ledger
 
 
 class LedgerLedger(QDialog, Ui_Ledger):
@@ -43,6 +41,8 @@ class LedgerLedger(QDialog, Ui_Ledger):
 
     # UI 세팅
     def _init_ui(self):
+        self.loading_box = LoadingBox(self)
+
         self.set_shadow()
         self.btn_search.setIcon(QIcon('../../data/img/button/search_icon.png'))
         self.btn_search.setIconSize(QSize(25, 25))
@@ -80,10 +80,10 @@ class LedgerLedger(QDialog, Ui_Ledger):
             child.setGraphicsEffect(shadow)
 
         shadow = QGraphicsDropShadowEffect(self)
-        shadow.setBlurRadius(40)
+        shadow.setBlurRadius(15)
         shadow.setXOffset(3)
         shadow.setYOffset(3)
-        shadow.setColor(QColor(0, 0, 0, 60))
+        shadow.setColor(QColor(0, 0, 0, 80))
         self.btn_issuance.setGraphicsEffect(shadow)
 
     # 주소 검색
@@ -97,6 +97,8 @@ class LedgerLedger(QDialog, Ui_Ledger):
             self.address = dialog.result
             self.input_address_edit()
             self.edt_address.clearFocus()
+
+            self.btn_issuance.setEnabled(True)
 
     # 주소 정보 입력
     def input_address_edit(self):
@@ -135,6 +137,7 @@ class LedgerLedger(QDialog, Ui_Ledger):
             self.cbx_rooms.setEnabled(False)
 
             self.rbtn_room.setEnabled(False)
+            self.rbtn_building.setEnabled(True)
             self.rbtn_building.setChecked(True)
 
             self.btn_issuance.setEnabled(True)
@@ -150,6 +153,7 @@ class LedgerLedger(QDialog, Ui_Ledger):
             self.cbx_buildings.setEnabled(True)
             self.cbx_rooms.setEnabled(True)
             self.rbtn_room.setEnabled(True)
+
             self.rbtn_room.setChecked(True)
 
             for i in range(len(self.title_pk)):
@@ -197,9 +201,10 @@ class LedgerLedger(QDialog, Ui_Ledger):
             kind, pk = 2, self.info['호']['PK']
             
         self.btn_issuance.setEnabled(False)
+        self.loading_box.show_loading()
 
         self.issuance_thread = ibl.IssuanceBuildingLedger(pk, kind, self.driver, self.login_cookies)
-        self.issuance_thread.threadEvent.workerThreadDone.connect(lambda: self.btn_issuance.setEnabled(True))
+        self.issuance_thread.threadEvent.workerThreadDone.connect(self.issuance_done_event)
         self.issuance_thread.threadEvent.progress.connect(self.issuance_progress_event)
         self.issuance_thread.start()
 
@@ -260,7 +265,14 @@ class LedgerLedger(QDialog, Ui_Ledger):
         return result
 
     #################################################################################################
-    
+
+    def issuance_done_event(self, success):
+        self.btn_issuance.setEnabled(True)
+        self.loading_box.hide_loading()
+        
+        if not success:
+            print('오류 발생')
+
     # 진행 메세지
     def issuance_progress_event(self, msg):
         print(msg)
@@ -283,7 +295,7 @@ def my_exception_hook(exctype, value, traceback):
 sys._excepthook = sys.excepthook
 sys.excepthook = my_exception_hook
 
-
-app = QApplication()
-window = LedgerLedger()
-app.exec()
+#
+# app = QApplication()
+# window = LedgerLedger()
+# app.exec()

@@ -205,18 +205,22 @@ class Ui_Ledger(object):
 
         self.rbtn_total = QRadioButton(self.type_frame)
         self.rbtn_total.setObjectName(u"rbtn_total")
+        self.rbtn_total.setEnabled(False)
         self.rbtn_total.setGeometry(QRect(25, 25, 90, 16))
 
         self.rbtn_building = QRadioButton(self.type_frame)
         self.rbtn_building.setObjectName(u"rbtn_building")
+        self.rbtn_building.setEnabled(False)
         self.rbtn_building.setGeometry(QRect(125, 25, 131, 16))
 
         self.rbtn_room = QRadioButton(self.type_frame)
         self.rbtn_room.setObjectName(u"rbtn_room")
+        self.rbtn_room.setEnabled(False)
         self.rbtn_room.setGeometry(QRect(275, 25, 90, 16))
 
         self.btn_issuance = QPushButton(Dialog)
         self.btn_issuance.setObjectName(u"btn_issuance")
+        self.btn_issuance.setEnabled(False)
         self.btn_issuance.setGeometry(QRect(80, 280, 241, 45))
         self.btn_issuance.setStyleSheet("""
         QPushButton {
