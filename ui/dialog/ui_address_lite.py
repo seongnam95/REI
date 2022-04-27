@@ -131,6 +131,7 @@ class Ui_FindAddress(object):
 
         self.btn_input = QPushButton(FindAddress)
         self.btn_input.setObjectName(u"btn_issuance")
+        self.btn_input.setEnabled(False)
         self.btn_input.setGeometry(QRect(115, 490, 241, 45))
         self.btn_input.setStyleSheet("""
         QPushButton {

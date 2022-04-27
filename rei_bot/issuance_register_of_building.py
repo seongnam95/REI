@@ -75,86 +75,86 @@ class IssuanceBuildingLedger(QThread):
 
     # 문서 발급, 열람
     def run(self):
-        # try:
-        self.threadEvent.progress.emit('건축물대장 발급 요청중..')
-        result, ho = None, ''
+        try:
+            self.threadEvent.progress.emit('건축물대장 발급 요청중..')
+            result, ho = None, ''
 
-        headers = self.headers
-        headers['Referer'] = "https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02L01"
+            headers = self.headers
+            headers['Referer'] = "https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02L01"
 
-        # 총괄 표제부
-        if self.kind == 0:
-            datas = {"addrGbCd": 2, "bldrgstCurdiGbCd": "0", "sigunguCd": self.sigungu, "bldrgstSeqno": self.seqno}
-            response_title = self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02R01', headers=headers, json=datas)
+            # 총괄 표제부
+            if self.kind == 0:
+                datas = {"addrGbCd": 2, "bldrgstCurdiGbCd": "0", "sigunguCd": self.sigungu, "bldrgstSeqno": self.seqno}
+                response_title = self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02R01', headers=headers, json=datas)
+                time.sleep(0.5)
+                json_data = json.loads(response_title.text)
+                if json_data['jibunAddr'] is not None:
+                    result = json_data['jibunAddr'][0]
+                else:
+                    print(json_data)
+
+            # 표제부, 일반 건축물
+            elif self.kind == 1:
+                datas = {"addrGbCd": 2, "bldrgstCurdiGbCd": "0", "sigunguCd": self.sigungu, "bldrgstSeqno": self.seqno}
+                response_title = self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02R01', headers=headers, json=datas)
+                time.sleep(0.5)
+                result = json.loads(response_title.text)['jibunAddr'][0]
+
+            # 전유부
+            elif self.kind == 2:
+                datas = {"inqireGbCd": "1", "bldrgstCurdiGbCd": "0", "reqSigunguCd": self.sigungu, "bldrgstSeqno": self.seqno}
+                response_title = self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02R04', headers=headers, json=datas)
+                time.sleep(0.5)
+                result = json.loads(response_title.text)['findExposList'][0]
+
+            #
+            bun, ji = result['mnnm'].lstrip('0'), result['slno'].lstrip('0')
+            if ji: ji = f'-{ji}'
+
+            if "hoNm" in result: ho = ' ' + result["hoNm"].strip()
+            if 'dongNm' in result.keys():
+                dong_nm = result["dongNm"].strip()
+                self.address = f'{result["sigunguNm"]} {result["bjdongNm"]} {bun}{ji} {dong_nm}{ho}'
+            else: self.address = f'{result["sigunguNm"]} {result["bjdongNm"]} {bun}{ji}'
+
+            datas = {"bldrgstSeqno": result["bldrgstSeqno"],
+                      "regstrGbCd": result["regstrGbCd"],
+                      "regstrKindCd": result["regstrKindCd"],
+                      "mjrfmlyIssueYn": "N",
+                      "locSigunguCd": result["sigunguCd"],
+                      "locBjdongCd": result["bjdongCd"],
+                      "locPlatGbCd": result["platGbCd"],
+                      "locDetlAddr": self.address,
+                      "locBldNm": result["bldNm"],
+                      "bldrgstCurdiGbCd": "0"}
+
+            # 1. 민원 담기 (담아야 2번 요청 시 응답 값 나옴)
+            self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02C01', headers=headers, json=datas)
+
+            # 2. 담은 민원 처리 (응답 값 필요)
+            response_put_in = self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02R05', headers=headers)
             time.sleep(0.5)
-            json_data = json.loads(response_title.text)
-            if json_data['jibunAddr'] is not None:
-                result = json_data['jibunAddr'][0]
-            else:
-                print(json_data)
+            result = json.loads(response_put_in.text)
+            print('## 담은 민원 처리중 ##\n', result)
 
-        # 표제부, 일반 건축물
-        elif self.kind == 1:
-            datas = {"addrGbCd": 2, "bldrgstCurdiGbCd": "0", "sigunguCd": self.sigungu, "bldrgstSeqno": self.seqno}
-            response_title = self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02R01', headers=headers, json=datas)
+            headers['Referer'] = "https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02F01"
+            datas = {"pbsvcResveDtls": result['findPbsvcResveDtls'],    # issueReadGbCd (0: 발급, 1: 열람)
+                     "pbsvcRecpInfo": {"pbsvcGbCd": "01", "issueReadGbCd": "0", "pbsvcResveDtlsCnt": 1},
+                     "appntInfo": {"appntGbCd": "01", "naAppntGrndUgrndGbCd": "0"}}
+
+            # 3. 발급 신청, 담은 민원 제거
+            self.s.post('https://cloud.eais.go.kr/bci/BCIAZA02S01', headers=headers, json=datas)
             time.sleep(0.5)
-            result = json.loads(response_title.text)['jibunAddr'][0]
-
-        # 전유부
-        elif self.kind == 2:
-            datas = {"inqireGbCd": "1", "bldrgstCurdiGbCd": "0", "reqSigunguCd": self.sigungu, "bldrgstSeqno": self.seqno}
-            response_title = self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02R04', headers=headers, json=datas)
+            self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02D02', headers=headers,
+                            json={'lastUpdusrId': result['findPbsvcResveDtls'][0]['lastUpdusrId']})
             time.sleep(0.5)
-            result = json.loads(response_title.text)['findExposList'][0]
+            print('## 발급 신청, 담은 민원 제거 ##')
 
-        #
-        bun, ji = result['mnnm'].lstrip('0'), result['slno'].lstrip('0')
-        if ji: ji = f'-{ji}'
+            self.open_document()
 
-        if "hoNm" in result: ho = ' ' + result["hoNm"].strip()
-        if 'dongNm' in result.keys():
-            dong_nm = result["dongNm"].strip()
-            self.address = f'{result["sigunguNm"]} {result["bjdongNm"]} {bun}{ji} {dong_nm}{ho}'
-        else: self.address = f'{result["sigunguNm"]} {result["bjdongNm"]} {bun}{ji}'
-
-        datas = {"bldrgstSeqno": result["bldrgstSeqno"],
-                  "regstrGbCd": result["regstrGbCd"],
-                  "regstrKindCd": result["regstrKindCd"],
-                  "mjrfmlyIssueYn": "N",
-                  "locSigunguCd": result["sigunguCd"],
-                  "locBjdongCd": result["bjdongCd"],
-                  "locPlatGbCd": result["platGbCd"],
-                  "locDetlAddr": self.address,
-                  "locBldNm": result["bldNm"],
-                  "bldrgstCurdiGbCd": "0"}
-
-        # 1. 민원 담기 (담아야 2번 요청 시 응답 값 나옴)
-        self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02C01', headers=headers, json=datas)
-
-        # 2. 담은 민원 처리 (응답 값 필요)
-        response_put_in = self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02R05', headers=headers)
-        time.sleep(0.5)
-        result = json.loads(response_put_in.text)
-        print('## 담은 민원 처리중 ##\n', result)
-
-        headers['Referer'] = "https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02F01"
-        datas = {"pbsvcResveDtls": result['findPbsvcResveDtls'],    # issueReadGbCd (0: 발급, 1: 열람)
-                 "pbsvcRecpInfo": {"pbsvcGbCd": "01", "issueReadGbCd": "0", "pbsvcResveDtlsCnt": 1},
-                 "appntInfo": {"appntGbCd": "01", "naAppntGrndUgrndGbCd": "0"}}
-
-        # 3. 발급 신청, 담은 민원 제거
-        self.s.post('https://cloud.eais.go.kr/bci/BCIAZA02S01', headers=headers, json=datas)
-        time.sleep(0.5)
-        self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02D02', headers=headers,
-                        json={'lastUpdusrId': result['findPbsvcResveDtls'][0]['lastUpdusrId']})
-        time.sleep(0.5)
-        print('## 발급 신청, 담은 민원 제거 ##')
-
-        self.open_document()
-
-        # except Exception as e:
-        #     print('err: ', e)
-        #     self.threadEvent.workerThreadDone.emit(False)
+        except Exception as e:
+            print('err: ', e)
+            self.threadEvent.workerThreadDone.emit(False)
 
     # 문서 열기
     def open_document(self):
