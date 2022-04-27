@@ -2,21 +2,17 @@ import sys
 
 import clipboard as clip
 import pandas as pd
+import module.open_api_pars as pars
+import rei_bot.issuance_register_of_building as ibl
+
 from PySide6.QtCore import QObject, Signal, QEvent, QSize
 from PySide6.QtGui import QIcon, QColor
 from PySide6.QtWidgets import QMainWindow, QApplication, QGraphicsDropShadowEffect, QFrame
 
-import module.open_api_pars as pars
-from interface.sub_interface import pop_up_ledger
-
-from interface.sub_interface import address_details
-from ui.custom.BlackBoxMsg import BoxMessage
 from module.open_api_pars import OpenApiRequest
+from interface.sub_interface import issuance_ledger, find_address_details
+from ui.custom import BlackBoxMsg, MenuWidget, LoadingBox
 from ui.main.ui_info import Ui_BuildingInfo
-from ui.custom.MenuWidget import MenuWidget
-from ui.sub.register_pop_up import RegisterPopUp
-from ui.custom.LoadingBox import LoadingBox
-
 
 # import fluentapp.pyqt6.windowtools as wingui
 
@@ -44,37 +40,23 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
         # 폼 설정
         self._init_ui()
-        self.set_shadows()
+        self._init_shadows()
         self._init_interaction()
 
-        self.loading_box = LoadingBox(self)
+        self.loading_box = LoadingBox.LoadingBox(self)
 
         # self.btn_issuance.setEnabled(False)
 
         # self.login_progress(False)
-        # self.issuance_thread = ibl.SetChrome('haul1115', 'ks05090818@')
-        # self.issuance_thread.threadEvent.chromeDriver.connect(self.get_chrome_driver)
-        # self.issuance_thread.start()
-
-    def set_shadows(self):
-        frame_list = [self.address_frame, self.info_frame, self.detail_frame, self.parking_frame, self.land_frame]
-        for child in frame_list:
-            shadow = QGraphicsDropShadowEffect(self)
-            shadow.setBlurRadius(15)
-            shadow.setXOffset(1)
-            shadow.setYOffset(1)
-            shadow.setColor(QColor(0, 0, 0, 35))
-            child.setGraphicsEffect(shadow)
-
-    def test(self):
-        print(self.main_menu.currentRow())
+        self.issuance_thread = ibl.SetChrome('haul1115', 'ks05090818@')
+        self.issuance_thread.threadEvent.chromeDriver.connect(self.get_chrome_driver)
+        self.issuance_thread.start()
 
     # UI 세팅
     def _init_ui(self):
         self._setupUi(self)
 
-        self.register_pop = RegisterPopUp(self)
-        self.msg = BoxMessage(self)
+        self.msg = BlackBoxMsg.BoxMessage(self)
 
         self.block_frame = QFrame(self)
         self.block_frame.setStyleSheet("QFrame { background: rgba(0, 0, 0, 160)}")
@@ -86,14 +68,14 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
                  {'name': '광고 업로드', 'img': '../../data/img/button/share_icon.png'},
                  {'name': '매물 공유하기', 'img': '../../data/img/button/plus_icon.png'},
                  {'name': '설정', 'img': '../../data/img/button/plus_icon.png'}]
-        self.main_menu = MenuWidget(self)
+        self.main_menu = MenuWidget.MenuWidget(self)
         self.main_menu.add_item(items)
         self.main_menu.set_size(self.main_menu)
 
         issuance_items = [{'name': '건축물대장', 'img': None},
                           {'name': '등기부등본', 'img': None},
                           {'name': '토지이용계획', 'img': None}]
-        self.issuance_menu = MenuWidget(self)
+        self.issuance_menu = MenuWidget.MenuWidget(self)
         self.issuance_menu.add_item(issuance_items)
         self.issuance_menu.set_size(self.issuance_menu)
 
@@ -106,7 +88,6 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.btn_search.setIconSize(QSize(23, 23))
 
         # 이벤트 필터 (마우스 HOVER 시, 그림자 효과 관련)
-        self.edt_address.installEventFilter(self)
         self.btn_viol.installEventFilter(self)
         self.btn_menu.installEventFilter(self)
         self.btn_issuance.installEventFilter(self)
@@ -144,6 +125,16 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
         self.show()
 
+    def _init_shadows(self):
+        frame_list = [self.address_frame, self.info_frame, self.detail_frame, self.parking_frame, self.land_frame]
+        for child in frame_list:
+            shadow = QGraphicsDropShadowEffect(self)
+            shadow.setBlurRadius(15)
+            shadow.setXOffset(1)
+            shadow.setYOffset(1)
+            shadow.setColor(QColor(0, 0, 0, 35))
+            child.setGraphicsEffect(shadow)
+
     # 상호작용 세팅
     def _init_interaction(self):
 
@@ -167,41 +158,16 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         for dic in [self.labels, self.labels_detail, self.labels_park, self.labels_land]:
             for i in dic: mouse_double_clicked(dic[i]).connect(self.clicked_labels)
 
-    # 그림자 세팅
-    def set_shadow(self, kind):
-        shadow = QGraphicsDropShadowEffect(self)
-
-        if kind == 'main_button':
-            shadow.setBlurRadius(10)
-            shadow.setXOffset(0)
-            shadow.setYOffset(0)
-            shadow.setColor(QColor(0, 0, 0, 70))
-
-        elif kind == 'sub_button':
-            shadow.setBlurRadius(20)
-            shadow.setXOffset(0)
-            shadow.setYOffset(0)
-            shadow.setColor(QColor(255, 120, 90, 250))
-
-        elif kind == 'edit':
-            shadow.setBlurRadius(10)
-            shadow.setXOffset(0)
-            shadow.setYOffset(0)
-            shadow.setColor(QColor(52, 152, 219, 150))
-
-        elif kind == 'reset':
-            shadow.setEnabled(False)
-
-        return shadow
-
     # 셀러리움 로그인 정보
     def get_chrome_driver(self, driver):
         self.driver = driver
         self.login_cookies = driver.get_cookies()
-        self.login_progress(False)
 
     ##### 시그널 이벤트
     ########################################################################################################
+
+    def test(self):
+        print(self.main_menu.currentRow())
 
     # 항목 클립보드에 복사
     def clicked_labels(self, widget):
@@ -212,7 +178,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
     # 소재지 찾기 에디트 클릭
     def clicked_address_edit(self, e=None):
-        dialog = address_details.AddressDetails(self.edt_address.text())
+        dialog = find_address_details.AddressDetails(self.edt_address.text())
         dialog.exec()
 
         if dialog.result:
@@ -295,15 +261,15 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         if item_row == 0:
             self.block_frame.setGeometry(0, 0, self.width(), self.height())
             self.block_frame.show()
-            print(self.issuance_data)
 
-            dialog = pop_up_ledger.LedgerLedger(self.address)
+            dialog = issuance_ledger.IssuanceLedger(self.address, self.issuance_data, self.driver, self.login_cookies)
             dialog.exec()
 
             self.block_frame.hide()
 
         # 등기부등본
-        elif item_row == 1: self.register_pop.show_pop(self.address_old, self.binfo['타입'])
+        elif item_row == 1:
+            self.register_pop.show_pop(self.address_old, self.binfo['타입'])
 
         # 토지이용계획
         elif item_row == 2: return
@@ -327,10 +293,9 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
     # 이벤트 필터 (버튼 이펙트)
     def eventFilter(self, obj, event):
-        objs = {self.btn_viol: 'sub_button',
-                self.btn_menu: 'main_button',
-                self.btn_issuance: 'main_button',
-                self.edt_address: 'edit'}
+        objs = {self.btn_viol: 'viol',
+                self.btn_menu: 'menu',
+                self.btn_issuance: 'menu'}
         if obj not in objs.keys(): return
 
         # 버튼 이펙트 (쉐도우)
@@ -340,6 +305,27 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             obj.setGraphicsEffect(self.set_shadow('reset'))
 
         return super(BuildingInfo, self).eventFilter(obj, event)
+
+    # 그림자 세팅
+    def set_shadow(self, kind):
+        shadow = QGraphicsDropShadowEffect(self)
+
+        if kind == 'menu':
+            shadow.setBlurRadius(10)
+            shadow.setXOffset(0)
+            shadow.setYOffset(0)
+            shadow.setColor(QColor(0, 0, 0, 70))
+
+        elif kind == 'viol':
+            shadow.setBlurRadius(20)
+            shadow.setXOffset(0)
+            shadow.setYOffset(0)
+            shadow.setColor(QColor(255, 120, 90, 250))
+
+        elif kind == 'reset':
+            shadow.setEnabled(False)
+
+        return shadow
 
     ##### 데이터 입력
     ########################################################################################################
@@ -356,7 +342,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
                               '동_PK': building['건축물대장PK']}
 
         old = "%s %s %s %s" % (address['시도'], address['시군구'], address['읍면동'], address['번'])
-        if address['지'] == "0": old = "%s-%s" % (old, address['지'])
+        if address['지'] != "0": old = "%s-%s" % (old, address['지'])
 
         layer = "-%s 층 / %s 층" % (building['지하층수'], building['지상층수'])
         elevator = "%s대 (비상 %s대)" % (building['승강기'], building['비상용승강기'])

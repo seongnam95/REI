@@ -3,14 +3,14 @@ import re
 import pandas as pd
 
 from PySide6.QtWidgets import QApplication, QMainWindow, QButtonGroup, QWidget, QLabel, QLineEdit, QComboBox, \
-    QListWidgetItem, QMenu
+    QListWidgetItem, QMenu, QGraphicsDropShadowEffect
 from PySide6.QtCore import QPropertyAnimation, Qt, QSize, QRegularExpression, QRect, QEvent
-from PySide6.QtGui import QIcon, QRegularExpressionValidator, QFont
+from PySide6.QtGui import QIcon, QRegularExpressionValidator, QFont, QColor
 from urllib3.connectionpool import xrange
 
 from ui.main.ui_lease import Ui_MainWindow
 from ui.custom.BlackBoxMsg import BoxMessage
-from interface.sub_interface import address_details
+from interface.sub_interface import find_address_details
 from interface.lease_interface import agr_edit
 
 
@@ -27,6 +27,8 @@ class MainLease(QMainWindow, Ui_MainWindow):
             return
 
         self._init_ui()
+        self.set_shadows()
+        return
         self._init_interaction()
 
         self.load_keyword()
@@ -49,6 +51,23 @@ class MainLease(QMainWindow, Ui_MainWindow):
 
         self.btn_contract_0.click()
 
+    def set_shadows(self):
+        frame_list = [self.info_frame, self.money_frame]
+        for child in frame_list:
+            shadow = QGraphicsDropShadowEffect(self)
+            shadow.setBlurRadius(15)
+            shadow.setXOffset(1)
+            shadow.setYOffset(1)
+            shadow.setColor(QColor(0, 0, 0, 35))
+            child.setGraphicsEffect(shadow)
+
+        shadow = QGraphicsDropShadowEffect(self)
+        shadow.setBlurRadius(40)
+        shadow.setXOffset(3)
+        shadow.setYOffset(3)
+        shadow.setColor(QColor(0, 0, 0, 60))
+        self.btn_next.setGraphicsEffect(shadow)
+
     # UI init
     def _init_ui(self):
         self._setupUi(self)
@@ -61,16 +80,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
         self.animation.setEndValue(1)
         self.animation.start()
 
-        # 계약 선택 버튼 토글
-        self.btn_group = QButtonGroup()
-        self.btn_group.addButton(self.btn_contract_0)
-        self.btn_group.addButton(self.btn_contract_1)
-        self.btn_group.addButton(self.btn_contract_2)
-        self.btn_group.addButton(self.btn_contract_3)
-        self.btn_group.buttonClicked.connect(self.clicked_contract_btn)
-
         # 콤보박스 아이템 추가
-        self.cbx_contract.addItems(str_list.contract_list)
         self.cbx_land_details.addItems(str_list.land_details_list)
         self.cbx_structure.addItems(str_list.structure_list)
         self.cbx_purposes.addItems(str_list.purposes_list)
@@ -253,7 +263,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
 
     # 소재지 찾기 에디트 클릭
     def clicked_address_edit(self, e):
-        dialog = address_details.AddressDetails(0, self.edt_address.text())
+        dialog = find_address_details.AddressDetails(0, self.edt_address.text())
         dialog.exec()
 
         if dialog.result:

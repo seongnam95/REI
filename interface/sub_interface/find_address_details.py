@@ -119,7 +119,8 @@ class AddressDetails(QDialog, Ui_FindAddress):
             else: bld_name = " (%s)" % result['건물명칭']
 
             new = result['도로명주소'] + bld_name
-            old = "%s %s %s %s-%s" % (result['시도'], result['시군구'], result['읍면동'], result['번'], result['지'])
+            old = "%s %s %s %s" % (result['시도'], result['시군구'], result['읍면동'], result['번'])
+            if result['지'] != "0": old = "%s-%s" % (old, result['지'])
 
             if len(new) > 33: new = new[0:33] + '···'
 
@@ -131,10 +132,10 @@ class AddressDetails(QDialog, Ui_FindAddress):
     # 건물명칭(동) 콤보박스 추가
     def add_building_list(self, val):
         # 데이터가 없을 경우
+        print(val[0])
         if val[0] is None: 
             self.msg("정보", MsgContext.failed_in_search)
             return
-
         # 표제부 '주건축물'만 조회
         buildings = val[0][val[0]['주부속구분'] == '주건축물']
         self.total_buildings = val[1]
@@ -291,7 +292,8 @@ class AddressDetails(QDialog, Ui_FindAddress):
         select_index = self.cbx_rooms.currentIndex() - 1
         result = self.select_address
 
-        old = "%s %s %s %s-%s" % (result['시도'], result['시군구'], result['읍면동'], result['번'], result['지'])
+        old = "%s %s %s %s" % (result['시도'], result['시군구'], result['읍면동'], result['번'])
+        if result['지'] != "0": old = "%s-%s" % (old, result['지'])
 
         # 일반일 경우
         if self.binfo['타입'] == '일반':

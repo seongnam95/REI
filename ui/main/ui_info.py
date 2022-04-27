@@ -58,11 +58,13 @@ class Ui_BuildingInfo(object):
 "}\n"
 "\n"
 "QPushButton:hover {\n"
-"	background-color: rgb(235, 235, 235);\n"
+"	background-color: rgb(245, 245, 245);\n"
 "}\n"
 "\n"
 "QPushButton:pressed {\n"
-"	background-color: rgb(215, 215, 215);\n"
+"   padding-left: 4px;\n"
+"   padding-top: 4px;\n"
+"	background-color: rgb(225, 225, 225);\n"
 "}")
         self.lb_title = QLabel(self.top_bar)
         self.lb_title.setObjectName(u"lb_title")
@@ -90,16 +92,12 @@ class Ui_BuildingInfo(object):
         self.lb_sub_title.setAlignment(Qt.AlignCenter)
         self.btn_menu = QPushButton(self.top_bar)
         self.btn_menu.setObjectName(u"btn_menu")
-        self.btn_menu.setEnabled(True)
         self.btn_menu.setGeometry(QRect(410, 12, 40, 40))
         self.btn_menu.setStyleSheet(u"")
-        icon = QIcon()
-        icon.addFile(u"../../1814119_launch_open_share_icon.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.btn_menu.setIcon(icon)
-        self.btn_menu.setIconSize(QSize(23, 23))
+        self.btn_menu.raise_()
+
         self.lb_sub_title.raise_()
         self.lb_title.raise_()
-        self.btn_menu.raise_()
         self.bot_bar = QWidget(BuildingInfo)
         self.bot_bar.setObjectName(u"bot_bar")
         self.bot_bar.setGeometry(QRect(0, 730, 921, 71))
@@ -157,6 +155,8 @@ class Ui_BuildingInfo(object):
 "\n"
 "#btn_details:pressed {\n"
 "	color: rgb(125, 125, 125);\n"
+"   padding-left: 2px;\n"
+"   padding-top: 4px;\n"
 "	border-style: inset;\n"
 "}\n"
 "")
@@ -174,7 +174,9 @@ class Ui_BuildingInfo(object):
 "	background-color: rgb(235, 235, 235);\n"
 "}\n"
 "\n"
-"QPushButton:pressed {\n"
+"QPushButton:pressed {\n"                  
+"   padding-left: 3px;\n"
+"   padding-top: 3px;\n"
 "	background-color: rgb(215, 215, 215);\n"
 "}")
         icon2 = QIcon()

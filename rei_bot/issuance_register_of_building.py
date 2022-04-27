@@ -59,7 +59,7 @@ class IssuanceBuildingLedger(QThread):
 
         self.sigungu, self.seqno = pk.split('-')[0], pk.split('-')[1]   # PK
         self.kind, self.address, self.file_id = kind, '', ''     # 건물 타입, 대장 종류
-        self.driver, self.cookies = driver, driver.get_cookies()
+        self.driver, self.cookies = driver, cookies
 
         self.s = requests.Session()
         self.s.verify = False

@@ -10,19 +10,19 @@ from PySide6.QtWidgets import QDialog, QApplication, QGraphicsDropShadowEffect, 
 
 import rei_bot.issuance_register_of_building as ibl
 from interface.sub_interface import find_address_lite
-from interface.sub_interface import address_details
+from interface.sub_interface import find_address_details
 from ui.dialog.ui_ledger import Ui_Ledger
 from ui.custom.LoadingBox import LoadingBox
 
 
-class LedgerLedger(QDialog, Ui_Ledger):
-    def __init__(self, data=None):
+class IssuanceLedger(QDialog, Ui_Ledger):
+    def __init__(self, address=None, data=None, driver=None, login_cookies=None):
         super().__init__()
         self.setupUi(self)
         self.show()
 
         self.address, self.info = None, {}
-        self.title_pk, self.expos_pk = None, None
+        self.existing_pk, self.title_pk, self.expos_pk = None, None, None
         self.issuance_thread = None
 
         # 리퀘스트, 셀러리움 세팅
@@ -38,18 +38,21 @@ class LedgerLedger(QDialog, Ui_Ledger):
         self._init_interaction()
 
         if data is not None:
-            self.address = data
+            self.existing_pk = data
+            self.address, self.driver, self.login_cookies = address, driver, login_cookies
             self.input_address_edit()
+        else:
+            self.issuance_thread = ibl.SetChrome('haul1115', 'ks05090818@')
+            self.issuance_thread.threadEvent.chromeDriver.connect(self.get_chrome_driver)
+            self.issuance_thread.start()
 
     # UI 세팅
     def _init_ui(self):
         self.set_shadow()
+        self.loading_box = LoadingBox(self)
+
         self.btn_search.setIcon(QIcon('../../data/img/button/search_icon.png'))
         self.btn_search.setIconSize(QSize(25, 25))
-
-        self.issuance_thread = ibl.SetChrome('haul1115', 'ks05090818@')
-        self.issuance_thread.threadEvent.chromeDriver.connect(self.get_chrome_driver)
-        self.issuance_thread.start()
 
     # 시그널 세팅
     def _init_interaction(self):
@@ -161,6 +164,12 @@ class LedgerLedger(QDialog, Ui_Ledger):
                 self.add_room_list()
                 return
 
+            if self.existing_pk:
+                idx = self.title_pk.index[(self.title_pk['PK'] == self.existing_pk['동_PK'])]
+                self.cbx_buildings.setCurrentIndex(idx[0])
+                self.add_room_list()
+                return
+
             self.cbx_buildings.showPopup()
 
     # 호 리스트 추가
@@ -175,6 +184,12 @@ class LedgerLedger(QDialog, Ui_Ledger):
             row = self.expos_pk.loc[i]
             self.cbx_rooms.addItem(f"{row['호명칭']} 호")
 
+        if self.existing_pk:
+            idx = self.expos_pk.index[(self.expos_pk['PK'] == self.existing_pk['호_PK'])]
+            self.cbx_rooms.setCurrentIndex(idx[0])
+            self.select_room()
+            return
+
         self.cbx_rooms.showPopup()
 
     # 호 선택
@@ -188,7 +203,6 @@ class LedgerLedger(QDialog, Ui_Ledger):
 
         if self.rbtn_total.isChecked():
             kind, pk = 0, self.info['건물']['ID']
-            print(pk)
 
         elif self.rbtn_building.isChecked():
             kind, pk = 1, self.info['건물']['PK'] if self.info['타입'] == '일반' else self.info['동']['PK']
@@ -198,9 +212,9 @@ class LedgerLedger(QDialog, Ui_Ledger):
             
         self.btn_issuance.setEnabled(False)
 
+        self.loading_box.show_loading()
         self.issuance_thread = ibl.IssuanceBuildingLedger(pk, kind, self.driver, self.login_cookies)
-        self.issuance_thread.threadEvent.workerThreadDone.connect(lambda: self.btn_issuance.setEnabled(True))
-        self.issuance_thread.threadEvent.progress.connect(self.issuance_progress_event)
+        self.issuance_thread.threadEvent.workerThreadDone.connect(self.issuance_done_event)
         self.issuance_thread.start()
 
     # REQUEST
@@ -260,10 +274,11 @@ class LedgerLedger(QDialog, Ui_Ledger):
         return result
 
     #################################################################################################
-    
-    # 진행 메세지
-    def issuance_progress_event(self, msg):
-        print(msg)
+
+    # 건축물대장 발급 스레드, 완료시
+    def issuance_done_event(self):
+        self.loading_box.hide_loading()
+        self.btn_issuance.setEnabled(True)
         
     # 다이얼로그 엔터키 막기
     def keyPressEvent(self, event):
@@ -271,8 +286,7 @@ class LedgerLedger(QDialog, Ui_Ledger):
              event.key() == Qt.Key_Return) or
                 (event.modifiers() == Qt.KeypadModifier)):
             event.accept()
-        else: super(LedgerLedger, self).keyPressEvent(event)
-
+        else: super(IssuanceLedger, self).keyPressEvent(event)
 
 
 # 예외 오류 처리
@@ -282,8 +296,3 @@ def my_exception_hook(exctype, value, traceback):
 
 sys._excepthook = sys.excepthook
 sys.excepthook = my_exception_hook
-
-
-app = QApplication()
-window = LedgerLedger()
-app.exec()
