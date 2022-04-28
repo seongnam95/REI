@@ -10,7 +10,7 @@ from PySide6.QtGui import QIcon, QColor
 from PySide6.QtWidgets import QMainWindow, QApplication, QGraphicsDropShadowEffect, QFrame
 
 from module.open_api_pars import OpenApiRequest
-from interface.sub_interface import issuance_ledger, find_address_details
+from interface.sub_interface import issuance_ledger, issuance_register, find_address_details
 from ui.custom import BlackBoxMsg, MenuWidget, LoadingBox
 from ui.main.ui_info import Ui_BuildingInfo
 
@@ -63,11 +63,12 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.block_frame.hide()
 
         # 메뉴 위젯 설정
-        items = [{'name': '내 매물로 등록', 'img': '../../data/img/button/plus_icon.png'},
-                 {'name': '계약서 작성', 'img': '../../data/img/button/share_icon.png'},
-                 {'name': '광고 업로드', 'img': '../../data/img/button/share_icon.png'},
-                 {'name': '매물 공유하기', 'img': '../../data/img/button/plus_icon.png'},
-                 {'name': '설정', 'img': '../../data/img/button/plus_icon.png'}]
+        items = [{'name': '내 매물로 등록', 'img': '../../data/img/button/plus_square_icon.png'},
+                 {'name': '계약서 작성', 'img': '../../data/img/button/pen_icon.png'},
+                 {'name': '광고 업로드', 'img': '../../data/img/button/upload_icon.png'},
+                 {'name': '매물 공유하기', 'img': '../../data/img/button/share_icon.png'},
+                 {'name': '설정', 'img': '../../data/img/button/setting_icon.png'}]
+
         self.main_menu = MenuWidget.MenuWidget(self)
         self.main_menu.add_item(items)
         self.main_menu.set_size(self.main_menu)
@@ -162,6 +163,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
     def get_chrome_driver(self, driver):
         self.driver = driver
         self.login_cookies = driver.get_cookies()
+        print('로그인 완료')
 
     ##### 시그널 이벤트
     ########################################################################################################
@@ -256,23 +258,36 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         # if not self.activation: return
         item_row = self.issuance_menu.currentRow()
         self.issuance_menu.hide_menu()
-
+        print(self.issuance_data)
         # 건축물대장
         if item_row == 0:
             self.block_frame.setGeometry(0, 0, self.width(), self.height())
             self.block_frame.show()
 
-            dialog = issuance_ledger.IssuanceLedger(self.address, self.issuance_data, self.driver, self.login_cookies)
+            if self.issuance_data:
+                dialog = issuance_ledger.IssuanceLedger(self.driver, self.login_cookies, self.address, self.issuance_data)
+            else: dialog = issuance_ledger.IssuanceLedger(self.driver, self.login_cookies)
             dialog.exec()
 
             self.block_frame.hide()
 
         # 등기부등본
         elif item_row == 1:
-            self.register_pop.show_pop(self.address_old, self.binfo['타입'])
+            self.block_frame.setGeometry(0, 0, self.width(), self.height())
+            self.block_frame.show()
+
+            if self.issuance_data:
+                dialog = issuance_register.IssuanceRegister(self.address, self.issuance_data)
+            else: dialog = issuance_ledger.IssuanceLedger()
+            dialog.exec()
+
+            self.block_frame.hide()
 
         # 토지이용계획
-        elif item_row == 2: return
+        elif item_row == 2:
+            dialog = issuance_ledger.IssuanceLedger()
+            dialog.exec()
+            return
 
     # 진행 메세지
     def issuance_progress_event(self, msg):

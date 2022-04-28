@@ -9,7 +9,7 @@ from PySide6.QtWidgets import QDialog, QLabel, QListWidgetItem, QMessageBox, QWi
 from PySide6.QtCore import Qt, QPropertyAnimation, QTimer, QSize, QEvent
 
 from ui.dialog.ui_address import Ui_FindAddress
-from ui.custom.LoadingBox import LoadingBox
+from ui.custom import LoadingBox, BlackBoxMsg
 
 
 class MsgContext:
@@ -57,7 +57,8 @@ class AddressDetails(QDialog, Ui_FindAddress):
         self.btn_search.setIcon(QIcon('../../data/img/button/search_icon.png'))
         self.btn_search.setIconSize(QSize(30, 30))
 
-        self.loading = LoadingBox(self)
+        self.loading = LoadingBox.LoadingBox(self)
+        self.msg = BlackBoxMsg.BoxMessage(self)
 
     # 상호작용
     def _init_interaction(self):
@@ -106,8 +107,11 @@ class AddressDetails(QDialog, Ui_FindAddress):
         self.address = pars.OpenApiRequest.get_address(self.ADDRESS_API_KEY, txt)
 
         # 주소 불러온 다음
-        if self.address is None: self.info_msg(1, "검색 결과가 없습니다."); return
-        if self.address.empty: self.info_msg(1, "검색 결과가 없습니다."); return
+
+        if self.address is None or self.address.empty:
+            self.msg.show_msg(2000, 'center', "검색 결과가 없습니다")
+            self.lb_hint_2.show()
+            return
 
         # 메세지 숨기기
         self.lb_hint_2.hide()
@@ -132,20 +136,22 @@ class AddressDetails(QDialog, Ui_FindAddress):
     # 건물명칭(동) 콤보박스 추가
     def add_building_list(self, val):
         # 데이터가 없을 경우
-        print(val[0])
+
         if val[0] is None: 
-            self.msg("정보", MsgContext.failed_in_search)
+            self.msg.show_msg(2000, 'center', MsgContext.failed_in_search)
             return
+
         # 표제부 '주건축물'만 조회
         buildings = val[0][val[0]['주부속구분'] == '주건축물']
         self.total_buildings = val[1]
 
         # 주건축물 조회가 안 될 경우
         if buildings is None:
-            self.msg('정보', MsgContext.failed_to_search)
+            self.msg.show_msg(2000, 'center', MsgContext.failed_to_search)
             return
+
         elif ('err' in buildings) or ('ERR' in buildings):
-            self.msg('오류', MsgContext.network_err % buildings)
+            self.msg.show_msg(2000, 'center', MsgContext.network_err % buildings)
             return
 
         # 건물 데이터 정렬
@@ -186,7 +192,7 @@ class AddressDetails(QDialog, Ui_FindAddress):
     # 집합건물(호) 콤보박스 추가
     def add_room_list(self, val):
         if val[0] is None:
-            self.msg('정보', MsgContext.failed_in_search)
+            self.msg.show_msg(2000, 'center', MsgContext.failed_in_search)
             return
 
         if val[1] is not None: self.land = val[1]
@@ -211,7 +217,7 @@ class AddressDetails(QDialog, Ui_FindAddress):
     # 일반건물(층) 콤보박스 추가
     def add_layer_list(self, val):
         if val[0] is None:
-            self.msg("정보", MsgContext.failed_in_search)
+            self.msg.show_msg(2000, 'center', MsgContext.failed_in_search)
             return
         if val[2] is not None: self.owners = val[2]
         if val[3] is not None: self.prices = val[3]

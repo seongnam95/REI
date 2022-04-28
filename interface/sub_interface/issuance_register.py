@@ -3,6 +3,7 @@ import sys
 import base64
 import requests
 import json
+import pandas as pd
 import rei_bot.issuance_registered as ir
 
 from Crypto.PublicKey import RSA
@@ -14,10 +15,11 @@ from PySide6.QtWidgets import QDialog, QApplication, QGraphicsDropShadowEffect, 
 
 from interface.sub_interface import find_address_lite
 from ui.dialog.ui_register import Ui_Register
+from ui.custom.LoadingBox import LoadingBox
 
 
 class IssuanceRegister(QDialog, Ui_Register):
-    def __init__(self, data=None):
+    def __init__(self, address=None, data=None):
         super().__init__()
         self.setupUi(self)
         self.show()
@@ -25,9 +27,9 @@ class IssuanceRegister(QDialog, Ui_Register):
         self._init_ui()
         self._init_interaction()
 
-        self.address, self.info = None, {}
+        self.address, self.select_address, self.info = None, None, {}
         self.existing_pk, self.title_pk, self.expos_pk = None, None, None
-        self.address, self.flag, self.kind, self.ty = None, None, None, None
+        self.flag, self.kind, self.ty = None, None, None
 
         self.s = requests.Session()
         self.headers = {
@@ -41,9 +43,15 @@ class IssuanceRegister(QDialog, Ui_Register):
         self.user = {'user_id': 'mogsin21', 'user_pw': 'happy2588@',
                      'num_1': 'P3372711', 'num_2': '3234', 'num_pw': 'kim2588'}
 
+        if data is not None:
+            self.existing_pk, self.address = data, address
+            self.input_address_edit()
+
     # UI 세팅
     def _init_ui(self):
+        self.loading_box = LoadingBox(self)
         self._init_shadow()
+
         self.btn_search.setIcon(QIcon('../../data/img/button/search_icon.png'))
         self.btn_search.setIconSize(QSize(25, 25))
 
@@ -52,6 +60,10 @@ class IssuanceRegister(QDialog, Ui_Register):
         self.edt_address.mousePressEvent = self.clicked_address_edit
         self.edt_address.returnPressed.connect(self.clicked_address_edit)
         self.btn_search.clicked.connect(self.clicked_address_edit)
+        self.btn_issuance.clicked.connect(self.clicked_save_btn)
+
+        self.cbx_buildings.activated.connect(self.add_room_list)
+        self.cbx_rooms.activated.connect(self.select_room)
 
         # self.cbx_buildings.activated.connect(self.add_room_list)
         # self.cbx_rooms.activated.connect(self.select_room)
@@ -81,8 +93,9 @@ class IssuanceRegister(QDialog, Ui_Register):
 
         if dialog.result is None: return
         if len(dialog.result) != 0:
+            self.existing_pk = None
             self.address = dialog.result
-            print(self.address)
+
             self.input_address_edit()
             self.edt_address.clearFocus()
 
@@ -92,6 +105,7 @@ class IssuanceRegister(QDialog, Ui_Register):
 
         old = "%s %s %s %s" % (address['시도'], address['시군구'], address['읍면동'], address['번'])
         if address['지'] != '0': old = "%s-%s" % (old, address['지'])
+        self.select_address = {'주소': old, '도로명주소': address['도로명주소']}
 
         pk = self.get_address(old, address['도로명주소'])
         if pk:
@@ -106,14 +120,9 @@ class IssuanceRegister(QDialog, Ui_Register):
     def add_building_list(self):
         self.title_pk = self.get_title(self.info['건물']['ID'])
 
-        # 총괄표제부 표시 여부
-        if '-' not in self.info['건물']['ID']: self.rbtn_total.setEnabled(False)
-        else: self.rbtn_total.setEnabled(True)
-
         # 일반 건축물일 경우
         if self.title_pk.empty:
-            self.info['타입'] = '일반'
-
+            self.select_address['타입'] = '일반'
             self.cbx_buildings.clear()
             self.cbx_buildings.addItem('-- 항목없음 --')
             self.cbx_buildings.setEnabled(False)
@@ -122,14 +131,12 @@ class IssuanceRegister(QDialog, Ui_Register):
             self.cbx_rooms.addItem('-- 항목없음 --')
             self.cbx_rooms.setEnabled(False)
 
-            self.rbtn_room.setEnabled(False)
-            self.rbtn_building.setChecked(True)
-
+            self.rbtn_set.setEnabled(False)
             self.btn_issuance.setEnabled(True)
 
         # 집합 건축물일 경우
         else:
-            self.info['타입'] = '집합'
+            self.select_address['타입'] = '집합'
 
             self.cbx_buildings.clear()
             self.cbx_rooms.clear()
@@ -137,8 +144,8 @@ class IssuanceRegister(QDialog, Ui_Register):
 
             self.cbx_buildings.setEnabled(True)
             self.cbx_rooms.setEnabled(True)
-            self.rbtn_room.setEnabled(True)
-            self.rbtn_room.setChecked(True)
+
+            self.rbtn_set.setEnabled(True)
 
             for i in range(len(self.title_pk)):
                 row = self.title_pk.loc[i]
@@ -157,50 +164,74 @@ class IssuanceRegister(QDialog, Ui_Register):
 
             self.cbx_buildings.showPopup()
 
+    # 호 리스트 추가
+    def add_room_list(self):
+        self.info['동'] = self.title_pk.loc[self.cbx_buildings.currentIndex()]
+        self.expos_pk = self.get_expos(self.info['동']['PK'])
+
+        if len(self.title_pk) > 1:
+            self.select_address['동명칭'] = self.info['동']['동명칭']
+
+        self.cbx_rooms.clear()
+        self.cbx_rooms.setEnabled(True)
+
+        for i in range(len(self.expos_pk)):
+            row = self.expos_pk.loc[i]
+            self.cbx_rooms.addItem(f"{row['호명칭']} 호")
+
+        if self.existing_pk:
+            idx = self.expos_pk.index[(self.expos_pk['PK'] == self.existing_pk['호_PK'])]
+            self.cbx_rooms.setCurrentIndex(idx[0])
+            self.select_room()
+            return
+
+        self.cbx_rooms.showPopup()
+
+    # 호 선택
+    def select_room(self):
+        self.info['호'] = self.expos_pk.loc[self.cbx_rooms.currentIndex()]
+        self.select_address['호명칭'] = self.info['호']['호명칭']
+        self.btn_issuance.setEnabled(True)
+
     def clicked_save_btn(self):
         flag = self.cbx_flag.currentIndex()
 
         if self.rbtn_set.isChecked(): kind = 1
         elif self.rbtn_building.isChecked(): kind = 2
         elif self.rbtn_land.isChecked(): kind = 3
-        else: kind = 2
+        else:
+            print('종류 선택')
+            return
 
-        self.loading(True)
+        self.loading_box.show_loading()
+        address = self.select_address['주소']
 
-        self.issuance_thread = IssuanceRegistered(self.api_data, self.user, self.address, flag, kind)
+        if self.select_address['타입'] == '집합':
+            if len(self.title_pk) > 1:
+                dong = self.select_address['동명칭']
+                address = f'{address} {dong}'
+            ho = self.select_address['호명칭']
+            address = f'{address} {ho}'
+
+        self.select_address['검색소재지'] = address
+        print('주소:', address)
+
+        self.issuance_thread = IssuanceRegistered(self.api_data, self.user, address, flag, kind)
         self.issuance_thread.threadEvent.workerThreadDone.connect(self.saved_pdf)
         self.issuance_thread.start()
 
     # 요청 된 바이너리 PDF 파일로 저장
     def saved_pdf(self, data):
-        file_name = self.address.replace(' ', '_')
+        self.loading_box.hide_loading()
+        print('5')
+        file_name = self.select_address['검색소재지'].replace(' ', '_')
         save_path = QFileDialog.getSaveFileName(self, "등기부등본 PDF 저장", f"~/{file_name}.pdf", "PDF 문서 (*.pdf)")
 
-        if save_path:
+        if save_path[0]:
             with open(save_path[0], "wb") as f:
                 f.write(base64.b64decode(data.json()['Message']))
-        self.loading(False)
 
-    def loading(self, whether):
-        if whether:
-            self.rbtn_set.setEnabled(False)
-            self.rbtn_building.setEnabled(False)
-            self.rbtn_land.setEnabled(False)
-            self.cbx_flag.setEnabled(False)
-
-            self.loading_icon.show()
-            self.btn_save.setText('')
-            self.btn_save.setDisabled(True)
-
-        else:
-            self.rbtn_set.setEnabled(True)
-            self.rbtn_building.setEnabled(True)
-            self.rbtn_land.setEnabled(True)
-            self.cbx_flag.setEnabled(True)
-
-            self.loading_icon.hide()
-            self.btn_save.setText('PDF 저장')
-            self.btn_save.setDisabled(False)
+        self.close()
 
     def get_address(self, old, new):
         datas = {"query": {"multi_match": {"query": new,
@@ -235,7 +266,6 @@ class IssuanceRegister(QDialog, Ui_Register):
         result.reset_index(drop=True, inplace=True)
 
         return result
-
 
     def get_expos(self, pk):
         datas = {"sort": [{"hoNm": "asc"}], "query": {"bool": {"filter": [{"term": {"mgmUpperBldrgstPk": pk}}]}},
@@ -316,13 +346,14 @@ class IssuanceRegistered(QThread):
             # 등기 데이터가 정상 조회 되었을 경우
             if result['TransactionKey'] is not None:
 
+                print(3)
                 # PDF 바이너리 요청
                 transaction_key = result['TransactionKey']
 
                 url = self.API_HOST + "api/v1.0/iros/getpdffile"
                 params = {"TransactionKey": transaction_key, "IsSummary": "Y"}
                 response = requests.post(url, headers=self.headers, json=params)
-                print('PDF 바이너리 요청')
+                print(4, 'PDF 바이너리 요청')
                 self.threadEvent.workerThreadDone.emit(response)
 
             else:
@@ -386,6 +417,6 @@ sys._excepthook = sys.excepthook
 sys.excepthook = my_exception_hook
 
 
-app = QApplication()
-window = IssuanceRegister()
-app.exec()
+# app = QApplication()
+# window = IssuanceRegister()
+# app.exec()

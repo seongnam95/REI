@@ -167,7 +167,7 @@ class IssuanceBuildingLedger(QThread):
         time.sleep(1)   # 리스트 로딩 대기
 
         while try_cnt < 10:
-            self.threadEvent.progress.emit('발급 완료, 민원 처리 중..' + str(try_cnt))
+            print('## 민원 신청 완료, 오픈 대기중 ##' + str(try_cnt))
             try_cnt += 1
 
             # 완료 처리 된 문서 열기

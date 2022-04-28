@@ -16,7 +16,7 @@ from ui.custom.LoadingBox import LoadingBox
 
 
 class IssuanceLedger(QDialog, Ui_Ledger):
-    def __init__(self, address=None, data=None, driver=None, login_cookies=None):
+    def __init__(self, driver=None, login_cookies=None, address=None, data=None):
         super().__init__()
         self.setupUi(self)
         self.show()
@@ -41,10 +41,12 @@ class IssuanceLedger(QDialog, Ui_Ledger):
             self.existing_pk = data
             self.address, self.driver, self.login_cookies = address, driver, login_cookies
             self.input_address_edit()
-        else:
+
+        if driver is None:
             self.issuance_thread = ibl.SetChrome('haul1115', 'ks05090818@')
             self.issuance_thread.threadEvent.chromeDriver.connect(self.get_chrome_driver)
             self.issuance_thread.start()
+        else: self.driver, self.login_cookies = driver, login_cookies
 
     # UI 세팅
     def _init_ui(self):
@@ -97,6 +99,7 @@ class IssuanceLedger(QDialog, Ui_Ledger):
 
         if dialog.result is None: return
         if len(dialog.result) != 0:
+            self.existing_pk = None
             self.address = dialog.result
             self.input_address_edit()
             self.edt_address.clearFocus()
@@ -140,6 +143,7 @@ class IssuanceLedger(QDialog, Ui_Ledger):
             self.rbtn_room.setEnabled(False)
             self.rbtn_building.setChecked(True)
 
+            self.rbtn_building.setEnabled(True)
             self.btn_issuance.setEnabled(True)
 
         # 집합 건축물일 경우
@@ -226,7 +230,7 @@ class IssuanceLedger(QDialog, Ui_Ledger):
                                            "operator": "and",
                                            "fields": ["jibunAddr", "roadAddr^3"],
                                            "tie_breaker": 0.3}}, "size": 20}
-
+        print(new)
         res = self.s.post('https://cloud.eais.go.kr/bldrgstmst/_search', headers=self.headers, json=datas)
         json_result = json.loads(res.text)['hits']
 
@@ -279,6 +283,7 @@ class IssuanceLedger(QDialog, Ui_Ledger):
     def issuance_done_event(self):
         self.loading_box.hide_loading()
         self.btn_issuance.setEnabled(True)
+        self.close()
         
     # 다이얼로그 엔터키 막기
     def keyPressEvent(self, event):

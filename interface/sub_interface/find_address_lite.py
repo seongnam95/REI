@@ -27,6 +27,8 @@ class FindAddressLite(QDialog, Ui_FindAddress):
 
     # init UI
     def _init_ui(self):
+        self.msg = BlackBoxMsg.BoxMessage(self)
+
         self.edt_address.setFocus()
         self.btn_search.setIcon(QIcon('../../data/img/button/search_icon.png'))
         self.btn_search.setIconSize(QSize(30, 30))

@@ -11,7 +11,7 @@ class MenuWidget(QListWidget):
         self.setStyleSheet("""QListWidget {
                                 font: 15px "웰컴체 Regular";
                                 color: white;
-                                background-color: rgba(0,0,0,190);
+                                background-color: rgba(60,63,65,250);
                                 border-radius: 5px;
                                 padding: 5px;
                                 outline: none;
