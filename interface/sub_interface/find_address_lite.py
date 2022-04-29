@@ -6,6 +6,7 @@ from PySide6.QtWidgets import QDialog, QLabel, QListWidgetItem, QWidget, QGridLa
 
 import module.open_api_pars as pars
 from ui.dialog.ui_address_lite import Ui_FindAddress
+from ui.custom import BlackBoxMsg
 
 
 class FindAddressLite(QDialog, Ui_FindAddress):

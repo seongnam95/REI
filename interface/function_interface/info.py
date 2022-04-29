@@ -354,7 +354,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
                               '법정동코드': address['주소코드'][5:],
                               '번': address['번'],
                               '지': address['지'],
-                              '동_PK': building['건축물대장PK']}
+                              '동_PK': building['건축물대장PK'].split('-')[1]}
 
         old = "%s %s %s %s" % (address['시도'], address['시군구'], address['읍면동'], address['번'])
         if address['지'] != "0": old = "%s-%s" % (old, address['지'])
@@ -417,7 +417,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             detail = self.exact_detail.loc[self.cbx_rooms.currentIndex()]
             all_detail = self.detail[self.detail['호명칭'] == detail['호명칭']]
             self.pk = detail['건축물대장PK']
-            self.issuance_data['호_PK'] = self.pk
+            self.issuance_data['호_PK'] = self.pk.split('-')[1]
             self.address_old = '%s %s' % (self.address_old, detail['호명칭'].rstrip("호"))
 
             room_area = detail['전용면적']

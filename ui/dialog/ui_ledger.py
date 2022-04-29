@@ -191,17 +191,23 @@ class Ui_Ledger(object):
         self.type_frame = QFrame(Dialog)
         self.type_frame.setObjectName(u"type_frame")
         self.type_frame.setGeometry(QRect(20, 190, 361, 61))
-        self.type_frame.setStyleSheet(u"#type_frame {\n"
-                                      "	background-color: white;\n"
-                                      "	border-radius: 15px;\n"
-                                      "}\n"
-                                      "\n"
-                                      "QRadioButton {\n"
-                                      "	font: 15px \"\uc6f0\ucef4\uccb4 Regular\";\n"
-                                      "	color: rgb(85,85,85);\n"
-                                      "	outline: none;\n"
-                                      "	border: none;\n"
-                                      "}")
+        self.type_frame.setStyleSheet("""
+        #type_frame {
+            background-color: white;
+            border-radius: 15px;
+        }
+        
+        QRadioButton {
+            font: 15px "웰컴체 Regular";
+            color: rgb(85,85,85);
+            outline: none;
+            border: none;
+        }
+        
+        QRadioButton:checked {
+            color: rgb(108,108,255);
+        }
+        """)
 
         self.rbtn_total = QRadioButton(self.type_frame)
         self.rbtn_total.setObjectName(u"rbtn_total")
