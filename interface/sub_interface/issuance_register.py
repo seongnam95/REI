@@ -28,7 +28,7 @@ class IssuanceRegister(QDialog, Ui_Register):
         self._init_interaction()
 
         self.address, self.select_address, self.info = None, None, {}
-        self.existing_pk, self.title_pk, self.expos_pk = None, None, None
+        self.existing, self.titles, self.expos = None, None, None
         self.flag, self.kind, self.ty = None, None, None
 
         self.s = requests.Session()
@@ -44,7 +44,7 @@ class IssuanceRegister(QDialog, Ui_Register):
                      'num_1': 'P3372711', 'num_2': '3234', 'num_pw': 'kim2588'}
 
         if data is not None:
-            self.existing_pk, self.address = data, address
+            self.existing, self.address = data, address
             self.input_address_edit()
 
     # UI 세팅
@@ -93,7 +93,7 @@ class IssuanceRegister(QDialog, Ui_Register):
 
         if dialog.result is None: return
         if len(dialog.result) != 0:
-            self.existing_pk = None
+            self.existing = None
             self.address = dialog.result
 
             self.input_address_edit()
@@ -112,16 +112,19 @@ class IssuanceRegister(QDialog, Ui_Register):
             self.edt_address.setText(old)
             self.info['건물'] = pk
 
-            self.add_building_list()
+            # 총괄, 일반, 표제부 스레드
+            self.get_titles_thread = GetTitle(pk['ID'])
+            self.get_titles_thread.threadEvent.workerThreadDone.connect(self.add_building_list)
+            self.get_titles_thread.start()
 
         else: print('검색 결과 없음')
 
     # 동 리스트 추가
-    def add_building_list(self):
-        self.title_pk = self.get_title(self.info['건물']['ID'])
+    def add_building_list(self, titles):
+        self.titles = titles    # self.get_title(self.info['건물']['ID'])
 
         # 일반 건축물일 경우
-        if self.title_pk.empty:
+        if self.titles.empty:
             self.select_address['타입'] = '일반'
             self.cbx_buildings.clear()
             self.cbx_buildings.addItem('-- 항목없음 --')
@@ -147,40 +150,49 @@ class IssuanceRegister(QDialog, Ui_Register):
 
             self.rbtn_set.setEnabled(True)
 
-            for i in range(len(self.title_pk)):
-                row = self.title_pk.loc[i]
+            for i in range(len(self.titles)):
+                row = self.titles.loc[i]
                 item = '%s (%s)' % (row['동명칭'], self.address['건물명칭']) if self.address['건물명칭'] else row['동명칭']
                 self.cbx_buildings.addItem(item)
 
-            if len(self.title_pk) == 1:
+            if len(self.titles) == 1:
                 self.add_room_list()
                 return
 
-            if self.existing_pk:
-                idx = self.title_pk.index[(self.title_pk['PK'] == self.existing_pk['동_PK'])]
+            if self.existing:
+                idx = self.titles.index[(self.titles['PK'] == self.existing['동_PK'])]
                 self.cbx_buildings.setCurrentIndex(idx[0])
                 self.add_room_list()
                 return
 
             self.cbx_buildings.showPopup()
 
-    # 호 리스트 추가
-    def add_room_list(self):
-        self.info['동'] = self.title_pk.loc[self.cbx_buildings.currentIndex()]
-        self.expos_pk = self.get_expos(self.info['동']['PK'])
+    # 동 클릭
+    def selected_room(self):
+        self.info['동'] = self.titles.loc[self.cbx_buildings.currentIndex()]
 
-        if len(self.title_pk) > 1:
+        self.get_room_thread = GetTitle(self.info['동']['PK'])
+        self.get_room_thread.threadEvent.workerThreadDone.connect(self.add_room_list)
+        self.get_room_thread.start()
+
+    # 호 리스트 추가
+    def add_room_list(self, pk):
+        # self.info['동'] = self.title_pk.loc[self.cbx_buildings.currentIndex()]
+        # self.expos_pk = self.get_expos(self.info['동']['PK'])
+        self.expos = pk
+
+        if len(self.titles) > 1:
             self.select_address['동명칭'] = self.info['동']['동명칭']
 
         self.cbx_rooms.clear()
         self.cbx_rooms.setEnabled(True)
 
-        for i in range(len(self.expos_pk)):
-            row = self.expos_pk.loc[i]
+        for i in range(len(self.expos)):
+            row = self.expos.loc[i]
             self.cbx_rooms.addItem(f"{row['호명칭']} 호")
 
-        if self.existing_pk:
-            idx = self.expos_pk.index[(self.expos_pk['PK'] == self.existing_pk['호_PK'])]
+        if self.existing:
+            idx = self.expos.index[(self.expos['PK'] == self.existing['호_PK'])]
             self.cbx_rooms.setCurrentIndex(idx[0])
             self.select_room()
             return
@@ -189,7 +201,7 @@ class IssuanceRegister(QDialog, Ui_Register):
 
     # 호 선택
     def select_room(self):
-        self.info['호'] = self.expos_pk.loc[self.cbx_rooms.currentIndex()]
+        self.info['호'] = self.expos.loc[self.cbx_rooms.currentIndex()]
         self.select_address['호명칭'] = self.info['호']['호명칭']
         self.btn_issuance.setEnabled(True)
 
@@ -207,7 +219,7 @@ class IssuanceRegister(QDialog, Ui_Register):
         address = self.select_address['주소']
 
         if self.select_address['타입'] == '집합':
-            if len(self.title_pk) > 1:
+            if len(self.titles) > 1:
                 dong = self.select_address['동명칭']
                 address = f'{address} {dong}'
             ho = self.select_address['호명칭']
@@ -363,6 +375,35 @@ class IssuanceRegistered(QThread):
             self.threadEvent.workingMsg.emit(result['Message'])
             return
 
+
+class GetTitle(QThread):
+    def __init__(self, pk):
+        super(GetTitle, self).__init__()
+        self.threadEvent = ThreadSignal()
+
+        self.pk = pk
+        self.s = requests.Session()
+        self.headers = {
+            "Referer": "https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02L01",
+            "Content-Type": "application/json;charset=UTF-8",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36"
+        }
+
+    def run(self):
+        datas = {"sort": [{"dongNm": "asc"}], "query": {"bool": {"filter": [{"term": {"mgmUpperBldrgstPk": self.pk}}]}},
+                 "size": 100}
+        res = self.s.post('https://cloud.eais.go.kr/bldrgsttitle/_search', headers=self.headers, json=datas)
+        json_result = json.loads(res.text)['hits']
+
+        result = pd.DataFrame(columns=['동명칭', 'ID', 'PK'])
+
+        for n, i in enumerate(json_result['hits']):
+            result.loc[n] = {'동명칭': i['_source']['dongNm'], 'ID': i['_source']['mgmUpperBldrgstPk'], 'PK': i['_id']}
+
+        result = result.sort_values(by=['동명칭'], axis=0)
+        result.reset_index(drop=True, inplace=True)
+
+        return result
 
 # AES 암호화 함수
 def aesEncrypt(key, iv, plainText):

@@ -4,7 +4,7 @@ import requests
 import pandas as pd
 import time
 
-from PySide6.QtCore import Qt, QSize
+from PySide6.QtCore import Qt, QSize, QObject, Signal, QThread
 from PySide6.QtGui import QColor, QIcon
 from PySide6.QtWidgets import QDialog, QApplication, QGraphicsDropShadowEffect, QMessageBox
 
@@ -69,7 +69,7 @@ class IssuanceLedger(QDialog, Ui_Ledger):
         self.edt_address.returnPressed.connect(self.clicked_address_edit)
         self.btn_search.clicked.connect(self.clicked_address_edit)
 
-        self.cbx_buildings.activated.connect(self.add_room_list)
+        self.cbx_buildings.activated.connect(self.select_building)
         self.cbx_rooms.activated.connect(self.select_room)
 
         self.btn_issuance.clicked.connect(self.clicked_issuance_btn)
@@ -115,11 +115,14 @@ class IssuanceLedger(QDialog, Ui_Ledger):
             self.edt_address.setText(old)
 
             self.edt_address.clearFocus()
-            self.add_building_list()
+            # self.add_building_list()
+
+            self.get_title_thread = GetTitlesThread(self.address)
+            self.get_title_thread.start()
+            self.get_title_thread.threadEvent.doneEvent.connect(self.add_building_list)
 
     # 주소 정보 입력
-    def add_building_list(self):
-        titles = self.get_title()
+    def add_building_list(self, titles):
         if not titles: return
 
         self.cbx_buildings.clear()
@@ -219,14 +222,8 @@ class IssuanceLedger(QDialog, Ui_Ledger):
                 self.cbx_buildings.showPopup()
 
     # 호 리스트 추가
-    def add_room_list(self):
-        if self.bld_nml:
-            self.target_bld = dict(self.bld_nml[self.cbx_buildings.currentIndex()])
-            self.success = True
-            return
-
-        self.target_bld = dict(self.bld_set[self.cbx_buildings.currentIndex()])
-        self.expos = self.get_expos(self.target_bld['bldrgstSeqno'])
+    def add_room_list(self, expos):
+        self.expos = expos
         self.cbx_rooms.clear()
 
         for i in self.expos:
@@ -242,6 +239,19 @@ class IssuanceLedger(QDialog, Ui_Ledger):
             return
 
         self.cbx_rooms.showPopup()
+
+    # 동 선택
+    def select_building(self):
+        if self.bld_nml:
+            self.target_bld = dict(self.bld_nml[self.cbx_buildings.currentIndex()])
+            self.success = True
+            return
+
+        self.target_bld = dict(self.bld_set[self.cbx_buildings.currentIndex()])
+
+        self.get_expos_thread = GetExposThread(self.address, self.target_bld['bldrgstSeqno'])
+        self.get_expos_thread.start()
+        self.get_expos_thread.threadEvent.doneEvent.connect(self.add_room_list)
 
     # 호 선택
     def select_room(self):
@@ -306,6 +316,56 @@ class IssuanceLedger(QDialog, Ui_Ledger):
         else: super(IssuanceLedger, self).keyPressEvent(event)
 
 
+class ThreadSignal(QObject):
+    doneSignal = Signal(object)
+
+
+class GetTitlesThread(QThread):
+    def __init__(self, address):
+        super().__init__()
+        self.threadEvent = ThreadSignal()
+
+        self.s = requests.Session()
+        self.headers = {
+            "Referer": "https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02L01",
+            "Content-Type": "application/json;charset=UTF-8",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36"
+        }
+
+        sigungu = address['주소코드'][:5]
+        self.datas = {"addrGbCd": "1", "bldrgstCurdiGbCd": "0", "reqSigunguCd": sigungu, "roadNmCd": address['도로명코드'],
+                      "bldMnnm": address['건물본번'], "bldSlno": address['건물부번']}
+
+    def run(self):
+        # 표제부, 일반건축물 조회
+        response_title = self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02R01', headers=self.headers, json=self.datas)
+        json_data = json.loads(response_title.text)
+        result = json_data['jibunAddr']
+
+        self.threadEvent.doneSignal.emit(result)
+
+
+class GetExposThread(QThread):
+    def __init__(self, address, pk):
+        super().__init__()
+        self.threadEvent = ThreadSignal()
+
+        self.s = requests.Session()
+        self.headers = {
+            "Referer": "https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02L01",
+            "Content-Type": "application/json;charset=UTF-8",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36"
+        }
+
+        sigungu = address['주소코드'][:5]
+        self.datas = {"inqireGbCd": "0", "reqSigunguCd": sigungu, "bldrgstCurdiGbCd": "0", "upperBldrgstSeqno": pk}
+
+    def run(self):
+        response_title = self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02R04', headers=self.headers, json=self.datas)
+        result = json.loads(response_title.text)['findExposList']
+
+        self.threadEvent.doneSignal.emit(result)
+
 # 예외 오류 처리
 def my_exception_hook(exctype, value, traceback):
     sys.excepthook(exctype, value, traceback)
@@ -315,6 +375,6 @@ sys._excepthook = sys.excepthook
 sys.excepthook = my_exception_hook
 
 
-# app = QApplication()
-# window = IssuanceLedger()
-# app.exec()
+app = QApplication()
+window = IssuanceLedger()
+app.exec()

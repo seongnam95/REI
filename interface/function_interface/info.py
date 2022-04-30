@@ -6,7 +6,7 @@ import module.open_api_pars as pars
 import rei_bot.issuance_register_of_building as ibl
 
 from PySide6.QtCore import QObject, Signal, QEvent, QSize
-from PySide6.QtGui import QIcon, QColor
+from PySide6.QtGui import QIcon, QColor, QFont, QFontDatabase
 from PySide6.QtWidgets import QMainWindow, QApplication, QGraphicsDropShadowEffect, QFrame
 
 from module.open_api_pars import OpenApiRequest
@@ -278,7 +278,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
             if self.issuance_data:
                 dialog = issuance_register.IssuanceRegister(self.address, self.issuance_data)
-            else: dialog = issuance_ledger.IssuanceLedger()
+            else: dialog = issuance_register.IssuanceRegister()
             dialog.exec()
 
             self.block_frame.hide()
@@ -589,5 +589,8 @@ sys._excepthook = sys.excepthook
 sys.excepthook = my_exception_hook
 
 app = QApplication()
+fontDB = QFontDatabase()
+fontDB.addApplicationFont('./웰컴체 Regular.ttf')
+app.setFont(QFont('웰컴체 Regular'))
 window = BuildingInfo()
 app.exec()
