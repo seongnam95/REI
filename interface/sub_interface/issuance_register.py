@@ -49,7 +49,7 @@ class IssuanceRegister(QDialog, Ui_Register):
 
     # UI 세팅
     def _init_ui(self):
-        self.loading_box = LoadingBox(self)
+        self.loading = LoadingBox(self)
         self._init_shadow()
 
         self.btn_search.setIcon(QIcon('../../data/img/button/search_icon.png'))
@@ -64,9 +64,6 @@ class IssuanceRegister(QDialog, Ui_Register):
 
         self.cbx_buildings.activated.connect(self.add_room_list)
         self.cbx_rooms.activated.connect(self.select_room)
-
-        # self.cbx_buildings.activated.connect(self.add_room_list)
-        # self.cbx_rooms.activated.connect(self.select_room)
 
     # UI 그림자 설정
     def _init_shadow(self):
@@ -96,6 +93,7 @@ class IssuanceRegister(QDialog, Ui_Register):
             self.existing = None
             self.address = dialog.result
 
+
             self.input_address_edit()
             self.edt_address.clearFocus()
 
@@ -106,7 +104,6 @@ class IssuanceRegister(QDialog, Ui_Register):
         old = "%s %s %s %s" % (address['시도'], address['시군구'], address['읍면동'], address['번'])
         if address['지'] != '0': old = "%s-%s" % (old, address['지'])
         self.select_address = {'주소': old, '도로명주소': address['도로명주소']}
-
         pk = self.get_address(old, address['도로명주소'])
         if pk:
             self.edt_address.setText(old)
@@ -215,7 +212,7 @@ class IssuanceRegister(QDialog, Ui_Register):
             print('종류 선택')
             return
 
-        self.loading_box.show_loading()
+        self.loading.show_loading()
         address = self.select_address['주소']
 
         if self.select_address['타입'] == '집합':
@@ -228,13 +225,13 @@ class IssuanceRegister(QDialog, Ui_Register):
         self.select_address['검색소재지'] = address
         print('주소:', address)
 
-        self.issuance_thread = IssuanceRegistered(self.api_data, self.user, address, flag, kind)
+        self.issuance_thread = IssuanceRegistered(self.api_data, self.user, self.edt_address.text(), flag, kind)
         self.issuance_thread.threadEvent.workerThreadDone.connect(self.saved_pdf)
         self.issuance_thread.start()
 
     # 요청 된 바이너리 PDF 파일로 저장
     def saved_pdf(self, data):
-        self.loading_box.hide_loading()
+        self.loading.hide_loading()
         print('5')
         file_name = self.select_address['검색소재지'].replace(' ', '_')
         save_path = QFileDialog.getSaveFileName(self, "등기부등본 PDF 저장", f"~/{file_name}.pdf", "PDF 문서 (*.pdf)")
@@ -318,7 +315,6 @@ class IssuanceRegistered(QThread):
 
     def run(self):
         aesKey = os.urandom(16)
-        aesIv = ('\x00' * 16).encode('utf-8')
 
         rsaPublicKey = getPublicKey(self.API_HOST, self.API_KEY)
         aesCipherKey = base64.b64encode(rsaEncrypt(rsaPublicKey, aesKey))
@@ -341,6 +337,7 @@ class IssuanceRegistered(QThread):
 
         # 등기 고유번호 조회가 됐을 경우
         if result['Message'] == '성공':
+            aesIv = ('\x00' * 16).encode('utf-8')
             unique_no = result['ResultList'][0]['UniqueNo']
 
             # 등기부등본 데이터 요청
@@ -405,6 +402,7 @@ class GetTitle(QThread):
 
         return result
 
+
 # AES 암호화 함수
 def aesEncrypt(key, iv, plainText):
     def pad(text):
@@ -448,6 +446,7 @@ def getPublicKey(apiHost, apiKey):
     headers = {'Content-Type': 'application/json'}
     response = requests.get(apiHost + "/api/Auth/GetPublicKey?APIkey=" + apiKey, headers=headers)
     return response.json()['PublicKey']
+
 
 # 예외 오류 처리
 def my_exception_hook(exctype, value, traceback):

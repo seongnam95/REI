@@ -78,22 +78,12 @@ class AddressDetails(QDialog, Ui_FindAddress):
             shadow.setColor(QColor(0, 0, 0, 35))
             c.setGraphicsEffect(shadow)
 
-    def eventFilter(self, obj, event):
-        objs = {self.btn_input: 'button',
-                self.list_address: 'edit',
-                self.edt_address: 'edit',
-                self.edt_result_address: 'edit'}
-        if obj not in objs.keys(): return
-
-        if event.type() == QEvent.HoverEnter:
-            if obj.isEnabled():
-                obj.setGraphicsEffect(self.set_shadow(objs[obj]))
-
-        elif event.type() == QEvent.HoverLeave:
-            if obj.isEnabled():
-                obj.setGraphicsEffect(self.set_shadow('reset'))
-
-        return super(AddressDetails, self).eventFilter(obj, event)
+        shadow = QGraphicsDropShadowEffect(self)
+        shadow.setBlurRadius(15)
+        shadow.setXOffset(3)
+        shadow.setYOffset(3)
+        shadow.setColor(QColor(0, 0, 0, 80))
+        self.btn_input.setGraphicsEffect(shadow)
 
     ########################################################################################################
 
@@ -105,8 +95,6 @@ class AddressDetails(QDialog, Ui_FindAddress):
         # 주소 양끝 공백제거 후 파싱
         txt = self.edt_address.text().strip()
         self.address = pars.OpenApiRequest.get_address(self.ADDRESS_API_KEY, txt)
-
-        # 주소 불러온 다음
 
         if self.address is None or self.address.empty:
             self.msg.show_msg(2000, 'center', "검색 결과가 없습니다")
@@ -253,6 +241,9 @@ class AddressDetails(QDialog, Ui_FindAddress):
                       '건물부번': result['건물부번'],
                       '지하여부': result['지하여부'],
                       '동명칭': ''}
+
+        d = pars.OpenApiRequest.get_address_detail(self.ADDRESS_API_KEY, self.binfo)
+        print(d)
 
         self.loading.show_loading()
         self.clear_cbx(True)

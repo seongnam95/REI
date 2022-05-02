@@ -76,38 +76,10 @@ class IssuanceBuildingLedger(QThread):
     # 문서 발급, 열람
     def run(self):
         try:
-            self.threadEvent.progress.emit('건축물대장 발급 요청중..')
-            result, ho = self.target_data, None
-
+            print('## 민원 요청 시작 ##')
+            result, ho = self.target_data, ''
             headers = self.headers
-            headers['Referer'] = "https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02L01"
 
-            # # 총괄 표제부
-            # if self.kind == 0:
-            #     datas = {"addrGbCd": 2, "bldrgstCurdiGbCd": "0", "sigunguCd": self.sigungu, "bldrgstSeqno": self.seqno}
-            #     response_title = self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02R01', headers=headers, json=datas)
-            #     time.sleep(0.5)
-            #     json_data = json.loads(response_title.text)
-            #     if json_data['jibunAddr'] is not None:
-            #         result = json_data['jibunAddr'][0]
-            #     else:
-            #         print(json_data)
-            #
-            # # 표제부, 일반 건축물
-            # elif self.kind == 1:
-            #     datas = {"addrGbCd": 2, "bldrgstCurdiGbCd": "0", "sigunguCd": self.sigungu, "bldrgstSeqno": self.seqno}
-            #     response_title = self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02R01', headers=headers, json=datas)
-            #     time.sleep(0.5)
-            #     result = json.loads(response_title.text)['jibunAddr'][0]
-            #
-            # # 전유부
-            # elif self.kind == 2:
-            #     datas = {"inqireGbCd": "1", "bldrgstCurdiGbCd": "0", "reqSigunguCd": self.sigungu, "bldrgstSeqno": self.seqno}
-            #     response_title = self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02R04', headers=headers, json=datas)
-            #     time.sleep(0.5)
-            #     result = json.loads(response_title.text)['findExposList'][0]
-
-            #
             bun, ji = result['mnnm'].lstrip('0'), result['slno'].lstrip('0')
             if ji: ji = f'-{ji}'
 
@@ -117,38 +89,34 @@ class IssuanceBuildingLedger(QThread):
                 self.address = f'{result["sigunguNm"]} {result["bjdongNm"]} {bun}{ji} {dong_nm}{ho}'
             else: self.address = f'{result["sigunguNm"]} {result["bjdongNm"]} {bun}{ji}'
 
-            datas = {"bldrgstSeqno": result["bldrgstSeqno"],
-                      "regstrGbCd": result["regstrGbCd"],
-                      "regstrKindCd": result["regstrKindCd"],
-                      "mjrfmlyIssueYn": "N",
-                      "locSigunguCd": result["sigunguCd"],
-                      "locBjdongCd": result["bjdongCd"],
-                      "locPlatGbCd": result["platGbCd"],
-                      "locDetlAddr": self.address,
-                      "locBldNm": result["bldNm"],
-                      "bldrgstCurdiGbCd": "0"}
-
             # 1. 민원 담기 (담아야 2번 요청 시 응답 값 나옴)
+            datas = {"bldrgstSeqno": result["bldrgstSeqno"],
+                     "regstrGbCd": result["regstrGbCd"],
+                     "regstrKindCd": result["regstrKindCd"],
+                     "mjrfmlyIssueYn": "N",
+                     "locSigunguCd": result["sigunguCd"],
+                     "locBjdongCd": result["bjdongCd"],
+                     "locPlatGbCd": result["platGbCd"],
+                     "locDetlAddr": self.address,
+                     "locBldNm": result["bldNm"],
+                     "bldrgstCurdiGbCd": "0"}
+            headers['Referer'] = "https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02L01"
             self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02C01', headers=headers, json=datas)
 
             # 2. 담은 민원 처리 (응답 값 필요)
+            print('## 민원 처리중 ##')
             response_put_in = self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02R05', headers=headers)
-            time.sleep(0.5)
             result = json.loads(response_put_in.text)
-            print('## 담은 민원 처리중 ##')
 
+            # 3. 발급 신청, 담은 민원 제거
+            print('## 발급 신청 완료 ##')
             headers['Referer'] = "https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02F01"
             datas = {"pbsvcResveDtls": result['findPbsvcResveDtls'],    # issueReadGbCd (0: 발급, 1: 열람)
                      "pbsvcRecpInfo": {"pbsvcGbCd": "01", "issueReadGbCd": "0", "pbsvcResveDtlsCnt": 1},
                      "appntInfo": {"appntGbCd": "01", "naAppntGrndUgrndGbCd": "0"}}
-
-            # 3. 발급 신청, 담은 민원 제거
             self.s.post('https://cloud.eais.go.kr/bci/BCIAZA02S01', headers=headers, json=datas)
-            time.sleep(0.5)
             self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02D02', headers=headers,
-                            json={'lastUpdusrId': result['findPbsvcResveDtls'][0]['lastUpdusrId']})
-            time.sleep(0.5)
-            print('## 발급 신청, 담은 민원 제거 ##')
+                        json={'lastUpdusrId': result['findPbsvcResveDtls'][0]['lastUpdusrId']})
 
             self.open_document()
 
@@ -158,52 +126,51 @@ class IssuanceBuildingLedger(QThread):
 
     # 문서 열기
     def open_document(self):
-        # try:
-        try_cnt = 0
-        success = False
+        try:
+            try_cnt = 0
+            success = False
 
-        self.driver.get('https://cloud.eais.go.kr/moct/bci/aaa04/BCIAAA04L01')
-        self.driver.implicitly_wait(5)
-        time.sleep(1)   # 리스트 로딩 대기
+            self.driver.get('https://cloud.eais.go.kr/moct/bci/aaa04/BCIAAA04L01')
+            self.driver.implicitly_wait(5)
+            time.sleep(1)   # 리스트 로딩 대기
 
-        while try_cnt < 10:
-            print('## 민원 신청 완료, 오픈 대기중 ##' + str(try_cnt))
-            try_cnt += 1
+            while try_cnt < 10:
+                print(f'## 민원 신청 완료, 오픈 대기중 (시도 횟수 : {str(try_cnt)}) ##')
+                try_cnt += 1
 
-            # 완료 처리 된 문서 열기
-            list_form = self.driver.find_element(By.XPATH, '//*[@id="container"]/div[2]/div/div[4]/table/tbody')
-            document_list = list_form.find_elements(By.TAG_NAME, 'tr')  # 문서 리스트
-            for i in document_list:    # 문서 리스트 Row 수만큼 반복
-                content = i.get_attribute("innerText")
-                if self.address in content:  # 주소가 맞을 경우
-                    if '발급' in content:   # '발급'인 항목 클릭
-                        i.find_element(By.XPATH, 'td[5]/a').click()
-                        success = True
-                        break
-            if success: break
+                # 완료 처리 된 문서 열기
+                list_form = self.driver.find_element(By.XPATH, '//*[@id="container"]/div[2]/div/div[4]/table/tbody')
+                document_list = list_form.find_elements(By.TAG_NAME, 'tr')  # 문서 리스트
+                for i in document_list:    # 문서 리스트 Row 수만큼 반복
+                    content = i.get_attribute("innerText")
+                    if self.address in content:  # 주소가 맞을 경우
+                        if '발급' in content:   # '발급'인 항목 클릭
+                            i.find_element(By.XPATH, 'td[5]/a').click()
+                            success = True
+                            break
+                if success: break
 
-            self.driver.save_screenshot('err.png')
-            time.sleep(2)
+                self.driver.save_screenshot('err.png')
+                time.sleep(2)
 
-        if success:
-            self.threadEvent.progress.emit('처리 완료, 오픈 대기중..')
-            time.sleep(0.5)
-            self.driver.switch_to.window(self.driver.window_handles[1])
-            new_url = self.driver.current_url
+            if success:
+                self.threadEvent.progress.emit('처리 완료, 오픈 대기중..')
+                time.sleep(0.5)
+                self.driver.switch_to.window(self.driver.window_handles[1])
+                new_url = self.driver.current_url
 
-            # self.issuance_thread = rt.RegisterScraping(self.driver, self.cookies, self.address, new_url)
-            # self.issuance_thread.start()
+                # self.issuance_thread = rt.RegisterScraping(self.driver, self.cookies, self.address, new_url)
+                # self.issuance_thread.start()
 
-            self.driver.close()
-            self.driver.switch_to.window(self.driver.window_handles[0])
+                self.driver.close()
+                self.driver.switch_to.window(self.driver.window_handles[0])
 
-            webbrowser.open_new(new_url)
-            self.threadEvent.progress.emit('건축물 대장 오픈')
-            self.threadEvent.progress.emit('END')
-            self.threadEvent.workerThreadDone.emit(True)
+                webbrowser.open_new(new_url)
+                self.threadEvent.progress.emit('건축물 대장 오픈')
+                self.threadEvent.progress.emit('END')
+                self.threadEvent.workerThreadDone.emit(True)
 
-        else:
-            self.threadEvent.workerThreadDone.emit(False)
-        # except:
-        #     self.threadEvent.workerThreadDone.emit(False)
+            else: self.threadEvent.workerThreadDone.emit(False)
+
+        except: self.threadEvent.workerThreadDone.emit(False)
 

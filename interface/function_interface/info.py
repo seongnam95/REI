@@ -1,16 +1,18 @@
 import sys
+import webbrowser
 
 import clipboard as clip
 import pandas as pd
 import module.open_api_pars as pars
 import rei_bot.issuance_register_of_building as ibl
 
+from urllib.parse import urlencode
 from PySide6.QtCore import QObject, Signal, QEvent, QSize
 from PySide6.QtGui import QIcon, QColor, QFont, QFontDatabase
 from PySide6.QtWidgets import QMainWindow, QApplication, QGraphicsDropShadowEffect, QFrame
 
 from module.open_api_pars import OpenApiRequest
-from interface.sub_interface import issuance_ledger, issuance_register, find_address_details
+from interface.sub_interface import issuance_ledger, issuance_register, find_address_details, find_address_lite
 from ui.custom import BlackBoxMsg, MenuWidget, LoadingBox
 from ui.main.ui_info import Ui_BuildingInfo
 
@@ -258,7 +260,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         # if not self.activation: return
         item_row = self.issuance_menu.currentRow()
         self.issuance_menu.hide_menu()
-        print(self.issuance_data)
+
         # 건축물대장
         if item_row == 0:
             self.block_frame.setGeometry(0, 0, self.width(), self.height())
@@ -285,9 +287,22 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
         # 토지이용계획
         elif item_row == 2:
-            dialog = issuance_ledger.IssuanceLedger()
+            address = self.edt_address.text()
+            dialog = find_address_lite.FindAddressLite(address)
             dialog.exec()
-            return
+
+            if dialog.result is None: return
+            if len(dialog.result) != 0:
+                address = dialog.result
+                code = address['주소코드']
+                bun, ji = address['번'].zfill(4), address['지'].zfill(4)
+                pnu = f'{code}1{bun}{ji}'
+
+                url = 'http://www.eum.go.kr/web/ar/lu/luLandDetPrintPop.jsp?'
+                params = urlencode({'isNoScr': 'script',
+                                    'mode': 'search',
+                                    'pnu': pnu})
+                webbrowser.open_new(url + params)
 
     # 진행 메세지
     def issuance_progress_event(self, msg):

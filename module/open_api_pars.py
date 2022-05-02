@@ -67,6 +67,7 @@ class OpenApiRequest:
         params = {'confmKey': key, 'admCd': binfo['주소코드'], 'rnMgtSn': binfo['도로명코드'], 'udrtYn': binfo['지하여부'],
                   'buldMnnm': binfo['건물본번'], 'buldSlno': binfo['건물부번'],
                   'searchType': 'floorho', 'dongNm': dong, 'resultType': 'xml'}
+        print(params)
         column = {'동명칭': 'dongNm', '층번호': 'floorNm', '호명칭': 'hoNm'}
         result = cls.request_data(url, params, column, 'juso')
         return result
