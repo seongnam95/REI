@@ -5,6 +5,7 @@ import requests
 import json
 import pandas as pd
 import rei_bot.issuance_registered as ir
+import module.open_api_pars as pars
 
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5, AES
@@ -22,14 +23,14 @@ class IssuanceRegister(QDialog, Ui_Register):
     def __init__(self, address=None, data=None):
         super().__init__()
         self.setupUi(self)
-        self.show()
 
         self._init_ui()
         self._init_interaction()
 
         self.address, self.select_address, self.info = None, None, {}
-        self.existing, self.titles, self.expos = None, None, None
+        self.existing, self.building, self.expos = None, None, None
         self.flag, self.kind, self.ty = None, None, None
+        self.DETAIL_ADDRESS_API_KEY = 'U01TX0FVVEgyMDIxMTIyMzEzMTE1NzExMjA2MTU='
 
         self.s = requests.Session()
         self.headers = {
@@ -54,33 +55,28 @@ class IssuanceRegister(QDialog, Ui_Register):
 
         self.btn_search.setIcon(QIcon('../../data/img/button/search_icon.png'))
         self.btn_search.setIconSize(QSize(25, 25))
+        self.list_frame.hide()
+
+        self.show()
 
     # 시그널 세팅
     def _init_interaction(self):
         self.edt_address.mousePressEvent = self.clicked_address_edit
         self.edt_address.returnPressed.connect(self.clicked_address_edit)
         self.btn_search.clicked.connect(self.clicked_address_edit)
-        self.btn_issuance.clicked.connect(self.clicked_save_btn)
 
         self.cbx_buildings.activated.connect(self.add_room_list)
         self.cbx_rooms.activated.connect(self.select_room)
 
     # UI 그림자 설정
     def _init_shadow(self):
-        for child in [self.address_frame, self.type_frame]:
+        for child in [self.address_frame, self.type_frame, self.list_frame]:
             shadow = QGraphicsDropShadowEffect(self)
             shadow.setBlurRadius(15)
             shadow.setXOffset(1)
             shadow.setYOffset(1)
             shadow.setColor(QColor(0, 0, 0, 35))
             child.setGraphicsEffect(shadow)
-
-        shadow = QGraphicsDropShadowEffect(self)
-        shadow.setBlurRadius(40)
-        shadow.setXOffset(3)
-        shadow.setYOffset(3)
-        shadow.setColor(QColor(0, 0, 0, 60))
-        self.btn_issuance.setGraphicsEffect(shadow)
 
     # 주소 검색
     def clicked_address_edit(self, e=None):
@@ -90,9 +86,19 @@ class IssuanceRegister(QDialog, Ui_Register):
 
         if dialog.result is None: return
         if len(dialog.result) != 0:
+
+            self.setFixedHeight(381)
+            self.setMinimumHeight(381)
+            self.setMaximumHeight(381)
+            self.list_frame.hide()
+            self.btn_issuance.show()
+
             self.existing = None
             self.address = dialog.result
 
+            if self.address['동'] != '':
+                self.address['동'] = sorted([i.strip() for i in self.address['동'].split(',')])
+            else: self.address['동'] = None
 
             self.input_address_edit()
             self.edt_address.clearFocus()
@@ -100,29 +106,22 @@ class IssuanceRegister(QDialog, Ui_Register):
     # 주소 정보 입력
     def input_address_edit(self):
         address = self.address
+        print(self.address)
 
         old = "%s %s %s %s" % (address['시도'], address['시군구'], address['읍면동'], address['번'])
         if address['지'] != '0': old = "%s-%s" % (old, address['지'])
         self.select_address = {'주소': old, '도로명주소': address['도로명주소']}
-        pk = self.get_address(old, address['도로명주소'])
-        if pk:
-            self.edt_address.setText(old)
-            self.info['건물'] = pk
+        self.edt_address.setText(old)
 
-            # 총괄, 일반, 표제부 스레드
-            self.get_titles_thread = GetTitle(pk['ID'])
-            self.get_titles_thread.threadEvent.workerThreadDone.connect(self.add_building_list)
-            self.get_titles_thread.start()
-
-        else: print('검색 결과 없음')
+        self.add_building_list()
+        # result = pars.OpenApiRequest.get_address_detail(self.DETAIL_ADDRESS_API_KEY, address)
+        # print(result)
 
     # 동 리스트 추가
-    def add_building_list(self, titles):
-        self.titles = titles    # self.get_title(self.info['건물']['ID'])
+    def add_building_list(self):
 
         # 일반 건축물일 경우
-        if self.titles.empty:
-            self.select_address['타입'] = '일반'
+        if self.address['공동주택여부'] == '0':
             self.cbx_buildings.clear()
             self.cbx_buildings.addItem('-- 항목없음 --')
             self.cbx_buildings.setEnabled(False)
@@ -132,12 +131,11 @@ class IssuanceRegister(QDialog, Ui_Register):
             self.cbx_rooms.setEnabled(False)
 
             self.rbtn_set.setEnabled(False)
-            self.btn_issuance.setEnabled(True)
+            self.rbtn_building.setEnabled(True)
+            self.rbtn_building.setChecked(True)
 
         # 집합 건축물일 경우
         else:
-            self.select_address['타입'] = '집합'
-
             self.cbx_buildings.clear()
             self.cbx_rooms.clear()
             self.cbx_rooms.addItem('( 상세주소 / 호)')
@@ -146,61 +144,69 @@ class IssuanceRegister(QDialog, Ui_Register):
             self.cbx_rooms.setEnabled(True)
 
             self.rbtn_set.setEnabled(True)
+            self.rbtn_building.setEnabled(False)
+            self.rbtn_set.setChecked(True)
 
-            for i in range(len(self.titles)):
-                row = self.titles.loc[i]
-                item = '%s (%s)' % (row['동명칭'], self.address['건물명칭']) if self.address['건물명칭'] else row['동명칭']
-                self.cbx_buildings.addItem(item)
+            result = pars.OpenApiRequest.get_address_detail(self.DETAIL_ADDRESS_API_KEY, self.address, '동')
 
-            if len(self.titles) == 1:
+            dong = list(result['동명칭'])
+            dong = None if dong[0] == '' else dong
+            self.building = dong
+
+            # 동이 여러개일 경우
+            if dong:
+                for i in dong:
+                    if self.address['건물명칭'] != '': item = '%s (%s)' % (i, self.address['건물명칭'])
+                    else: item = i
+                    self.cbx_buildings.addItem(item)
+
+                if len(self.address['동']) == 1:
+                    self.cbx_buildings.setCurrentIndex(0)
+                    self.add_room_list()
+                    self.cbx_buildings.setEnabled(False)
+                    return
+
+                self.cbx_buildings.setEnabled(True)
+                self.cbx_buildings.showPopup()
+
+            # 동이 없을 경우
+            else:
+                if self.address['건물명칭'] != '': self.cbx_buildings.addItem(self.address['건물명칭'])
+                else: self.cbx_buildings.addItem('건물 명칭 없음')
+                self.cbx_buildings.setCurrentIndex(0)
+
+                self.cbx_buildings.setEnabled(False)
                 self.add_room_list()
-                return
 
-            if self.existing:
-                idx = self.titles.index[(self.titles['PK'] == self.existing['동_PK'])]
-                self.cbx_buildings.setCurrentIndex(idx[0])
-                self.add_room_list()
-                return
-
-            self.cbx_buildings.showPopup()
-
-    # 동 클릭
-    def selected_room(self):
-        self.info['동'] = self.titles.loc[self.cbx_buildings.currentIndex()]
-
-        self.get_room_thread = GetTitle(self.info['동']['PK'])
-        self.get_room_thread.threadEvent.workerThreadDone.connect(self.add_room_list)
-        self.get_room_thread.start()
-
-    # 호 리스트 추가
-    def add_room_list(self, pk):
-        # self.info['동'] = self.title_pk.loc[self.cbx_buildings.currentIndex()]
-        # self.expos_pk = self.get_expos(self.info['동']['PK'])
-        self.expos = pk
-
-        if len(self.titles) > 1:
-            self.select_address['동명칭'] = self.info['동']['동명칭']
+    # 동 선택
+    def add_room_list(self):
+        if self.building: dong_nm = self.building[self.cbx_buildings.currentIndex()]
+        else: dong_nm = ''
 
         self.cbx_rooms.clear()
-        self.cbx_rooms.setEnabled(True)
+        result = pars.OpenApiRequest.get_address_detail(self.DETAIL_ADDRESS_API_KEY, self.address, '호', dong_nm)
+        self.expos = result
 
-        for i in range(len(self.expos)):
-            row = self.expos.loc[i]
-            self.cbx_rooms.addItem(f"{row['호명칭']} 호")
-
-        if self.existing:
-            idx = self.expos.index[(self.expos['PK'] == self.existing['호_PK'])]
-            self.cbx_rooms.setCurrentIndex(idx[0])
-            self.select_room()
-            return
+        for i in range(len(result)):
+            item = '%s | %s' % (result.loc[i]['층번호'], result.loc[i]['호명칭'])
+            self.cbx_rooms.addItem(item)
 
         self.cbx_rooms.showPopup()
 
     # 호 선택
     def select_room(self):
-        self.info['호'] = self.expos.loc[self.cbx_rooms.currentIndex()]
-        self.select_address['호명칭'] = self.info['호']['호명칭']
-        self.btn_issuance.setEnabled(True)
+        self.setFixedHeight(562)
+        self.setMinimumHeight(562)
+        self.setMaximumHeight(562)
+        self.list_frame.show()
+        self.btn_issuance.hide()
+
+        print(self.building)
+        print(self.expos)
+
+        # self.issuance_thread = IssuanceRegistered(self.api_data, self.user, self.edt_address.text(), flag, kind)
+        # self.issuance_thread.threadEvent.workerThreadDone.connect(self.saved_pdf)
+        # self.issuance_thread.start()
 
     def clicked_save_btn(self):
         flag = self.cbx_flag.currentIndex()
@@ -208,9 +214,7 @@ class IssuanceRegister(QDialog, Ui_Register):
         if self.rbtn_set.isChecked(): kind = 1
         elif self.rbtn_building.isChecked(): kind = 2
         elif self.rbtn_land.isChecked(): kind = 3
-        else:
-            print('종류 선택')
-            return
+        else: return
 
         self.loading.show_loading()
         address = self.select_address['주소']
@@ -232,7 +236,7 @@ class IssuanceRegister(QDialog, Ui_Register):
     # 요청 된 바이너리 PDF 파일로 저장
     def saved_pdf(self, data):
         self.loading.hide_loading()
-        print('5')
+
         file_name = self.select_address['검색소재지'].replace(' ', '_')
         save_path = QFileDialog.getSaveFileName(self, "등기부등본 PDF 저장", f"~/{file_name}.pdf", "PDF 문서 (*.pdf)")
 
@@ -241,62 +245,6 @@ class IssuanceRegister(QDialog, Ui_Register):
                 f.write(base64.b64decode(data.json()['Message']))
 
         self.close()
-
-    def get_address(self, old, new):
-        datas = {"query": {"multi_match": {"query": new,
-                                           "type": "cross_fields",
-                                           "operator": "and",
-                                           "fields": ["jibunAddr", "roadAddr^3"],
-                                           "tie_breaker": 0.3}}, "size": 20}
-
-        res = self.s.post('https://cloud.eais.go.kr/bldrgstmst/_search', headers=self.headers, json=datas)
-        json_result = json.loads(res.text)['hits']
-
-        for n, i in enumerate(json_result['hits']):
-            res_old = i['_source']['jibunAddr']
-            if old in res_old:
-                info = i['_source']
-                result = {'주소': info['jibunAddr'], '도로명주소': info['roadAddr'], 'ID': info['mgmUpperBldrgstPk'],
-                          'PK': i['_id']}
-                return result
-
-    def get_title(self, pk):
-        datas = {"sort": [{"dongNm": "asc"}], "query": {"bool": {"filter": [{"term": {"mgmUpperBldrgstPk": pk}}]}},
-                 "size": 100}
-        res = self.s.post('https://cloud.eais.go.kr/bldrgsttitle/_search', headers=self.headers, json=datas)
-        json_result = json.loads(res.text)['hits']
-
-        result = pd.DataFrame(columns=['동명칭', 'ID', 'PK'])
-
-        for n, i in enumerate(json_result['hits']):
-            result.loc[n] = {'동명칭': i['_source']['dongNm'], 'ID': i['_source']['mgmUpperBldrgstPk'], 'PK': i['_id']}
-
-        result = result.sort_values(by=['동명칭'], axis=0)
-        result.reset_index(drop=True, inplace=True)
-
-        return result
-
-    def get_expos(self, pk):
-        datas = {"sort": [{"hoNm": "asc"}], "query": {"bool": {"filter": [{"term": {"mgmUpperBldrgstPk": pk}}]}},
-                 "size": 200}
-        res = self.s.post('https://cloud.eais.go.kr/bldrgstexpos/_search', headers=self.headers, json=datas)
-        json_result = json.loads(res.text)['hits']
-
-        result = pd.DataFrame(columns=['동명칭', '호명칭', 'PK'])
-
-        for n, i in enumerate(json_result['hits']):
-            info = i['_source']
-            result.loc[n] = {'동명칭': info['dongNm'], '호명칭': info['hoNm'], 'PK': i['_id']}
-
-        try:
-            result['호명칭'] = pd.to_numeric(result['호명칭'])
-        except:
-            pass
-
-        result = result.sort_values(by=['호명칭'], axis=0)
-        result.reset_index(drop=True, inplace=True)
-
-        return result
 
 
 class ThreadSignal(QObject):
@@ -326,14 +274,15 @@ class IssuanceRegistered(QThread):
         datas = {'Address': self.address,    # 주소
                  'Sangtae': self.flag,       # 현행:0 / 폐쇄:1 / 현행폐쇄:2
                  'KindClsFlag': self.kind}   # 전체:0 / 집합건물:1 / 건물:2 / 토지:3
-        print(self.address, self.flag, self.kind)
+
         # 등기 고유번호 조회
         url = {'조회': self.API_HOST + "api/v1.0/iros/risuconfirmsimplec",
                '발급': self.API_HOST + "api/v1.0/iros/risuretrieve"}
 
         response = requests.post(url['조회'], headers=self.headers, json=datas)
         result = response.json()
-        print(1, result)
+        print(result)
+        return
 
         # 등기 고유번호 조회가 됐을 경우
         if result['Message'] == '성공':
@@ -350,19 +299,15 @@ class IssuanceRegistered(QThread):
                       "ValidYn": "Y"}
             response = requests.post(url['발급'], headers=self.headers, json=params)
             result = response.json()    # 등기부등본 데이터
-            print(2, result)
 
             # 등기 데이터가 정상 조회 되었을 경우
             if result['TransactionKey'] is not None:
-
-                print(3)
                 # PDF 바이너리 요청
                 transaction_key = result['TransactionKey']
 
                 url = self.API_HOST + "api/v1.0/iros/getpdffile"
                 params = {"TransactionKey": transaction_key, "IsSummary": "Y"}
                 response = requests.post(url, headers=self.headers, json=params)
-                print(4, 'PDF 바이너리 요청')
                 self.threadEvent.workerThreadDone.emit(response)
 
             else:

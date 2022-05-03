@@ -62,12 +62,13 @@ class OpenApiRequest:
 
     # 상세 주소 조회
     @classmethod
-    def get_address_detail(cls, key, binfo, dong=''):
+    def get_address_detail(cls, key, binfo, kind, dong=''):
+        kind = 'dong' if kind == '동' else 'floorho'
         url = 'https://www.juso.go.kr/addrlink/addrDetailApi.do'
         params = {'confmKey': key, 'admCd': binfo['주소코드'], 'rnMgtSn': binfo['도로명코드'], 'udrtYn': binfo['지하여부'],
                   'buldMnnm': binfo['건물본번'], 'buldSlno': binfo['건물부번'],
-                  'searchType': 'floorho', 'dongNm': dong, 'resultType': 'xml'}
-        print(params)
+                  'searchType': kind, 'dongNm': dong, 'resultType': 'xml'}
+
         column = {'동명칭': 'dongNm', '층번호': 'floorNm', '호명칭': 'hoNm'}
         result = cls.request_data(url, params, column, 'juso')
         return result
@@ -110,14 +111,12 @@ class DataRequestThread(QThread):
         self.parsing_type_list = parsing_type_list
 
         self.key = key
-        self.pnu = binfo['주소코드'] + '1' + binfo['번'] + binfo['지']
 
         self.sigungu = binfo['주소코드'][:5]
         self.bjdong = binfo['주소코드'][5:10]
-        self.bun, self.ji = binfo['번'], binfo['지']
+        self.bun, self.ji = binfo['번'].zfill(4), binfo['지'].zfill(4)
         self.dong = binfo['동명칭']
-
-        print(binfo, key, parsing_type_list)
+        self.pnu = binfo['주소코드'] + '1' + self.bun + self.ji
 
     def run(self):
         result_data = []

@@ -293,6 +293,7 @@ class ThreadSignal(QObject):
     doneEvent = Signal(object)
 
 
+# 표제부, 일반건축물 조회
 class GetTitlesThread(QThread):
     def __init__(self, address):
         super().__init__()
@@ -310,7 +311,6 @@ class GetTitlesThread(QThread):
                       "bldMnnm": address['건물본번'], "bldSlno": address['건물부번']}
 
     def run(self):
-        # 표제부, 일반건축물 조회
         response_title = self.s.post('https://cloud.eais.go.kr/bci/BCIAAA02R01', headers=self.headers, json=self.datas)
         json_data = json.loads(response_title.text)
 

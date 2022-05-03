@@ -186,7 +186,6 @@ class AddressDetails(QDialog, Ui_FindAddress):
         if val[1] is not None: self.land = val[1]
         if val[2] is not None: self.owners = val[2]
         if val[3] is not None: self.prices = val[3]
-        print('진입')
 
         self.detail, self.land = val[0], val[1]
         self.exact_detail = details = sorted_rooms_len(get_exact_value(self.detail))
@@ -230,20 +229,11 @@ class AddressDetails(QDialog, Ui_FindAddress):
     # 주소 선택
     def select_address_event(self):
         self.select_address = self.address.iloc[self.list_address.currentRow()]
-        result = self.select_address
+        self.binfo = dict(self.select_address)
+        self.binfo['동명칭'] = ''
 
-        self.binfo = {'주소코드': result['주소코드'],
-                      '번': result['번'].zfill(4),
-                      '지': result['지'].zfill(4),
-                      '도로명주소': result['도로명주소'],
-                      '도로명코드': result['도로명코드'],
-                      '건물본번': result['건물본번'],
-                      '건물부번': result['건물부번'],
-                      '지하여부': result['지하여부'],
-                      '동명칭': ''}
-
-        d = pars.OpenApiRequest.get_address_detail(self.ADDRESS_API_KEY, self.binfo)
-        print(d)
+        self.binfo['동'] = self.binfo['동'].split(',')
+        print(self.binfo)
 
         self.loading.show_loading()
         self.clear_cbx(True)
@@ -268,7 +258,6 @@ class AddressDetails(QDialog, Ui_FindAddress):
 
         # 일반일 경우
         if self.binfo['타입'] == '일반':
-            print('스레드 진입')
             self.get_building_thread = pars.DataRequestThread(self.binfo, self.BULIDING_API_KEY, ['층별', '토지', '소유자', '개별주택가격'])
             self.get_building_thread.start()
             self.get_building_thread.threadEvent.workerThreadDone.connect(self.add_layer_list)
