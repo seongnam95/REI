@@ -250,7 +250,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         if self.first:
             self.get_building_thread = pars.DataRequestThread(self.binfo, self.BULIDING_API_KEY, ['지역지구', '토지용도지역지구', '토지'])
             self.get_building_thread.start()
-            self.get_building_thread.threadEvent.workerThreadDone.connect(self.insert_detail_info)
+            self.get_building_thread.threadEvent.searchDone.connect(self.insert_detail_info)
             self.first = False
 
         self.resize_form(self.opened)

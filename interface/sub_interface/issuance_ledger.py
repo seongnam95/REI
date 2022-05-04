@@ -268,7 +268,7 @@ class IssuanceLedger(QDialog, Ui_Ledger):
 
         self.loading_box.show_loading()
         self.issuance_thread = ibl.IssuanceBuildingLedger(target_data, self.driver, self.login_cookies)
-        self.issuance_thread.threadEvent.workerThreadDone.connect(self.issuance_done_event)
+        self.issuance_thread.threadEvent.searchDone.connect(self.issuance_done_event)
         self.issuance_thread.start()
 
     # REQUEST

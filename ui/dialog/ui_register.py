@@ -306,7 +306,22 @@ class Ui_Register(object):
         self.list_item = QListWidget(self.list_frame)
         self.list_item.setObjectName(u"list_item")
         self.list_item.setGeometry(QRect(20, 20, 441, 201))
-        self.list_item.setStyleSheet(u"QListWidget {\n"
+        self.list_item.setStyleSheet(u"QScrollBar:vertical {\n"
+"    width: 5px;\n"
+"    border: none;\n"
+"}\n"
+"\n"
+"QScrollBar::handle {\n"
+"    background: rgb(235,235,235);\n"
+"    border: none;\n"
+"}\n"
+"\n"
+"QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {\n"
+"    border: none;\n"
+"    background: none;\n"
+"}\n"
+"\n"
+"QListWidget {\n"
 "	border: none;\n"
 "	outline: none;\n"
 "}")
