@@ -241,7 +241,7 @@ class AddressDetails(QDialog, Ui_FindAddress):
         # 표제부, 총괄표제부 파싱 쓰레드
         self.get_building_thread = pars.DataRequestThread(self.binfo, self.BULIDING_API_KEY, ['표제부', '총괄표제부'])
         self.get_building_thread.start()
-        self.get_building_thread.threadEvent.searchDone.connect(self.add_building_list)
+        self.get_building_thread.threadEvent.workerThreadDone.connect(self.add_building_list)
 
     # 건물명칭 콤보박스 선택
     def select_building_event(self):
@@ -260,14 +260,14 @@ class AddressDetails(QDialog, Ui_FindAddress):
         if self.binfo['타입'] == '일반':
             self.get_building_thread = pars.DataRequestThread(self.binfo, self.BULIDING_API_KEY, ['층별', '토지', '소유자', '개별주택가격'])
             self.get_building_thread.start()
-            self.get_building_thread.threadEvent.searchDone.connect(self.add_layer_list)
+            self.get_building_thread.threadEvent.workerThreadDone.connect(self.add_layer_list)
 
         # 건물 타입이 집합일 경우
         if self.binfo['타입'] == '집합':
             if len(self.buildings) > 1: self.binfo['동명칭'] = self.select_building['동명칭']
             self.get_building_thread = pars.DataRequestThread(self.binfo, self.BULIDING_API_KEY, ['전유부', '토지', '소유자', '공동주택가격'])
             self.get_building_thread.start()
-            self.get_building_thread.threadEvent.searchDone.connect(self.add_room_list)
+            self.get_building_thread.threadEvent.workerThreadDone.connect(self.add_room_list)
 
     # 상세주소 콤보박스 선택
     def select_room_event(self):
