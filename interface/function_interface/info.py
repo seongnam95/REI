@@ -256,7 +256,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.resize_form(self.opened)
 
     # 문서 발급 버튼
-    def clicked_issuance_menu(self, pk=''):
+    def clicked_issuance_menu(self):
         # if not self.activation: return
         item_row = self.issuance_menu.currentRow()
         self.issuance_menu.hide_menu()
@@ -279,6 +279,9 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             self.block_frame.show()
 
             if self.issuance_data:
+                print(self.address)
+                print('######')
+                print(self.issuance_data)
                 dialog = issuance_register.IssuanceRegister(self.address, self.issuance_data)
             else: dialog = issuance_register.IssuanceRegister()
             dialog.exec()
@@ -554,8 +557,6 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             self.opened = True
 
         self.resize_title_bar()
-        # x = (self.width() - self.btn_details.width()) - 10
-        # self.btn_details.move(x, self.btn_details.y())
 
     # 메뉴 외부 영역 클릭시 메뉴 숨김
     def mousePressEvent(self, event):

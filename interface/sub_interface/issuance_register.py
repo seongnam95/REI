@@ -93,10 +93,6 @@ class IssuanceRegister(QDialog, Ui_Register):
             self.existing = None
             self.address = dialog.result
 
-            if self.address['동'] != '':
-                self.address['동'] = sorted([i.strip() for i in self.address['동'].split(',')])
-            else: self.address['동'] = None
-
             self.input_address_edit()
             self.edt_address.clearFocus()
 
@@ -132,6 +128,7 @@ class IssuanceRegister(QDialog, Ui_Register):
 
         # 집합 건축물일 경우
         else:
+            print('집합')
             self.select_address['타입'] = '집합'
             self.cbx_buildings.clear()
             self.cbx_rooms.clear()
@@ -145,9 +142,7 @@ class IssuanceRegister(QDialog, Ui_Register):
             self.rbtn_set.setChecked(True)
 
             result = pars.OpenApiRequest.get_address_detail(self.DETAIL_ADDRESS_API_KEY, self.address, '동')
-
-            dong = list(result['동명칭'])
-            dong = None if dong[0] == '' else dong
+            dong = ['동명칭 없음' if i == '' else i for i in list(result['동명칭'])]
             self.building = dong
 
             # 동이 여러개일 경우
@@ -179,6 +174,7 @@ class IssuanceRegister(QDialog, Ui_Register):
     def add_room_list(self):
         if self.building: dong_nm = self.building[self.cbx_buildings.currentIndex()]
         else: dong_nm = ''
+        dong_nm = '' if dong_nm == '동명칭 없음' else dong_nm
 
         self.select_address['동명칭'] = dong_nm
 
@@ -209,6 +205,7 @@ class IssuanceRegister(QDialog, Ui_Register):
         address = self.select_address['주소']
 
         if self.select_address['타입'] == '집합':
+            if '호명칭' not in self.select_address.keys(): self.select_room()
             if not retry:
                 if self.select_address['동명칭'] != '':
                     dong = self.select_address['동명칭']
