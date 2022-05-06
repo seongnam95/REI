@@ -302,9 +302,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
                 pnu = f'{code}1{bun}{ji}'
 
                 url = 'http://www.eum.go.kr/web/ar/lu/luLandDetPrintPop.jsp?'
-                params = urlencode({'isNoScr': 'script',
-                                    'mode': 'search',
-                                    'pnu': pnu})
+                params = urlencode({'isNoScr': 'script', 'mode': 'search', 'pnu': pnu})
                 webbrowser.open_new(url + params)
 
     # 진행 메세지
@@ -367,11 +365,12 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
     def insert_base_info(self):
         building = self.select_building
         address = self.address
-
+        print(building)
         self.issuance_data = {'시군구코드': address['주소코드'][:5],
                               '법정동코드': address['주소코드'][5:],
                               '번': address['번'],
                               '지': address['지'],
+                              '동명칭': building['동명칭'],
                               '동_PK': building['건축물대장PK'].split('-')[1]}
 
         old = "%s %s %s %s" % (address['시도'], address['시군구'], address['읍면동'], address['번'])
@@ -417,9 +416,11 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         #### 일반일 경우
         if self.binfo['타입'] == '일반':
             detail = self.detail.loc[self.cbx_rooms.currentIndex()]
-
             room_area, public_area = detail['층면적'], detail['층면적']
             room = "%s층" % detail['층명칭'].rstrip("층")
+
+            if self.select_building['동명칭']:
+                room = "%s동 %s" % (self.select_building['동명칭'].rstrip("동"), room)
             self.pk = self.select_building['건축물대장PK']
 
             try:
@@ -435,6 +436,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             detail = self.exact_detail.loc[self.cbx_rooms.currentIndex()]
             all_detail = self.detail[self.detail['호명칭'] == detail['호명칭']]
             self.pk = detail['건축물대장PK']
+            self.issuance_data['호명칭'] = detail['호명칭']
             self.issuance_data['호_PK'] = self.pk.split('-')[1]
             self.address_old = '%s %s' % (self.address_old, detail['호명칭'].rstrip("호"))
 

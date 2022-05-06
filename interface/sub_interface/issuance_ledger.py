@@ -320,6 +320,7 @@ class GetTitlesThread(QThread):
         self.threadEvent.doneEvent.emit(result)
 
 
+# 전유부 조회
 class GetExposThread(QThread):
     def __init__(self, address, pk):
         super().__init__()

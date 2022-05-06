@@ -140,7 +140,7 @@ class IssuanceBuildingLedger(QThread):
         time.sleep(1)   # 리스트 로딩 대기
 
         while try_cnt < 10:
-            print(f'## 민원 신청 완료, 오픈 대기중 (시도 횟수 : {str(try_cnt)}) ##')
+            print(f'## 민원 신청 완료, 오픈 대기중 (시도 횟수 : {str(try_cnt + 1)}) ##')
             try_cnt += 1
 
             # 완료 처리 된 문서 열기

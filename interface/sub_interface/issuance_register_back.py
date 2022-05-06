@@ -102,110 +102,114 @@ class IssuanceRegister(QDialog, Ui_Register):
 
         old = "%s %s %s %s" % (address['시도'], address['시군구'], address['읍면동'], address['번'])
         if address['지'] != '0': old = "%s-%s" % (old, address['지'])
-        self.select_address = {'주소': old, '도로명주소': address['도로명주소'], '타입': ''}
+        self.select_address = {'주소': old, '도로명주소': address['도로명주소']}
         self.edt_address.setText(old)
 
         self.add_building_list()
 
     # 동 리스트 추가
     def add_building_list(self):
-        result = pars.OpenApiRequest.get_address_detail(self.DETAIL_ADDRESS_API_KEY, self.address, '동')
-        self.cbx_buildings.clear()
 
-        # 동이 있을 경우
-        if result is not None:
-            dong_list = ['동명칭 없음' if i == '' else i for i in list(result['동명칭'])]
-            self.building = dong_list
-
-            # 동 콤보박스 아이템 추가
-            for i in dong_list:
-                if self.address['건물명칭'] != '': item = '%s (%s)' % (i, self.address['건물명칭'])
-                else: item = i
-                self.cbx_buildings.addItem(item)
-
-            # 동이 하나일 경우 스킵
-            if len(dong_list) == 1:
-                self.cbx_buildings.setCurrentIndex(0)
-                self.cbx_buildings.setEnabled(False)
-                self.add_room_list()
-                return
-
-            # 기존 데이터가 있을 경우
-            if self.existing:
-                existing_dong_nm = self.existing['동명칭'].rstrip('동')
-                for n, i in enumerate(dong_list):
-                    if existing_dong_nm in i:
-                        self.cbx_buildings.setCurrentIndex(n)
-                        self.add_room_list()
-                        return
-
-            self.cbx_rooms.clear()
-            self.cbx_rooms.addItem('( 상세주소 / 호 )')
-            self.cbx_rooms.setEnabled(True)
-
-            self.rbtn_set.setChecked(True)
-            self.rbtn_set.setEnabled(True)
-            self.rbtn_building.setEnabled(False)
-
-            self.cbx_buildings.setEnabled(True)
-            self.cbx_buildings.showPopup()
-
-        else:
+        # 일반 건축물일 경우
+        if self.address['공동주택여부'] == '0':
+            self.select_address['타입'] = '일반'
             self.cbx_buildings.clear()
-            self.cbx_buildings.addItem('-- 항목 없음 --')
+            self.cbx_buildings.addItem('-- 항목없음 --')
             self.cbx_buildings.setEnabled(False)
 
             self.cbx_rooms.clear()
-            self.cbx_rooms.addItem('-- 항목 없음 --')
+            self.cbx_rooms.addItem('-- 항목없음 --')
             self.cbx_rooms.setEnabled(False)
 
             self.rbtn_set.setEnabled(False)
+
             self.rbtn_building.setEnabled(True)
             self.rbtn_building.setChecked(True)
+
+        # 집합 건축물일 경우
+        else:
+            self.select_address['타입'] = '집합'
+            self.cbx_buildings.clear()
+            self.cbx_rooms.clear()
+            self.cbx_rooms.addItem('( 상세주소 / 호)')
+
+            self.cbx_buildings.setEnabled(True)
+            self.cbx_rooms.setEnabled(True)
+
+            self.rbtn_set.setEnabled(True)
+            self.rbtn_building.setEnabled(False)
+            self.rbtn_set.setChecked(True)
+
+            result = pars.OpenApiRequest.get_address_detail(self.DETAIL_ADDRESS_API_KEY, self.address, '동')
+            dong_list = ['동명칭 없음' if i == '' else i for i in list(result['동명칭'])]
+            self.building = dong_list
+
+            # 동이 여러개일 경우
+            if dong_list:
+                for i in dong_list:
+                    if self.address['건물명칭'] != '': item = '%s (%s)' % (i, self.address['건물명칭'])
+                    else: item = i
+                    self.cbx_buildings.addItem(item)
+
+                if len(dong_list) == 1:
+                    self.cbx_buildings.setCurrentIndex(0)
+                    self.cbx_buildings.setEnabled(False)
+                    self.add_room_list()
+                    return
+
+                else:
+                    if self.existing:
+                        existing_dong_nm = self.existing['동명칭'].rstrip('동')
+                        for n, i in enumerate(dong_list):
+                            if existing_dong_nm in i:
+                                self.cbx_buildings.setCurrentIndex(n)
+                                self.add_room_list()
+                                return
+
+                self.cbx_buildings.setEnabled(True)
+                self.cbx_buildings.showPopup()
+
+            # 동이 없을 경우
+            else:
+                if self.address['건물명칭'] != '': self.cbx_buildings.addItem(self.address['건물명칭'])
+                else: self.cbx_buildings.addItem('건물 명칭 없음')
+                self.cbx_buildings.setCurrentIndex(0)
+
+                self.cbx_buildings.setEnabled(False)
+                self.add_room_list()
 
     # 동 선택
     def add_room_list(self):
         if self.building: dong_nm = self.building[self.cbx_buildings.currentIndex()]
         else: dong_nm = ''
-
         dong_nm = '' if dong_nm == '동명칭 없음' else dong_nm
+
         self.select_address['동명칭'] = dong_nm
 
-        # 호 명칭 조회
+        self.cbx_rooms.clear()
         result = pars.OpenApiRequest.get_address_detail(self.DETAIL_ADDRESS_API_KEY, self.address, '호', dong_nm)
-        ho_list = [h for h in result['호명칭'] if h]
+        self.expos = result
 
-        if ho_list:
-            self.expos = result
-            self.cbx_rooms.clear()
-            self.cbx_rooms.setEnabled(True)
+        ho_list = []
+        for i in range(len(result)):
+            ho_nm = result.loc[i]['호명칭']
+            item = '%s | %s' % (result.loc[i]['층번호'], ho_nm)
+            self.cbx_rooms.addItem(item)
+            ho_list.append(ho_nm)
 
-            for i in range(len(result)):
-                ho_nm = result.loc[i]['호명칭']
-                item = '%s | %s' % (result.loc[i]['층번호'], ho_nm)
-                self.cbx_rooms.addItem(item)
+        if self.existing:
+            existing_ho_nm = self.existing['호명칭'].rstrip('호')
+            for n, i in enumerate(ho_list):
+                if existing_ho_nm in i:
+                    self.cbx_rooms.setCurrentIndex(n)
+                    self.select_room()
+                    return
 
-            if self.existing:
-                existing_ho_nm = self.existing['호명칭'].rstrip('호')
-                for n, i in enumerate(ho_list):
-                    if existing_ho_nm in i:
-                        self.cbx_rooms.setCurrentIndex(n)
-                        self.select_room()
-                        return
-
-            self.cbx_rooms.showPopup()
-
-        else:
-            self.cbx_rooms.clear()
-            self.cbx_rooms.addItem('-- 항목 없음 --')
-            self.cbx_rooms.setEnabled(False)
+        self.cbx_rooms.showPopup()
 
     # 호 선택
     def select_room(self):
         self.select_address['호명칭'] = self.expos.loc[self.cbx_rooms.currentIndex()]['호명칭']
-        self.select_address['타입'] = '집합'
-
-        self.rbtn_set.setChecked(True)
         print('값:', self.select_address)
 
     def search_register(self, retry=False):
@@ -217,7 +221,7 @@ class IssuanceRegister(QDialog, Ui_Register):
         else: return
 
         self.loading.show_loading()
-        address = self.select_address['도로명주소']
+        address = self.select_address['주소']
 
         if self.select_address['타입'] == '집합':
             if '호명칭' not in self.select_address.keys(): self.select_room()
@@ -246,36 +250,20 @@ class IssuanceRegister(QDialog, Ui_Register):
             self.request_binary(result)
 
         elif data['TotalCount'] > 1:
-            result_list = list(data['ResultList'])
-            if self.address['지'] != '':
-                check_address = '%s %s-%s' % (self.address['읍면동'], self.address['번'], self.address['지'])
-            else: check_address = '%s %s' % (self.address['읍면동'], self.address['번'])
+            self.setFixedHeight(562)
+            self.setMinimumHeight(562)
+            self.setMaximumHeight(562)
+            self.list_frame.show()
+            self.btn_issuance.hide()
 
-            result = None
-            for n, i in enumerate(result_list):
-                if check_address in i['BudongsanSojaejibeon']:
-                    result = result_list[n]
+            self.bld_data = data
 
-            if result:
-                result['aesKey'] = data['aesKey']
-                result['headers'] = data['headers']
-                self.request_binary(result)
-
-            else:
-                self.setFixedHeight(562)
-                self.setMinimumHeight(562)
-                self.setMaximumHeight(562)
-                self.list_frame.show()
-                self.btn_issuance.hide()
-
-                self.bld_data = data
-
-                for i in list(data['ResultList']):
-                    print(type(i), i)
-                    custom_item = AddressListItem(i)
-                    item = QListWidgetItem(self.list_item)
-                    item.setSizeHint(custom_item.sizeHint())
-                    self.list_item.setItemWidget(item, custom_item)
+            for i in list(data['ResultList']):
+                print(type(i), i)
+                custom_item = AddressListItem(i)
+                item = QListWidgetItem(self.list_item)
+                item.setSizeHint(custom_item.sizeHint())
+                self.list_item.setItemWidget(item, custom_item)
 
     def clicked_address_list(self):
         idx = self.list_item.currentRow()
@@ -329,7 +317,6 @@ class SearchRegister(QThread):
         self.address, self.flag, self.kind = address, flag, kind
 
     def run(self):
-        print('## 등기소 주소 검색 ##')
         aesKey = os.urandom(16)
 
         rsaPublicKey = getPublicKey(self.API_HOST, self.API_KEY)
@@ -347,7 +334,6 @@ class SearchRegister(QThread):
 
         response = requests.post(url, headers=self.headers, json=datas)
         result = response.json()
-        print(result)
 
         # 검색 결과가 없을 시 재시도
         if result['TotalCount'] == 0: self.threadEvent.returnSignal.emit(True)
@@ -366,7 +352,6 @@ class IssuasnceRegistered(QThread):
         self.user, self.data, self.aes_key, self.headers = user, data, data['aesKey'], data['headers']
 
     def run(self):
-        print('## 등기 발급 ##')
         # 등기 고유번호 조회가 됐을 경우
         aesIv = ('\x00' * 16).encode('utf-8')
         unique_no = self.data['UniqueNo']
@@ -485,7 +470,7 @@ def my_exception_hook(exctype, value, traceback):
 sys._excepthook = sys.excepthook
 sys.excepthook = my_exception_hook
 
-
-app = QApplication()
-window = IssuanceRegister()
-app.exec()
+#
+# app = QApplication()
+# window = IssuanceRegister()
+# app.exec()
