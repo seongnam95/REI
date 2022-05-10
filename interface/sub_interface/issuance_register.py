@@ -9,6 +9,7 @@ import module.open_api_pars as pars
 
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5, AES
+from multiprocessing.pool import ThreadPool
 
 from PySide6.QtGui import QMovie, QColor, QIcon
 from PySide6.QtCore import QRect, QThread, QObject, Signal, QByteArray, QSize
@@ -40,7 +41,13 @@ class IssuanceRegister(QDialog, Ui_Register):
 
         if data is not None:
             self.existing, self.address = data, address
-            self.input_address_edit()
+
+            old = "%s %s %s %s" % (address['시도'], address['시군구'], address['읍면동'], address['번'])
+            if address['지'] != '0': old = "%s-%s" % (old, address['지'])
+
+            self.get_address = GetAddress(0, old, self.address['도로명주소'])
+            self.get_address.threadEvent.doneSignal.connect(self.input_address_edit)
+            self.get_address.start()
 
     # UI 세팅
     def _init_ui(self):
@@ -61,7 +68,7 @@ class IssuanceRegister(QDialog, Ui_Register):
         self.btn_search.clicked.connect(self.clicked_address_edit)
         self.btn_issuance.clicked.connect(self.search_register)
 
-        self.cbx_buildings.activated.connect(self.add_room_list)
+        self.cbx_buildings.activated.connect(self.select_building)
         self.cbx_rooms.activated.connect(self.select_room)
         self.list_item.itemDoubleClicked.connect(self.clicked_address_list)
 
@@ -91,13 +98,19 @@ class IssuanceRegister(QDialog, Ui_Register):
             self.btn_issuance.show()
 
             self.existing = None
-            self.address = dialog.result
+            self.address = address = dialog.result
 
-            self.input_address_edit()
+            old = "%s %s %s %s" % (address['시도'], address['시군구'], address['읍면동'], address['번'])
+            if address['지'] != '0': old = "%s-%s" % (old, address['지'])
+
             self.edt_address.clearFocus()
 
+            self.get_address = GetAddress(0, old, self.address['도로명주소'])
+            self.get_address.threadEvent.doneSignal.connect(self.input_address_edit)
+            self.get_address.start()
+
     # 주소 정보 입력
-    def input_address_edit(self):
+    def input_address_edit(self, data):
         address = self.address
 
         old = "%s %s %s %s" % (address['시도'], address['시군구'], address['읍면동'], address['번'])
@@ -105,39 +118,22 @@ class IssuanceRegister(QDialog, Ui_Register):
         self.select_address = {'주소': old, '도로명주소': address['도로명주소'], '타입': ''}
         self.edt_address.setText(old)
 
-        self.add_building_list()
+        self.get_titles = GetAddress(1, data['PK'])
+        self.get_titles.threadEvent.doneSignal.connect(self.add_building_list)
+        self.get_titles.start()
 
     # 동 리스트 추가
-    def add_building_list(self):
-        result = pars.OpenApiRequest.get_address_detail(self.DETAIL_ADDRESS_API_KEY, self.address, '동')
+    def add_building_list(self, data):
         self.cbx_buildings.clear()
+        self.building = data
 
-        # 동이 있을 경우
-        if result is not None:
-            dong_list = ['동명칭 없음' if i == '' else i for i in list(result['동명칭'])]
-            self.building = dong_list
+        if len(data) > 0:
 
             # 동 콤보박스 아이템 추가
-            for i in dong_list:
-                if self.address['건물명칭'] != '': item = '%s (%s)' % (i, self.address['건물명칭'])
-                else: item = i
+            for i in data:
+                if self.address['건물명칭'] != '': item = '%s (%s)' % (i['동명칭'], self.address['건물명칭'])
+                else: item = i['동명칭']
                 self.cbx_buildings.addItem(item)
-
-            # 동이 하나일 경우 스킵
-            if len(dong_list) == 1:
-                self.cbx_buildings.setCurrentIndex(0)
-                self.cbx_buildings.setEnabled(False)
-                self.add_room_list()
-                return
-
-            # 기존 데이터가 있을 경우
-            if self.existing:
-                existing_dong_nm = self.existing['동명칭'].rstrip('동')
-                for n, i in enumerate(dong_list):
-                    if existing_dong_nm in i:
-                        self.cbx_buildings.setCurrentIndex(n)
-                        self.add_room_list()
-                        return
 
             self.cbx_rooms.clear()
             self.cbx_rooms.addItem('( 상세주소 / 호 )')
@@ -148,6 +144,22 @@ class IssuanceRegister(QDialog, Ui_Register):
             self.rbtn_building.setEnabled(False)
 
             self.cbx_buildings.setEnabled(True)
+
+            if len(data) == 1:
+                self.cbx_buildings.setCurrentIndex(0)
+                self.cbx_buildings.setEnabled(False)
+                self.select_building()
+                return
+
+            # 기존 데이터가 있을 경우
+            if self.existing:
+                existing_dong_nm = self.existing['동명칭'].rstrip('동')
+                for n, i in enumerate(data):
+                    if existing_dong_nm in i['동명칭']:
+                        self.cbx_buildings.setCurrentIndex(n)
+                        self.select_building()
+                        return
+
             self.cbx_buildings.showPopup()
 
         else:
@@ -164,45 +176,35 @@ class IssuanceRegister(QDialog, Ui_Register):
             self.rbtn_building.setChecked(True)
 
     # 동 선택
-    def add_room_list(self):
-        if self.building: dong_nm = self.building[self.cbx_buildings.currentIndex()]
-        else: dong_nm = ''
+    def select_building(self):
+        dong = self.building[self.cbx_buildings.currentIndex()]
+        self.select_address['동명칭'] = dong['동명칭']
 
-        dong_nm = '' if dong_nm == '동명칭 없음' else dong_nm
-        self.select_address['동명칭'] = dong_nm
+        self.get_expos = GetAddress(2, dong['PK'])
+        self.get_expos.threadEvent.doneSignal.connect(self.add_room_list)
+        self.get_expos.start()
 
-        # 호 명칭 조회
-        result = pars.OpenApiRequest.get_address_detail(self.DETAIL_ADDRESS_API_KEY, self.address, '호', dong_nm)
-        ho_list = [h for h in result['호명칭'] if h]
+    # 동 선택
+    def add_room_list(self, data):
+        self.expos = data
+        self.cbx_rooms.clear()
+        self.cbx_rooms.setEnabled(True)
 
-        if ho_list:
-            self.expos = result
-            self.cbx_rooms.clear()
-            self.cbx_rooms.setEnabled(True)
+        for i in data: self.cbx_rooms.addItem(i['호명칭'])
 
-            for i in range(len(result)):
-                ho_nm = result.loc[i]['호명칭']
-                item = '%s | %s' % (result.loc[i]['층번호'], ho_nm)
-                self.cbx_rooms.addItem(item)
+        if self.existing:
+            existing_ho_nm = self.existing['호명칭'].rstrip('호')
+            for n, i in enumerate(data):
+                if existing_ho_nm in i['호명칭']:
+                    self.cbx_rooms.setCurrentIndex(n)
+                    self.select_room()
+                    return
 
-            if self.existing:
-                existing_ho_nm = self.existing['호명칭'].rstrip('호')
-                for n, i in enumerate(ho_list):
-                    if existing_ho_nm in i:
-                        self.cbx_rooms.setCurrentIndex(n)
-                        self.select_room()
-                        return
-
-            self.cbx_rooms.showPopup()
-
-        else:
-            self.cbx_rooms.clear()
-            self.cbx_rooms.addItem('-- 항목 없음 --')
-            self.cbx_rooms.setEnabled(False)
+        self.cbx_rooms.showPopup()
 
     # 호 선택
     def select_room(self):
-        self.select_address['호명칭'] = self.expos.loc[self.cbx_rooms.currentIndex()]['호명칭']
+        self.select_address['호명칭'] = self.expos[self.cbx_rooms.currentIndex()]['호명칭']
         self.select_address['타입'] = '집합'
 
         self.rbtn_set.setChecked(True)
@@ -229,7 +231,7 @@ class IssuanceRegister(QDialog, Ui_Register):
             address = f'{address} {ho}'
 
         self.search_thread = SearchRegister(self.api_data, address, flag, kind)
-        self.search_thread.threadEvent.searchDone.connect(self.issuance_response)
+        self.search_thread.threadEvent.doneSignal.connect(self.issuance_response)
         self.search_thread.threadEvent.returnSignal.connect(self.search_register)
         self.search_thread.start()
 
@@ -314,7 +316,7 @@ class IssuanceRegister(QDialog, Ui_Register):
 
 
 class ThreadSignal(QObject):
-    searchDone = Signal(dict)
+    doneSignal = Signal(object)
     returnSignal = Signal(bool)
     issuasnceDone = Signal(bytes)
 
@@ -354,7 +356,7 @@ class SearchRegister(QThread):
         else:
             result['aesKey'] = aesKey
             result['headers'] = self.headers
-            self.threadEvent.searchDone.emit(result)
+            self.threadEvent.doneSignal.emit(result)
 
 
 class IssuasnceRegistered(QThread):
@@ -392,6 +394,87 @@ class IssuasnceRegistered(QThread):
             params = {"TransactionKey": transaction_key, "IsSummary": "Y"}
             response = requests.post(url, headers=self.headers, json=params)
             self.threadEvent.issuasnceDone.emit(response)
+
+
+# 표제부, 일반건축물 조회
+class GetAddress(QThread):
+    def __init__(self, kind, *agrs):
+        super().__init__()
+        self.threadEvent = ThreadSignal()
+
+        self.s = requests.Session()
+        self.headers = {
+            "Referer": "https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02L01",
+            "Content-Type": "application/json;charset=UTF-8",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.151 Whale/3.14.134.62 Safari/537.36"
+        }
+
+        self.kind = kind
+        self.agrs = agrs
+
+    def run(self):
+        if self.kind == 0:
+            old, new = self.agrs
+            result = self.get_address(old, new)
+            self.threadEvent.doneSignal.emit(result)
+            print(self.kind, result)
+
+        elif self.kind == 1:
+            pk = self.agrs[0]
+            result = self.get_title(pk)
+            self.threadEvent.doneSignal.emit(result)
+            print(self.kind, result)
+
+        elif self.kind == 2:
+            pk = self.agrs[0]
+            result = self.get_expos(pk)
+            self.threadEvent.doneSignal.emit(result)
+            print(self.kind, result)
+
+    def get_address(self, old, new):
+        url = 'https://cloud.eais.go.kr/bldrgstmst/_search'
+        datas = {"query": {"multi_match": {"query": new, "type": "cross_fields", "operator": "and", "fields": ["jibunAddr", "roadAddr^3"], "tie_breaker": 0.3}}, "size": 20}
+        response = self.s.post(url, headers=self.headers, json=datas)
+        result = json.loads(response.text)['hits']['hits']
+
+        address = None
+        for i in result:
+            info = i['_source']
+            if old in info['jibunAddr']:
+                kind = '일반' if info['regstrKindCd'] == '2' else '집합'
+                address = {'주소': info['jibunAddr'], '도로명주소': info['roadAddr'], 'PK': info['mgmUpperBldrgstPk'], '타입': kind}
+                break
+
+        self.s.close()
+        return address
+
+    def get_title(self, pk):
+        url = 'https://cloud.eais.go.kr/bldrgsttitle/_search'
+        datas = {"sort": [{"dongNm": "asc"}], "query": {"bool": {"filter": [{"term": {"mgmUpperBldrgstPk": pk}}]}}, "size": 100}
+        response = self.s.post(url, headers=self.headers, json=datas)
+        result = json.loads(response.text)['hits']['hits']
+
+        titles = []
+        for i in result:
+            info = i['_source']
+            item = {'동명칭': info['dongNm'], 'PK': i['_id']}
+            titles.append(item)
+
+        return titles
+
+    def get_expos(self, pk):
+        url = 'https://cloud.eais.go.kr/bldrgstexpos/_search'
+        datas = {"sort": [{"hoNm": "asc"}], "query": {"bool": {"filter": [{"term": {"mgmUpperBldrgstPk": pk}}]}}, "size": 200}
+        response = self.s.post(url, headers=self.headers, json=datas)
+        result = json.loads(response.text)['hits']['hits']
+
+        titles = []
+        for i in result:
+            info = i['_source']
+            item = {'호명칭': info['hoNm'], 'PK': i['_id']}
+            titles.append(item)
+
+        return titles
 
 
 class AddressListItem(QWidget):
@@ -486,6 +569,6 @@ sys._excepthook = sys.excepthook
 sys.excepthook = my_exception_hook
 
 
-app = QApplication()
-window = IssuanceRegister()
-app.exec()
+# app = QApplication()
+# window = IssuanceRegister()
+# app.exec()
