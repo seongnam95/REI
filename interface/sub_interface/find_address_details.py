@@ -111,8 +111,9 @@ class AddressDetails(QDialog, Ui_FindAddress):
             else: bld_name = " (%s)" % result['건물명칭']
 
             new = result['도로명주소'] + bld_name
-            old = "%s %s %s %s" % (result['시도'], result['시군구'], result['읍면동'], result['번'])
-            if result['지'] != "0": old = "%s-%s" % (old, result['지'])
+            bjr_nm = '' if result['법정리'] == '' else ' %s' % result['법정리']
+            old = "%s %s %s%s %s" % (result['시도'], result['시군구'], result['읍면동'], bjr_nm, result['번'])
+            if result['지'] != '0': old = "%s-%s" % (old, result['지'])
 
             if len(new) > 33: new = new[0:33] + '···'
 
@@ -278,8 +279,9 @@ class AddressDetails(QDialog, Ui_FindAddress):
         select_index = self.cbx_rooms.currentIndex() - 1
         result = self.select_address
 
-        old = "%s %s %s %s" % (result['시도'], result['시군구'], result['읍면동'], result['번'])
-        if result['지'] != "0": old = "%s-%s" % (old, result['지'])
+        bjr_nm = '' if result['법정리'] == '' else ' %s' % result['법정리']
+        old = "%s %s %s%s %s" % (result['시도'], result['시군구'], result['읍면동'], bjr_nm, result['번'])
+        if result['지'] != '0': old = "%s-%s" % (old, result['지'])
 
         # 일반일 경우
         if self.binfo['타입'] == '일반':
@@ -457,93 +459,7 @@ def sorted_rooms_len(data):
         return existing
 
 
-# 호수 정규식
-def mask_ho(un, val):
-    result = []
-    for i in val:
-        try:
-            if len(i) == 2:
-                com1 = re.compile('(\d)(\d)')  # 01
-                com2 = re.compile('(\w)(\d)')  # 지1
 
-                mat = re.match(com1, i)
-                if mat is not None:
-                    conv = re.sub(r'(\d)(\d)', r'10\g<2>', mat.group())
-                    result.append(int(un + conv))
-                    continue
-
-                mat = re.match(com2, i)
-                if mat is not None:
-                    conv = re.sub(r'(\w)(\d)', r'10\g<2>', mat.group())
-                    result.append(int(un + conv))
-                    continue
-
-            elif len(i) == 3:
-                com1 = re.compile('(\d)(\d)(\d)')     # 101
-                com2 = re.compile('(\w)(\d)(\d)')  # B01, 지01
-                com3 = re.compile('(\d)(\w)(\d)')     # 3층1
-                com4 = re.compile('(\w)(\w)(\d)')     # 지층1
-
-                mat = re.match(com1, i)
-                if mat is not None:
-                    result.append(int(i))
-                    continue
-
-                mat = re.match(com2, i)
-                if mat is not None:
-                    conv = re.sub(r'(\w)(\d)(\d)', r'10\g<3>', mat.group())
-                    result.append(int(un + conv))
-                    continue
-
-                mat = re.match(com3, i)
-                if mat is not None:
-                    conv = re.sub(r'(\d)(\w)(\d)', r'\g<1>0\g<3>', mat.group())
-                    result.append(int(un + conv))
-                    continue
-
-                mat = re.match(com4, i)
-                if mat is not None:
-                    conv = re.sub(r'(\w)(\w)(\d)', r'10\g<3>', mat.group())
-                    result.append(int(un + conv))
-                    continue
-
-            elif len(i) == 4:
-                com1 = re.compile('(\d)(\d)(\d)(\d)')         # 1001
-                com2 = re.compile('(\w)(\d)(\d)(\d)')         # B101, 지101
-                com3 = re.compile('(\w)(\w)(\d)(\d)')         # 지층01
-
-                mat = re.match(com1, i)
-                if mat is not None:
-                    result.append(int(i))
-                    continue
-
-                mat = re.match(com2, i)
-                if mat is not None:
-                    conv = re.sub(r'(\w)(\d)(\d)(\d)', r'\g<2>\g<3>\g<4>', mat.group())
-                    result.append(int(un + conv))
-                    continue
-
-                mat = re.match(com3, i)
-                if mat is not None:
-                    conv = re.sub(r'(\w)(\w)(\d)(\d)', r'10\g<4>', mat.group())
-                    result.append(int(un + conv))
-                    continue
-
-            elif len(i) == 5:
-                com = re.compile('(\w)(\w)(\d)(\d)(\d)')  # 지하101호
-
-                mat = re.match(com, i)
-                if mat is not None:
-                    conv = re.sub(r'(\w)(\w)(\d)(\d)(\d)', r'\g<3>\g<4>\g<5>', mat.group())
-                    result.append(int(un + conv))
-                    continue
-
-            result.append(i)
-
-        except ValueError:
-            result.append(i)
-
-    return result
 
 
 class AddressListItem(QWidget):

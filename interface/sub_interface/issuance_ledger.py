@@ -39,9 +39,11 @@ class IssuanceLedger(QDialog, Ui_Ledger):
 
         if data is not None:
             self.existing, self.address = data, address
-            if address['지'] != '0':
-                old = "%s %s %s %s-%s" % (address['시도'], address['시군구'], address['읍면동'], address['번'], address['지'])
-            else: old = "%s %s %s %s" % (address['시도'], address['시군구'], address['읍면동'], address['번'])
+
+            bjr_nm = '' if address['법정리'] == '' else ' %s' % address['법정리']
+            old = "%s %s %s%s %s" % (address['시도'], address['시군구'], address['읍면동'], bjr_nm, address['번'])
+            if address['지'] != '0': old = "%s-%s" % (old, address['지'])
+
             self.edt_address.setText(old)
 
             self.loading_box.show_loading()
@@ -100,12 +102,12 @@ class IssuanceLedger(QDialog, Ui_Ledger):
         if dialog.result is None: return
         if len(dialog.result) != 0:
             self.existing, self.success = None, False
-            self.address = dialog.result
+            self.address = address = dialog.result
 
-            if self.address['지'] != '0':
-                old = "%s %s %s %s-%s" % (self.address['시도'], self.address['시군구'], self.address['읍면동'],
-                                          self.address['번'], self.address['지'])
-            else: old = "%s %s %s %s" % (self.address['시도'], self.address['시군구'], self.address['읍면동'], self.address['번'])
+            bjr_nm = '' if address['법정리'] == '' else ' %s' % address['법정리']
+            old = "%s %s %s%s %s" % (address['시도'], address['시군구'], address['읍면동'], bjr_nm, address['번'])
+            if address['지'] != '0': old = "%s-%s" % (old, address['지'])
+
             self.edt_address.setText(old)
             self.edt_address.clearFocus()
 

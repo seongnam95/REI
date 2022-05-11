@@ -373,8 +373,9 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
                               '동명칭': building['동명칭'],
                               '동_PK': building['건축물대장PK'].split('-')[1]}
 
-        old = "%s %s %s %s" % (address['시도'], address['시군구'], address['읍면동'], address['번'])
-        if address['지'] != "0": old = "%s-%s" % (old, address['지'])
+        bjr_nm = '' if address['법정리'] == '' else ' %s' % address['법정리']
+        old = "%s %s %s%s %s" % (address['시도'], address['시군구'], address['읍면동'], bjr_nm, address['번'])
+        if address['지'] != '0': old = "%s-%s" % (old, address['지'])
 
         layer = "-%s 층 / %s 층" % (building['지하층수'], building['지상층수'])
         elevator = "%s대 (비상 %s대)" % (building['승강기'], building['비상용승강기'])

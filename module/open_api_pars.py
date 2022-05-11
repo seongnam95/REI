@@ -47,8 +47,8 @@ class OpenApiRequest:
     def get_address(cls, key, address):
         url = 'https://www.juso.go.kr/addrlink/addrLinkApi.do'
         params = {'confmKey': key, 'currentPage': '1', 'countPerPage': '20', 'resultType': 'xml', 'keyword': address}
-        column = {'주소코드': 'admCd', '시도': 'siNm', '시군구': 'sggNm', '읍면동': 'emdNm', '지하여부': 'udrtYn', '공동주택여부': 'bdKdcd',
-                  '번': 'lnbrMnnm', '지': 'lnbrSlno', '동': 'detBdNmList', '건물명칭': 'bdNm',
+        column = {'주소코드': 'admCd', '시도': 'siNm', '시군구': 'sggNm', '읍면동': 'emdNm', '법정리': 'liNm',
+                  '지하여부': 'udrtYn', '번': 'lnbrMnnm', '지': 'lnbrSlno', '동': 'detBdNmList', '건물명칭': 'bdNm',
                   '도로명주소': 'roadAddrPart1', '도로명코드': 'rnMgtSn', '건물본번': 'buldMnnm', '건물부번': 'buldSlno'}
         result = cls.request_data(url, params, column, 'juso')
 

@@ -1,24 +1,21 @@
+import base64
+import json
 import os
 import sys
-import base64
-import requests
-import json
 import pandas as pd
-import rei_bot.issuance_registered as ir
-import module.open_api_pars as pars
+import requests
 
-from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5, AES
-from multiprocessing.pool import ThreadPool
+from Crypto.PublicKey import RSA
 
-from PySide6.QtGui import QMovie, QColor, QIcon
-from PySide6.QtCore import QRect, QThread, QObject, Signal, QByteArray, QSize
+from PySide6.QtCore import QThread, QObject, Signal, QSize
+from PySide6.QtGui import QColor, QIcon
 from PySide6.QtWidgets import QDialog, QApplication, QGraphicsDropShadowEffect, QWidget, QFileDialog, \
-    QLabel, QPushButton, QGridLayout, QListWidgetItem
+    QLabel, QGridLayout, QListWidgetItem
 
 from interface.sub_interface import find_address_lite
 from ui.dialog.ui_register import Ui_Register
-from ui.custom.LoadingBox import LoadingBox
+from ui.custom import LoadingBox, BlackBoxMsg
 
 
 class IssuanceRegister(QDialog, Ui_Register):
@@ -42,7 +39,8 @@ class IssuanceRegister(QDialog, Ui_Register):
         if data is not None:
             self.existing, self.address = data, address
 
-            old = "%s %s %s %s" % (address['시도'], address['시군구'], address['읍면동'], address['번'])
+            bjr_nm = '' if address['법정리'] == '' else ' %s' % address['법정리']
+            old = "%s %s %s%s %s" % (address['시도'], address['시군구'], address['읍면동'], bjr_nm, address['번'])
             if address['지'] != '0': old = "%s-%s" % (old, address['지'])
 
             self.get_address = GetAddress(0, old, self.address['도로명주소'])
@@ -51,7 +49,8 @@ class IssuanceRegister(QDialog, Ui_Register):
 
     # UI 세팅
     def _init_ui(self):
-        self.loading = LoadingBox(self)
+        self.msg = BlackBoxMsg.BoxMessage(self)
+        self.loading = LoadingBox.LoadingBox(self)
         self.loading.resize_loading()
         self._init_shadow()
 
@@ -100,7 +99,8 @@ class IssuanceRegister(QDialog, Ui_Register):
             self.existing = None
             self.address = address = dialog.result
 
-            old = "%s %s %s %s" % (address['시도'], address['시군구'], address['읍면동'], address['번'])
+            bjr_nm = '' if address['법정리'] == '' else ' %s' % address['법정리']
+            old = "%s %s %s%s %s" % (address['시도'], address['시군구'], address['읍면동'], bjr_nm, address['번'])
             if address['지'] != '0': old = "%s-%s" % (old, address['지'])
 
             self.edt_address.clearFocus()
@@ -112,6 +112,7 @@ class IssuanceRegister(QDialog, Ui_Register):
     # 주소 정보 입력
     def input_address_edit(self, data):
         address = self.address
+        if not data: self.msg.show_msg(2000, 'center', '검색 결과 없음')
 
         old = "%s %s %s %s" % (address['시도'], address['시군구'], address['읍면동'], address['번'])
         if address['지'] != '0': old = "%s-%s" % (old, address['지'])
@@ -190,7 +191,9 @@ class IssuanceRegister(QDialog, Ui_Register):
         self.cbx_rooms.clear()
         self.cbx_rooms.setEnabled(True)
 
-        for i in data: self.cbx_rooms.addItem(i['호명칭'])
+        for i in range(len(data)):
+            item = '%s호' % data.loc[i]['호명칭']
+            self.cbx_rooms.addItem(item)
 
         if self.existing:
             existing_ho_nm = self.existing['호명칭'].rstrip('호')
@@ -204,7 +207,7 @@ class IssuanceRegister(QDialog, Ui_Register):
 
     # 호 선택
     def select_room(self):
-        self.select_address['호명칭'] = self.expos[self.cbx_rooms.currentIndex()]['호명칭']
+        self.select_address['호명칭'] = self.expos.loc[self.cbx_rooms.currentIndex()]['호명칭']
         self.select_address['타입'] = '집합'
 
         self.rbtn_set.setChecked(True)
@@ -237,11 +240,12 @@ class IssuanceRegister(QDialog, Ui_Register):
 
     def issuance_response(self, data):
         self.loading.hide_loading()
+        if not data: return
 
         if data['TotalCount'] == 0:
-            print('검색 결과 없음')
+            self.msg.show_msg(2000, 'center', '검색 결과 없음')
 
-        if data['TotalCount'] == 1:
+        elif data['TotalCount'] == 1:
             result = data['ResultList'][0]
             result['aesKey'] = data['aesKey']
             result['headers'] = data['headers']
@@ -349,10 +353,15 @@ class SearchRegister(QThread):
 
         response = requests.post(url, headers=self.headers, json=datas)
         result = response.json()
-        print(result)
+
+        if result['Status'] == 'Error':
+            print(result['Message'])
+            self.threadEvent.doneSignal.emit(None)
+            return
 
         # 검색 결과가 없을 시 재시도
-        if result['TotalCount'] == 0: self.threadEvent.returnSignal.emit(True)
+        if result['TotalCount'] == 0:
+            self.threadEvent.returnSignal.emit(True)
         else:
             result['aesKey'] = aesKey
             result['headers'] = self.headers
@@ -417,19 +426,16 @@ class GetAddress(QThread):
             old, new = self.agrs
             result = self.get_address(old, new)
             self.threadEvent.doneSignal.emit(result)
-            print(self.kind, result)
 
         elif self.kind == 1:
             pk = self.agrs[0]
             result = self.get_title(pk)
             self.threadEvent.doneSignal.emit(result)
-            print(self.kind, result)
 
         elif self.kind == 2:
             pk = self.agrs[0]
             result = self.get_expos(pk)
             self.threadEvent.doneSignal.emit(result)
-            print(self.kind, result)
 
     def get_address(self, old, new):
         url = 'https://cloud.eais.go.kr/bldrgstmst/_search'
@@ -468,13 +474,24 @@ class GetAddress(QThread):
         response = self.s.post(url, headers=self.headers, json=datas)
         result = json.loads(response.text)['hits']['hits']
 
-        titles = []
-        for i in result:
+        # 아이템 데이터프레임에 담기
+        titles = pd.DataFrame(columns=['호명칭', 'PK'])
+        for n, i in enumerate(result):
             info = i['_source']
-            item = {'호명칭': info['hoNm'], 'PK': i['_id']}
-            titles.append(item)
+            item = [info['hoNm'], i['_id']]
+            titles.loc[n] = item
 
-        return titles
+        # 호명칭 int 변환
+        titles['호명칭'] = titles['호명칭'].str.rstrip('호')
+        try: titles['호명칭'] = pd.to_numeric(titles['호명칭'])
+        except ValueError: pass
+
+        # 호명칭 기준 정렬
+        sort_data = titles.sort_values(by=["호명칭"], ascending=[True])
+        sort_data.reset_index(drop=True, inplace=True)
+        sort_data['호명칭'] = sort_data['호명칭'].apply(str)
+
+        return sort_data
 
 
 class AddressListItem(QWidget):
@@ -569,6 +586,6 @@ sys._excepthook = sys.excepthook
 sys.excepthook = my_exception_hook
 
 
-# app = QApplication()
-# window = IssuanceRegister()
-# app.exec()
+app = QApplication()
+window = IssuanceRegister()
+app.exec()

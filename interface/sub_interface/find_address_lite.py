@@ -81,8 +81,9 @@ class FindAddressLite(QDialog, Ui_FindAddress):
             else: bld_name = " (%s)" % result['건물명칭']
 
             new = result['도로명주소'] + bld_name
-            if result['지'] != '0': old = "%s %s %s %s-%s" % (result['시도'], result['시군구'], result['읍면동'], result['번'], result['지'])
-            else: old = "%s %s %s %s" % (result['시도'], result['시군구'], result['읍면동'], result['번'])
+            bjr_nm = '' if result['법정리'] == '' else ' %s' % result['법정리']
+            old = "%s %s %s%s %s" % (result['시도'], result['시군구'], result['읍면동'], bjr_nm, result['번'])
+            if result['지'] != '0': old = "%s-%s" % (old, result['지'])
 
             if len(new) > 33: new = new[0:33] + '···'
 
