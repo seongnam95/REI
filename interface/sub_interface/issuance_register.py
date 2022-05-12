@@ -362,6 +362,7 @@ class SearchRegister(QThread):
         # 검색 결과가 없을 시 재시도
         if result['TotalCount'] == 0:
             self.threadEvent.returnSignal.emit(True)
+
         else:
             result['aesKey'] = aesKey
             result['headers'] = self.headers
@@ -586,6 +587,6 @@ sys._excepthook = sys.excepthook
 sys.excepthook = my_exception_hook
 
 
-app = QApplication()
-window = IssuanceRegister()
-app.exec()
+# app = QApplication()
+# window = IssuanceRegister()
+# app.exec()

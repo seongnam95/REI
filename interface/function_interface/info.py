@@ -1,5 +1,6 @@
 import sys
 import webbrowser
+import psutil
 
 import clipboard as clip
 import pandas as pd
@@ -579,6 +580,14 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             self.lb_progress.setHidden(True)
             self.progress_bar.setHidden(True)
 
+    def closeEvent(self, event):
+        if self.driver:
+            self.driver.quit()
+            for proc in psutil.process_iter():
+                PROCNAME = 'chromedriver.exe'
+                if proc.name() == PROCNAME:
+                    proc.kill()
+
 
 # 더블 클릭 이벤트
 def mouse_double_clicked(widget):
@@ -608,8 +617,5 @@ sys._excepthook = sys.excepthook
 sys.excepthook = my_exception_hook
 
 app = QApplication()
-fontDB = QFontDatabase()
-fontDB.addApplicationFont('./웰컴체 Regular.ttf')
-app.setFont(QFont('웰컴체 Regular'))
 window = BuildingInfo()
 app.exec()

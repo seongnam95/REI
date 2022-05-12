@@ -1,12 +1,12 @@
 import json
 import sys
-
 import requests
+import rei_bot.issuance_register_of_building as ibl
+
 from PySide6.QtCore import Qt, QSize, QObject, Signal, QThread
 from PySide6.QtGui import QColor, QIcon
 from PySide6.QtWidgets import QDialog, QGraphicsDropShadowEffect
 
-import rei_bot.issuance_register_of_building as ibl
 from interface.sub_interface import find_address_lite
 from ui.custom.LoadingBox import LoadingBox
 from ui.dialog.ui_ledger import Ui_Ledger
