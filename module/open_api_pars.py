@@ -115,7 +115,7 @@ class DataRequestThread(QThread):
         self.sigungu = binfo['주소코드'][:5]
         self.bjdong = binfo['주소코드'][5:10]
         self.bun, self.ji = binfo['번'].zfill(4), binfo['지'].zfill(4)
-        self.dong = binfo['동명칭']
+        self.dong = binfo['동명칭'] if '동명칭' in binfo.keys() else ''
         self.pnu = binfo['주소코드'] + '1' + self.bun + self.ji
 
     def run(self):

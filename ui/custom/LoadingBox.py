@@ -8,6 +8,8 @@ class LoadingBox(QFrame):
         self.parent = parent
         self.setStyleSheet("QFrame { background-color: rgba(0,0,0,40)}")
 
+        self.ing = False
+
         self.frame = QFrame(self)
         self.frame.setStyleSheet("""
         QFrame {
@@ -45,9 +47,11 @@ class LoadingBox(QFrame):
         self.loading_img.move(img_x, 0)
 
     def show_loading(self):
+        self.ing = True
         self.movie.start()
         self.show()
 
     def hide_loading(self):
+        self.ing = False
         self.movie.stop()
         self.hide()

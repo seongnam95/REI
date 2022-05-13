@@ -2,7 +2,9 @@ import sys
 import re
 
 from PySide6.QtWidgets import QMainWindow, QApplication, QGraphicsDropShadowEffect
-from PySide6.QtGui import QIcon, QColor, QIntValidator, QDoubleValidator
+from PySide6.QtGui import QColor, QIntValidator, QDoubleValidator
+
+from interface.sub_interface import find_address_details
 from ui.main.ui_add_room import Ui_AddRoom
 
 
@@ -24,6 +26,8 @@ class AddRoom(QMainWindow, Ui_AddRoom):
 
     # UI 상호작용 설정
     def _init_interaction(self):
+        self.edt_address.mousePressEvent = self.clicked_address_edit
+
         self.cbx_type.activated.connect(self.type_change_event)
 
         self.btn_back.clicked.connect(lambda: self.page_change_event(self.stackedWidget.currentIndex() - 1))
@@ -89,6 +93,19 @@ class AddRoom(QMainWindow, Ui_AddRoom):
         shadow.setColor(QColor(123, 123, 255, 120))
         self.btn_next.setGraphicsEffect(shadow)
 
+    #
+    ####################################################################################################################
+
+    # 소재지 찾기 에디트 클릭
+    def clicked_address_edit(self, e=None):
+        dialog = find_address_details.AddressDetails(self.edt_address.text())
+        dialog.exec()
+
+        if dialog.result:
+            self.binfo = dict(dialog.binfo)
+            for i, n in self.binfo.items():
+                print(i, n)
+
     # UI 기능
     ####################################################################################################################
 
@@ -137,11 +154,11 @@ class AddRoom(QMainWindow, Ui_AddRoom):
     # 주차 가능, 불가능 토글
     def parking_toggle_event(self, toggle):
         if toggle:
-            self.btn_paking_true.setChecked(True)
-            self.btn_paking_false.setChecked(False)
+            self.btn_parking_true.setChecked(True)
+            self.btn_parking_false.setChecked(False)
         else:
-            self.btn_paking_true.setChecked(False)
-            self.btn_paking_false.setChecked(True)
+            self.btn_parking_true.setChecked(False)
+            self.btn_parking_false.setChecked(True)
 
     # 즉시입주, 날짜 지정 이벤트
     def day_toggle_event(self):
