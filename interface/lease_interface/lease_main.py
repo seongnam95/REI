@@ -34,7 +34,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
         self.load_keyword()
 
         self.get_building_thread = None  # 토지, 지역지구, 공시지가 스레드
-        self.binfo, self.address, self.land = None, None, None  # 주소
+        self.binfo, self.result_address, self.land = None, None, None  # 주소
         self.select_detail, self.select_building, self.total_buildings = None, None, None  # 표제부, 총괄 표제부
         self.owners, self.prices, self.pk = None, None, None  # 소유자, 공시가격, 건축물대장 PK
 

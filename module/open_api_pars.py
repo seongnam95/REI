@@ -168,7 +168,7 @@ class DataRequestThread(QThread):
                                   '옥내기계식대수': 'indrMechUtcnt', '옥외기계식대수': 'oudrMechUtcnt',
                                   '옥내자주식대수': 'indrAutoUtcnt', '옥외자주식대수': 'oudrAutoUtcnt',
                                   '승강기': 'rideUseElvtCnt', '비상용승강기': 'emgenUseElvtCnt',
-                                  '사용승인일': 'useAprDay', '건축물대장PK': 'mgmBldrgstPk',
+                                  '사용승인일': 'useAprDay', '표제부PK': 'mgmBldrgstPk',
                                   '건물명칭': 'bldNm', '동명칭': 'dongNm',
                                   '호수': 'hoCnt', '가구수': 'fmlyCnt', '세대수': 'hhldCnt'}
 
@@ -182,11 +182,11 @@ class DataRequestThread(QThread):
                         parsing_type = 'getBrExposPubuseAreaInfo'
                         column = {'동명칭': 'dongNm', '호명칭': 'hoNm', '전용면적': 'area', '전유공용구분': 'exposPubuseGbCdNm',
                                   '주구조': 'strctCdNm', '기타구조': 'etcStrct', '주용도': 'mainPurpsCdNm', '기타용도': 'etcPurps',
-                                  '건축물대장PK': 'mgmBldrgstPk', '층구분': 'flrGbCdNm', '층번호': 'flrNo', '층번호명': 'flrNoNm'}
+                                  '전유부PK': 'mgmBldrgstPk', '층구분': 'flrGbCdNm', '층번호': 'flrNo', '층번호명': 'flrNoNm'}
 
                     elif ty == '층별':
                         parsing_type = 'getBrFlrOulnInfo'
-                        column = {'층구분': 'flrGbCdNm', '층번호': 'flrNo', '층명칭': 'flrNoNm', '층면적': 'area',
+                        column = {'주부속구분': 'mainAtchGbCdNm', '층구분': 'flrGbCdNm', '층번호': 'flrNo', '층명칭': 'flrNoNm', '층면적': 'area',
                                   '주구조': 'strctCdNm', '기타구조': 'etcStrct', '주용도': 'mainPurpsCdNm', '기타용도': 'etcPurps'}
 
                     elif ty == '지역지구':

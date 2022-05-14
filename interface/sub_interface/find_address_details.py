@@ -1,15 +1,13 @@
-import re
 import sys
+
 import pandas as pd
+from PySide6.QtCore import Qt, QSize
+from PySide6.QtGui import QIcon, QColor
+from PySide6.QtWidgets import QDialog, QLabel, QListWidgetItem, QWidget, QGridLayout, QGraphicsDropShadowEffect
+
 import module.open_api_pars as pars
-
-from PySide6.QtGui import QMovie, QIcon, QColor
-from PySide6.QtWidgets import QDialog, QLabel, QListWidgetItem, QMessageBox, QWidget, \
-    QGridLayout, QApplication, QGraphicsOpacityEffect, QGraphicsDropShadowEffect
-from PySide6.QtCore import Qt, QPropertyAnimation, QTimer, QSize, QEvent
-
-from ui.dialog.ui_address import Ui_FindAddress
 from ui.custom import LoadingBox, BlackBoxMsg
+from ui.dialog.ui_address import Ui_FindAddress
 
 
 class MsgContext:
@@ -18,7 +16,7 @@ class MsgContext:
     failed_to_search = "조회되지 않는 건물입니다. \n\n(신축 건물 또는 건축물대장에 등재되지 않은 건물은 \n조회되지 않을 수 있습니다.)"
     network_err = "데이터 서버가 원할하지 않습니다. \n불편을 드려 죄송합니다. 잠시 후 다시 시도해주세요.\n\n( 에러코드 : %s )"
     loading_msg = "건축물대장 정보를 불러오는 중입니다.\n통신 서버 및 네트워크 상태에 따라\n지연 될 수 있습니다."
-    failed_in_search = "정보를 불러오는 중 에러가 발생했습니다. 관리자에게 문의해주세요."
+    failed_in_search = "건축물 API 데이터가 조회되지 않습니다."
 
 
 class AddressDetails(QDialog, Ui_FindAddress):
@@ -32,15 +30,14 @@ class AddressDetails(QDialog, Ui_FindAddress):
         self.DETAIL_ADDRESS_API_KEY = 'U01TX0FVVEgyMDIxMTIyMzEzMTE1NzExMjA2MTU='
 
         # 변수 선언
-        self.address, self.binfo = None, None    # 주소
-        self.buildings, self.total_buildings = None, None   # 건물 (동)
-        self.detail, self.exact_detail = None, None    # 상세 (호, 층)
-        self.land, self.owners, self.prices = None, None, None   # 소유자, 공시가격
+        self.res_address, self.res_title, self.res_expos, self.res_exact_expos = None, None, None, None
+
+        self.address, self.title, self.expos, self.expos_tot, self.total = None, None, None, None, None
+        self.land, self.owners, self.prices = None, None, None
+
         self.get_buildings, self.get_building_info = None, None
         self.select_index, self.result = None, False
-        self.detail_list = []
-
-        self.msg_timer = False
+        self.expos_list = []
 
         self._init_ui()
         self._init_interaction()
@@ -94,9 +91,9 @@ class AddressDetails(QDialog, Ui_FindAddress):
 
         # 주소 양끝 공백제거 후 파싱
         txt = self.edt_address.text().strip()
-        self.address = pars.OpenApiRequest.get_address(self.ADDRESS_API_KEY, txt)
+        self.res_address = pars.OpenApiRequest.get_address(self.ADDRESS_API_KEY, txt)
 
-        if self.address is None or self.address.empty:
+        if self.res_address is None or self.res_address.empty:
             self.msg.show_msg(2000, 'center', "검색 결과가 없습니다")
             self.lb_hint_2.show()
             return
@@ -105,8 +102,8 @@ class AddressDetails(QDialog, Ui_FindAddress):
         self.lb_hint_2.hide()
 
         # 불러온 주소 리스트에 추가
-        for i in range(len(self.address)):
-            result = self.address.iloc[i]
+        for i in range(len(self.res_address)):
+            result = self.res_address.iloc[i]
             if result['건물명칭'] == "": bld_name = ""
             else: bld_name = " (%s)" % result['건물명칭']
 
@@ -124,6 +121,7 @@ class AddressDetails(QDialog, Ui_FindAddress):
 
     # 건물명칭(동) 콤보박스 추가
     def add_building_list(self, val):
+        self.loading.hide_loading()
 
         # 데이터가 없을 경우 리턴
         if val[0] is None: 
@@ -131,36 +129,34 @@ class AddressDetails(QDialog, Ui_FindAddress):
             return
 
         # 표제부 '주건축물'만 조회
-        buildings = val[0][val[0]['주부속구분'] == '주건축물']
-        self.total_buildings = val[1]
+        titles = val[0][val[0]['주부속구분'] == '주건축물']
+        self.total = val[1]
 
         # 주건축물 조회가 안 될 경우
-        if buildings is None: self.msg.show_msg(2000, 'center', MsgContext.failed_to_search)
-        elif ('err' in buildings) or ('ERR' in buildings): self.msg.show_msg(2000, 'center', MsgContext.network_err % buildings)
+        if titles is None: self.msg.show_msg(2000, 'center', MsgContext.failed_to_search)
+        elif ('err' in titles) or ('ERR' in titles): self.msg.show_msg(2000, 'center', MsgContext.network_err % titles)
 
         # 조회 되었을 경우
         else:
             # 건물 데이터 정렬
-            buildings = buildings.sort_values(by=['동명칭'], axis=0)
-            buildings.reset_index(drop=True, inplace=True)
+            self.res_title = titles.sort_values(by=['동명칭'], axis=0)
+            self.res_title.reset_index(drop=True, inplace=True)
+            titles = self.res_title
 
             self.clear_cbx(True)
 
             # 콤보박스 아이템 추가
-            for i in range(len(buildings)):
-                result = buildings.iloc[i]
+            for i in range(len(titles)):
+                result = titles.iloc[i]
 
                 if result['동명칭'] != '': item = result['동명칭']
-                elif result['건물명칭'] != '' and self.binfo['건물명칭'] != '': item = result['건물명칭']
+                elif result['건물명칭'] != '' and self.address['건물명칭'] != '': item = result['건물명칭']
                 else: item = '동/건물 명칭 없음'
 
                 self.cbx_buildings.addItem(item)
 
-            self.loading.hide_loading()
-            self.buildings = buildings
-
             # 동이 하나일 경우 '동 선택' 스킵
-            if len(buildings) == 1:
+            if len(titles) == 1:
                 self.cbx_buildings.setCurrentIndex(1)
                 self.cbx_buildings.setEnabled(False)
                 self.select_building_event()
@@ -173,50 +169,50 @@ class AddressDetails(QDialog, Ui_FindAddress):
     def add_room_list(self, val):
         if val[0] is None: self.msg.show_msg(2000, 'center', MsgContext.failed_in_search)
         else:
-            self.detail, self.land, self.owners, self.prices = val[0], val[1], val[2], val[3]
-            self.exact_detail = details = sorted_rooms_len(get_exact_value(self.detail))
+            self.res_expos, self.land, self.owners, self.prices = val[0], val[1], val[2], val[3]
+            self.res_exact_expos = res_exact_expos = sorted_rooms_len(get_exact_value(self.res_expos))
 
-            for i in range(len(details)):
-                ho = details.iloc[i]['호명칭'].rstrip('호')
-                area = round(pd.to_numeric(details.iloc[i]['전용면적']), 2)
+            for i in range(len(res_exact_expos)):
+                ho = res_exact_expos.iloc[i]['호명칭'].rstrip('호')
+                area = round(pd.to_numeric(res_exact_expos.iloc[i]['전용면적']), 2)
                 item = '%s호 (%s m²)' % (ho, str(area))
 
                 self.cbx_rooms.addItem(item)
-                self.detail_list.append(item)
+                self.expos_list.append(item)
 
             self.loading.hide_loading()
             self.cbx_rooms.showPopup()
 
     # 일반건물(층) 콤보박스 추가
     def add_layer_list(self, val):
-        if val[0] is None:
-            self.msg.show_msg(2000, 'center', MsgContext.failed_in_search)
-            return
-        if val[2] is not None: self.owners = val[2]
-        if val[3] is not None: self.prices = val[3]
+        if val[0] is None: self.msg.show_msg(2000, 'center', MsgContext.failed_in_search)
+        else:
+            self.res_expos, self.land, self.owners, self.prices = val[0], val[1], val[2], val[3]
+            self.res_expos = sort_value_layer(val[0])
+            self.clear_cbx(False)
+            for i in range(len(self.res_expos)):
+                layer = self.res_expos.loc[i]['층명칭']
+                purps = self.res_expos.loc[i]['기타용도']
+                item = '%s | %s' % (layer, purps)
 
-        self.detail, self.land = val[0], val[1]
-        self.detail = sort_value_layer(val[0])
+                self.cbx_rooms.addItem(item)
+                self.expos_list.append(item)
 
-        self.clear_cbx(False)
-        for i in range(len(self.detail)):
-            layer = self.detail.loc[i]['층명칭']
-            purps = self.detail.loc[i]['기타용도']
-            item = '%s | %s' % (layer, purps)
-
-            self.cbx_rooms.addItem(item)
-            self.detail_list.append(item)
-
-        self.loading.hide_loading()
-        self.cbx_rooms.showPopup()
+            self.loading.hide_loading()
+            self.cbx_rooms.showPopup()
 
     ########################################################################################################
 
     # 주소 선택
     def select_address_event(self):
-        self.binfo = dict(self.address.iloc[self.list_address.currentRow()])
-
         self.loading.show_loading()
+        self.address = address = dict(self.res_address.iloc[self.list_address.currentRow()])
+
+        # 구주소
+        bjr_nm = '' if address['법정리'] == '' else ' %s' % address['법정리']
+        old = "%s %s %s%s %s" % (address['시도'], address['시군구'], address['읍면동'], bjr_nm, address['번'])
+        if address['지'] != '0': old = "%s-%s" % (old, address['지'])
+        self.address['주소'] = old
 
         # UI 리셋
         self.edt_result_address.clear()
@@ -226,7 +222,7 @@ class AddressDetails(QDialog, Ui_FindAddress):
         self.cbx_rooms.addItem("( 상세주소 / 호 선택 )")
 
         # 표제부, 총괄표제부 파싱 쓰레드
-        self.get_buildings = pars.DataRequestThread(self.binfo, self.BULIDING_API_KEY, ['표제부', '총괄표제부'])
+        self.get_buildings = pars.DataRequestThread(self.address, self.BULIDING_API_KEY, ['표제부', '총괄표제부'])
         self.get_buildings.start()
         self.get_buildings.threadEvent.workerThreadDone.connect(self.add_building_list)
 
@@ -240,17 +236,17 @@ class AddressDetails(QDialog, Ui_FindAddress):
         self.cbx_rooms.clear()
         self.cbx_rooms.addItem("( 상세주소 / 호 선택 )")
 
-        self.binfo.update(dict(self.buildings.iloc[self.cbx_buildings.currentIndex() - 1]))
+        self.title = dict(self.res_title.iloc[self.cbx_buildings.currentIndex() - 1])
 
         # 일반일 경우
-        if self.binfo['대장구분'] == '일반':
-            self.get_building_info = pars.DataRequestThread(self.binfo, self.BULIDING_API_KEY, ['층별', '토지', '소유자', '개별주택가격'])
+        if self.title['대장구분'] == '일반':
+            self.get_building_info = pars.DataRequestThread(self.address, self.BULIDING_API_KEY, ['층별', '토지', '소유자', '개별주택가격'])
             self.get_building_info.start()
             self.get_building_info.threadEvent.workerThreadDone.connect(self.add_layer_list)
 
         # 건물 타입이 집합일 경우
-        if self.binfo['대장구분'] == '집합':
-            self.get_building_info = pars.DataRequestThread(self.binfo, self.BULIDING_API_KEY, ['전유부', '토지', '소유자', '공동주택가격'])
+        if self.title['대장구분'] == '집합':
+            self.get_building_info = pars.DataRequestThread(self.address, self.BULIDING_API_KEY, ['전유부', '토지', '소유자', '공동주택가격'])
             self.get_building_info.start()
             self.get_building_info.threadEvent.workerThreadDone.connect(self.add_room_list)
 
@@ -262,23 +258,22 @@ class AddressDetails(QDialog, Ui_FindAddress):
 
         select_index = self.cbx_rooms.currentIndex() - 1
 
-        bjr_nm = '' if self.binfo['법정리'] == '' else ' %s' % self.binfo['법정리']
-        old = "%s %s %s%s %s" % (self.binfo['시도'], self.binfo['시군구'], self.binfo['읍면동'], bjr_nm, self.binfo['번'])
-        if self.binfo['지'] != '0': old = "%s-%s" % (old, self.binfo['지'])
-
         # 일반일 경우
-        if self.binfo['대장구분'] == '일반':
-            self.binfo.update(self.detail.iloc[select_index])  # 층별
-            self.edt_result_address.setText("%s, %s" % (old, self.binfo['층명칭']))
+        if self.title['대장구분'] == '일반':
+            self.expos = self.res_expos.iloc[select_index]  # 층별
+            self.edt_result_address.setText("%s, %s" % (self.address['주소'], self.expos['층명칭']))
 
         # 집합일 경우
-        elif self.binfo['대장구분'] == '집합':
-            self.binfo.update(self.exact_detail.iloc[select_index])
-            dong = self.binfo['동명칭'].rstrip('동')
-            ho = self.binfo['호명칭'].rstrip('호')
+        elif self.title['대장구분'] == '집합':
+            self.expos = self.res_exact_expos.iloc[select_index]
+            dong = self.expos['동명칭'].rstrip('동')
+            ho = self.expos['호명칭'].rstrip('호')
+            self.expos_tot = self.res_expos[self.res_expos['호명칭'] == ho]
 
-            if not dong: self.edt_result_address.setText("%s, %s호" % (old, ho))
-            else: self.edt_result_address.setText("%s, %s동 %s호" % (old, dong, ho))
+            if not dong: self.edt_result_address.setText("%s, %s호" % (self.address['주소'], ho))
+            else: self.edt_result_address.setText("%s, %s동 %s호" % (self.address['주소'], dong, ho))
+
+        print(self.expos['주용도'], self.expos['기타용도'], sep=' ## ')
 
     # 소재지 입력 버튼
     def address_input_event(self):
@@ -296,7 +291,7 @@ class AddressDetails(QDialog, Ui_FindAddress):
         self.edt_result_address.clear()
 
         if all_clear:
-            self.detail_list.clear()
+            self.expos_list.clear()
             self.cbx_buildings.clear()
             self.cbx_buildings.addItem("( 건물명칭 / 동 선택 )")
 
@@ -378,9 +373,6 @@ def sorted_rooms_len(data):
     except (ValueError, IndexError, TypeError) as e:
         print(e)
         return existing
-
-
-
 
 
 class AddressListItem(QWidget):

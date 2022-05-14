@@ -108,44 +108,53 @@ class AddRoom(QMainWindow, Ui_AddRoom):
         dialog.exec()
 
         if dialog.result:
-            binfo, expos = dict(dialog.binfo), dialog.detail
-            print(binfo, expos)
+            title, expos, expos_tot, total = dialog.title, dialog.expos, dialog.expos_tot, dialog.total
+            self.input_auto_data(title, expos, expos_tot, total)
 
-            if binfo['대장구분'] == '일반': expos = expos[expos['층번호'] == binfo['층번호']]
-            else: expos = expos[expos['호명칭'] == binfo['호명칭']]
-            total = dialog.total_buildings
+    def input_auto_data(self, title, expos, expos_tot, total):
+        parking = str(sum(map(int, [title['옥내기계식대수'], title['옥내자주식대수'], title['옥외기계식대수'], title['옥외자주식대수']])))
+        if total is not None:
+            if parking == '0':
+                parking = str(sum(map(int, [total['옥내기계식대수'], total['옥내자주식대수'],
+                                            total['옥외기계식대수'], total['옥외자주식대수']])))
 
-            self.input_auto_data(binfo, expos, total)
+        area = expos['전용면적'] if title['대장구분'] == '집합' else ''
+        area_tot = round(sum(map(float, list(expos_tot['전용면적']))), 2) if title['대장구분'] == '집합' else expos['층면적']
 
-    def input_auto_data(self, binfo, expos, total):
-        binfo['주차대수'] = sum(map(int, [binfo['옥내기계식대수'], binfo['옥외기계식대수'], binfo['옥내자주식대수'], binfo['옥외자주식대수']]))
-        binfo['공급면적'] = round(sum(map(float, list(expos['전용면적']))), 2)
-        binfo['해당층'] = binfo['층번호'].split('.')[0]
-        binfo['사용승인일'] = [binfo['사용승인일'][:4], binfo['사용승인일'][4:6], binfo['사용승인일'][6:]]
+        layer = expos['층번호'].split('.')[0]
+        layer_tot = title['지상층수']
+        title['사용승인일'] = [title['사용승인일'][:4], title['사용승인일'][4:6], title['사용승인일'][6:]]
 
-        for n, i in binfo.items(): print(n, ":   ", i)
-
-        input_data = {'공급면적': binfo['공급면적'], '전용면적': binfo['전용면적'], '주차대수': binfo['주차대수'],
-                      '총층': binfo['지상층수'], '해당층': binfo['해당층']}
+        input_data = {'공급면적': area_tot, '전용면적': area, '주차대수': parking, '총층': layer_tot, '해당층': layer}
 
         # 에딧 입력
         for key, val in input_data.items(): self.edt_list[key].setText(str(val))
-        for n, i in enumerate(self.edt_list['사용승인일']): i.setText(binfo['사용승인일'][n])
+        for n, i in enumerate(self.edt_list['사용승인일']): i.setText(title['사용승인일'][n])
 
         # '주차 여부' 클릭
-        if int(binfo['주차대수']) > 0: self.btn_parking_true.click()
+        if int(parking) > 0: self.btn_parking_true.click()
         else: self.btn_parking_false.click()
 
         # 용도 선택
-        alone = ['단독', '다가구', '다중주택', '공관']
+        alone = ['단독', '다가구', '다중', '공관']
         public = ['아파트', '다세대', '연립']
+        work = ['사무소', '오피스텔']
+        facility_1 = ['1종']
+        facility_2 = ['2종']
 
-        if binfo['주용도'] in alone or binfo['기타용도'] in alone:  self.cbx_purpose.setCurrentIndex(0)
-        elif binfo['주용도'] in public or binfo['기타용도'] in public:  self.cbx_purpose.setCurrentIndex(1)
-        elif binfo['주용도'] in facility_1 or binfo['기타용도'] in facility_1:  self.cbx_purpose.setCurrentIndex(2)
-        elif binfo['주용도'] in facility_2 or binfo['기타용도'] in facility_2:  self.cbx_purpose.setCurrentIndex(3)
-        elif binfo['주용도'] in work or binfo['기타용도'] in work:  self.cbx_purpose.setCurrentIndex(4)
-        else: self.cbx_purpose.setCurrentIndex(5)
+        if len([i for i in alone if i in expos['주용도']]) > 0: self.cbx_purpose.setCurrentIndex(0)
+        elif len([i for i in alone if i in expos['기타용도']]) > 0: self.cbx_purpose.setCurrentIndex(0)
+        elif len([i for i in public if i in expos['주용도']]) > 0: self.cbx_purpose.setCurrentIndex(1)
+        elif len([i for i in public if i in expos['기타용도']]) > 0: self.cbx_purpose.setCurrentIndex(1)
+        elif len([i for i in facility_1 if i in expos['주용도']]) > 0: self.cbx_purpose.setCurrentIndex(2)
+        elif len([i for i in facility_1 if i in expos['기타용도']]) > 0: self.cbx_purpose.setCurrentIndex(2)
+        elif len([i for i in facility_2 if i in expos['주용도']]) > 0: self.cbx_purpose.setCurrentIndex(3)
+        elif len([i for i in facility_2 if i in expos['기타용도']]) > 0: self.cbx_purpose.setCurrentIndex(3)
+        elif len([i for i in work if i in expos['주용도']]) > 0: self.cbx_purpose.setCurrentIndex(4)
+        elif len([i for i in work if i in expos['기타용도']]) > 0: self.cbx_purpose.setCurrentIndex(4)
+        else:
+            self.cbx_purpose.setCurrentIndex(5)
+            self.show_hide_edt_event('건축물용도')
 
         print(input_data)
 
@@ -181,15 +190,13 @@ class AddRoom(QMainWindow, Ui_AddRoom):
     # '직접입력' 이벤트
     def show_hide_edt_event(self, kind):
         if kind == '건축물용도':
-            widget = self.focusWidget()
-            if widget.currentText() == '( 직접입력 )':
+            if self.cbx_purpose.currentText() == '( 직접입력 )':
                 self.edt_purpose.show()
                 self.edt_purpose.setFocus()
             else: self.edt_purpose.hide()
 
         elif kind == '관계':
-            widget = self.focusWidget()
-            if widget.currentText() == '( 직접입력 )':
+            if self.cbx_relationship.currentText() == '( 직접입력 )':
                 self.edt_relationship.show()
                 self.edt_relationship.setFocus()
             else: self.edt_relationship.hide()
