@@ -17,6 +17,12 @@ class AddRoom(QMainWindow, Ui_AddRoom):
         self._init_shadows()
         self._init_interaction()
 
+        self.binfo = dict
+        self.edt_list = {'공급면적': self.edt_supply_area, '전용면적': self.edt_area, '주차대수': self.edt_parking,
+                         '총층': self.edt_total_layer, '해당층': self.edt_layer, '세대수': self.edt_household,
+                         '대지지분1': self.edt_land_share_1, '대지지분2': self.edt_land_share_2,
+                         '사용승인일': [self.edt_day_1, self.edt_day_2, self.edt_day_3]}
+
         self.show()
 
     def _init_ui(self):
@@ -102,9 +108,46 @@ class AddRoom(QMainWindow, Ui_AddRoom):
         dialog.exec()
 
         if dialog.result:
-            self.binfo = dict(dialog.binfo)
-            for i, n in self.binfo.items():
-                print(i, n)
+            binfo, expos = dict(dialog.binfo), dialog.detail
+            print(binfo, expos)
+
+            if binfo['대장구분'] == '일반': expos = expos[expos['층번호'] == binfo['층번호']]
+            else: expos = expos[expos['호명칭'] == binfo['호명칭']]
+            total = dialog.total_buildings
+
+            self.input_auto_data(binfo, expos, total)
+
+    def input_auto_data(self, binfo, expos, total):
+        binfo['주차대수'] = sum(map(int, [binfo['옥내기계식대수'], binfo['옥외기계식대수'], binfo['옥내자주식대수'], binfo['옥외자주식대수']]))
+        binfo['공급면적'] = round(sum(map(float, list(expos['전용면적']))), 2)
+        binfo['해당층'] = binfo['층번호'].split('.')[0]
+        binfo['사용승인일'] = [binfo['사용승인일'][:4], binfo['사용승인일'][4:6], binfo['사용승인일'][6:]]
+
+        for n, i in binfo.items(): print(n, ":   ", i)
+
+        input_data = {'공급면적': binfo['공급면적'], '전용면적': binfo['전용면적'], '주차대수': binfo['주차대수'],
+                      '총층': binfo['지상층수'], '해당층': binfo['해당층']}
+
+        # 에딧 입력
+        for key, val in input_data.items(): self.edt_list[key].setText(str(val))
+        for n, i in enumerate(self.edt_list['사용승인일']): i.setText(binfo['사용승인일'][n])
+
+        # '주차 여부' 클릭
+        if int(binfo['주차대수']) > 0: self.btn_parking_true.click()
+        else: self.btn_parking_false.click()
+
+        # 용도 선택
+        alone = ['단독', '다가구', '다중주택', '공관']
+        public = ['아파트', '다세대', '연립']
+
+        if binfo['주용도'] in alone or binfo['기타용도'] in alone:  self.cbx_purpose.setCurrentIndex(0)
+        elif binfo['주용도'] in public or binfo['기타용도'] in public:  self.cbx_purpose.setCurrentIndex(1)
+        elif binfo['주용도'] in facility_1 or binfo['기타용도'] in facility_1:  self.cbx_purpose.setCurrentIndex(2)
+        elif binfo['주용도'] in facility_2 or binfo['기타용도'] in facility_2:  self.cbx_purpose.setCurrentIndex(3)
+        elif binfo['주용도'] in work or binfo['기타용도'] in work:  self.cbx_purpose.setCurrentIndex(4)
+        else: self.cbx_purpose.setCurrentIndex(5)
+
+        print(input_data)
 
     # UI 기능
     ####################################################################################################################
