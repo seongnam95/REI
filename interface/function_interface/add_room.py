@@ -124,7 +124,7 @@ class AddRoom(QMainWindow, Ui_AddRoom):
 
         layer = expos['층번호'].split('.')[0]
         layer_tot = title['지상층수']
-        title['사용승인일'] = [title['사용승인일'][:4], title['사용승인일'][4:6], title['사용승인일'][6:]]
+        title['사용승인일'] = [title['사용승인일'][:4], title['사용승인일'][4:6].lstrip('0'), title['사용승인일'][6:].lstrip('0')]
 
         input_data = {'공급면적': area_tot, '전용면적': area, '주차대수': parking, '총층': layer_tot, '해당층': layer}
 

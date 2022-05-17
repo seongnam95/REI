@@ -397,8 +397,9 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
         #### 일반일 경우
         if title['대장구분'] == '일반':
+            self.base_name_8.setText('층 면적')
             expos = self.res_expos.loc[self.cbx_rooms.currentIndex()]
-            room_area, public_area = expos['층면적'], ''
+            room_area, public_area = expos['층면적'], '--'
             room = "%s층" % expos['층명칭'].rstrip("층")
             if title['동명칭']: room = "%s동 %s" % (title['동명칭'].rstrip("동"), room)
             pk = title['표제부PK']
@@ -414,6 +415,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
 
         #### 집합일 경우
         else:
+            self.base_name_8.setText('전용면적')
             expos = self.res_exact_expos.loc[self.cbx_rooms.currentIndex()]
             self.expos_tot = self.res_expos[self.res_expos['호명칭'] == expos['호명칭']]
 
