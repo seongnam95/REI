@@ -35,6 +35,7 @@ class AddRoom(QMainWindow, Ui_AddRoom):
         self.edt_address.mousePressEvent = self.clicked_address_edit
 
         self.cbx_type.activated.connect(self.type_change_event)
+        self.cbx_kind_1.activated.connect(self.kind_change_event)
 
         self.btn_back.clicked.connect(lambda: self.page_change_event(self.stackedWidget.currentIndex() - 1))
         self.btn_next.clicked.connect(lambda: self.page_change_event(self.stackedWidget.currentIndex() + 1))
@@ -137,24 +138,16 @@ class AddRoom(QMainWindow, Ui_AddRoom):
 
         # 용도 선택
         alone = ['단독', '다가구', '다중', '공관']
-        public = ['아파트', '다세대', '연립']
+        public = ['아파트', '다세대', '연립', '공동주택']
+        facility_1 = ['1종', '안마시술', '노래연습']
+        facility_2 = ['2종', '일반음식점']
         work = ['사무소', '오피스텔']
-        facility_1 = ['1종']
-        facility_2 = ['2종']
 
-        if len([i for i in alone if i in expos['주용도']]) > 0: self.cbx_purpose.setCurrentIndex(0)
-        elif len([i for i in alone if i in expos['기타용도']]) > 0: self.cbx_purpose.setCurrentIndex(0)
-        elif len([i for i in public if i in expos['주용도']]) > 0: self.cbx_purpose.setCurrentIndex(1)
-        elif len([i for i in public if i in expos['기타용도']]) > 0: self.cbx_purpose.setCurrentIndex(1)
-        elif len([i for i in facility_1 if i in expos['주용도']]) > 0: self.cbx_purpose.setCurrentIndex(2)
-        elif len([i for i in facility_1 if i in expos['기타용도']]) > 0: self.cbx_purpose.setCurrentIndex(2)
-        elif len([i for i in facility_2 if i in expos['주용도']]) > 0: self.cbx_purpose.setCurrentIndex(3)
-        elif len([i for i in facility_2 if i in expos['기타용도']]) > 0: self.cbx_purpose.setCurrentIndex(3)
-        elif len([i for i in work if i in expos['주용도']]) > 0: self.cbx_purpose.setCurrentIndex(4)
-        elif len([i for i in work if i in expos['기타용도']]) > 0: self.cbx_purpose.setCurrentIndex(4)
-        else:
-            self.cbx_purpose.setCurrentIndex(5)
-            self.show_hide_edt_event('건축물용도')
+        self.cbx_purpose.setCurrentIndex(5)
+        for idx, lst in enumerate([alone, public, facility_1, facility_2, work]):
+            for i in lst:
+                if i in expos['주용도'] or i in expos['기타용도']:
+                    self.cbx_purpose.setCurrentIndex(idx)
 
         print(input_data)
 
@@ -186,6 +179,56 @@ class AddRoom(QMainWindow, Ui_AddRoom):
             self.label_15.hide()
 
             self.sub_1_frame.show()
+
+    def kind_change_event(self):
+        item = self.cbx_kind_1.currentText()
+        self.cbx_kind_2.clear()
+
+        if item == '아파트':
+            sub_list = ['아파트', '주상복합', '재건축']
+            self.cbx_kind_2.addItems(sub_list)
+
+        elif item == '분양권':
+            sub_list = ['아파트 분양권', '주상복합 분양권', '오피스텔 분양권']
+            self.cbx_kind_2.addItems(sub_list)
+
+        elif item == '오피스텔':
+            sub_list = ['주거용', '업무용', '겸용', '숙박시설']
+            self.cbx_kind_2.addItems(sub_list)
+
+        elif item == '재개발':
+            sub_list = ['아파트', '연립', '빌라', '단독', '다세대', '다가구', '상가', '기타']
+            self.cbx_kind_2.addItems(sub_list)
+
+        elif item == '주택':
+            sub_list = ['단독', '다가구', '다세대', '연립', '빌라', '상가주택', '전원주택', '한옥주택', '기타']
+            self.cbx_kind_2.addItems(sub_list)
+
+        elif item == '원룸':
+            sub_list = ['일반원룸', '오피스텔', '원룸형 아파트', '도시형생활주택', '기타']
+            self.cbx_kind_2.addItems(sub_list)
+
+        elif item == '상가점포':
+            sub_list = ['단지내상가', '일반상가', '복합상가']
+            self.cbx_kind_2.addItems(sub_list)
+
+        elif item == '사무실':
+            sub_list = ['대형사무실', '중소형사무실', '오피스텔', '지식산업센터']
+            self.cbx_kind_2.addItems(sub_list)
+
+        elif item == '공장/창고':
+            sub_list = ['공장', '창고', '기타']
+            self.cbx_kind_2.addItems(sub_list)
+
+        elif item == '빌딩 건물':
+            sub_list = ['빌딩', '상업시설', '레저스포츠위탁', '여관/모텔/호텔', '콘도', '펜션', '고시텔', '상가건물', '빌딩건물 기타', '기타']
+            self.cbx_kind_2.addItems(sub_list)
+
+        elif item == '토지':
+            sub_list = ["대", "전", "답", "임야", "공원", "구거", "도로", "염전", "제방", "하천", "유지", "묘지", "과수원",
+                        "양어장", "주차장", "유원지", "광천지", "사적지", "잡종지", "공장용지", "창고용지", "학교용지", "종교용지",
+                        "체육용지", "수도용지", "목장용지", "철도용지", "주유소용지", "기타"]
+            self.cbx_kind_2.addItems(sub_list)
 
     # '직접입력' 이벤트
     def show_hide_edt_event(self, kind):
