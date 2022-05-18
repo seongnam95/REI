@@ -23,12 +23,14 @@ class AddRoom(QMainWindow, Ui_AddRoom):
                          '대지지분1': self.edt_land_share_1, '대지지분2': self.edt_land_share_2,
                          '사용승인일': [self.edt_day_1, self.edt_day_2, self.edt_day_3]}
 
+        self.kind_change_event()
         self.show()
 
     def _init_ui(self):
         self.btn_back.hide()
         self.edt_purpose.hide()
         self.edt_relationship.hide()
+        self.premium_frame.hide()
 
     # UI 상호작용 설정
     def _init_interaction(self):
@@ -156,33 +158,47 @@ class AddRoom(QMainWindow, Ui_AddRoom):
 
     # 거래 유형 변경 이벤트
     def type_change_event(self):
-        if self.cbx_type.currentIndex() == 0:
+        item = self.cbx_type.currentText()
+        self.kind_change_event()
+
+        if item == '매매':
             self.name_price.setText('매매가')
             self.name_sub_1.setText('기보증금')
 
             self.edt_sub_1_1.resize(76, 30)
             self.edt_sub_1_2.show()
             self.label_15.show()
+            self.label_19.setText('만')
+            self.label_19.move(220, self.label_19.y())
 
             self.sub_1_frame.show()
 
-        elif self.cbx_type.currentIndex() == 1:
+        elif item == '전세':
             self.name_price.setText('전세가')
             self.sub_1_frame.hide()
 
-        elif self.cbx_type.currentIndex() == 2:
+        elif item == '월세':
             self.name_price.setText('보증금')
             self.name_sub_1.setText('월 차임')
 
             self.edt_sub_1_1.resize(151, 30)
             self.edt_sub_1_2.hide()
             self.label_15.hide()
+            self.label_19.setText('만원')
+            self.label_19.move(208, self.label_19.y())
 
             self.sub_1_frame.show()
 
     def kind_change_event(self):
         item = self.cbx_kind_1.currentText()
         self.cbx_kind_2.clear()
+
+        self.premium_frame.hide()
+        self.items_frame.show()
+
+        if self.cbx_type.currentText() == '전세':
+            self.sub_2_frame.move(330, 20)
+        else: self.sub_2_frame.move(330, 60)
 
         if item == '아파트':
             sub_list = ['아파트', '주상복합', '재건축']
@@ -212,9 +228,18 @@ class AddRoom(QMainWindow, Ui_AddRoom):
             sub_list = ['단지내상가', '일반상가', '복합상가']
             self.cbx_kind_2.addItems(sub_list)
 
+            self.premium_frame.show()
+            self.items_frame.hide()
+
+            if self.cbx_type.currentText() == '전세':
+                self.premium_frame.move(330, 60)
+            else: self.premium_frame.move(30, 100)
+
         elif item == '사무실':
             sub_list = ['대형사무실', '중소형사무실', '오피스텔', '지식산업센터']
             self.cbx_kind_2.addItems(sub_list)
+
+            self.items_frame.hide()
 
         elif item == '공장/창고':
             sub_list = ['공장', '창고', '기타']
