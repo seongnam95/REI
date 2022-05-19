@@ -3,6 +3,7 @@ import re
 
 from PySide6.QtWidgets import QMainWindow, QApplication, QGraphicsDropShadowEffect
 from PySide6.QtGui import QColor, QIntValidator, QDoubleValidator
+from PySide6.QtCore import QPoint
 
 from interface.sub_interface import find_address_details
 from ui.main.ui_add_room import Ui_AddRoom
@@ -19,7 +20,7 @@ class AddRoom(QMainWindow, Ui_AddRoom):
 
         self.binfo = dict
         self.edt_list = {'공급면적': self.edt_supply_area, '전용면적': self.edt_area, '주차대수': self.edt_parking,
-                         '총층': self.edt_total_layer, '해당층': self.edt_layer, '세대수': self.edt_household,
+                         '총층': self.edt_total_floor, '해당층': self.edt_crt_floor, '세대수': self.edt_household,
                          '대지지분1': self.edt_land_share_1, '대지지분2': self.edt_land_share_2,
                          '사용승인일': [self.edt_day_1, self.edt_day_2, self.edt_day_3]}
 
@@ -30,7 +31,6 @@ class AddRoom(QMainWindow, Ui_AddRoom):
         self.btn_back.hide()
         self.edt_purpose.hide()
         self.edt_relationship.hide()
-        self.premium_frame.hide()
 
     # UI 상호작용 설정
     def _init_interaction(self):
@@ -53,12 +53,12 @@ class AddRoom(QMainWindow, Ui_AddRoom):
 
         self.cbx_purpose.activated.connect(lambda: self.show_hide_edt_event('건축물용도'))
         self.cbx_relationship.activated.connect(lambda: self.show_hide_edt_event('관계'))
-
-        self.edt_price.textChanged.connect(lambda: self.edt_price.setText(mask_money(self.edt_price.text())))
-        self.edt_admin_cost.textChanged.connect(lambda: self.edt_admin_cost.setText(mask_money(self.edt_admin_cost.text())))
-        self.edt_sub_1_1.textChanged.connect(lambda: self.edt_sub_1_1.setText(mask_money(self.edt_sub_1_1.text())))
-        self.edt_sub_1_2.textChanged.connect(lambda: self.edt_sub_1_2.setText(mask_money(self.edt_sub_1_2.text())))
-        self.edt_sub_2.textChanged.connect(lambda: self.edt_sub_2.setText(mask_money(self.edt_sub_2.text())))
+        #
+        # self.edt_price.textChanged.connect(lambda: self.edt_price.setText(mask_money(self.edt_price.text())))
+        # self.edt_admin_cost.textChanged.connect(lambda: self.edt_admin_cost.setText(mask_money(self.edt_admin_cost.text())))
+        # self.edt_sub_1_1.textChanged.connect(lambda: self.edt_sub_1_1.setText(mask_money(self.edt_sub_1_1.text())))
+        # self.edt_sub_1_2.textChanged.connect(lambda: self.edt_sub_1_2.setText(mask_money(self.edt_sub_1_2.text())))
+        # self.edt_sub_2.textChanged.connect(lambda: self.edt_sub_2.setText(mask_money(self.edt_sub_2.text())))
 
         self.edt_client_num_1.textChanged.connect(lambda: self.edt_client_num_1.setText(mask_phone(self.edt_client_num_1.text())))
         self.edt_client_num_2.textChanged.connect(lambda: self.edt_client_num_2.setText(mask_phone(self.edt_client_num_2.text())))
@@ -66,8 +66,8 @@ class AddRoom(QMainWindow, Ui_AddRoom):
         all_int = QIntValidator()
         self.edt_room_num.setValidator(all_int)
         self.edt_bathroom.setValidator(all_int)
-        self.edt_layer.setValidator(all_int)
-        self.edt_total_layer.setValidator(all_int)
+        self.edt_crt_floor.setValidator(all_int)
+        self.edt_total_floor.setValidator(all_int)
         self.edt_household.setValidator(all_int)
         self.edt_parking.setValidator(all_int)
         self.edt_day_1.setValidator(all_int)
@@ -163,97 +163,70 @@ class AddRoom(QMainWindow, Ui_AddRoom):
 
         if item == '매매':
             self.name_price.setText('매매가')
-            self.name_sub_1.setText('기보증금')
-
-            self.edt_sub_1_1.resize(76, 30)
-            self.edt_sub_1_2.show()
-            self.label_15.show()
-            self.label_19.setText('만')
-            self.label_19.move(220, self.label_19.y())
-
-            self.sub_1_frame.show()
 
         elif item == '전세':
             self.name_price.setText('전세가')
-            self.sub_1_frame.hide()
 
         elif item == '월세':
             self.name_price.setText('보증금')
-            self.name_sub_1.setText('월 차임')
-
-            self.edt_sub_1_1.resize(151, 30)
-            self.edt_sub_1_2.hide()
-            self.label_15.hide()
-            self.label_19.setText('만원')
-            self.label_19.move(208, self.label_19.y())
-
-            self.sub_1_frame.show()
 
     def kind_change_event(self):
-        item = self.cbx_kind_1.currentText()
+        kind = self.cbx_kind_1.currentText()
         self.cbx_kind_2.clear()
+        self.hide_items()
 
-        self.premium_frame.hide()
-        self.items_frame.show()
-
-        if self.cbx_type.currentText() == '전세':
-            self.sub_2_frame.move(330, 20)
-        else: self.sub_2_frame.move(330, 60)
-
-        if item == '아파트':
-            sub_list = ['아파트', '주상복합', '재건축']
+        if kind == '아파트' or kind == '오피스텔':
+            if kind == '아파트': sub_list = ['아파트', '주상복합', '재건축']
+            else: sub_list = ['주거용', '업무용', '겸용', '숙박시설']
             self.cbx_kind_2.addItems(sub_list)
+            self.set_price_ui(0)
 
-        elif item == '분양권':
+        elif kind == '분양권':
             sub_list = ['아파트 분양권', '주상복합 분양권', '오피스텔 분양권']
             self.cbx_kind_2.addItems(sub_list)
+            self.set_price_ui(3)
 
-        elif item == '오피스텔':
-            sub_list = ['주거용', '업무용', '겸용', '숙박시설']
-            self.cbx_kind_2.addItems(sub_list)
-
-        elif item == '재개발':
+        elif kind == '재개발':
             sub_list = ['아파트', '연립', '빌라', '단독', '다세대', '다가구', '상가', '기타']
             self.cbx_kind_2.addItems(sub_list)
+            self.set_price_ui(1)
 
-        elif item == '주택':
+        elif kind == '주택':
             sub_list = ['단독', '다가구', '다세대', '연립', '빌라', '상가주택', '전원주택', '한옥주택', '기타']
             self.cbx_kind_2.addItems(sub_list)
+            self.set_price_ui(0)
 
-        elif item == '원룸':
+        elif kind == '원룸':
             sub_list = ['일반원룸', '오피스텔', '원룸형 아파트', '도시형생활주택', '기타']
             self.cbx_kind_2.addItems(sub_list)
+            self.set_price_ui(0)
 
-        elif item == '상가점포':
+        elif kind == '상가점포':
             sub_list = ['단지내상가', '일반상가', '복합상가']
             self.cbx_kind_2.addItems(sub_list)
+            self.set_price_ui(2)
 
-            self.premium_frame.show()
-            self.items_frame.hide()
-
-            if self.cbx_type.currentText() == '전세':
-                self.premium_frame.move(330, 60)
-            else: self.premium_frame.move(30, 100)
-
-        elif item == '사무실':
+        elif kind == '사무실':
             sub_list = ['대형사무실', '중소형사무실', '오피스텔', '지식산업센터']
             self.cbx_kind_2.addItems(sub_list)
+            self.set_price_ui(1)
 
-            self.items_frame.hide()
-
-        elif item == '공장/창고':
+        elif kind == '공장/창고':
             sub_list = ['공장', '창고', '기타']
             self.cbx_kind_2.addItems(sub_list)
+            self.set_price_ui(1)
 
-        elif item == '빌딩 건물':
+        elif kind == '빌딩 건물':
             sub_list = ['빌딩', '상업시설', '레저스포츠위탁', '여관/모텔/호텔', '콘도', '펜션', '고시텔', '상가건물', '빌딩건물 기타', '기타']
             self.cbx_kind_2.addItems(sub_list)
+            self.set_price_ui(1)
 
-        elif item == '토지':
+        elif kind == '토지':
             sub_list = ["대", "전", "답", "임야", "공원", "구거", "도로", "염전", "제방", "하천", "유지", "묘지", "과수원",
                         "양어장", "주차장", "유원지", "광천지", "사적지", "잡종지", "공장용지", "창고용지", "학교용지", "종교용지",
                         "체육용지", "수도용지", "목장용지", "철도용지", "주유소용지", "기타"]
             self.cbx_kind_2.addItems(sub_list)
+            self.set_price_ui(4)
 
     # '직접입력' 이벤트
     def show_hide_edt_event(self, kind):
@@ -312,6 +285,223 @@ class AddRoom(QMainWindow, Ui_AddRoom):
         elif current_idx == 1: self.btn_back.show()
         elif current_idx == 2: self.btn_back.show()
 
+    def set_price_ui(self, kind):
+        item = self.cbx_type.currentText()
+
+        # 주택
+        if kind == 0:
+            # 관리비
+            self.f_admin_cost.show()
+            self.f_admin_cost.move(self.get_item_pos(0, 1))
+
+            # 관리비 항목
+            self.f_cost_in.show()
+            self.f_cost_in.move(self.get_item_pos(0, 3))
+
+            if item == '매매':
+                # 기보증금
+                self.f_deposit.show()
+                self.f_deposit.move(self.get_item_pos(1, 0))
+
+                # 융자금
+                self.f_loan.show()
+                self.f_loan.move(self.get_item_pos(1, 1))
+
+            elif item == '전세':
+                self.name_price.setText('전세가')
+
+                # 융자금
+                self.f_loan.show()
+                self.f_loan.move(self.get_item_pos(1, 0))
+
+            elif item == '월세':
+                self.name_price.setText('보증금')
+
+                # 월차임
+                self.f_rent.show()
+                self.f_rent.move(self.get_item_pos(1, 0))
+
+                # 융자금
+                self.f_loan.show()
+                self.f_loan.move(self.get_item_pos(1, 1))
+
+        # 재개발/사무실/공장/창고/빌딩
+        elif kind == 1:
+            # 관리비
+            self.f_admin_cost.show()
+            self.f_admin_cost.move(self.get_item_pos(0, 1))
+
+            if item == '매매':
+                # 기보증금
+                self.f_deposit.show()
+                self.f_deposit.move(self.get_item_pos(1, 0))
+
+                # 융자금
+                self.f_loan.show()
+                self.f_loan.move(self.get_item_pos(1, 1))
+
+            elif item == '전세':
+                self.name_price.setText('전세가')
+
+                # 융자금
+                self.f_loan.show()
+                self.f_loan.move(self.get_item_pos(1, 0))
+
+            elif item == '월세':
+                self.name_price.setText('보증금')
+
+                # 월차임
+                self.f_rent.show()
+                self.f_rent.move(self.get_item_pos(1, 0))
+
+                # 융자금
+                self.f_loan.show()
+                self.f_loan.move(self.get_item_pos(1, 1))
+
+        # 상가
+        elif kind == 2:
+            # 관리비
+            self.f_admin_cost.show()
+            self.f_admin_cost.move(self.get_item_pos(0, 1))
+
+            if item == '매매':
+                # 기보증금
+                self.f_deposit.show()
+                self.f_deposit.move(self.get_item_pos(1, 0))
+
+                # 융자금
+                self.f_loan.show()
+                self.f_loan.move(self.get_item_pos(1, 1))
+
+                # 권리금
+                self.f_facility.show()
+                self.f_facility.move(self.get_item_pos(0, 2))
+
+            elif item == '전세':
+                self.name_price.setText('전세가')
+
+                # 융자금
+                self.f_loan.show()
+                self.f_loan.move(self.get_item_pos(1, 0))
+
+                # 권리금
+                self.f_facility.show()
+                self.f_facility.move(self.get_item_pos(1, 1))
+
+            elif item == '월세':
+                self.name_price.setText('보증금')
+
+                # 월차임
+                self.f_rent.show()
+                self.f_rent.move(self.get_item_pos(1, 0))
+
+                # 융자금
+                self.f_loan.show()
+                self.f_loan.move(self.get_item_pos(1, 1))
+
+                # 권리금
+                self.f_facility.show()
+                self.f_facility.move(self.get_item_pos(0, 2))
+
+        # 분양권
+        elif kind == 3:
+            if item == '매매':
+                # 분양가
+                self.f_parcel.show()
+                self.f_parcel.move(self.get_item_pos(1, 0))
+
+                # 융자금
+                self.f_loan.show()
+                self.f_loan.move(self.get_item_pos(1, 1))
+
+                # 프리미엄
+                self.f_premium.show()
+                self.f_premium.move(self.get_item_pos(0, 1))
+
+                # 납입 중도금
+                self.f_middle_pay.show()
+                self.f_middle_pay.move(self.get_item_pos(0, 2))
+
+                # 관리비
+                self.f_admin_cost.show()
+                self.f_admin_cost.move(self.get_item_pos(1, 2))
+
+            elif item == '전세':
+                self.name_price.setText('전세가')
+
+                # 융자금
+                self.f_loan.show()
+                self.f_loan.move(self.get_item_pos(1, 1))
+
+                # 납입 중도금
+                self.f_middle_pay.show()
+                self.f_middle_pay.move(self.get_item_pos(1, 0))
+
+                # 관리비
+                self.f_admin_cost.show()
+                self.f_admin_cost.move(self.get_item_pos(0, 1))
+
+            elif item == '월세':
+                self.name_price.setText('보증금')
+
+                # 월차임
+                self.f_rent.show()
+                self.f_rent.move(self.get_item_pos(1, 0))
+
+                # 융자금
+                self.f_loan.show()
+                self.f_loan.move(self.get_item_pos(1, 1))
+
+                # 납입 중도금
+                self.f_middle_pay.show()
+                self.f_middle_pay.move(self.get_item_pos(0, 1))
+
+                # 관리비
+                self.f_admin_cost.show()
+                self.f_admin_cost.move(self.get_item_pos(0, 2))
+
+        # 토지
+        elif kind == 4:
+            if item == '매매':
+                # 기보증금
+                self.f_deposit.show()
+                self.f_deposit.move(self.get_item_pos(1, 0))
+
+                # 융자금
+                self.f_loan.show()
+                self.f_loan.move(self.get_item_pos(0, 1))
+
+            elif item == '전세':
+                self.name_price.setText('전세가')
+
+                # 융자금
+                self.f_loan.show()
+                self.f_loan.move(self.get_item_pos(1, 0))
+
+            elif item == '월세':
+                self.name_price.setText('보증금')
+
+                # 월차임
+                self.f_rent.show()
+                self.f_rent.move(self.get_item_pos(1, 0))
+
+                # 융자금
+                self.f_loan.show()
+                self.f_loan.move(self.get_item_pos(0, 1))
+
+    def hide_items(self):
+        items = [self.f_deposit, self.f_admin_cost, self.f_loan, self.f_cost_in, self.f_facility, self.f_parcel,
+                 self.f_premium, self.f_rent, self.f_parcel_type, self.f_electricity, self.f_crt_purpose, self.f_rcmd_purpose,
+                 self.f_land_items, self.f_use_area, self.f_middle_pay]
+
+        for i in items: i.hide()
+
+    @classmethod
+    def get_item_pos(cls, pos_x, pos_y):
+        x = {0: 30, 1: 330}
+        y = {0: 20, 1: 60, 2: 100, 3: 105}
+        pos = QPoint(x[pos_x], y[pos_y])
+        return pos
 
 # 돈 정규식
 def mask_money(money):
