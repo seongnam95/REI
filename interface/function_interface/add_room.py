@@ -285,11 +285,14 @@ class AddRoom(QMainWindow, Ui_AddRoom):
         elif current_idx == 1: self.btn_back.show()
         elif current_idx == 2: self.btn_back.show()
 
+    # 금액 UI 설정
     def set_price_ui(self, kind):
         item = self.cbx_type.currentText()
 
         # 주택
         if kind == 0:
+            self.set_facility_ui(0)
+
             # 관리비
             self.f_admin_cost.show()
             self.f_admin_cost.move(self.get_item_pos(0, 1))
@@ -489,12 +492,48 @@ class AddRoom(QMainWindow, Ui_AddRoom):
                 self.f_loan.show()
                 self.f_loan.move(self.get_item_pos(0, 1))
 
-    def hide_items(self):
-        items = [self.f_deposit, self.f_admin_cost, self.f_loan, self.f_cost_in, self.f_facility, self.f_parcel,
-                 self.f_premium, self.f_rent, self.f_parcel_type, self.f_electricity, self.f_crt_purpose, self.f_rcmd_purpose,
-                 self.f_land_items, self.f_use_area, self.f_middle_pay]
+    # 시설정보 UI 설정
+    def set_facility_ui(self, kind):
 
-        for i in items: i.hide()
+        # 주택
+        if kind == 0:
+
+            # 방 개수
+            self.f_room.show()
+            self.f_room.move(self.get_item_pos(0, 0))
+
+            # 욕실 수
+            self.f_bathroom.show()
+            self.f_bathroom.move(self.get_item_pos(1, 0))
+
+            # 난방정보
+            self.f_heating.show()
+            self.f_heating.move(self.get_item_pos(0, 1))
+
+            # 방향
+            self.f_direction.show()
+            self.f_direction.move(self.get_item_pos(1, 1))
+
+            # 난방연료
+            self.f_fuel.show()
+            self.f_fuel.move(self.get_item_pos(0, 2))
+
+            # 옵션
+            self.f_options.show()
+            self.f_options.move(self.get_item_pos(1, 2))
+
+        elif kind == 1:
+
+
+    def hide_items(self):
+        cost_items = [self.f_deposit, self.f_admin_cost, self.f_loan, self.f_cost_in, self.f_facility, self.f_parcel,
+                      self.f_premium, self.f_rent, self.f_parcel_type, self.f_electricity, self.f_crt_purpose, self.f_rcmd_purpose,
+                      self.f_land_items, self.f_use_area, self.f_middle_pay]
+        facility_items = [self.f_room, self.f_bathroom, self.f_heating, self.f_direction, self.f_fuel, self.f_options,
+                          self.f_electricity, self.f_rcmd_purpose, self.f_crt_purpose, self.f_land_items]
+
+        for i in cost_items: i.hide()
+        for i in facility_items: i.hide()
 
     @classmethod
     def get_item_pos(cls, pos_x, pos_y):
