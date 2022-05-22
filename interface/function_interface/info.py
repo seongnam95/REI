@@ -268,9 +268,11 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
             self.block_frame.setGeometry(0, 0, self.width(), self.height())
             self.block_frame.show()
 
-            if self.issuance_data:
-                dialog = issuance_ledger.IssuanceLedger(self.driver, self.login_cookies, self.address,
-                                                        self.issuance_data)
+            if self.activation:
+                if self.title['대장구분'] == '일반': pk = {'표제부PK': self.title['표제부PK'].split('-')[1]}
+                else: pk = {'표제부PK': self.title['표제부PK'].split('-')[1], '전유부PK': self.expos['전유부PK'].split('-')[1]}
+                print('기존:', pk)
+                dialog = issuance_ledger.IssuanceLedger(self.driver, self.login_cookies, self.address, pk)
             else:
                 dialog = issuance_ledger.IssuanceLedger(self.driver, self.login_cookies)
             dialog.exec()
@@ -416,7 +418,7 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         #### 집합일 경우
         else:
             self.base_name_8.setText('전용면적')
-            expos = self.res_exact_expos.loc[self.cbx_rooms.currentIndex()]
+            self.expos = expos = self.res_exact_expos.loc[self.cbx_rooms.currentIndex()]
             self.expos_tot = self.res_expos[self.res_expos['호명칭'] == expos['호명칭']]
 
             room_area = expos['전용면적']

@@ -20,14 +20,14 @@ class MainLease(QMainWindow, Ui_MainWindow):
         pd.set_option('display.max_columns', None)
         pd.set_option('display.max_row', None)
         pd.set_option('display.width', None)
+
         # 특약 불러오기
-        try:
-            self.agrs_data = pd.read_csv('../../data/val/agrs.csv', sep=",")
-        except FileNotFoundError:
-            return
+        try: self.agrs_data = pd.read_csv('../../data/val/agrs.csv', sep=",")
+        except FileNotFoundError: return
 
         self._init_ui()
         self.set_shadows()
+
         return
         self._init_interaction()
 
@@ -41,10 +41,8 @@ class MainLease(QMainWindow, Ui_MainWindow):
         self.page, self.contract = None, None  # 페이지, 계약 종류
         self.a_count, self.b_count, self.c_count = 0, 0, 0  # 계약자 카운트
         self.part_list = [self.part_0, self.part_1, self.part_2]
-        self.contract_btn = {self.btn_contract_0: 0,
-                             self.btn_contract_1: 1,
-                             self.btn_contract_2: 2,
-                             self.btn_contract_3: 3}
+        self.contract_btn = {self.btn_contract_0: 0, self.btn_contract_1: 1,
+                             self.btn_contract_2: 2, self.btn_contract_3: 3}
 
         self.msg = BoxMessage(self)
         self.editing_data = []
@@ -71,14 +69,6 @@ class MainLease(QMainWindow, Ui_MainWindow):
     # UI init
     def _init_ui(self):
         self._setupUi(self)
-
-        # 폼 로드 애니메이션
-        self.animation = QPropertyAnimation(self, b'windowOpacity')
-        self.animation.setDuration(100)
-        self.animation.stop()
-        self.animation.setStartValue(0)
-        self.animation.setEndValue(1)
-        self.animation.start()
 
         # 콤보박스 아이템 추가
         self.cbx_land_details.addItems(str_list.land_details_list)

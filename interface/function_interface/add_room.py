@@ -522,9 +522,6 @@ class AddRoom(QMainWindow, Ui_AddRoom):
             self.f_options.show()
             self.f_options.move(self.get_item_pos(1, 2))
 
-        elif kind == 1:
-
-
     def hide_items(self):
         cost_items = [self.f_deposit, self.f_admin_cost, self.f_loan, self.f_cost_in, self.f_facility, self.f_parcel,
                       self.f_premium, self.f_rent, self.f_parcel_type, self.f_electricity, self.f_crt_purpose, self.f_rcmd_purpose,

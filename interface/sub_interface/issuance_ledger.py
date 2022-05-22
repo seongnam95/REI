@@ -159,7 +159,7 @@ class IssuanceLedger(QDialog, Ui_Ledger):
                 self.edt_address.clearFocus()
 
                 for n, i in enumerate(self.bld_nml):
-                    if str(i['bldrgstSeqno']) == str(self.existing['동_PK']):
+                    if str(i['bldrgstSeqno']) == str(self.existing['표제부PK']):
                         self.cbx_buildings.setCurrentIndex(n)
                         break
 
@@ -198,9 +198,9 @@ class IssuanceLedger(QDialog, Ui_Ledger):
 
             if self.existing:
                 self.edt_address.clearFocus()
-
                 for n, i in enumerate(self.bld_set):
-                    if str(i['bldrgstSeqno']) == str(self.existing['동_PK']):
+                    print(str(i['bldrgstSeqno']))
+                    if str(i['bldrgstSeqno']) == str(self.existing['표제부PK']):
                         self.cbx_buildings.setCurrentIndex(n)
                         break
 
@@ -229,7 +229,9 @@ class IssuanceLedger(QDialog, Ui_Ledger):
 
         if self.existing:
             for n, i in enumerate(self.expos):
-                if str(i['bldrgstSeqno']) == str(self.existing['호_PK']):
+                print(str(i['bldrgstSeqno']))
+                if str(i['bldrgstSeqno']) == str(self.existing['전유부PK']):
+                    print(n)
                     self.cbx_rooms.setCurrentIndex(n)
                     break
             self.select_room()

@@ -1,0 +1,558 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>591</width>
+    <height>442</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QDialog { background-color: white; }
+
+#AddRoom {
+	background: white;
+}
+
+QComboBox {
+    border: 2px solid rgb(235,235,235);
+    padding-top: 4px;
+    padding-left: 10px;
+    min-width: 3em;
+    background: rgb(255, 255, 255);
+    font: 14px &quot;웰컴체 Regular&quot;;
+    color: rgb(65, 65, 65);
+    border-radius: 5px;
+}
+
+QComboBox QAbstractItemView { 
+    border: 1px solid lightgray;
+    outline: none;
+    padding: 5px;
+}      
+
+QComboBox QAbstractItemView::item { 
+    color: rgb(65, 65, 65);
+    border-radius: 5px;
+    padding-left: 10px;
+    padding-top: 3px;
+    min-height: 30px; 
+}    
+
+QComboBox QAbstractItemView::item:hover { 
+    selection-color: white;
+    background-color: rgb(128,128,255);
+}
+
+QComboBox::drop-down {
+    width: 20px;
+
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+}
+
+QComboBox::down-arrow {
+    image: url(../../data/img/system/down_arrow_icon.png);
+    width: 8px;
+    height: 8px;
+}
+
+QScrollBar:vertical {
+    width: 5px;
+    border: none;
+}
+
+QScrollBar::handle {
+    background: rgb(235,235,235);
+    border: none;
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    border: none;
+    background: none;
+}
+
+QLabel {
+	font: 15px &quot;웰컴체 Regular&quot;;
+	color:  rgb(65,65,65);
+	padding-top: 2px;
+}
+
+QLineEdit {
+	font: 13;
+	color:  rgb(85,85,85);
+	border: 1px solid rgb(130,130,130);
+	border-radius: 2px;
+	padding-left: 5px;
+	padding-top: 2px;
+	padding-right: 22px;
+}
+
+QLineEdit:focus{
+	color:  rgb(65,65,65);
+	border: 1px solid rgb(148,148,255);
+	border-radius: 2px;
+	padding-right: 21px;
+}
+
+QLineEdit:disabled{
+	background: rgb(250,250,250);
+}
+
+QCheckBox {
+	font: 15px  &quot;웰컴체 Regular&quot;;
+	color: rgb(123,123,123);
+}
+
+QCheckBox:checked {
+	color: rgb(88,88,255);
+}
+
+QRadioButton {
+	font: 14px  &quot;웰컴체 Regular&quot;;
+	color: rgb(123,123,123);
+}
+
+QRadioButton:checked {
+	color: rgb(88,88,255);
+}</string>
+  </property>
+  <widget class="QFrame" name="kind_frame">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>160</y>
+     <width>531</width>
+     <height>161</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">#kind_frame{
+	background: white;
+	border-radius: 15px;
+}</string>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <widget class="QLabel" name="name_1">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>30</y>
+      <width>81</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>계약서 종류</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="cbx_type">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>30</y>
+      <width>151</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>부동산</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>분양권</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>표준 임대차</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>상가 임대차</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>상가 권리금</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>전대차</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>권리 양도·양수</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>조합원 입주권 매매</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QComboBox" name="cbx_kind_1">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>30</y>
+      <width>121</width>
+      <height>30</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="cbx_kind_2">
+    <property name="geometry">
+     <rect>
+      <x>430</x>
+      <y>30</y>
+      <width>71</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>매매</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>전세</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>월세</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>연세</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QLabel" name="name_2">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>80</y>
+      <width>91</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>장부 기반 작성</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_parking_true">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>80</y>
+      <width>91</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton {
+    font: 14px &quot;웰컴체 Regular&quot;;
+    color: rgb(105,105,105);
+    border: 1px solid rgb(145,145,145);
+    border-radius: 2px;
+    outline: none;
+    padding-right: 1px;
+    padding-top: 3px;
+    padding-left: 2px;
+}
+
+QPushButton:checked {
+	color: white;
+    border: 1px solid rgb(128,128,235);
+    background-color: rgb(128,128,235);
+}
+
+QPushButton:disabled {
+    background-color: rgb(166, 168, 171);
+}</string>
+    </property>
+    <property name="text">
+     <string>건축물대장</string>
+    </property>
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_parking_true_2">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>80</y>
+      <width>91</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton {
+    font: 14px &quot;웰컴체 Regular&quot;;
+    color: rgb(105,105,105);
+    border: 1px solid rgb(145,145,145);
+    border-radius: 2px;
+    outline: none;
+    padding-right: 1px;
+    padding-top: 3px;
+    padding-left: 2px;
+}
+
+QPushButton:checked {
+	color: white;
+    border: 1px solid rgb(128,128,235);
+    background-color: rgb(128,128,235);
+}
+
+QPushButton:disabled {
+    background-color: rgb(166, 168, 171);
+}</string>
+    </property>
+    <property name="text">
+     <string>등기부등본</string>
+    </property>
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="hint">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>115</y>
+      <width>461</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">#hint { 
+	color: rgb(125,125,125);
+	font-size: 14px;
+}</string>
+    </property>
+    <property name="text">
+     <string>* 선택한 장부를 기반하여 계약서를 작성합니다.</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_parking_true_3">
+    <property name="geometry">
+     <rect>
+      <x>410</x>
+      <y>80</y>
+      <width>91</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton {
+    font: 14px &quot;웰컴체 Regular&quot;;
+    color: rgb(105,105,105);
+    border: 1px solid rgb(145,145,145);
+    border-radius: 2px;
+    outline: none;
+    padding-right: 1px;
+    padding-top: 3px;
+    padding-left: 2px;
+}
+
+QPushButton:checked {
+	color: white;
+    border: 1px solid rgb(128,128,235);
+    background-color: rgb(128,128,235);
+}
+
+QPushButton:disabled {
+    background-color: rgb(166, 168, 171);
+}</string>
+    </property>
+    <property name="text">
+     <string>토지이음</string>
+    </property>
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_parking_true_4">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>80</y>
+      <width>61</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton {
+    font: 14px &quot;웰컴체 Regular&quot;;
+    color: rgb(105,105,105);
+    border: 1px solid rgb(145,145,145);
+    border-radius: 2px;
+    outline: none;
+    padding-right: 1px;
+    padding-top: 3px;
+    padding-left: 2px;
+}
+
+QPushButton:checked {
+	color: white;
+    border: 1px solid rgb(128,128,235);
+    background-color: rgb(128,128,235);
+}
+
+QPushButton:disabled {
+    background-color: rgb(166, 168, 171);
+}</string>
+    </property>
+    <property name="text">
+     <string>전 체</string>
+    </property>
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QLineEdit" name="edt_address">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>90</y>
+     <width>531</width>
+     <height>45</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QLineEdit {
+    color: rgb(125,125,125);
+    font: 16px &quot;웰컴체 Regular&quot;;
+    border: 2px solid rgb(128,128,255);
+    border-radius: 5px;
+    padding-top: 3px;
+    padding-left: 10px;
+    padding-right: 40px;
+}
+
+QLineEdit:focus {
+    color: rgb(65,65,65);
+}</string>
+   </property>
+   <property name="readOnly">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btn_next">
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>360</y>
+     <width>181</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton {
+    font: 18px &quot;웰컴체 Regular&quot;;
+    color: white;
+    border: none;
+    padding-top: 3px;
+    padding-left: 2px;
+    background: rgb(128,128,255);
+    border-radius: 3px;
+    outline: none;
+}
+
+QPushButton:hover {
+    background-color: rgb(148,148,255);
+}
+
+QPushButton:pressed {
+    padding-left: 4px;
+    padding-top: 5px;
+    background-color: rgb(108,108,235);
+}
+
+QPushButton:disabled {
+    background-color: rgb(166, 168, 171);
+}</string>
+   </property>
+   <property name="text">
+    <string>계약서 작성</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lb_title">
+   <property name="geometry">
+    <rect>
+     <x>190</x>
+     <y>15</y>
+     <width>210</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">#lb_title {
+	font: 25px &quot;웰컴체 Regular&quot;;
+	color: rgba(0, 0, 0, 120);
+	padding-top: 8px;
+	padding-left: 8px;
+	border: 0px;
+}</string>
+   </property>
+   <property name="text">
+    <string>CONTRACT</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lb_sub_title">
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>40</y>
+     <width>190</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">#lb_sub_title {
+	font: 15px &quot;웰컴체 Regular&quot;;
+	color: rgba(0, 0, 0, 120);
+	padding-top: 8px;
+	padding-left: 8px;
+	border: 0px;
+}</string>
+   </property>
+   <property name="text">
+    <string>(  계약서 선택  )</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
