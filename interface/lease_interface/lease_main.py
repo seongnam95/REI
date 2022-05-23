@@ -28,10 +28,9 @@ class MainLease(QMainWindow, Ui_MainWindow):
         self._init_ui()
         self.set_shadows()
 
-        return
         self._init_interaction()
 
-        self.load_keyword()
+        # self.load_keyword()
 
         self.get_building_thread = None  # 토지, 지역지구, 공시지가 스레드
         self.binfo, self.result_address, self.land = None, None, None  # 주소
@@ -40,17 +39,18 @@ class MainLease(QMainWindow, Ui_MainWindow):
 
         self.page, self.contract = None, None  # 페이지, 계약 종류
         self.a_count, self.b_count, self.c_count = 0, 0, 0  # 계약자 카운트
-        self.part_list = [self.part_0, self.part_1, self.part_2]
-        self.contract_btn = {self.btn_contract_0: 0, self.btn_contract_1: 1,
-                             self.btn_contract_2: 2, self.btn_contract_3: 3}
+        # self.part_list = [self.part_0, self.part_1, self.part_2]
+        # self.contract_btn = {self.btn_contract_0: 0, self.btn_contract_1: 1,
+        #                      self.btn_contract_2: 2, self.btn_contract_3: 3}
 
         self.msg = BoxMessage(self)
         self.editing_data = []
+        for i in range(0, 3): self.insert_contractor(True, i, i)
 
-        self.btn_contract_0.click()
+        # self.btn_contract_0.click()
 
     def set_shadows(self):
-        frame_list = [self.info_frame, self.money_frame]
+        frame_list = [self.info_frame, self.agrs_frame, self.money_frame, self.sc_frame, self.my_sc_frame]
         for child in frame_list:
             shadow = QGraphicsDropShadowEffect(self)
             shadow.setBlurRadius(15)
@@ -64,11 +64,11 @@ class MainLease(QMainWindow, Ui_MainWindow):
         shadow.setXOffset(3)
         shadow.setYOffset(3)
         shadow.setColor(QColor(0, 0, 0, 60))
-        self.btn_next.setGraphicsEffect(shadow)
+        # self.btn_next.setGraphicsEffect(shadow)
 
     # UI init
     def _init_ui(self):
-        self._setupUi(self)
+        self.setupUi(self)
 
         # 콤보박스 아이템 추가
         self.cbx_land_details.addItems(str_list.land_details_list)
@@ -94,11 +94,6 @@ class MainLease(QMainWindow, Ui_MainWindow):
         self.btn_2st_cal.setIconSize(QSize(22, 22))
         self.btn_balance_cal.setIcon(calendar_icon)
         self.btn_balance_cal.setIconSize(QSize(22, 22))
-        self.lb_icon.setStyleSheet("QLabel { image: url(../../data/img/system/down_arrow_icon.png);}")
-
-        # 서치 버튼 이미지
-        self.btn_search.setIcon(QIcon('../../data/img/button/search_icon.png'))
-        self.btn_search.setIconSize(QSize(22, 22))
 
         # 폰트 스페이싱
         font = self.lb_item_nm_26.font()
@@ -131,12 +126,10 @@ class MainLease(QMainWindow, Ui_MainWindow):
         self.edt_sub_2.textChanged.connect(lambda: self.format_num("sub2"))
 
         # 버튼 클릭 이벤트
-        self.btn_next.clicked.connect(lambda: self.page_change_event("next"))
-        self.btn_back.clicked.connect(lambda: self.page_change_event("back"))
-        self.btn_search.clicked.connect(self.clicked_address_edit)
+        self.btn_back.clicked.connect(lambda: self.page_change_event(self.stackedWidget.currentIndex() - 1))
+        self.btn_next.clicked.connect(lambda: self.page_change_event(self.stackedWidget.currentIndex() + 1))
+
         # self.btn_add.clicked.connect(self.clicked_add_btn)
-        self.btn_del.clicked.connect(self.clicked_remove_btn)
-        self.btn_edit.clicked.connect(self.clicked_edit_btn)
         self.cbx_down_pay.activated.connect(self.activated_deposit_cbx)
 
         # 계약자 추가 이벤트
@@ -145,53 +138,16 @@ class MainLease(QMainWindow, Ui_MainWindow):
         self.btn_add_c.clicked.connect(lambda: self.clicked_insert_btn(2))
 
         # 리스트 이벤트 필터
-        self.lst_keyword.installEventFilter(self)
-        self.lst_title.installEventFilter(self)
-        self.lst_contractor.installEventFilter(self)
+        # self.lst_keyword.installEventFilter(self)
+        # self.lst_title.installEventFilter(self)
+        # self.lst_contractor.installEventFilter(self)
 
         # 리스트 아이템 클릭
-        self.lst_keyword.itemClicked.connect(self.load_title)
-        self.lst_title.itemClicked.connect(self.load_content)
+        # self.lst_keyword.itemClicked.connect(self.load_title)
+        # self.lst_title.itemClicked.connect(self.load_content)
 
     ## 계약 선택 페이지
     ################################################################################################
-
-    # 계약 종류토글 선택
-    def clicked_contract_btn(self, button):
-        if self.contract == self.contract_btn[button]: return
-
-        btn_style_on = """QPushButton {
-                        font: 20px "웰컴체 Bold";
-                        border: 2px solid rgb(44,62,80);
-                        color: white;
-                        background-color: rgb(24,42,60);
-                        border-style: inset;
-                        border-radius: 5px; }"""
-        btn_style_off = """QPushButton {
-                        font: 20px "웰컴체 Bold";
-                        color: rgb(44,62,80);
-                        border: 2px solid rgb(44,62,80);
-                        padding-top: 3px;
-                        background-color: white;
-                        border-radius: 5px; }
-
-                    QPushButton::hover {
-                        border: 0px;
-                        color: white;
-                        background-color: rgb(64,82,100);
-                        border-style: inset; }
-
-                    QPushButton:pressed {
-                        border: 0px;
-                        color: white;
-                        background-color: rgb(24,42,60);
-                        border-style: inset; }
-                    """
-
-        self.lst_contractor.clear()
-        for i in self.btn_group.buttons(): i.setStyleSheet(btn_style_off)
-        button.setStyleSheet(btn_style_on)
-        self.contract = self.contract_btn[button]
 
     # 계약종류 선택 후 라벨 세팅
     def setting_ui_form(self):
@@ -700,31 +656,19 @@ class MainLease(QMainWindow, Ui_MainWindow):
     ################################################################################################
 
     # 페이지 전환 이벤트
-    def page_change_event(self, v):
-        current_count = self.stackedWidget.getCurrent()
-        if v == "back":
-            if current_count == 1:
-                self.btn_provisions.hide()
-                self.btn_back.hide()
-            self.stackedWidget.slideInPrev()
+    def page_change_event(self, page):
+        self.stackedWidget.setCurrentIndex(page)
 
-        elif v == "next":
-            if current_count == 0:
-                self.btn_back.show()
-                self.btn_provisions.show()
+        # page_btn = {0: self.btn_page_1, 1: self.btn_page_2, 2: self.btn_page_3}
+        current_idx = self.stackedWidget.currentIndex()
 
-                # 토지가 아닐 경우 토지지목 "대" 표시
-                if self.cbx_contract.currentText() == "토지": self.cbx_land_details.setCurrentIndex(0)
-                else: self.cbx_land_details.setCurrentIndex(1)
+        # for btn in page_btn.values():
+        #     btn.setChecked(False)
+        #     page_btn[current_idx].setChecked(True)
 
-                # 기본 계약자 추가
-                if self.lst_contractor.count() < 1:
-                    [self.insert_contractor(True, i) for i in range(3)]
-
-                # 계약서별 UI 세팅
-                self.setting_ui_form()
-
-            self.stackedWidget.slideInNext()
+        if current_idx == 0: self.btn_back.hide()
+        elif current_idx == 1: self.btn_back.show()
+        elif current_idx == 2: self.btn_back.show()
 
     # 금액 한글로 변경
     def translation_into_kor(self, category):
@@ -836,113 +780,23 @@ def my_exception_hook(exctype, value, traceback):
 class ContractorItem(QWidget):
     def __init__(self, first, contract, contractor):
         super(ContractorItem, self).__init__()
-        self.edt_css = """QLineEdit {
-                     color: rgb(72,93,114);
-                     font: 13px "웰컴체 Regular";
-                     border: 1px solid #34495e;
-                     padding-left: 55px;
-                     padding-top: 3px;
-                 }
-                     QLineEdit::hover { border: 1px solid #3498db; }
-                     QLineEdit:focus { border: 2px solid #3498db; } """
-        self.edt_num_css = """QLineEdit {
-                             color: rgb(72,93,114);
-                             font: 13px "웰컴체 Regular";
-                             border: 1px solid #34495e;
-                             padding-left: 5px;
-                             padding-top: 3px; }
-                         QLineEdit::hover { border: 1px solid #3498db; }
-                         QLineEdit:focus { border: 2px solid #3498db; } """
-        self.cbx_css = """QComboBox {border: 1px solid gray;
-                                padding-left: 6px;
-                                padding-top: 3px;
-                                font: 14px "웰컴체 Regular";
-                                color: rgb(44, 62, 80);
-                            }
-
-                            QComboBox:hover {
-                                color: rgb(127, 140, 141);
-                            }
-
-                            QComboBox QAbstractItemView::item { 
-                                min-height: 30px; 
-                            }
-
-                            QComboBox::drop-down {
-                                subcontrol-origin: padding;
-                                subcontrol-position: top right;
-                                width: 23px;
-
-                                border-left-width: 1px;
-                                border-left-style: solid;
-                                border-left-color: darkgray;
-                                border-top-right-radius: 3px;
-                                border-bottom-right-radius: 3px;
-                            }
-
-                            QComboBox::down-arrow {
-                                image: url(../../data/img/system/down_arrow_icon.png);
-                                width: 22px;
-                                height: 22px;
-                            }
-
-                            QComboBox::down-arrow:on {
-                                top: 1px;
-                                left: 1px;
-                            }
-                            QComboBox::setView {
-                                color: rgb(44, 62, 80);
-                                background-color: lightblue
-                            }
-                            comboBox->setView(view);
-                            QListView::item:selected {
-                                color: rgb(44, 62, 80);
-                                background-color: lightblue
-                            }"""
+        self.edt_css = """QLineEdit { padding-left: 60px; padding-right: 0px; }"""
+        self.edt_num_css = """"""
+        self.cbx_css = """"""
         self.hint_css = """QLabel { font: 13px "웰컴체 Regular";
-                               color: white;
+                               color: rgb(125,125,125);
                                padding-top: 3px;
-                               background-color: rgb(149, 165, 166); }"""
+                               background-color: white; }"""
         self.num_list = ["주민등록번호", "법인등록번호", "사업자등록번호", "외국인등록번호", "여권번호", "종중등록번호", "재외국민주민번호",
                          "종교단체등록번호", "기타단체등록번호"]
 
-        cbx_name_css = """QComboBox { 
-                            border: None;
-                            padding: 3px 1px 1px 3px;
-                            min-width: 4em;
-                            background: white;
-                            font: 14px "웰컴체 Regular";
-                            color: rgb(44, 62, 80); }
-                        QComboBox:hover { color: rgb(104, 122, 140); }
-
-                        QComboBox QAbstractItemView::item { min-height: 30px; }
-                        QComboBox::drop-down { width: 15px; border: None; }
-                        QComboBox::down-arrow {
-                            image: url(../../data/img/system/down_arrow_icon.png);
-                            width: 22px;
-                            height: 22px;
-                        }
-
-                        QComboBox::down-arrow:on {
-                            top: 1px;
-                            left: 1px;
-                        }
-                        QComboBox::setView {
-                            color: rgb(44, 62, 80);
-                            background-color: lightblue
-                        }
-                        comboBox->setView(view);
-                        QListView::item:selected {
-                            color: rgb(44, 62, 80);
-                            background-color: lightblue
-                        }
-                        """
+        cbx_name_css = """QComboBox { border: None; }"""
         item_css = """QListWidget::item { border: none; }
                       QListWidget { outline: 0px; }"""
         self.setStyleSheet(item_css)
 
         self.cbx_name = QComboBox(self)
-        self.cbx_name.setGeometry(QRect(0, 20, 80, 40))
+        self.cbx_name.setGeometry(QRect(0, 20, 90, 40))
         self.cbx_name.setStyleSheet(cbx_name_css)
 
         names = ["공동명의인", "대리인", "(수기 입력)"]
@@ -950,29 +804,21 @@ class ContractorItem(QWidget):
         # contractor [ 0: 매도인/임대인, 1: 매수인/임차인, 2: 중개사 ]
         if contractor == 0:
             if first:  # 매도/임대인이 아이템이 없을 경우
-                if contract == 0:
-                    self.cbx_name.addItem("매 도 인")
-                else:
-                    self.cbx_name.addItem("임 대 인")
-            else:
-                self.cbx_name.addItems(names)
+                if contract == 0: self.cbx_name.addItem("매 도 인")
+                else: self.cbx_name.addItem("임 대 인")
+            else: self.cbx_name.addItems(names)
             self._contractor_ab()
 
         elif contractor == 1:
             if first:  # 매수/임차인 아이템이 없을 경우
-                if contract == 0:
-                    self.cbx_name.addItem("매 수 인")
-                else:
-                    self.cbx_name.addItem("임 차 인")
-            else:
-                self.cbx_name.addItems(names)
+                if contract == 0: self.cbx_name.addItem("매 수 인")
+                else: self.cbx_name.addItem("임 차 인")
+            else: self.cbx_name.addItems(names)
             self._contractor_ab()
 
         elif contractor == 2:
-            if first:  # 중개사 아이템이 없을 경우
-                self.cbx_name.addItem("개 업\n공인중개사")
-            else:
-                self.cbx_name.addItem("개업 (공동)\n공인중개사")
+            if first: self.cbx_name.addItem("개 업\n공인중개사")
+            else: self.cbx_name.addItem("개업 (공동)\n공인중개사")
             self._contractor_c()
 
     def _contractor_ab(self):

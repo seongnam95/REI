@@ -539,6 +539,7 @@ class AddRoom(QMainWindow, Ui_AddRoom):
         pos = QPoint(x[pos_x], y[pos_y])
         return pos
 
+
 # 돈 정규식
 def mask_money(money):
     money = re.sub(r'[^0-9]', '', money)
