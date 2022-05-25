@@ -2,27 +2,39 @@ import sys
 import pandas as pd
 
 from ui.dialog.ui_agr_editor import Ui_AgreementEditor
-from PySide6.QtWidgets import QWidget, QDialog, QLabel, QHBoxLayout, QListWidgetItem, QMenu
+from PySide6.QtWidgets import QWidget, QDialog, QLabel, QHBoxLayout, QListWidgetItem, QMenu, QGraphicsDropShadowEffect
 from PySide6.QtCore import Qt, QEvent, QSize
+from PySide6.QtGui import QColor
 
 # from hanspell import spell_checker
 from ui.custom.BlackBoxMsg import BoxMessage
 
 
 class AgrEditor(QDialog, Ui_AgreementEditor):
-    def __init__(self, agr, select_agr):
+    def __init__(self, agr):
         super().__init__()
-        self._setupUi(self)
+        self.setupUi(self)
+        self.set_shadows()
 
         self.msg = BoxMessage(self)
-        self.agr, self.select_agr, self.response = agr, select_agr, None
+        self.agr, self.response = agr, None
         self.editing, self.editing_row, self.save_row = False, 0, 0
+
+        self.cbx_keyword.activated.connect(self.load_content)
 
         self.btn_add.clicked.connect(self.add_item)
         self.btn_save.clicked.connect(self.clicked_save_btn)
         self.lst_content.installEventFilter(self)
 
         self.load_content()
+
+    def set_shadows(self):
+        shadow = QGraphicsDropShadowEffect(self)
+        shadow.setBlurRadius(15)
+        shadow.setXOffset(1)
+        shadow.setYOffset(1)
+        shadow.setColor(QColor(0, 0, 0, 35))
+        self.con_frame.setGraphicsEffect(shadow)
 
     ## 상호작용 이벤트
     ############################################################################
@@ -79,7 +91,7 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
             result = self.agr[self.agr['keyword'] == keyword]
 
             if title in result['title'].values.tolist():
-                current_title = self.select_agr['title'].iloc[0]
+                current_title = self.agr['title'].iloc[0]
                 if title != current_title:
                     self.msg.show_msg(1500, 'center', "이미 존재하는 특약 제목입니다.")
                     return
@@ -166,13 +178,13 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
 
     # 특약사항 세팅
     def load_content(self):
-        keyword = self.select_agr['keyword'].iloc[0]
-        title = self.select_agr['title'].iloc[0]
+        keyword = self.agr['keyword'].iloc[0]
+        title = self.agr['title'].iloc[0]
 
         self.cbx_keyword.addItem(keyword)
         self.edt_title.setText(title)
 
-        [self.add_conent_item(count, content) for count, content in zip(self.select_agr['num'], self.select_agr['content'])]
+        [self.add_conent_item(count, content) for count, content in zip(self.agr['num'], self.agr['content'])]
 
         self.lb_number.setText(str(self.lst_content.count() + 1))
 
