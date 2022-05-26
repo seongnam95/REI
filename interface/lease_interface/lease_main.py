@@ -30,7 +30,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
 
         self._init_interaction()
 
-        self.load_keyword()
+        self.load_category()
 
         self.get_building_thread = None  # 토지, 지역지구, 공시지가 스레드
         self.binfo, self.result_address, self.land = None, None, None  # 주소
@@ -128,9 +128,9 @@ class MainLease(QMainWindow, Ui_MainWindow):
         self.btn_back.clicked.connect(lambda: self.page_change_event(self.stackedWidget.currentIndex() - 1))
         self.btn_next.clicked.connect(lambda: self.page_change_event(self.stackedWidget.currentIndex() + 1))
 
-        self.btn_agr_edit.clicked.connect(self.clicked_add_btn)
+        self.btn_agr_edit.clicked.connect(self.clicked_edit_btn)
         self.cbx_down_pay.activated.connect(self.activated_deposit_cbx)
-        self.cbx_keyword.activated.connect(self.load_title)
+        self.cbx_category.activated.connect(self.load_title)
         self.cbx_title.activated.connect(self.load_content)
 
         # 계약자 추가 이벤트
@@ -139,12 +139,12 @@ class MainLease(QMainWindow, Ui_MainWindow):
         self.btn_add_c.clicked.connect(lambda: self.clicked_insert_btn(2))
 
         # 리스트 이벤트 필터
-        # self.lst_keyword.installEventFilter(self)
+        # self.lst_category.installEventFilter(self)
         # self.lst_title.installEventFilter(self)
         # self.lst_contractor.installEventFilter(self)
 
         # 리스트 아이템 클릭
-        # self.lst_keyword.itemClicked.connect(self.load_title)
+        # self.lst_category.itemClicked.connect(self.load_title)
         # self.lst_title.itemClicked.connect(self.load_content)
 
     ## 계약 선택 페이지
@@ -432,20 +432,20 @@ class MainLease(QMainWindow, Ui_MainWindow):
     ################################################################################################
 
     # 키워드 로드
-    def load_keyword(self):
-        keyword = self.agrs_data.keyword.values.tolist()
-        keyword = list(dict.fromkeys(keyword))
+    def load_category(self):
+        category = self.agrs_data.category.values.tolist()
+        category = list(dict.fromkeys(category))
 
         self.cbx_title.clear()
         self.cbx_title.addItem("( 특약사항 선택 )")
 
-        self.cbx_keyword.clear()
-        self.cbx_keyword.addItem("( 직접입력 )")
-        self.cbx_keyword.addItems(keyword)
+        self.cbx_category.clear()
+        self.cbx_category.addItem("( 직접입력 )")
+        self.cbx_category.addItems(category)
 
     # 제목 로드
     def load_title(self):
-        if self.cbx_keyword.currentIndex() == 0:
+        if self.cbx_category.currentIndex() == 0:
             self.cbx_title.clear()
             self.cbx_title.addItem("( 특약사항 선택 )")
 
@@ -453,8 +453,8 @@ class MainLease(QMainWindow, Ui_MainWindow):
             self.edt_agrs.setFocus()
 
         else:
-            keyword = self.cbx_keyword.currentText()
-            title = self.agrs_data.title[self.agrs_data.keyword == keyword]
+            category = self.cbx_category.currentText()
+            title = self.agrs_data.title[self.agrs_data.category == category]
             title = list(dict.fromkeys(title))
 
             self.cbx_title.clear()
@@ -463,10 +463,10 @@ class MainLease(QMainWindow, Ui_MainWindow):
 
     # 내용 로드
     def load_content(self):
-        keyword = self.cbx_keyword.currentText()
+        category = self.cbx_category.currentText()
         title = self.cbx_title.currentText()
 
-        result = self.agrs_data[self.agrs_data.keyword == keyword]
+        result = self.agrs_data[self.agrs_data.category == category]
         result = result[result.title == title]
 
         content_list = list("%s. %s" % (n, c) for n, c in zip(result.num, result.content))
@@ -475,75 +475,69 @@ class MainLease(QMainWindow, Ui_MainWindow):
 
         self.edt_agrs.setFocus()
 
-    # 특약사항 추가 이벤트
-    def clicked_add_btn(self):
-        dialog = agr_edit.AgrEditor(self.agrs_data)
-        dialog.exec()
-
-        if dialog.response is not None:
-            response = dialog.response
-
-            self.agrs_data = self.agrs_data.append(response)
-
-            self.agrs_data.reset_index(drop=True, inplace=True)
-            self.agrs_data.to_csv("../../data/val/agrs.csv", sep=",", index=False)
-
-            keyword = response['keyword'].iloc[0]
-            title = response['title'].iloc[0]
-
-            self.visit_item(keyword, title)
-
     # 특약사항 편집 이벤트
     def clicked_edit_btn(self):
-        if self.lst_title.currentItem() is not None:
+        if self.cbx_category.currentIndex() != 0:
 
-            keyword = self.lst_keyword.currentItem().text()
-            title = self.lst_title.currentItem().text()
+            category = self.cbx_category.currentText()
+            title = self.cbx_title.currentText()
 
-            result = self.agrs_data[self.agrs_data.keyword == keyword]
-            self.editing_data = result[result.title == title]
-
-            dialog = agr_edit.AgrEditor(self.agrs_data, self.editing_data)
+            dialog = agr_edit.AgrEditor(self.agrs_data, category, title)
             dialog.exec()
 
-            if dialog.response is not None:
-                response = dialog.response
-
-                self.agrs_data = self.agrs_data.drop(self.editing_data.index)
-                self.agrs_data = self.agrs_data.append(response)
-
-                self.agrs_data.reset_index(drop=True, inplace=True)
-                self.agrs_data.to_csv("../../data/val/agrs.csv", sep=",", index=False)
-
-                keyword = response['keyword'].iloc[0]
-                title = response['title'].iloc[0]
-
-                self.visit_item(keyword, title)
-
-        else: self.msg.show_msg(1500, 'center', "편집할 특약사항을 선택해주세요.")
+        #     if dialog.response is not None:
+        #         response = dialog.response
+        #
+        #         self.agrs_data = self.agrs_data.drop(self.editing_data.index)
+        #         self.agrs_data = self.agrs_data.append(response)
+        #
+        #         self.agrs_data.reset_index(drop=True, inplace=True)
+        #         self.agrs_data.to_csv("../../data/val/agrs.csv", sep=",", index=False)
+        #
+        #         category = response['category'].iloc[0]
+        #         title = response['title'].iloc[0]
+        #
+        #         self.visit_item(category, title)
+        #
+        # else:
+        #     dialog = agr_edit.AgrEditor(self.agrs_data)
+        #     dialog.exec()
+        #
+        #     if dialog.response is not None:
+        #         response = dialog.response
+        #
+        #         self.agrs_data = self.agrs_data.append(response)
+        #
+        #         self.agrs_data.reset_index(drop=True, inplace=True)
+        #         self.agrs_data.to_csv("../../data/val/agrs.csv", sep=",", index=False)
+        #
+        #         category = response['category'].iloc[0]
+        #         title = response['title'].iloc[0]
+        #
+        #         self.visit_item(category, title)
 
     # 특약사항 삭제 이벤트
     def clicked_remove_btn(self):
-        keyword = self.lst_keyword.currentRow()
+        category = self.lst_category.currentRow()
         title = self.lst_title.currentRow()
 
         # 키워드 삭제
-        if title == -1 and keyword != 0:
-            keyword_text = self.lst_keyword.currentItem().text()
-            result = self.agrs_data[self.agrs_data['keyword'] == keyword_text].index
+        if title == -1 and category != 0:
+            category_text = self.lst_category.currentItem().text()
+            result = self.agrs_data[self.agrs_data['category'] == category_text].index
 
             self.agrs_data = self.agrs_data.drop(result)
-            self.lst_keyword.model().removeRow(keyword)
+            self.lst_category.model().removeRow(category)
 
             self.lst_title.clear()
             self.edt_agreement.clear()
 
         # 타이틀 삭제
-        elif keyword != 0:
-            keyword_text = self.lst_keyword.currentItem().text()
+        elif category != 0:
+            category_text = self.lst_category.currentItem().text()
             title_text = self.lst_title.currentItem().text()
 
-            result = self.agrs_data[self.agrs_data.keyword == keyword_text]
+            result = self.agrs_data[self.agrs_data.category == category_text]
             result = result[result.title == title_text].index
 
             self.agrs_data = self.agrs_data.drop(result)
@@ -551,29 +545,15 @@ class MainLease(QMainWindow, Ui_MainWindow):
 
             self.edt_agreement.clear()
 
-            result = self.agrs_data[self.agrs_data.keyword == keyword_text]
-            if result.empty: self.lst_keyword.model().removeRow(self.lst_keyword.currentRow())
+            result = self.agrs_data[self.agrs_data.category == category_text]
+            if result.empty: self.lst_category.model().removeRow(self.lst_category.currentRow())
 
         self.agrs_data.reset_index(drop=True, inplace=True)
         self.agrs_data.to_csv("../../data/val/agrs.csv", sep=",", index=False)
 
     # 추가, 편집한 아이템 찾기
-    def visit_item(self, keyword, title):
-        self.load_keyword()
-        for i in range(self.lst_keyword.model().rowCount()):
-            item = self.lst_keyword.item(i)
-            if item.text() == keyword:
-                self.lst_keyword.setCurrentItem(item)
-                break
-
-        self.load_title()
-        for i in range(self.lst_title.model().rowCount()):
-            item = self.lst_title.item(i)
-            if item.text() == title:
-                self.lst_title.setCurrentItem(item)
-                break
-
-        self.load_content()
+    def visit_item(self, category, title):
+        self.load_category()
 
     ## 계약자 정보 페이지
     ################################################################################################

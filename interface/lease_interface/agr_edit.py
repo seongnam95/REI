@@ -4,29 +4,35 @@ import pandas as pd
 from ui.dialog.ui_agr_editor import Ui_AgreementEditor
 from PySide6.QtWidgets import QWidget, QDialog, QLabel, QHBoxLayout, QListWidgetItem, QMenu, QGraphicsDropShadowEffect
 from PySide6.QtCore import Qt, QEvent, QSize
-from PySide6.QtGui import QColor
+from PySide6.QtGui import QColor, QIcon
 
 # from hanspell import spell_checker
 from ui.custom.BlackBoxMsg import BoxMessage
 
 
 class AgrEditor(QDialog, Ui_AgreementEditor):
-    def __init__(self, agr):
+    def __init__(self, agr, category=None, title=None):
         super().__init__()
         self.setupUi(self)
         self.set_shadows()
 
         self.msg = BoxMessage(self)
-        self.agr, self.response = agr, None
+        self.agr, self.category, self.title, self.response = agr, category, title, None
         self.editing, self.editing_row, self.save_row = False, 0, 0
 
-        self.cbx_keyword.activated.connect(self.load_content)
+        edit_icon = QIcon('../../data/img/button/edit_icon.png')
+        self.btn_add_category.setIcon(edit_icon)
+        self.btn_add_category.setIconSize(QSize(18, 18))
+
+        # 시그널
+        self.cbx_category.activated.connect(self.load_title)
+        self.cbx_title.activated.connect(self.load_content)
 
         self.btn_add.clicked.connect(self.add_item)
         self.btn_save.clicked.connect(self.clicked_save_btn)
         self.lst_content.installEventFilter(self)
 
-        self.load_content()
+        self.load_category()
 
     def set_shadows(self):
         shadow = QGraphicsDropShadowEffect(self)
@@ -34,7 +40,7 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
         shadow.setXOffset(1)
         shadow.setYOffset(1)
         shadow.setColor(QColor(0, 0, 0, 35))
-        self.con_frame.setGraphicsEffect(shadow)
+        self.edt_frame.setGraphicsEffect(shadow)
 
     ## 상호작용 이벤트
     ############################################################################
@@ -78,25 +84,25 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
 
     # 저장 버튼 클릭
     def clicked_save_btn(self):
-        keyword = self.cbx_keyword.currentText().strip()
-        title = self.edt_title.text().strip()
+        category = self.cbx_category.currentText().strip()
+        title = self.cbx_title.text().strip()
 
         if not title:
-            self.msg.show_msg(1500, 'center', "My 특약 제목을 입력해주세요.")
+            self.msg.show_msg(1500, 'center', "특약 제목을 입력해주세요.")
 
         elif not self.lst_content.count():
-            self.msg.show_msg(1500, 'center', "My 특약 리스트가 비어있습니다.")
+            self.msg.show_msg(1500, 'center', "특약내용 리스트가 비어있습니다.")
 
         else:
-            result = self.agr[self.agr['keyword'] == keyword]
+            result = self.agr[self.agr['category'] == category]
 
             if title in result['title'].values.tolist():
                 current_title = self.agr['title'].iloc[0]
                 if title != current_title:
-                    self.msg.show_msg(1500, 'center', "이미 존재하는 특약 제목입니다.")
+                    self.msg.show_msg(1500, 'center', "중복되는 특약 제목입니다.")
                     return
 
-        column = ['keyword', 'title', 'num', 'content']
+        column = ['category', 'title', 'num', 'content']
         response = pd.DataFrame(columns=column)
 
         for i in range(self.lst_content.count()):
@@ -106,11 +112,47 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
             item_num = item_widget.lb_num_icon.text()
             item_content = item_widget.lb_content.text()
 
-            result = pd.DataFrame([[keyword, title, item_num, item_content]], columns=column)
+            result = pd.DataFrame([[category, title, item_num, item_content]], columns=column)
             response = response.append(result, ignore_index=True)
 
         self.response = response
         self.hide()
+
+    ## 키워드, 타이틀
+    ############################################################################
+
+    # 카테고리 로드
+    def load_category(self):
+        category = self.agr.category.values.tolist()
+        category = list(dict.fromkeys(category))
+        self.cbx_category.addItems(category)
+
+        self.load_title()
+
+    # 타이틀 로드
+    def load_title(self):
+        category = self.cbx_category.currentText()
+        title = self.agr.title[self.agr.category == category]
+        title = list(dict.fromkeys(title))
+
+        self.cbx_title.clear()
+        self.cbx_title.addItems(title)
+        self.cbx_title.showPopup()
+
+    # 특약사항 로드
+    def load_content(self):
+        self.lst_content.clear()
+
+        category = self.cbx_category.currentText()
+        title = self.cbx_title.currentText()
+
+        self.edt_title.setText(title)
+
+        result = self.agr[self.agr.category == category]
+        editing_data = result[result.title == title]
+
+        [self.add_conent_item(count, content) for count, content in zip(editing_data['num'], editing_data['content'])]
+        self.lb_number.setText(str(self.lst_content.count() + 1))
 
     ## 항목 제어
     ############################################################################
@@ -168,25 +210,13 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
             self.lst_content.model().removeRow(item_index.row())
             self.sorted_row()
 
-        elif cbx == "keyword":
-            self.lst_keyword.model().removeRow(item_index.row())
+        elif cbx == "category":
+            self.lst_category.model().removeRow(item_index.row())
 
         elif cbx == "title":
             self.lst_title.model().removeRow(item_index.row())
 
     ############################################################################
-
-    # 특약사항 세팅
-    def load_content(self):
-        keyword = self.agr['keyword'].iloc[0]
-        title = self.agr['title'].iloc[0]
-
-        self.cbx_keyword.addItem(keyword)
-        self.edt_title.setText(title)
-
-        [self.add_conent_item(count, content) for count, content in zip(self.agr['num'], self.agr['content'])]
-
-        self.lb_number.setText(str(self.lst_content.count() + 1))
 
     # 리스트 순서 정렬
     def sorted_row(self):
@@ -204,6 +234,7 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
         item = QListWidgetItem()
         item.setSizeHint(QSize(self.lst_content.width() - 10, 15))
         item.setSizeHint(QSize(custom_item.sizeHint()))
+
         self.lst_content.addItem(item)
         self.lst_content.setItemWidget(item, custom_item)
 
@@ -219,9 +250,10 @@ class MyItem(QWidget):
     def __init__(self, num, agr):
         super(MyItem, self).__init__()
         border_txt = """QLabel { font: 11px "웰컴체 Regular";
-                        color: white;
-                        background-color: rgb(82, 103, 124);
+                        color: rgb(70,70,255);
+                        border: 1px solid rgb(125,125,255);
                         padding-top: 2px;
+                        padding-left: 1px;
                         border-radius: 2px;}"""
 
         self.setMaximumWidth(750)
@@ -240,7 +272,7 @@ class MyItem(QWidget):
         self.lb_content.setMinimumSize(450, 15)
         self.lb_content.setMaximumSize(450, 160)
         self.lb_content.setText(agr)
-        self.lb_content.setStyleSheet("""QLabel { font: 12px ; color: rgb(45, 71, 102); padding-top: 2px; margin: 0px;}""")
+        self.lb_content.setStyleSheet("""QLabel { font: 14px ; color: rgb(65,65,65); padding-top: 2px; margin: 0px;}""")
 
         self.set_ui()
 

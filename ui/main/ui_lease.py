@@ -216,11 +216,17 @@ class Ui_MainWindow(object):
         self.cbx_purposes.setGeometry(QRect(160, 40, 231, 30))
         self.cbx_purposes.setMinimumSize(QSize(62, 0))
         self.cbx_purposes.setMaximumSize(QSize(1666, 16777215))
+        self.cbx_purposes.setStyleSheet(u"QListView {\n"
+"	margin-top: 2px;\n"
+"}")
         self.cbx_structure = QComboBox(self.set_building)
         self.cbx_structure.setObjectName(u"cbx_structure")
         self.cbx_structure.setGeometry(QRect(160, 0, 231, 30))
         self.cbx_structure.setMinimumSize(QSize(62, 0))
         self.cbx_structure.setMaximumSize(QSize(1666, 16777215))
+        self.cbx_structure.setStyleSheet(u"QListView {\n"
+"	margin-top: 2px;\n"
+"}")
         self.hint_2 = QLabel(self.set_building)
         self.hint_2.setObjectName(u"hint_2")
         self.hint_2.setGeometry(QRect(100, 40, 41, 30))
@@ -274,12 +280,18 @@ class Ui_MainWindow(object):
         self.cbx_land.setGeometry(QRect(100, 0, 100, 30))
         self.cbx_land.setMinimumSize(QSize(62, 0))
         self.cbx_land.setMaximumSize(QSize(100, 16777215))
+        self.cbx_land.setStyleSheet(u"QListView {\n"
+"	margin-top: 2px;\n"
+"}")
         self.cbx_land.setIconSize(QSize(0, 0))
         self.cbx_land_details = QComboBox(self.set_land)
         self.cbx_land_details.setObjectName(u"cbx_land_details")
         self.cbx_land_details.setGeometry(QRect(210, 0, 181, 30))
         self.cbx_land_details.setMinimumSize(QSize(62, 0))
         self.cbx_land_details.setMaximumSize(QSize(1677, 16777215))
+        self.cbx_land_details.setStyleSheet(u"QListView {\n"
+"	margin-top: 2px;\n"
+"}")
         self.name_land = QLabel(self.set_land)
         self.name_land.setObjectName(u"name_land")
         self.name_land.setGeometry(QRect(10, 1, 71, 29))
@@ -363,6 +375,9 @@ class Ui_MainWindow(object):
         self.cbx_land_type.setGeometry(QRect(120, 0, 131, 30))
         self.cbx_land_type.setMinimumSize(QSize(62, 0))
         self.cbx_land_type.setMaximumSize(QSize(1677, 16777215))
+        self.cbx_land_type.setStyleSheet(u"QListView {\n"
+"	margin-top: 2px;\n"
+"}")
         self.f_address = QWidget(self.info_frame)
         self.f_address.setObjectName(u"f_address")
         self.f_address.setGeometry(QRect(20, 30, 681, 31))
@@ -449,16 +464,19 @@ class Ui_MainWindow(object):
         self.btn_balance_cal.setObjectName(u"btn_balance_cal")
         self.btn_balance_cal.setGeometry(QRect(670, 191, 28, 28))
         self.btn_balance_cal.setStyleSheet(u"QPushButton {\n"
-"	background-color: rgba(0,0,0,0);\n"
 "	border-radius: 4px;\n"
+"	padding-top: 2px;\n"
+"	padding-left: 2px;\n"
 "}\n"
 "\n"
-"QPushButton::hover {\n"
-"	background-color: rgba(44,62,80,50)\n"
+"QPushButton:hover {\n"
+"	background-color: rgb(235, 235, 235);\n"
 "}\n"
 "\n"
 "QPushButton:pressed {\n"
-"	background-color: rgba(44,62,80,80)\n"
+"	background-color: rgb(215, 215, 215);\n"
+"	padding-top: 3px;\n"
+"	padding-left: 3px;\n"
 "}")
         self.lb_price_1 = QLabel(self.money_frame)
         self.lb_price_1.setObjectName(u"lb_price_1")
@@ -571,16 +589,19 @@ class Ui_MainWindow(object):
         self.btn_2st_cal.setObjectName(u"btn_2st_cal")
         self.btn_2st_cal.setGeometry(QRect(670, 151, 28, 28))
         self.btn_2st_cal.setStyleSheet(u"QPushButton {\n"
-"	background-color: rgba(0,0,0,0);\n"
 "	border-radius: 4px;\n"
+"	padding-top: 2px;\n"
+"	padding-left: 2px;\n"
 "}\n"
 "\n"
-"QPushButton::hover {\n"
-"	background-color: rgba(44,62,80,50)\n"
+"QPushButton:hover {\n"
+"	background-color: rgb(235, 235, 235);\n"
 "}\n"
 "\n"
 "QPushButton:pressed {\n"
-"	background-color: rgba(44,62,80,80)\n"
+"	background-color: rgb(215, 215, 215);\n"
+"	padding-top: 3px;\n"
+"	padding-left: 3px;\n"
 "}")
         self.set_sub_2 = QWidget(self.money_frame)
         self.set_sub_2.setObjectName(u"set_sub_2")
@@ -649,6 +670,9 @@ class Ui_MainWindow(object):
         self.cbx_down_pay.setGeometry(QRect(120, 70, 100, 30))
         self.cbx_down_pay.setMinimumSize(QSize(62, 0))
         self.cbx_down_pay.setMaximumSize(QSize(100, 16777215))
+        self.cbx_down_pay.setStyleSheet(u"QListView {\n"
+"	margin-top: 2px;\n"
+"}")
         self.lb_price_3 = QLabel(self.money_frame)
         self.lb_price_3.setObjectName(u"lb_price_3")
         self.lb_price_3.setGeometry(QRect(376, 114, 31, 22))
@@ -662,16 +686,19 @@ class Ui_MainWindow(object):
         self.btn_1st_cal.setObjectName(u"btn_1st_cal")
         self.btn_1st_cal.setGeometry(QRect(670, 111, 28, 28))
         self.btn_1st_cal.setStyleSheet(u"QPushButton {\n"
-"	background-color: rgba(0,0,0,0);\n"
 "	border-radius: 4px;\n"
+"	padding-top: 2px;\n"
+"	padding-left: 2px;\n"
 "}\n"
 "\n"
-"QPushButton::hover {\n"
-"	background-color: rgba(44,62,80,50)\n"
+"QPushButton:hover {\n"
+"	background-color: rgb(235, 235, 235);\n"
 "}\n"
 "\n"
 "QPushButton:pressed {\n"
-"	background-color: rgba(44,62,80,80)\n"
+"	background-color: rgb(215, 215, 215);\n"
+"	padding-top: 3px;\n"
+"	padding-left: 3px;\n"
 "}")
         self.lb_item_nm_9 = QLabel(self.money_frame)
         self.lb_item_nm_9.setObjectName(u"lb_item_nm_9")
@@ -789,11 +816,17 @@ class Ui_MainWindow(object):
         self.cbx_title.addItem("")
         self.cbx_title.setObjectName(u"cbx_title")
         self.cbx_title.setGeometry(QRect(300, 30, 311, 30))
-        self.cbx_keyword = QComboBox(self.my_sc_frame)
-        self.cbx_keyword.addItem("")
-        self.cbx_keyword.setObjectName(u"cbx_keyword")
-        self.cbx_keyword.setGeometry(QRect(120, 30, 171, 30))
-        self.cbx_keyword.setIconSize(QSize(0, 0))
+        self.cbx_title.setStyleSheet(u"QListView {\n"
+"	margin-top: 2px;\n"
+"}")
+        self.cbx_category = QComboBox(self.my_sc_frame)
+        self.cbx_category.addItem("")
+        self.cbx_category.setObjectName(u"cbx_category")
+        self.cbx_category.setGeometry(QRect(120, 30, 171, 30))
+        self.cbx_category.setStyleSheet(u"QListView {\n"
+"	margin-top: 2px;\n"
+"}")
+        self.cbx_category.setIconSize(QSize(0, 0))
         self.btn_agr_edit = QPushButton(self.my_sc_frame)
         self.btn_agr_edit.setObjectName(u"btn_agr_edit")
         self.btn_agr_edit.setGeometry(QRect(630, 30, 81, 30))
@@ -1079,8 +1112,8 @@ class Ui_MainWindow(object):
         QWidget.setTabOrder(self.lb_korean_balance, self.btn_provisions)
         QWidget.setTabOrder(self.btn_provisions, self.btn_back)
         QWidget.setTabOrder(self.btn_back, self.btn_next)
-        QWidget.setTabOrder(self.btn_next, self.cbx_keyword)
-        QWidget.setTabOrder(self.cbx_keyword, self.cbx_title)
+        QWidget.setTabOrder(self.btn_next, self.cbx_category)
+        QWidget.setTabOrder(self.cbx_category, self.cbx_title)
         QWidget.setTabOrder(self.cbx_title, self.btn_agr_edit)
         QWidget.setTabOrder(self.btn_agr_edit, self.edt_agrs)
         QWidget.setTabOrder(self.edt_agrs, self.btn_add_a)
@@ -1168,7 +1201,7 @@ class Ui_MainWindow(object):
         self.lb_item_nm_11.setText(QCoreApplication.translate("MainWindow", u"\ud2b9\uc57d\uc0ac\ud56d", None))
         self.cbx_title.setItemText(0, QCoreApplication.translate("MainWindow", u"( \ud2b9\uc57d\uc0ac\ud56d \uc120\ud0dd )", None))
 
-        self.cbx_keyword.setItemText(0, QCoreApplication.translate("MainWindow", u"( \uce74\ud14c\uace0\ub9ac \uc120\ud0dd )", None))
+        self.cbx_category.setItemText(0, QCoreApplication.translate("MainWindow", u"( \uce74\ud14c\uace0\ub9ac \uc120\ud0dd )", None))
 
         self.btn_agr_edit.setText(QCoreApplication.translate("MainWindow", u"\ucd94\uac00/\ud3b8\uc9d1", None))
         self.btn_add_c.setText(QCoreApplication.translate("MainWindow", u"\uc911 \uac1c \uc0ac   \ucd94 \uac00", None))
