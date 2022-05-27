@@ -308,7 +308,6 @@ class Ui_AgreementEditor(object):
         self.btn_add_category.setGeometry(QRect(80, 20, 30, 30))
         self.btn_add_category.setStyleSheet(u"QPushButton {\n"
 "	border-radius: 4px;\n"
-"	padding-top: 2px;\n"
 "	padding-left: 2px;\n"
 "}\n"
 "\n"
@@ -341,7 +340,7 @@ class Ui_AgreementEditor(object):
         self.edt_category = QLineEdit(self.category_frame)
         self.edt_category.setObjectName(u"edt_category")
         self.edt_category.setEnabled(True)
-        self.edt_category.setGeometry(QRect(30, 240, 201, 30))
+        self.edt_category.setGeometry(QRect(30, 240, 206, 30))
         self.edt_category.setStyleSheet(u"QLabel {\n"
 "	font: 13px;\n"
 "}")

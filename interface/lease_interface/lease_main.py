@@ -46,6 +46,12 @@ class MainLease(QMainWindow, Ui_MainWindow):
 
         # self.btn_contract_0.click()
 
+    def someSlot(self):
+        p = self.sender().parent()
+        it = self.lw.itemAt(p.pos())
+        text = self.sender().text()
+        print(it, text)
+
     def set_shadows(self):
         frame_list = [self.info_frame, self.agrs_frame, self.money_frame, self.sc_frame, self.my_sc_frame]
         for child in frame_list:
@@ -551,10 +557,6 @@ class MainLease(QMainWindow, Ui_MainWindow):
         self.agrs_data.reset_index(drop=True, inplace=True)
         self.agrs_data.to_csv("../../data/val/agrs.csv", sep=",", index=False)
 
-    # 추가, 편집한 아이템 찾기
-    def visit_item(self, category, title):
-        self.load_category()
-
     ## 계약자 정보 페이지
     ################################################################################################
 
@@ -585,10 +587,8 @@ class MainLease(QMainWindow, Ui_MainWindow):
         item = QListWidgetItem()
         item.setSizeHint(QSize(custom_item.width(), 80))
 
-        if first:
-            self.lst_contractor.addItem(item)
-        else:
-            self.lst_contractor.insertItem(pos + 1, item)
+        if first: self.lst_contractor.addItem(item)
+        else: self.lst_contractor.insertItem(pos + 1, item)
 
         self.lst_contractor.setItemWidget(item, custom_item)
 

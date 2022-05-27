@@ -2,7 +2,8 @@ import sys
 import pandas as pd
 
 from ui.dialog.ui_agr_editor import Ui_AgreementEditor
-from PySide6.QtWidgets import QWidget, QDialog, QLabel, QHBoxLayout, QListWidgetItem, QMenu, QGraphicsDropShadowEffect
+from PySide6.QtWidgets import QWidget, QDialog, QLabel, QHBoxLayout, QListWidgetItem, QMenu, QGraphicsDropShadowEffect, \
+    QPushButton
 from PySide6.QtCore import Qt, QEvent, QSize
 from PySide6.QtGui import QColor, QIcon
 
@@ -14,7 +15,7 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
     def __init__(self, agr, category=None, title=None):
         super().__init__()
         self.setupUi(self)
-        self.set_shadows()
+        self.show_shadows()
 
         self.msg = BoxMessage(self)
         self.agr, self.category, self.title, self.response = agr, category, title, None
@@ -24,22 +25,45 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
         self.btn_add_category.setIcon(edit_icon)
         self.btn_add_category.setIconSize(QSize(18, 18))
 
+        plus_icon = QIcon('../../data/img/button/plus_icon.png')
+        self.btn_category_add.setIcon(plus_icon)
+        self.btn_category_add.setIconSize(QSize(18, 18))
+
         # 시그널
         self.cbx_category.activated.connect(self.load_title)
         self.cbx_title.activated.connect(self.load_content)
 
+        self.btn_category_cancel.clicked.connect(lambda: self.show_add_category(False))
+        self.btn_add_category.clicked.connect(lambda: self.show_add_category(True))
         self.btn_add.clicked.connect(self.add_item)
         self.btn_save.clicked.connect(self.clicked_save_btn)
         self.lst_content.installEventFilter(self)
 
+        self.lst_category.itemPressed.connect(self.on_itemClicked)
+
+        category_item = CategoryItem('안녕하세요')
+        item = QListWidgetItem()
+        item.setSizeHint(QSize(category_item.width(), 30))
+        self.lst_category.addItem(item)
+        self.lst_category.setItemWidget(item, category_item)
+
         self.load_category()
 
-    def set_shadows(self):
+    def on_itemClicked(self, item):
+        print('in on_itemClicked')
+        print('item is {}'.format(item))
+
+    def show_shadows(self):
         shadow = QGraphicsDropShadowEffect(self)
         shadow.setBlurRadius(15)
         shadow.setXOffset(1)
         shadow.setYOffset(1)
         shadow.setColor(QColor(0, 0, 0, 35))
+        self.edt_frame.setGraphicsEffect(shadow)
+
+    def hide_shadows(self):
+        shadow = QGraphicsDropShadowEffect(self)
+        shadow.setEnabled(False)
         self.edt_frame.setGraphicsEffect(shadow)
 
     ## 상호작용 이벤트
@@ -218,6 +242,22 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
 
     ############################################################################
 
+    def show_add_category(self, act):
+        if act:
+            self.hide_shadows()
+
+            self.category_back.setStyleSheet('#category_back { background: rgba(0,0,0,160) }')
+            self.category_back.resize(self.width(), self.height())
+            self.category_back.move(0, 0)
+
+            x = (self.width() / 2) - (self.category_frame.width() / 2)
+            y = (self.height() / 2) - (self.category_frame.height() / 2)
+            self.category_frame.move(x, y)
+
+        else:
+            self.show_shadows()
+            self.category_back.move(self.width(), 0)
+
     # 리스트 순서 정렬
     def sorted_row(self):
         for i in range(self.lst_content.count()):
@@ -282,6 +322,33 @@ class MyItem(QWidget):
         h_box.addWidget(self.lb_content)
 
         self.setLayout(h_box)
+
+
+# 카테고리 아이템
+class CategoryItem(QWidget):
+    def __init__(self, category):
+        super(CategoryItem, self).__init__()
+        self.setMinimumHeight(30)
+        self.setMaximumWidth(237)
+
+        self.category = QLabel(self)
+        self.category.setGeometry(0, 0, 207, 30)
+        self.category.setText(category)
+        self.category.setStyleSheet("""QLabel { font: 14px ; color: rgb(65,65,65); padding-top: 2px; margin: 0px;}""")
+
+        del_icon = QIcon('../../data/img/button/delete_icon.png')
+        self.del_icon = QPushButton(self)
+        self.del_icon.setGeometry(207, 0, 30, 30)
+        self.del_icon.setIcon(del_icon)
+        self.del_icon.setIconSize(QSize(18, 18))
+        self.del_icon.setStyleSheet("""
+            QPushButton {
+                background: rgba(0,0,0,0);
+                border: none;
+                outline: none;
+            }
+        """)
+
 
 
 # 예외 오류 처리
