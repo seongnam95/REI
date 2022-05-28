@@ -179,7 +179,7 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
 
     # 항목 추가
     def add_item(self):
-        content = self.edt_add.toPlainText()
+        content = self.edt_add.toPlainText()#
 
         if not content:
             self.msg.show_msg(1800, 'center', "특약사항 내용을 입력해주세요.")
