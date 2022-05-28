@@ -525,7 +525,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
     # 특약사항 삭제 이벤트
     def clicked_remove_btn(self):
         category = self.lst_category.currentRow()
-        title = self.lst_title.currentRow()
+        title = self.lst_title.currentRow()#
 
         # 키워드 삭제
         if title == -1 and category != 0:
