@@ -4,7 +4,7 @@ import pandas as pd
 from ui.dialog.ui_agr_editor import Ui_AgreementEditor
 from PySide6.QtWidgets import QWidget, QDialog, QLabel, QHBoxLayout, QListWidgetItem, QMenu, QGraphicsDropShadowEffect, \
     QPushButton
-from PySide6.QtCore import Qt, QEvent, QSize
+from PySide6.QtCore import Qt, QEvent, QSize, Signal
 from PySide6.QtGui import QColor, QIcon
 
 # from hanspell import spell_checker
@@ -48,10 +48,6 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
         self.lst_category.setItemWidget(item, category_item)
 
         self.load_category()
-
-    def on_itemClicked(self, item):
-        print('in on_itemClicked')
-        print('item is {}'.format(item))
 
     def show_shadows(self):
         shadow = QGraphicsDropShadowEffect(self)
@@ -326,6 +322,8 @@ class MyItem(QWidget):
 
 # 카테고리 아이템
 class CategoryItem(QWidget):
+    RemoveSignal = Signal()
+
     def __init__(self, category):
         super(CategoryItem, self).__init__()
         self.setMinimumHeight(30)
@@ -337,18 +335,21 @@ class CategoryItem(QWidget):
         self.category.setStyleSheet("""QLabel { font: 14px ; color: rgb(65,65,65); padding-top: 2px; margin: 0px;}""")
 
         del_icon = QIcon('../../data/img/button/delete_icon.png')
-        self.del_icon = QPushButton(self)
-        self.del_icon.setGeometry(207, 0, 30, 30)
-        self.del_icon.setIcon(del_icon)
-        self.del_icon.setIconSize(QSize(18, 18))
-        self.del_icon.setStyleSheet("""
+        self.btn_delete = QPushButton(self)
+        self.btn_delete.setGeometry(207, 0, 30, 30)
+        self.btn_delete.setIcon(del_icon)
+        self.btn_delete.setIconSize(QSize(18, 18))
+        self.btn_delete.setStyleSheet("""
             QPushButton {
                 background: rgba(0,0,0,0);
                 border: none;
                 outline: none;
             }
         """)
+        self.btn_delete.clicked.connect(self.RemoveSignal)
 
+    def delete_category(self):
+        print(self.sender().rem)
 
 
 # 예외 오류 처리
