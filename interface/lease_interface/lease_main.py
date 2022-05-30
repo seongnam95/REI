@@ -1,17 +1,23 @@
 import sys
 import re
 import pandas as pd
+from screeninfo import get_monitors
 
-from PySide6.QtWidgets import QApplication, QMainWindow, QButtonGroup, QWidget, QLabel, QLineEdit, QComboBox, \
-    QListWidgetItem, QMenu, QGraphicsDropShadowEffect
-from PySide6.QtCore import QPropertyAnimation, Qt, QSize, QRegularExpression, QRect, QEvent
-from PySide6.QtGui import QIcon, QRegularExpressionValidator, QFont, QColor
+from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QLabel, QLineEdit, QComboBox, \
+    QListWidgetItem, QMenu, QGraphicsDropShadowEffect, QPushButton, QDialog
+from PySide6.QtCore import QPropertyAnimation, Qt, QSize, QRegularExpression, QRect, QEvent, Signal, QObject
+from PySide6.QtGui import QIcon, QRegularExpressionValidator, QFont, QColor, QScreen, QGuiApplication
 from urllib3.connectionpool import xrange
 
 from ui.main.ui_lease import Ui_MainWindow
 from ui.custom.BlackBoxMsg import BoxMessage
 from interface.sub_interface import find_address_details
 from interface.lease_interface import agr_edit
+import time
+
+
+class ClickedSignal(QObject):
+    clickedSig = Signal(str)
 
 
 class MainLease(QMainWindow, Ui_MainWindow):
@@ -32,6 +38,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
 
         self.load_category()
 
+        self.btn_provisions.clicked.connect(self.test)
         self.get_building_thread = None  # 토지, 지역지구, 공시지가 스레드
         self.binfo, self.result_address, self.land = None, None, None  # 주소
         self.select_detail, self.select_building, self.total_buildings = None, None, None  # 표제부, 총괄 표제부
@@ -39,18 +46,15 @@ class MainLease(QMainWindow, Ui_MainWindow):
 
         self.page, self.contract = None, None  # 페이지, 계약 종류
         self.a_count, self.b_count, self.c_count = 0, 0, 0  # 계약자 카운트
-
-        self.msg = BoxMessage(self)
         self.editing_data = []
+        self.cnt = 0
+
         for i in range(0, 3): self.insert_contractor(True, i, i)
 
         # self.btn_contract_0.click()
 
-    def someSlot(self):
-        p = self.sender().parent()
-        it = self.lw.itemAt(p.pos())
-        text = self.sender().text()
-        print(it, text)
+    def testt(self, cnt):
+        print('시그널', cnt)
 
     def set_shadows(self):
         frame_list = [self.info_frame, self.agrs_frame, self.money_frame, self.sc_frame, self.my_sc_frame]
@@ -72,6 +76,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
     # UI init
     def _init_ui(self):
         self.setupUi(self)
+        self.msg = BoxMessage(self)
 
         # 콤보박스 아이템 추가
         self.cbx_land_details.addItems(str_list.land_details_list)
@@ -112,6 +117,11 @@ class MainLease(QMainWindow, Ui_MainWindow):
         self.btn_back.hide()
 
         self.show()
+
+    def test(self):
+        self.cnt += 1
+        a = Ui_Form(self, self.cnt)
+        a.exec()
 
     # 상호작용 init
     def _init_interaction(self):
@@ -424,10 +434,8 @@ class MainLease(QMainWindow, Ui_MainWindow):
                 self.edt_balance_pay.clear()
                 return
 
-            if self.contract == 0:
-                self.msg.show_msg(2500, 'center', "계약금과 중도금의 합은 매매대금 보다 많을 수 없습니다.")
-            else:
-                self.msg.show_msg(2500, 'center', "계약금과 중도금의 합은 보증금 보다 많을 수 없습니다.")
+            if self.contract == 0: self.msg.show_msg(2500, 'center', "계약금과 중도금의 합은 매매대금 보다 많을 수 없습니다.")
+            else: self.msg.show_msg(2500, 'center', "계약금과 중도금의 합은 보증금 보다 많을 수 없습니다.")
             self.focusWidget().clear()
 
         else:
@@ -490,6 +498,10 @@ class MainLease(QMainWindow, Ui_MainWindow):
 
             dialog = agr_edit.AgrEditor(self.agrs_data, category, title)
             dialog.exec()
+        else:
+
+            dialog = agr_edit.AgrEditor(self.agrs_data)
+            dialog.exec()
 
         #     if dialog.response is not None:
         #         response = dialog.response
@@ -525,7 +537,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
     # 특약사항 삭제 이벤트
     def clicked_remove_btn(self):
         category = self.lst_category.currentRow()
-        title = self.lst_title.currentRow()#
+        title = self.lst_title.currentRow()
 
         # 키워드 삭제
         if title == -1 and category != 0:
@@ -907,6 +919,38 @@ class ContractorItem(QWidget):
         font = self.lb_address_hint.font()
         font.setLetterSpacing(QFont.AbsoluteSpacing, 21)
         self.lb_address_hint.setFont(font)
+
+
+class Ui_Form(QDialog):
+    def __init__(self, main, con):
+        super().__init__()
+        self.resize(200, 130)
+        self.threadEvent = ClickedSignal()
+
+        self.main = main
+        self.con = con
+
+        screen = QGuiApplication.primaryScreen().availableGeometry()
+        w, h = screen.size().width(), screen.size().height()
+        x = w - self.width()
+        y = h - self.height()
+
+        self.move(x, y)
+        print(self.x(), self.y())
+        self.label = QLabel(self)
+        self.label.setObjectName(u"label")
+        self.label.setGeometry(QRect(20, 30, 56, 12))
+        self.pushButton = QPushButton(self)
+        self.pushButton.setObjectName(u"pushButton")
+        self.pushButton.setGeometry(QRect(110, 30, 75, 23))
+        self.pushButton.clicked.connect(self.test)
+
+        self.show()
+    # retranslateUi
+
+    def test(self):
+        self.main.testt(self.con)
+        print(self.x(), self.y())
 
 
 # 문자열

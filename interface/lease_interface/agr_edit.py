@@ -39,14 +39,6 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
         self.btn_save.clicked.connect(self.clicked_save_btn)
         self.lst_content.installEventFilter(self)
 
-        self.lst_category.itemPressed.connect(self.on_itemClicked)
-
-        category_item = CategoryItem('안녕하세요')
-        item = QListWidgetItem()
-        item.setSizeHint(QSize(category_item.width(), 30))
-        self.lst_category.addItem(item)
-        self.lst_category.setItemWidget(item, category_item)
-
         self.load_category()
 
     def show_shadows(self):
@@ -146,6 +138,13 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
         category = self.agr.category.values.tolist()
         category = list(dict.fromkeys(category))
         self.cbx_category.addItems(category)
+
+        for i in category:
+            category_item = CategoryItem(i)
+            item = QListWidgetItem()
+            item.setSizeHint(QSize(category_item.width(), 30))
+            self.lst_category.addItem(item)
+            self.lst_category.setItemWidget(item, category_item)
 
         self.load_title()
 
@@ -268,17 +267,10 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
     def add_conent_item(self, count, content):
         custom_item = MyItem(str(count), content)
         item = QListWidgetItem()
-        item.setSizeHint(QSize(self.lst_content.width() - 10, 15))
         item.setSizeHint(QSize(custom_item.sizeHint()))
 
         self.lst_content.addItem(item)
         self.lst_content.setItemWidget(item, custom_item)
-
-
-# 맞춤법, 띄어쓰기 교정
-def spell_check_module(content):
-    content = spell_checker.check(content).checked
-    return content
 
 
 # 리스트 아이템
@@ -346,9 +338,11 @@ class CategoryItem(QWidget):
                 outline: none;
             }
         """)
-        self.btn_delete.clicked.connect(self.RemoveSignal)
+        self.btn_delete.clicked.connect(self.delete_category)
 
     def delete_category(self):
+        main = AgrEditor('a')
+        print(main.lst_category.currentRow())
         print(self.sender().rem)
 
 
