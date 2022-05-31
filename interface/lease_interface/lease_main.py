@@ -1,7 +1,6 @@
 import sys
 import re
 import pandas as pd
-from screeninfo import get_monitors
 
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QLabel, QLineEdit, QComboBox, \
     QListWidgetItem, QMenu, QGraphicsDropShadowEffect, QPushButton, QDialog
@@ -14,10 +13,6 @@ from ui.custom.BlackBoxMsg import BoxMessage
 from interface.sub_interface import find_address_details
 from interface.lease_interface import agr_edit
 import time
-
-
-class ClickedSignal(QObject):
-    clickedSig = Signal(str)
 
 
 class MainLease(QMainWindow, Ui_MainWindow):
@@ -925,7 +920,6 @@ class Ui_Form(QDialog):
     def __init__(self, main, con):
         super().__init__()
         self.resize(200, 130)
-        self.threadEvent = ClickedSignal()
 
         self.main = main
         self.con = con

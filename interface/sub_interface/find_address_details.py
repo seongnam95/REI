@@ -122,7 +122,7 @@ class AddressDetails(QDialog, Ui_FindAddress):
     # 건물명칭(동) 콤보박스 추가
     def add_building_list(self, val):
         self.loading.hide_loading()
-
+        print(val)
         # 데이터가 없을 경우 리턴
         if val[0] is None: 
             self.msg.show_msg(2000, 'center', MsgContext.failed_in_search)

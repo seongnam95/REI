@@ -3,8 +3,8 @@ import pandas as pd
 
 from ui.dialog.ui_agr_editor import Ui_AgreementEditor
 from PySide6.QtWidgets import QWidget, QDialog, QLabel, QHBoxLayout, QListWidgetItem, QMenu, QGraphicsDropShadowEffect, \
-    QPushButton
-from PySide6.QtCore import Qt, QEvent, QSize, Signal
+    QPushButton, QMessageBox, QDialogButtonBox
+from PySide6.QtCore import Qt, QEvent, QSize, Signal, QPoint
 from PySide6.QtGui import QColor, QIcon
 
 # from hanspell import spell_checker
@@ -21,6 +21,12 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
         self.agr, self.category, self.title, self.response = agr, category, title, None
         self.editing, self.editing_row, self.save_row = False, 0, 0
 
+        self._init_ui()
+        self._init_interaction()
+
+        self.load_category()
+
+    def _init_ui(self):
         edit_icon = QIcon('../../data/img/button/edit_icon.png')
         self.btn_add_category.setIcon(edit_icon)
         self.btn_add_category.setIconSize(QSize(18, 18))
@@ -29,17 +35,20 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
         self.btn_category_add.setIcon(plus_icon)
         self.btn_category_add.setIconSize(QSize(18, 18))
 
-        # 시그널
+    def _init_interaction(self):
         self.cbx_category.activated.connect(self.load_title)
         self.cbx_title.activated.connect(self.load_content)
 
-        self.btn_category_cancel.clicked.connect(lambda: self.show_add_category(False))
+        # 메인
         self.btn_add_category.clicked.connect(lambda: self.show_add_category(True))
         self.btn_add.clicked.connect(self.add_item)
         self.btn_save.clicked.connect(self.clicked_save_btn)
         self.lst_content.installEventFilter(self)
 
-        self.load_category()
+        # 카테고리 수정
+        self.btn_category_add.clicked.connect(self.add_category)
+        self.btn_category_cancel.clicked.connect(lambda: self.show_add_category(False))
+        self.btn_category_save.clicked.connect(self.save_category)
 
     def show_shadows(self):
         shadow = QGraphicsDropShadowEffect(self)
@@ -96,41 +105,40 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
 
     # 저장 버튼 클릭
     def clicked_save_btn(self):
+
         category = self.cbx_category.currentText().strip()
-        title = self.cbx_title.text().strip()
+        title = self.cbx_title.currentText().strip()
+        print(category, title)
 
-        if not title:
-            self.msg.show_msg(1500, 'center', "특약 제목을 입력해주세요.")
+        # if not title: self.msg.show_msg(1500, 'center', "특약 제목을 입력해주세요.")
+        # elif not self.lst_content.count(): self.msg.show_msg(1500, 'center', "특약내용 리스트가 비어있습니다.")
+        #
+        # else:
+        #     result = self.agr[self.agr['category'] == category]
+        #
+        #     if title in result['title'].values.tolist():
+        #         current_title = self.agr['title'].iloc[0]
+        #         if title != current_title:
+        #             self.msg.show_msg(1500, 'center', "중복되는 특약 제목입니다.")
+        #             return
+        #
+        # column = ['category', 'title', 'num', 'content']
+        # response = pd.DataFrame(columns=column)
+        #
+        # for i in range(self.lst_content.count()):
+        #     item = self.lst_content.item(i)
+        #     item_widget = self.lst_content.itemWidget(item)
+        #
+        #     item_num = item_widget.lb_num_icon.text()
+        #     item_content = item_widget.lb_content.text()
+        #
+        #     result = pd.DataFrame([[category, title, item_num, item_content]], columns=column)
+        #     response = response.append(result, ignore_index=True)
+        #
+        # self.response = response
+        # self.hide()
 
-        elif not self.lst_content.count():
-            self.msg.show_msg(1500, 'center', "특약내용 리스트가 비어있습니다.")
-
-        else:
-            result = self.agr[self.agr['category'] == category]
-
-            if title in result['title'].values.tolist():
-                current_title = self.agr['title'].iloc[0]
-                if title != current_title:
-                    self.msg.show_msg(1500, 'center', "중복되는 특약 제목입니다.")
-                    return
-
-        column = ['category', 'title', 'num', 'content']
-        response = pd.DataFrame(columns=column)
-
-        for i in range(self.lst_content.count()):
-            item = self.lst_content.item(i)
-            item_widget = self.lst_content.itemWidget(item)
-
-            item_num = item_widget.lb_num_icon.text()
-            item_content = item_widget.lb_content.text()
-
-            result = pd.DataFrame([[category, title, item_num, item_content]], columns=column)
-            response = response.append(result, ignore_index=True)
-
-        self.response = response
-        self.hide()
-
-    ## 키워드, 타이틀
+    ## 카테고리, 타이틀
     ############################################################################
 
     # 카테고리 로드
@@ -140,7 +148,7 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
         self.cbx_category.addItems(category)
 
         for i in category:
-            category_item = CategoryItem(i)
+            category_item = self.category_item(i)
             item = QListWidgetItem()
             item.setSizeHint(QSize(category_item.width(), 30))
             self.lst_category.addItem(item)
@@ -172,6 +180,81 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
 
         [self.add_conent_item(count, content) for count, content in zip(editing_data['num'], editing_data['content'])]
         self.lb_number.setText(str(self.lst_content.count() + 1))
+
+    ## 카테고리 편집
+    ############################################################################
+
+    # 카테고리 편집 활성화/비활성화
+    def show_add_category(self, act):
+        if act:
+            self.hide_shadows()
+            self.category_back.show()
+
+            self.category_back.setStyleSheet('#category_back { background: rgba(0,0,0,160) }')
+            self.category_back.resize(self.width(), self.height())
+            self.category_back.move(0, 0)
+
+            x = (self.width() / 2) - (self.category_frame.width() / 2)
+            y = (self.height() / 2) - (self.category_frame.height() / 2)
+            self.category_frame.move(x, y)
+
+        else:
+            self.show_shadows()
+            self.category_back.hide()
+
+    # 카테고리 아이템
+    def category_item(self, category):
+        self.category_widget = QWidget(self)
+        self.category_widget.setMinimumHeight(30)
+        self.category_widget.setMaximumWidth(237)
+
+        self.lb_category = QLabel(self.category_widget)
+        self.lb_category.setGeometry(0, 0, 207, 30)
+        self.lb_category.setText(category)
+        self.lb_category.setStyleSheet(
+            """QLabel { font: 14px ; color: rgb(65,65,65); padding-top: 2px; margin: 0px;}""")
+
+        del_icon = QIcon('../../data/img/button/delete_icon.png')
+        self.btn_delete = QPushButton(self.category_widget)
+        self.btn_delete.setGeometry(207, 0, 30, 30)
+        self.btn_delete.setIcon(del_icon)
+        self.btn_delete.setIconSize(QSize(18, 18))
+        self.btn_delete.setStyleSheet("""
+            QPushButton {
+                background: rgba(0,0,0,0);
+                border: none;
+                outline: none;
+            }
+        """)
+        self.btn_delete.clicked.connect(self.delete_category)
+
+        return self.category_widget
+
+    # 카테고리 삭제
+    def delete_category(self):
+        res = self.msg_box()
+        if res == 0:
+            widget = self.sender()
+            gp = widget.mapToGlobal(QPoint())
+            lp = self.lst_category.viewport().mapFromGlobal(gp)
+            row = self.lst_category.row(self.lst_category.itemAt(lp))
+            self.lst_category.takeItem(row)
+
+    # 카테고리 추가
+    def add_category(self):
+        category = self.edt_category.text().strip()
+
+        category_item = self.category_item(category)
+        item = QListWidgetItem()
+        item.setSizeHint(QSize(category_item.width(), 30))
+        self.lst_category.addItem(item)
+        self.lst_category.setItemWidget(item, category_item)
+
+        self.edt_category.clear()
+        self.edt_category.setFocus()
+
+    def save_category(self):
+        return
 
     ## 항목 제어
     ############################################################################
@@ -237,22 +320,6 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
 
     ############################################################################
 
-    def show_add_category(self, act):
-        if act:
-            self.hide_shadows()
-
-            self.category_back.setStyleSheet('#category_back { background: rgba(0,0,0,160) }')
-            self.category_back.resize(self.width(), self.height())
-            self.category_back.move(0, 0)
-
-            x = (self.width() / 2) - (self.category_frame.width() / 2)
-            y = (self.height() / 2) - (self.category_frame.height() / 2)
-            self.category_frame.move(x, y)
-
-        else:
-            self.show_shadows()
-            self.category_back.move(self.width(), 0)
-
     # 리스트 순서 정렬
     def sorted_row(self):
         for i in range(self.lst_content.count()):
@@ -272,6 +339,25 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
         self.lst_content.addItem(item)
         self.lst_content.setItemWidget(item, custom_item)
 
+    # 다이얼로그 엔터키 막기
+    def keyPressEvent(self, event):
+        if ((not event.modifiers() and
+             event.key() == Qt.Key_Return) or
+                (event.modifiers() == Qt.KeypadModifier)):
+            event.accept()
+        else: super(AgrEditor, self).keyPressEvent(event)
+
+    def msg_box(self):
+        msgBox = QMessageBox(self)
+        msgBox.setWindowTitle("정보")  # 메세지창의 상단 제목
+        msgBox.setIcon(QMessageBox.Information)  # 메세지창 내부에 표시될 아이콘
+        msgBox.setText("카테고리를 삭제하시겠습니까?")  # 메세지 제목
+        msgBox.setInformativeText("해당 카테고리에 있는 모든 특약사항이 모두 삭제됩니다.")  # 메세지 내용
+
+        msgBox.addButton("삭제", QMessageBox.ActionRole)
+        msgBox.addButton("취소", QMessageBox.ActionRole)
+
+        return msgBox.exec_()
 
 # 리스트 아이템
 class MyItem(QWidget):
@@ -310,40 +396,6 @@ class MyItem(QWidget):
         h_box.addWidget(self.lb_content)
 
         self.setLayout(h_box)
-
-
-# 카테고리 아이템
-class CategoryItem(QWidget):
-    RemoveSignal = Signal()
-
-    def __init__(self, category):
-        super(CategoryItem, self).__init__()
-        self.setMinimumHeight(30)
-        self.setMaximumWidth(237)
-
-        self.category = QLabel(self)
-        self.category.setGeometry(0, 0, 207, 30)
-        self.category.setText(category)
-        self.category.setStyleSheet("""QLabel { font: 14px ; color: rgb(65,65,65); padding-top: 2px; margin: 0px;}""")
-
-        del_icon = QIcon('../../data/img/button/delete_icon.png')
-        self.btn_delete = QPushButton(self)
-        self.btn_delete.setGeometry(207, 0, 30, 30)
-        self.btn_delete.setIcon(del_icon)
-        self.btn_delete.setIconSize(QSize(18, 18))
-        self.btn_delete.setStyleSheet("""
-            QPushButton {
-                background: rgba(0,0,0,0);
-                border: none;
-                outline: none;
-            }
-        """)
-        self.btn_delete.clicked.connect(self.delete_category)
-
-    def delete_category(self):
-        main = AgrEditor('a')
-        print(main.lst_category.currentRow())
-        print(self.sender().rem)
 
 
 # 예외 오류 처리
