@@ -18,6 +18,7 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
         self.show_shadows()
 
         self.msg = BoxMessage(self)
+        self.new_category = []
         self.agr, self.category, self.title, self.response = agr, category, title, None
         self.editing, self.editing_row, self.save_row = False, 0, 0
 
@@ -105,7 +106,6 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
 
     # 저장 버튼 클릭
     def clicked_save_btn(self):
-
         category = self.cbx_category.currentText().strip()
         title = self.cbx_title.currentText().strip()
         print(category, title)
@@ -238,22 +238,49 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
             gp = widget.mapToGlobal(QPoint())
             lp = self.lst_category.viewport().mapFromGlobal(gp)
             row = self.lst_category.row(self.lst_category.itemAt(lp))
+            lst = self.lst_category.item(row)
+
             self.lst_category.takeItem(row)
+
+            self.new_category.remove(self.lst_category.itemAt(lp).text())
 
     # 카테고리 추가
     def add_category(self):
         category = self.edt_category.text().strip()
 
-        category_item = self.category_item(category)
-        item = QListWidgetItem()
-        item.setSizeHint(QSize(category_item.width(), 30))
-        self.lst_category.addItem(item)
-        self.lst_category.setItemWidget(item, category_item)
+        categorys = self.agr.category.values.tolist()
+        categorys = list(dict.fromkeys(categorys))
 
-        self.edt_category.clear()
+        if category in categorys or category in self.new_category:
+            self.msg.show_msg(2000, 'center', '이미 존재하는 카테고리입니다.')
+
+        else:
+            self.new_category.append(category)
+
+            category_item = self.category_item(category)
+            item = QListWidgetItem()
+            item.setSizeHint(QSize(category_item.width(), 30))
+            self.lst_category.addItem(item)
+            self.lst_category.setItemWidget(item, category_item)
+
+            self.edt_category.clear()
+
         self.edt_category.setFocus()
 
+    # 카테고리 저장
     def save_category(self):
+        df = self.agr
+
+        categorys = self.agr.category.values.tolist()
+        categorys = list(dict.fromkeys(categorys))
+        print(self.new_category)
+
+        # new_category = {'category': '', 'title': '', 'num': '', 'content': ''}
+        # new_df = pd.DataFrame(new_category)
+        #
+        # df = pd.concat([df, new_df])
+        # print(df)
+
         return
 
     ## 항목 제어
@@ -261,7 +288,7 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
 
     # 항목 추가
     def add_item(self):
-        content = self.edt_add.toPlainText()#
+        content = self.edt_add.toPlainText()
 
         if not content:
             self.msg.show_msg(1800, 'center', "특약사항 내용을 입력해주세요.")
@@ -358,6 +385,7 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
         msgBox.addButton("취소", QMessageBox.ActionRole)
 
         return msgBox.exec_()
+
 
 # 리스트 아이템
 class MyItem(QWidget):
