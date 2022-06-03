@@ -171,7 +171,7 @@ class AddressDetails(QDialog, Ui_FindAddress):
         else:
             self.res_expos, self.land, self.owners, self.prices = val[0], val[1], val[2], val[3]
             self.res_exact_expos = res_exact_expos = sorted_rooms_len(get_exact_value(self.res_expos))
-
+            print(self.owners)
             for i in range(len(res_exact_expos)):
                 ho = res_exact_expos.iloc[i]['호명칭'].rstrip('호')
                 area = round(pd.to_numeric(res_exact_expos.iloc[i]['전용면적']), 2)

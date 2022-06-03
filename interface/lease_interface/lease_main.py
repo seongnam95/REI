@@ -155,7 +155,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
         # self.lst_contractor.installEventFilter(self)
 
         # 리스트 아이템 클릭
-        # self.lst_category.itemClicked.connect(self.load_title)
+        # self.lst_category.itemClicked.connect(self.load_title_)
         # self.lst_title.itemClicked.connect(self.load_content)
 
     ## 계약 선택 페이지

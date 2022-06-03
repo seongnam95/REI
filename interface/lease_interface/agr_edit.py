@@ -4,7 +4,7 @@ import pandas as pd
 from ui.dialog.ui_agr_editor import Ui_AgreementEditor
 from PySide6.QtWidgets import QWidget, QDialog, QLabel, QHBoxLayout, QListWidgetItem, QMenu, QGraphicsDropShadowEffect, \
     QPushButton, QMessageBox, QDialogButtonBox
-from PySide6.QtCore import Qt, QEvent, QSize, Signal, QPoint
+from PySide6.QtCore import Qt, QEvent, QSize, Signal, QPoint, Slot
 from PySide6.QtGui import QColor, QIcon
 
 # from hanspell import spell_checker
@@ -148,7 +148,9 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
         self.cbx_category.addItems(category)
 
         for i in category:
-            category_item = self.category_item(i)
+            # category_item = self.category_item(i)
+            category_item = CategoryItem(i)
+            category_item.btn_delete.clicked.connect(self.delete_category)
             item = QListWidgetItem()
             item.setSizeHint(QSize(category_item.width(), 30))
             self.lst_category.addItem(item)
@@ -234,15 +236,22 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
     def delete_category(self):
         res = self.msg_box()
         if res == 0:
+
+            # 클릭 아이템 삭제
             widget = self.sender()
             gp = widget.mapToGlobal(QPoint())
             lp = self.lst_category.viewport().mapFromGlobal(gp)
             row = self.lst_category.row(self.lst_category.itemAt(lp))
-            lst = self.lst_category.item(row)
 
-            self.lst_category.takeItem(row)
+            item = self.lst_category.item(row)
+            item_widget = self.lst_category.itemWidget(item)
+            category = item_widget.lb_category.text()
 
-            self.new_category.remove(self.lst_category.itemAt(lp).text())
+            if category in self.new_category:
+                self.new_category.remove(category)
+
+            self.lst_category.model().removeRow(row)
+            # self.new_category.remove()
 
     # 카테고리 추가
     def add_category(self):
@@ -257,7 +266,9 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
         else:
             self.new_category.append(category)
 
-            category_item = self.category_item(category)
+            category_item = CategoryItem(category)
+            category_item.btn_delete.clicked.connect(self.delete_category)
+
             item = QListWidgetItem()
             item.setSizeHint(QSize(category_item.width(), 30))
             self.lst_category.addItem(item)
@@ -273,6 +284,7 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
 
         categorys = self.agr.category.values.tolist()
         categorys = list(dict.fromkeys(categorys))
+        print(categorys)
         print(self.new_category)
 
         # new_category = {'category': '', 'title': '', 'num': '', 'content': ''}
@@ -424,6 +436,31 @@ class MyItem(QWidget):
         h_box.addWidget(self.lb_content)
 
         self.setLayout(h_box)
+
+
+# 리스트 아이템
+class CategoryItem(QWidget):
+    def __init__(self, category):
+        super(CategoryItem, self).__init__()
+
+        self.lb_category = QLabel(self)
+        self.lb_category.setGeometry(0, 0, 207, 30)
+        self.lb_category.setText(category)
+        self.lb_category.setStyleSheet(
+            """QLabel { font: 14px ; color: rgb(65,65,65); padding-top: 2px; margin: 0px;}""")
+
+        del_icon = QIcon('../../data/img/button/delete_icon.png')
+        self.btn_delete = QPushButton(self)
+        self.btn_delete.setGeometry(207, 0, 30, 30)
+        self.btn_delete.setIcon(del_icon)
+        self.btn_delete.setIconSize(QSize(18, 18))
+        self.btn_delete.setStyleSheet("""
+            QPushButton {
+                background: rgba(0,0,0,0);
+                border: none;
+                outline: none;
+            }
+        """)
 
 
 # 예외 오류 처리
