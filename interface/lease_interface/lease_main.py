@@ -486,17 +486,8 @@ class MainLease(QMainWindow, Ui_MainWindow):
 
     # 특약사항 편집 이벤트
     def clicked_edit_btn(self):
-        if self.cbx_category.currentIndex() != 0:
-
-            category = self.cbx_category.currentText()
-            title = self.cbx_title.currentText()
-
-            dialog = agr_edit.AgrEditor(self.agrs_data, category, title)
-            dialog.exec()
-        else:
-
-            dialog = agr_edit.AgrEditor(self.agrs_data)
-            dialog.exec()
+        dialog = agr_edit.AgrEditor(self.agrs_data)
+        dialog.exec()
 
         #     if dialog.response is not None:
         #         response = dialog.response

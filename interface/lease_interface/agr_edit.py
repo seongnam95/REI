@@ -12,14 +12,14 @@ from ui.custom.BlackBoxMsg import BoxMessage
 
 
 class AgrEditor(QDialog, Ui_AgreementEditor):
-    def __init__(self, agr, category=None, title=None):
+    def __init__(self, agr):
         super().__init__()
         self.setupUi(self)
         self.show_shadows()
 
         self.msg = BoxMessage(self)
         self.new_category = []
-        self.agr, self.category, self.title, self.response = agr, category, title, None
+        self.agr, self.response = agr, None
         self.editing, self.editing_row, self.save_row = False, 0, 0
 
         self._init_ui()
@@ -143,12 +143,14 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
 
     # 카테고리 로드
     def load_category(self):
+        self.cbx_category.clear()
+        self.lst_category.clear()
+
         category = self.agr.category.values.tolist()
         category = list(dict.fromkeys(category))
         self.cbx_category.addItems(category)
 
         for i in category:
-            # category_item = self.category_item(i)
             category_item = CategoryItem(i)
             category_item.btn_delete.clicked.connect(self.delete_category)
             item = QListWidgetItem()
@@ -160,13 +162,14 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
 
     # 타이틀 로드
     def load_title(self):
+        self.cbx_title.clear()
+
         category = self.cbx_category.currentText()
         title = self.agr.title[self.agr.category == category]
         title = list(dict.fromkeys(title))
 
         self.cbx_title.clear()
         self.cbx_title.addItems(title)
-        self.cbx_title.showPopup()
 
     # 특약사항 로드
     def load_content(self):
@@ -189,6 +192,7 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
     # 카테고리 편집 활성화/비활성화
     def show_add_category(self, act):
         if act:
+
             self.hide_shadows()
             self.category_back.show()
 
@@ -251,7 +255,7 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
                 self.new_category.remove(category)
 
             self.lst_category.model().removeRow(row)
-            # self.new_category.remove()
+            self.agr = self.agr.drop(self.agr[self.agr['category'] == category].index, axis=0)
 
     # 카테고리 추가
     def add_category(self):
@@ -264,6 +268,10 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
             self.msg.show_msg(2000, 'center', '이미 존재하는 카테고리입니다.')
 
         else:
+            new_category = {'category': [category], 'title': [''], 'num': [''], 'content': ['']}
+            new_df = pd.DataFrame(new_category)
+
+            self.agr = pd.concat([self.agr, new_df])
             self.new_category.append(category)
 
             category_item = CategoryItem(category)
@@ -280,20 +288,11 @@ class AgrEditor(QDialog, Ui_AgreementEditor):
 
     # 카테고리 저장
     def save_category(self):
-        df = self.agr
+        self.agr.reset_index(drop=True, inplace=True)
+        self.agr.to_csv("../../data/val/agrs.csv", sep=",", index=False)
 
-        categorys = self.agr.category.values.tolist()
-        categorys = list(dict.fromkeys(categorys))
-        print(categorys)
-        print(self.new_category)
-
-        # new_category = {'category': '', 'title': '', 'num': '', 'content': ''}
-        # new_df = pd.DataFrame(new_category)
-        #
-        # df = pd.concat([df, new_df])
-        # print(df)
-
-        return
+        self.show_add_category(False)
+        self.load_category()
 
     ## 항목 제어
     ############################################################################
