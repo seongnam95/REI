@@ -9,6 +9,7 @@ from PySide6.QtGui import QColor, QIcon
 
 # from hanspell import spell_checker
 from ui.custom.BlackBoxMsg import BoxMessage
+from ui.custom.TextEditWidget import TextEditWidget
 
 
 class AgrEditor(QDialog, Ui_AgrEditor):
@@ -17,10 +18,9 @@ class AgrEditor(QDialog, Ui_AgrEditor):
         self.setupUi(self)
 
         self.agr, self.kind, self.response, self.new_category = agr, kind, None, []
-        try: self.agr = pd.read_csv('../../data/val/agrs.csv', sep=",")
+        try: self.agr = pd.read_csv('../../data/val/agrs.csv', sep="{sep}")
         except FileNotFoundError: return
 
-        print(self.agr.category)
         self._init_ui()
         self.show_shadows()
         self.show()
@@ -30,7 +30,9 @@ class AgrEditor(QDialog, Ui_AgrEditor):
 
     def _init_ui(self):
         self.msg = BoxMessage(self)
-
+        self.text_edit_widget = TextEditWidget(self.text_frame, 610, self.edt_agr)
+        self.text_edit_widget.move(20, 20)
+        self.edt_agr.font().bold()
         edit_icon = QIcon('../../data/img/button/edit_icon.png')
         self.btn_add_category.setIcon(edit_icon)
         self.btn_add_category.setIconSize(QSize(18, 18))
@@ -207,6 +209,8 @@ class AgrEditor(QDialog, Ui_AgrEditor):
 
     # 특약사항 로드
     def load_content(self):
+        self.edt_agr.clear()
+
         item = self.lst_category.item(self.lst_category.currentRow())
         category_widget = self.lst_category.itemWidget(item)
         category = self.agr[self.agr.category == category_widget.lb_category.text()]
@@ -215,9 +219,9 @@ class AgrEditor(QDialog, Ui_AgrEditor):
         title_widget = self.lst_title.itemWidget(item)
         title = category[category.title == title_widget.lb_category.text()]
 
-        content = title.content.iloc[0].replace('\n', '\n')
+        content = title.content.iloc[0]
 
-        self.edt_agr.setText(content)
+        self.edt_agr.insertHtml(content)
 
     ## 카테고리 편집
     ############################################################################
