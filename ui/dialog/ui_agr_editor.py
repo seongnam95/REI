@@ -191,9 +191,27 @@ class Ui_AgrEditor(object):
 "	padding-top: 3px;\n"
 "	padding-left: 3px;\n"
 "}")
+        self.btn_remove_category = QPushButton(self.category_frame)
+        self.btn_remove_category.setObjectName(u"btn_remove_category")
+        self.btn_remove_category.setGeometry(QRect(165, 20, 30, 30))
+        self.btn_remove_category.setStyleSheet(u"QPushButton {\n"
+"	border-radius: 4px;\n"
+"	padding-left: 2px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"	background-color: rgb(235, 235, 235);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"	background-color: rgb(215, 215, 215);\n"
+"	padding-top: 3px;\n"
+"	padding-left: 3px;\n"
+"}")
         self.name_category.raise_()
         self.lst_category.raise_()
         self.btn_add_category.raise_()
+        self.btn_remove_category.raise_()
         self.title_frame = QFrame(self.page)
         self.title_frame.setObjectName(u"title_frame")
         self.title_frame.setGeometry(QRect(300, 20, 381, 191))
@@ -212,6 +230,40 @@ class Ui_AgrEditor(object):
         self.lst_title = QListWidget(self.title_frame)
         self.lst_title.setObjectName(u"lst_title")
         self.lst_title.setGeometry(QRect(20, 60, 341, 111))
+        self.btn_add_title = QPushButton(self.title_frame)
+        self.btn_add_title.setObjectName(u"btn_add_title")
+        self.btn_add_title.setGeometry(QRect(295, 20, 30, 30))
+        self.btn_add_title.setStyleSheet(u"QPushButton {\n"
+"	border-radius: 4px;\n"
+"	padding-left: 2px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"	background-color: rgb(235, 235, 235);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"	background-color: rgb(215, 215, 215);\n"
+"	padding-top: 3px;\n"
+"	padding-left: 3px;\n"
+"}")
+        self.btn_remove_title = QPushButton(self.title_frame)
+        self.btn_remove_title.setObjectName(u"btn_remove_title")
+        self.btn_remove_title.setGeometry(QRect(330, 20, 30, 30))
+        self.btn_remove_title.setStyleSheet(u"QPushButton {\n"
+"	border-radius: 4px;\n"
+"	padding-left: 2px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"	background-color: rgb(235, 235, 235);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"	background-color: rgb(215, 215, 215);\n"
+"	padding-top: 3px;\n"
+"	padding-left: 3px;\n"
+"}")
         self.stackedWidget.addWidget(self.page)
         self.page_2 = QWidget()
         self.page_2.setObjectName(u"page_2")
@@ -329,7 +381,7 @@ class Ui_AgrEditor(object):
         self.edt_agr.setGeometry(QRect(20, 60, 611, 291))
         self.frame_3 = QFrame(self.text_frame)
         self.frame_3.setObjectName(u"frame_3")
-        self.frame_3.setGeometry(QRect(20, 20, 611, 31))
+        self.frame_3.setGeometry(QRect(20, 20, 611, 30))
         self.frame_3.setStyleSheet(u"QComboBox {\n"
 "    border: none;\n"
 "    padding-top: 4px;\n"
@@ -430,6 +482,7 @@ class Ui_AgrEditor(object):
 "    width: 8px;\n"
 "    height: 8px;\n"
 "}")
+        self.btn_italic.setCheckable(True)
         self.btn_under_line = QPushButton(self.frame_3)
         self.btn_under_line.setObjectName(u"btn_under_line")
         self.btn_under_line.setGeometry(QRect(300, 0, 30, 30))
@@ -445,14 +498,10 @@ class Ui_AgrEditor(object):
         self.btn_color.setGeometry(QRect(330, 0, 30, 30))
         self.btn_color.setStyleSheet(u"#btn_under_line {\n"
 "    image: url(../../data/img/button/color_icon.png);\n"
-"    width: 8px;\n"
-"    height: 8px;\n"
 "}\n"
 "\n"
 "#btn_under_line:hover {\n"
 "    image: url(../../data/img/button/color_hover_icon.png);\n"
-"    width: 8px;\n"
-"    height: 8px;\n"
 "}")
         self.cbx_fontsize = QComboBox(self.frame_3)
         self.cbx_fontsize.addItem("")
@@ -494,12 +543,12 @@ class Ui_AgrEditor(object):
 "}")
         self.category_back = QFrame(AgrEditor)
         self.category_back.setObjectName(u"category_back")
-        self.category_back.setGeometry(QRect(750, 20, 341, 401))
+        self.category_back.setGeometry(QRect(750, 20, 341, 231))
         self.category_back.setFrameShape(QFrame.StyledPanel)
         self.category_back.setFrameShadow(QFrame.Raised)
         self.category_edit_frame = QFrame(self.category_back)
         self.category_edit_frame.setObjectName(u"category_edit_frame")
-        self.category_edit_frame.setGeometry(QRect(20, 20, 301, 361))
+        self.category_edit_frame.setGeometry(QRect(20, 20, 301, 191))
         self.category_edit_frame.setStyleSheet(u"#category_edit_frame{\n"
 "	border: 1px solid rgb(200,200,200);\n"
 "	background: white;\n"
@@ -528,20 +577,17 @@ class Ui_AgrEditor(object):
 "}")
         self.category_edit_frame.setFrameShape(QFrame.StyledPanel)
         self.category_edit_frame.setFrameShadow(QFrame.Raised)
-        self.lst_edit_category = QListWidget(self.category_edit_frame)
-        self.lst_edit_category.setObjectName(u"lst_edit_category")
-        self.lst_edit_category.setGeometry(QRect(30, 68, 241, 161))
         self.edt_category = QLineEdit(self.category_edit_frame)
         self.edt_category.setObjectName(u"edt_category")
         self.edt_category.setEnabled(True)
-        self.edt_category.setGeometry(QRect(30, 240, 206, 30))
+        self.edt_category.setGeometry(QRect(30, 68, 241, 30))
         self.edt_category.setStyleSheet(u"QLabel {\n"
 "	font: 13px;\n"
 "}")
         self.edt_category.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
         self.label_2 = QLabel(self.category_edit_frame)
         self.label_2.setObjectName(u"label_2")
-        self.label_2.setGeometry(QRect(34, 242, 61, 25))
+        self.label_2.setGeometry(QRect(34, 70, 61, 25))
         self.label_2.setAutoFillBackground(False)
         self.label_2.setStyleSheet(u"QLabel {\n"
 "	font: 13px \"\uc6f0\ucef4\uccb4 Regular\";\n"
@@ -551,7 +597,7 @@ class Ui_AgrEditor(object):
 "}")
         self.btn_category_cancel = QPushButton(self.category_edit_frame)
         self.btn_category_cancel.setObjectName(u"btn_category_cancel")
-        self.btn_category_cancel.setGeometry(QRect(70, 300, 71, 31))
+        self.btn_category_cancel.setGeometry(QRect(70, 130, 71, 31))
         self.btn_category_cancel.setStyleSheet(u"QPushButton {\n"
 "    font: 15px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "    color: rgb(88,88,255);\n"
@@ -574,7 +620,7 @@ class Ui_AgrEditor(object):
 "}")
         self.btn_category_save = QPushButton(self.category_edit_frame)
         self.btn_category_save.setObjectName(u"btn_category_save")
-        self.btn_category_save.setGeometry(QRect(150, 300, 81, 31))
+        self.btn_category_save.setGeometry(QRect(150, 130, 81, 31))
         self.btn_category_save.setStyleSheet(u"QPushButton {\n"
 "    font: 15px \"\uc6f0\ucef4\uccb4 Regular\";\n"
 "    color: white;\n"
@@ -610,24 +656,6 @@ class Ui_AgrEditor(object):
 "	border: 0px;\n"
 "}")
         self.lb_category_edt.setAlignment(Qt.AlignCenter)
-        self.btn_category_add = QPushButton(self.category_edit_frame)
-        self.btn_category_add.setObjectName(u"btn_category_add")
-        self.btn_category_add.setGeometry(QRect(240, 240, 30, 30))
-        self.btn_category_add.setStyleSheet(u"QPushButton {\n"
-"	border-radius: 4px;\n"
-"	padding-top: 2px;\n"
-"	padding-left: 2px;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"	background-color: rgb(235, 235, 235);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"	background-color: rgb(215, 215, 215);\n"
-"	padding-top: 3px;\n"
-"	padding-left: 3px;\n"
-"}")
 
         self.retranslateUi(AgrEditor)
 
@@ -645,10 +673,18 @@ class Ui_AgrEditor(object):
         self.btn_close.setText(QCoreApplication.translate("AgrEditor", u"\ub2eb \uae30", None))
         self.name_category.setText(QCoreApplication.translate("AgrEditor", u"\uce74\ud14c\uace0\ub9ac", None))
         self.btn_add_category.setText("")
+        self.btn_remove_category.setText("")
         self.name_category_2.setText(QCoreApplication.translate("AgrEditor", u"\ud2b9\uc57d\uc0ac\ud56d", None))
+        self.btn_add_title.setText("")
+        self.btn_remove_title.setText("")
         self.name_title.setText(QCoreApplication.translate("AgrEditor", u"\uc81c \ubaa9", None))
         self.name_category_3.setText(QCoreApplication.translate("AgrEditor", u"\uce74\ud14c\uace0\ub9ac", None))
         self.edt_title.setText("")
+        self.edt_agr.setHtml(QCoreApplication.translate("AgrEditor", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Gulim'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>", None))
         self.btn_bold.setText("")
         self.btn_italic.setText("")
         self.btn_under_line.setText("")
@@ -673,6 +709,5 @@ class Ui_AgrEditor(object):
         self.btn_category_cancel.setText(QCoreApplication.translate("AgrEditor", u"\ub2eb \uae30", None))
         self.btn_category_save.setText(QCoreApplication.translate("AgrEditor", u"\uc800 \uc7a5", None))
         self.lb_category_edt.setText(QCoreApplication.translate("AgrEditor", u"\uce74\ud14c\uace0\ub9ac \ud3b8\uc9d1", None))
-        self.btn_category_add.setText("")
     # retranslateUi
 
