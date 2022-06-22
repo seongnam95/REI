@@ -83,7 +83,9 @@ class BoxMessage(QLabel):
         self.anim.setStartValue(1)
         self.anim.setEndValue(0)
         self.anim.setDuration(500)
+        self.anim.finished.connect(lambda: self.hide())
         self.anim.start()
 
         self.timer.stop()
         self.msg_timer = False
+

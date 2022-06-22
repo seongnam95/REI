@@ -29,52 +29,57 @@ class AgrEditor(QDialog, Ui_AgrEditor):
 
     def _init_ui(self):
         self.msg = BoxMessage(self)
+
         self.text_edit_widget = TextEditWidget(self.text_frame, 610, self.edt_agr)
         self.text_edit_widget.move(20, 20)
-        self.edt_agr.font().bold()
 
-        edit_icon = QIcon('../../data/img/button/list_remove_icon.png')
+        # 편집기 세팅
+        self.editor_back.resize(self.width(), self.height())
+        self.editor_back.move(0, 0)
+
+        x = (self.width() / 2) - (self.editor_frame.width() / 2)
+        y = (self.height() / 2) - (self.editor_frame.height() / 2)
+        self.editor_frame.move(x, y)
+
+        self.editor_back.hide()
+
+        edit_icon = QIcon('../../data/img/button/plus_icon.png')
         self.btn_add_category.setIcon(edit_icon)
-        self.btn_add_category.setIconSize(QSize(22, 22))
+        self.btn_add_category.setIconSize(QSize(21, 21))
 
-        edit_icon = QIcon('../../data/img/button/list_add_icon.png')
-        self.btn_remove_category.setIcon(edit_icon)
-        self.btn_remove_category.setIconSize(QSize(20, 20))
+        edit_icon = QIcon('../../data/img/button/trash_icon.png')
+        self.btn_del_category.setIcon(edit_icon)
+        self.btn_del_category.setIconSize(QSize(19, 19))
 
-        if self.kind == 'EDIT':
-            self.resize(711, 791)
-            self.stackedWidget.setCurrentIndex(0)
-            self.text_frame.move(30, 300)
-            self.btn_close.move(360, 710)
-            self.btn_save.move(480, 710)
+        edit_icon = QIcon('../../data/img/button/plus_icon.png')
+        self.btn_add_title.setIcon(edit_icon)
+        self.btn_add_title.setIconSize(QSize(21, 21))
 
-        else:
-            self.resize(711, 671)
-            self.stackedWidget.setCurrentIndex(1)
-            self.text_frame.move(30, 180)
-            self.btn_close.move(360, 590)
-            self.btn_save.move(480, 590)
+        edit_icon = QIcon('../../data/img/button/trash_icon.png')
+        self.btn_del_title.setIcon(edit_icon)
+        self.btn_del_title.setIconSize(QSize(19, 19))
 
     def _init_interaction(self):
         self.lst_category.itemClicked.connect(self.load_title)
         self.lst_title.itemClicked.connect(self.load_content)
 
         # 메인
-        self.btn_add_category.clicked.connect(lambda: self.show_add_category('add'))
-        self.lst_category.itemDoubleClicked.connect(lambda: self.show_add_category('edit'))
-        self.btn_category_cancel.clicked.connect(self.hide_add_category)
-        # self.btn_add.clicked.connect(self.add_item)
+        self.btn_del_category.clicked.connect(lambda: self.delete_item('category'))
+        self.btn_add_category.clicked.connect(lambda: self.show_item_editor('category', 'add'))
+        self.lst_category.itemDoubleClicked.connect(lambda: self.show_item_editor('category', 'edit'))
+
+        self.btn_del_title.clicked.connect(lambda: self.delete_item('title'))
+        self.btn_add_title.clicked.connect(lambda: self.show_item_editor('title', 'add'))
+        self.lst_title.itemDoubleClicked.connect(lambda: self.show_item_editor('title', 'edit'))
+
         self.btn_save.clicked.connect(self.clicked_save_btn)
-        # self.lst_content.installEventFilter(self)
 
-        # 카테고리 수정
-        # self.btn_category_add.clicked.connect(self.add_category)
-        # self.btn_category_cancel.clicked.connect(lambda: self.show_add_category(False))
-        # self.btn_category_save.clicked.connect(self.save_category)
-
+        # 항목 편집기
+        self.btn_editor_cancel.clicked.connect(self.hide_item_editor)
+        self.btn_editor_save.clicked.connect(self.add_item)
 
     def show_shadows(self):
-        frame_list = [self.category_frame, self.title_frame, self.text_frame, self.add_frame]
+        frame_list = [self.category_frame, self.title_frame, self.text_frame]
         for child in frame_list:
             shadow = QGraphicsDropShadowEffect(self)
             shadow.setBlurRadius(15)
@@ -84,7 +89,7 @@ class AgrEditor(QDialog, Ui_AgrEditor):
             child.setGraphicsEffect(shadow)
 
     def hide_shadows(self):
-        frame_list = [self.category_frame, self.title_frame, self.text_frame, self.add_frame]
+        frame_list = [self.category_frame, self.title_frame, self.text_frame]
         for child in frame_list:
             shadow = QGraphicsDropShadowEffect(self)
             shadow.setEnabled(False)
@@ -145,7 +150,7 @@ class AgrEditor(QDialog, Ui_AgrEditor):
         category = list(dict.fromkeys(category))
 
         for i in category:
-            category_item = CategoryItem(i, False, self.lst_category)
+            category_item = CategoryItem(i, self.lst_category)
             item = QListWidgetItem()
             item.setSizeHint(QSize(category_item.width(), 30))
             self.lst_category.addItem(item)
@@ -161,18 +166,13 @@ class AgrEditor(QDialog, Ui_AgrEditor):
 
         title = self.agr.title[self.agr.category == category]
 
-        category_item = CategoryItem('btn_add', False, self.lst_title)
-        item = QListWidgetItem()
-        item.setSizeHint(QSize(category_item.width(), 30))
-        self.lst_title.addItem(item)
-        self.lst_title.setItemWidget(item, category_item)
-
         if not title.isnull().values.any():
             title = list(dict.fromkeys(title))
+            print(type(title), title)
             if type(title) == list and title[0] == '': return
 
             for i in title:
-                category_item = CategoryItem(i, False, self.lst_title)
+                category_item = CategoryItem(i, self.lst_title)
                 item = QListWidgetItem()
                 item.setSizeHint(QSize(category_item.width(), 30))
                 self.lst_title.addItem(item)
@@ -198,50 +198,142 @@ class AgrEditor(QDialog, Ui_AgrEditor):
     ## 카테고리 편집
     ############################################################################
 
-    # 카테고리 편집 활성화/비활성화
-    def show_add_category(self, kind):
-        if kind == 'add':
-            self.hide_shadows()
-            self.category_back.show()
+    # 편집기 활성화
+    def show_item_editor(self, form, kind):
+        self.hide_shadows()
+        self.editor_back.show()
+        self.edt_name.clear()
 
-            self.category_back.setStyleSheet('#category_back { background: rgba(0,0,0,150) }')
-            self.category_back.resize(self.width(), self.height())
-            self.category_back.move(0, 0)
+        if form == 'category':
+            if kind == 'add':
+                self.editor_title.setText('카테고리 추가')
+                self.btn_editor_save.setText('추가')
 
-            x = (self.width() / 2) - (self.category_edit_frame.width() / 2)
-            y = (self.height() / 2) - (self.category_edit_frame.height() / 2)
-            self.category_edit_frame.move(x, y)
+            elif kind == 'edit':
+                self.editor_title.setText('카테고리 편집')
+                self.btn_editor_save.setText('저장')
 
-            self.lb_category_edt.setText('카테고리 추가')
-            self.btn_category_save.setText('추가')
+                # 선택한 값 텍스트에 불러오기
+                item = self.lst_category.item(self.lst_category.currentRow())
+                item_widget = self.lst_category.itemWidget(item)
+                self.edt_name.setText(item_widget.lb_category.text())
 
-        elif kind == 'edit':
-            self.hide_shadows()
-            self.category_back.show()
+        elif form == 'title':
+            if kind == 'add':
+                self.editor_title.setText('특약사항 추가')
+                self.btn_editor_save.setText('추가')
 
-            self.category_back.setStyleSheet('#category_back { background: rgba(0,0,0,150) }')
-            self.category_back.resize(self.width(), self.height())
-            self.category_back.move(0, 0)
+            elif kind == 'edit':
+                self.editor_title.setText('특약사항 제목 편집')
+                self.btn_editor_save.setText('저장')
 
-            x = (self.width() / 2) - (self.category_edit_frame.width() / 2)
-            y = (self.height() / 2) - (self.category_edit_frame.height() / 2)
-            self.category_edit_frame.move(x, y)
+                # 선택한 값 텍스트에 불러오기
+                item = self.lst_title.item(self.lst_title.currentRow())
+                item_widget = self.lst_title.itemWidget(item)
+                self.edt_name.setText(item_widget.lb_category.text())
+
+        self.edt_name.setFocus()
+
+    # 편집기 비활성화
+    def hide_item_editor(self):
+        self.show_shadows()
+        self.editor_back.hide()
+        self.new_category.clear()
+
+        crt_category = self.lst_category.currentRow()
+        crt_title = self.lst_title.currentRow()
+
+        self.load_category()
+        # self.load_title()
+
+        self.lst_category.setCurrentRow(crt_category)
+        self.lst_title.setCurrentRow(crt_title)
+
+    def add_item(self):
+        name = self.edt_name.text().strip()
+
+        if '|' in name:
+            self.msg.show_msg(2000, 'center', "'|' 기호를 포함시킬 수 없습니다.")
+            return
+
+        form = 'category' if '카테고리' in self.editor_title.text() else 'title'
+
+        if form == 'category':
+            for i in range(self.lst_category.count()):
+                item = self.lst_category.item(i)
+                category = self.lst_category.itemWidget(item).lb_category.text()
+                if name == category:
+                    self.msg.show_msg(2000, 'center', '이미 존재하는 카테고리입니다.')
+                    return
+
+            new_category = {'category': [name], 'title': [''], 'content': ['']}
+            new_df = pd.DataFrame(new_category)
+
+            self.agr = pd.concat([self.agr, new_df])
+            self.agr.reset_index(drop=True, inplace=True)
+            self.agr.to_csv("../../data/val/agrs.csv", sep="|", index=False)
+
+        elif form == 'title':
+            for i in range(self.lst_title.count()):
+                item = self.lst_title.item(i)
+                category = self.lst_title.itemWidget(item).lb_category.text()
+                if name == category:
+                    self.msg.show_msg(2000, 'center', '이미 존재하는 특약사항 제목입니다.')
+                    return
 
             item = self.lst_category.item(self.lst_category.currentRow())
-            item_widget = self.lst_category.itemWidget(item)
-            self.edt_category.setText(item_widget.lb_category.text())
+            category = self.lst_category.itemWidget(item).lb_category.text()
 
-            self.lb_category_edt.setText('카테고리 편집')
-            self.btn_category_save.setText('저장')
+            titles = self.agr[self.agr['category'] == category]['title']
+            if titles.isnull().values.any():
+                self.agr = self.agr.drop(self.agr[self.agr['category'] == category].index, axis=0)
 
-        self.edt_category.setFocus()
+            new_title = {'category': [category], 'title': [name], 'content': ['']}
+            new_df = pd.DataFrame(new_title)
 
-    def hide_add_category(self):
-        self.show_shadows()
-        self.category_back.hide()
-        self.new_category.clear()
-        self.load_category()
+            self.agr = pd.concat([self.agr, new_df])
+            self.agr.reset_index(drop=True, inplace=True)
+            self.agr.to_csv("../../data/val/agrs.csv", sep="|", index=False)
 
+        self.hide_item_editor()
+
+    def delete_item(self, form):
+        if form == 'category':
+            row = self.lst_category.currentRow()
+            if row != -1:
+                res = self.msg_box('del_category')
+                if res == 0:
+
+                    item = self.lst_category.item(row)
+                    item_widget = self.lst_category.itemWidget(item)
+                    category = item_widget.lb_category.text()
+
+                    self.agr = self.agr.drop(self.agr[self.agr['category'] == category].index, axis=0)
+                    self.agr.reset_index(drop=True, inplace=True)
+                    self.agr.to_csv("../../data/val/agrs.csv", sep="|", index=False)
+
+                    self.lst_category.takeItem(row)
+
+        elif form == 'title':
+            row = self.lst_title.currentRow()
+            if row != -1:
+                res = self.msg_box('del_title')
+                if res == 0:
+                    item = self.lst_category.item(self.lst_category.currentRow())
+                    item_widget = self.lst_category.itemWidget(item)
+                    category = item_widget.lb_category.text()
+
+                    item = self.lst_title.item(row)
+                    item_widget = self.lst_title.itemWidget(item)
+                    title = item_widget.lb_category.text()
+                    print(category, title)
+                    self.agr = self.agr.drop(self.agr[(self.agr['category'] == category) & (self.agr['title'] == title)].index, axis=0)
+
+                    print(self.agr[(self.agr['category'] == category) & (self.agr['title'] == title)])
+                    self.agr.reset_index(drop=True, inplace=True)
+                    self.agr.to_csv("../../data/val/agrs.csv", sep="|", index=False)
+
+                    self.lst_title.takeItem(row)
     #
     # # 카테고리 삭제
     # def delete_category(self):
@@ -310,25 +402,6 @@ class AgrEditor(QDialog, Ui_AgrEditor):
 
     ############################################################################
 
-    # 리스트 순서 정렬
-    def sorted_row(self):
-        for i in range(self.lst_content.count()):
-            item = self.lst_content.item(i)
-
-            item_widget = self.lst_content.itemWidget(item)
-            item_widget.lb_num_icon.setText(str(i + 1))
-
-        self.lb_number.setText(str(self.lst_content.count() + 1))
-
-    # 특약 아이템 추가 함수
-    def add_conent_item(self, count, content):
-        custom_item = MyItem(str(count), content)
-        item = QListWidgetItem()
-        item.setSizeHint(QSize(custom_item.sizeHint()))
-
-        self.lst_content.addItem(item)
-        self.lst_content.setItemWidget(item, custom_item)
-
     # 다이얼로그 엔터키 막기
     def keyPressEvent(self, event):
         if ((not event.modifiers() and
@@ -337,17 +410,22 @@ class AgrEditor(QDialog, Ui_AgrEditor):
             event.accept()
         else: super(AgrEditor, self).keyPressEvent(event)
 
-    def msg_box(self):
-        msgBox = QMessageBox(self)
-        msgBox.setWindowTitle("정보")  # 메세지창의 상단 제목
-        msgBox.setIcon(QMessageBox.Information)  # 메세지창 내부에 표시될 아이콘
-        msgBox.setText("카테고리를 삭제하시겠습니까?")  # 메세지 제목
-        msgBox.setInformativeText("해당 카테고리에 있는 모든 특약사항이 모두 삭제됩니다.")  # 메세지 내용
+    def msg_box(self, msg):
+        msg_titles = {'del_category': '카테고리를 삭제하시겠습니까?',
+                      'del_title': '특약사항을 삭제하시겠습니까?'}
+        msg_context = {'del_category': '해당 카테고리에 있는 모든 특약사항이 모두 삭제됩니다.',
+                       'del_title': ''}
 
-        msgBox.addButton("삭제", QMessageBox.ActionRole)
-        msgBox.addButton("취소", QMessageBox.ActionRole)
+        msg_box = QMessageBox(self)
+        msg_box.setWindowTitle("정보")  # 메세지창의 상단 제목
+        msg_box.setIcon(QMessageBox.Information)  # 메세지창 내부에 표시될 아이콘
+        msg_box.setText(msg_titles[msg])  # 메세지 제목
+        msg_box.setInformativeText(msg_context[msg])  # 메세지 내용
 
-        return msgBox.exec()
+        msg_box.addButton("삭제", QMessageBox.ActionRole)
+        msg_box.addButton("취소", QMessageBox.ActionRole)
+
+        return msg_box.exec()
 
 
 # 리스트 아이템
@@ -391,71 +469,24 @@ class MyItem(QWidget):
 
 # 리스트 아이템
 class CategoryItem(QWidget):
-    def __init__(self, content, editing=False, parent=None):
+    def __init__(self, content, parent=None):
         super(CategoryItem, self).__init__()
         max_width = parent.width() - 8
         self.setMaximumWidth(max_width)
 
-        if content == 'btn_add':
-            plus_icon = QIcon('../../data/img/button/item_plus_icon.png')
-            self.btn_add = QPushButton(self)
-            self.btn_add.setGeometry(0, 0, max_width, 30)
-            self.btn_add.setText(' 추 가')
-            self.btn_add.setIcon(plus_icon)
-            self.btn_add.setIconSize(QSize(18, 18))
-
-            self.btn_add.setStyleSheet("""
-            QPushButton {
-                font: 14px "웰컴체 Regular";
-                text-align: left;
-                background-position: left;
-                background-repeat: no-reperat;
-                color: rgb(88,88,255);
-                border: none;
-                padding-top: 3px;
-                padding-left: 8px;
-                background: rgba(0,0,0,0);
-                outline: none;
-            }
-            
-            QPushButton:pressed {
-                padding-left: 9px;
-                padding-top: 5px;
-            }
-            
-            QPushButton:hover {
-                color: rgb(118,118,255);
-            }
-            """)
-
-        else:
-            out_width = max_width - 30
-            self.lb_category = QLabel(self)
-            self.lb_category.setEnabled(False)
-            self.lb_category.setGeometry(3, 0, out_width, 30)
-            self.lb_category.setText(content)
-            self.lb_category.setStyleSheet(
-                """QLabel { font: 14px ; 
-                color: rgb(65,65,65); 
-                border: none; 
-                padding-top: 2px; 
-                margin: 0px;
-                background-color: rgba(0,0,0,0);
-                }""")
-
-            if editing:
-                del_icon = QIcon('../../data/img/button/delete_icon.png')
-                self.btn_delete = QPushButton(self)
-                self.btn_delete.setGeometry(out_width, 0, 30, 30)
-                self.btn_delete.setIcon(del_icon)
-                self.btn_delete.setIconSize(QSize(18, 18))
-                self.btn_delete.setStyleSheet("""
-                    QPushButton {
-                        background: rgba(0,0,0,0);
-                        border: none;
-                        outline: none;
-                    }
-                """)
+        out_width = max_width - 30
+        self.lb_category = QLabel(self)
+        self.lb_category.setEnabled(False)
+        self.lb_category.setGeometry(3, 0, out_width, 30)
+        self.lb_category.setText(content)
+        self.lb_category.setStyleSheet(
+            """QLabel { font: 14px ; 
+            color: rgb(65,65,65); 
+            border: none; 
+            padding-top: 2px; 
+            margin: 0px;
+            background-color: rgba(0,0,0,0);
+            }""")
 
 
 # 예외 오류 처리

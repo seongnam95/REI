@@ -23,7 +23,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
         pd.set_option('display.width', None)
 
         # 특약 불러오기
-        try: self.agrs_data = pd.read_csv('../../data/val/agrs.csv', sep=",")
+        try: self.agrs_data = pd.read_csv('../../data/val/agrs.csv', sep="|")
         except FileNotFoundError: return
 
         self._init_ui()
