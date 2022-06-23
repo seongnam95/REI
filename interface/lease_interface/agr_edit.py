@@ -1,5 +1,6 @@
 import sys
 import pandas as pd
+import pymysql
 
 from ui.dialog.ui_agr_editor import Ui_AgrEditor
 from PySide6.QtWidgets import QWidget, QDialog, QLabel, QHBoxLayout, QListWidgetItem, QMenu, QGraphicsDropShadowEffect, \
@@ -18,8 +19,14 @@ class AgrEditor(QDialog, Ui_AgrEditor):
         self.setupUi(self)
 
         self.agr, self.kind, self.response = agr, kind, None
+        self.user_id = 'jsn0509'
         self.edit_category, self.new_category, self.remove_category = pd.DataFrame, [], []
 
+        self.conn = pymysql.connect(
+            host='db.snserver.site', user='jsn0509', password='ks05090818@', db='dbjsn0509', charset='utf8')
+
+        self.cur = self.conn.cursor()
+        self.mysql_select()
         self._init_ui()
         self.show_shadows()
         self.show()
@@ -101,7 +108,7 @@ class AgrEditor(QDialog, Ui_AgrEditor):
     # 저장 버튼 클릭
     def clicked_save_btn(self):
         print(self.edt_agr.toHtml())
-
+        self.conn.close()
         return
         category = self.cbx_category.currentText().strip()
         title = self.cbx_title.currentText().strip()
@@ -426,6 +433,39 @@ class AgrEditor(QDialog, Ui_AgrEditor):
         msg_box.addButton("취소", QMessageBox.ActionRole)
 
         return msg_box.exec()
+
+    ## MySql
+    #################################################################################
+    def mysql_insert(self):
+
+        self.cur.execute(f"INSERT INTO contract_condition VALUES(NULL, '{user_id}', '{category}', '매매 기본특약', '가나다라마바사')")
+        self.conn.commit()
+
+    # def mysql_update(self):
+
+    def mysql_select(self):
+        """ select [출력하고자 하는 Column] from [테이블 이름] where [조건] """
+
+        columns = "`category`, `sort_num`, `title`, `content`"
+        sql = f"SELECT {columns} FROM `contract_condition` WHERE `user_id`='{self.user_id}'"
+        self.cur.execute(sql)
+        result = self.cur.fetchall()
+
+        agrs = []
+        for row in result:
+            category = row[0]
+            sort_num = map(int, row[1].split('{sep}'))
+            titles = row[2].split('{sep}')
+            contents = row[3].split('{sep}')
+            print('솔트', sort_num)
+            for i in range(len(titles)):
+                agr_item = {'category': category, 'title': titles[i], 'content': contents[i]}
+                agrs.append(agr_item)
+
+        for i in agrs:
+            print(i)
+
+        self.conn.commit()
 
 
 # 리스트 아이템
