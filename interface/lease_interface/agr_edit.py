@@ -450,22 +450,23 @@ class AgrEditor(QDialog, Ui_AgrEditor):
         sql = f"SELECT {columns} FROM `contract_condition` WHERE `user_id`='{self.user_id}'"
         self.cur.execute(sql)
         result = self.cur.fetchall()
+        self.conn.commit()
 
-        agrs = []
+        agrs = pd.DataFrame(columns=['category', 'sort_num', 'title', 'content'])
         for row in result:
             category = row[0]
-            sort_num = map(int, row[1].split('{sep}'))
+            sort_num = list(map(int, row[1].split('{sep}')))
             titles = row[2].split('{sep}')
             contents = row[3].split('{sep}')
-            print('솔트', sort_num)
+
+            items = pd.DataFrame(columns=['category', 'sort_num', 'title', 'content'])
             for i in range(len(titles)):
-                agr_item = {'category': category, 'title': titles[i], 'content': contents[i]}
-                agrs.append(agr_item)
+                agr_item = [category, sort_num[i], titles[i], contents[i]]
+                items.loc[i] = agr_item
 
-        for i in agrs:
-            print(i)
-
-        self.conn.commit()
+            items = items.sort_values(by=['sort_num'], axis=0)
+            agrs = pd.concat([agrs, items])
+            print(agrs)
 
 
 # 리스트 아이템
