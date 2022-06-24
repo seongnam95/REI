@@ -466,7 +466,8 @@ class AgrEditor(QDialog, Ui_AgrEditor):
 
             items = items.sort_values(by=['sort_num'], axis=0)
             agrs = pd.concat([agrs, items])
-            print(agrs)
+
+        return agrs
 
 
 # 리스트 아이템
