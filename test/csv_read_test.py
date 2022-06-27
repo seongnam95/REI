@@ -1,7 +1,13 @@
 import pandas as pd
+import numpy as np
 
+data = pd.read_csv('../test/seoul.csv', sep="|")
 
-try: db = pd.read_csv('../test/20150710_서울특별시.txt', sep="|")
-except FileNotFoundError: pass
+cols = ''
+for i in data.columns:
+    cols += '`%s`, ' % i
 
-print(db)
+print(cols)
+#
+# for i in np.array_split(data, 10000):
+#     print(i)
