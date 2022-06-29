@@ -29,7 +29,7 @@ class Company(QDialog, Ui_Company):
 
         exit_btn_x = self.line.x() + self.line.width() - self.btn_exit.width()
         self.btn_exit.move(exit_btn_x, 4)
-        self.btn_exit.setIcon(QIcon('../../data/img/button/exit.png'))
+        self.btn_exit.setIcon(QIcon('../../static/img/button/exit.png'))
         self.btn_exit.setIconSize(QSize(22, 22))
 
         self.lb_notfind.hide()

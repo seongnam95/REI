@@ -268,7 +268,7 @@ class Ui_AgrEditor(object):
 "}\n"
 "\n"
 "QComboBox::down-arrow {\n"
-"    image: url(../../data/img/system/down_arrow_icon.png);\n"
+"    image: url(../../static/img/system/down_arrow_icon.png);\n"
 "    width: 8px;\n"
 "    height: 8px;\n"
 "}\n"
@@ -370,7 +370,7 @@ class Ui_AgrEditor(object):
 "\n"
 "QComboBox::down-arrow {\n"
 "    i"
-                        "mage: url(../../data/img/system/down_arrow_icon.png);\n"
+                        "mage: url(../../static/img/system/down_arrow_icon.png);\n"
 "    width: 8px;\n"
 "    height: 8px;\n"
 "}\n"
@@ -413,13 +413,13 @@ class Ui_AgrEditor(object):
         self.btn_bold.setObjectName(u"btn_bold")
         self.btn_bold.setGeometry(QRect(230, 0, 30, 30))
         self.btn_bold.setStyleSheet(u"#btn_bold {\n"
-"    image: url(../../data/img/button/bold_icon.png);\n"
+"    image: url(../../static/img/button/bold_icon.png);\n"
 "    width: 8px;\n"
 "    height: 8px;\n"
 "}\n"
 "\n"
 "#btn_bold:hover {\n"
-"    image: url(../../data/img/button/bold_hover_icon.png);\n"
+"    image: url(../../static/img/button/bold_hover_icon.png);\n"
 "    width: 8px;\n"
 "    height: 8px;\n"
 "}")
@@ -427,13 +427,13 @@ class Ui_AgrEditor(object):
         self.btn_italic.setObjectName(u"btn_italic")
         self.btn_italic.setGeometry(QRect(260, 0, 30, 30))
         self.btn_italic.setStyleSheet(u"#btn_italic {\n"
-"    image: url(../../data/img/button/italic_icon.png);\n"
+"    image: url(../../static/img/button/italic_icon.png);\n"
 "    width: 8px;\n"
 "    height: 8px;\n"
 "}\n"
 "\n"
 "#btn_italic:hover {\n"
-"    image: url(../../data/img/button/italic_hover_icon.png);\n"
+"    image: url(../../static/img/button/italic_hover_icon.png);\n"
 "    width: 8px;\n"
 "    height: 8px;\n"
 "}")
@@ -441,13 +441,13 @@ class Ui_AgrEditor(object):
         self.btn_under_line.setObjectName(u"btn_under_line")
         self.btn_under_line.setGeometry(QRect(290, 0, 30, 30))
         self.btn_under_line.setStyleSheet(u"#btn_under_line {\n"
-"    image: url(../../data/img/button/under_icon.png);\n"
+"    image: url(../../static/img/button/under_icon.png);\n"
 "    width: 8px;\n"
 "    height: 8px;\n"
 "}\n"
 "\n"
 "#btn_under_line:hover {\n"
-"    image: url(../../data/img/button/under_hover_icon.png);\n"
+"    image: url(../../static/img/button/under_hover_icon.png);\n"
 "    width: 8px;\n"
 "    height: 8px;\n"
 "}")
@@ -455,13 +455,13 @@ class Ui_AgrEditor(object):
         self.btn_color.setObjectName(u"btn_color")
         self.btn_color.setGeometry(QRect(320, 0, 30, 30))
         self.btn_color.setStyleSheet(u"#btn_under_line {\n"
-"    image: url(../../data/img/button/color_icon.png);\n"
+"    image: url(../../static/img/button/color_icon.png);\n"
 "    width: 8px;\n"
 "    height: 8px;\n"
 "}\n"
 "\n"
 "#btn_under_line:hover {\n"
-"    image: url(../../data/img/button/color_hover_icon.png);\n"
+"    image: url(../../static/img/button/color_hover_icon.png);\n"
 "    width: 8px;\n"
 "    height: 8px;\n"
 "}")

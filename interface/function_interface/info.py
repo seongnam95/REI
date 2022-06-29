@@ -69,11 +69,11 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.block_frame.hide()
 
         # 메뉴 위젯 설정
-        items = [{'name': '내 매물로 등록', 'img': '../../data/img/button/plus_square_icon.png'},
-                 {'name': '계약서 작성', 'img': '../../data/img/button/pen_icon.png'},
-                 {'name': '광고 업로드', 'img': '../../data/img/button/upload_icon.png'},
-                 {'name': '매물 공유하기', 'img': '../../data/img/button/share_icon.png'},
-                 {'name': '설정', 'img': '../../data/img/button/setting_icon.png'}]
+        items = [{'name': '내 매물로 등록', 'img': '../../static/img/button/plus_square_icon.png'},
+                 {'name': '계약서 작성', 'img': '../../static/img/button/pen_icon.png'},
+                 {'name': '광고 업로드', 'img': '../../static/img/button/upload_icon.png'},
+                 {'name': '매물 공유하기', 'img': '../../static/img/button/share_icon.png'},
+                 {'name': '설정', 'img': '../../static/img/button/setting_icon.png'}]
 
         self.main_menu = MenuWidget.MenuWidget(self)
         self.main_menu.add_item(items)
@@ -87,11 +87,11 @@ class BuildingInfo(QMainWindow, Ui_BuildingInfo):
         self.issuance_menu.set_size(self.issuance_menu)
 
         # 버튼 이미지 설정
-        self.btn_search.setIcon(QIcon('../../data/img/button/search_icon.png'))
+        self.btn_search.setIcon(QIcon('../../static/img/button/search_icon.png'))
         self.btn_search.setIconSize(QSize(30, 30))
-        self.btn_menu.setIcon(QIcon('../../data/img/button/menu_icon.png'))
+        self.btn_menu.setIcon(QIcon('../../static/img/button/menu_icon.png'))
         self.btn_menu.setIconSize(QSize(20, 20))
-        self.btn_issuance.setIcon(QIcon('../../data/img/button/print_icon.png'))
+        self.btn_issuance.setIcon(QIcon('../../static/img/button/print_icon.png'))
         self.btn_search.setIconSize(QSize(23, 23))
 
         # 이벤트 필터 (마우스 HOVER 시, 그림자 효과 관련)

@@ -1,75 +1,46 @@
 import pymysql
+import pandas as pd
 
 
-class ReadMysqlData:
-    def __init__(self):
-        super(ReadMysqlData, self).__init__()
+def connection():
+    con = pymysql.connect(host="db.snserver.site",
+                          user="jsn0509",
+                          password="ks05090818@",
+                          db="dbjsn0509",
+                          charset="utf8")
+    return con
 
-    @staticmethod
-    def connection():
-        con = pymysql.connect(host="localhost",
-                              user="root",
-                              password="",
-                              db="rei",
-                              charset="utf8")
-        return con
 
-    def read_system_value(self):
-        con = self.connection()
-        try:
-            curs = con.cursor()
-            sql = "SELECT * FROM data"
-            curs.execute(sql)
-            rows = curs.fetchone()
-        finally:
-            con.close()
-        return rows
+def get_agrs(user):
+    con = connection()
 
-    def check_id(self, user_id):
-        con = self.connection()
-        try:
-            curs = con.cursor()
-            sql = "SELECT EXISTS(SELECT *FROM user WHERE userID = %(id)s)"
-            curs.execute(sql, {"id": user_id})
+    try:
+        curs = con.cursor()
 
-            check = curs.fetchone()[0]
-        finally:
-            con.close()
-        return check
+        columns = '`category_num`, `category`, `content`'
+        curs.execute(f"SELECT {columns} FROM `contract_condition` WHERE `user_id`='{user}'")
 
-    def check_phone(self, user_phone):
-        con = self.connection()
-        try:
-            curs = con.cursor()
-            sql = "SELECT EXISTS(SELECT *FROM user WHERE userPhone = %(phone)s)"
-            curs.execute(sql, {"phone": user_phone})
+        data = pd.DataFrame(columns=['category_num', 'category', 'content'])
+        for idx, row in enumerate(curs.fetchall()):
+            data.loc[idx] = list(row)
 
-            check = curs.fetchone()[0]
-        finally:
-            con.close()
-        return check
+        data = data.sort_values(['category_num'], ascending=True)
+        data = data.reset_index(drop=True)
 
-    def login(self, user_id, user_pw):
-        con = self.connection()
-        try:
-            curs = con.cursor()
-            sql = "SELECT EXISTS(SELECT *FROM user WHERE userID = %(id)s and userPW = %(pw)s)"
-            curs.execute(sql, {"id": user_id, "pw": user_pw})
+    finally:
+        con.close()
 
-            check = curs.fetchone()[0]
-        finally:
-            con.close()
-        return check
+    return data
 
-    def register(self, data):
-        con = self.connection()
-        try:
-            curs = con.cursor()
-            sql = """INSERT INTO user (userID, userPW, userName, userPhone, userRank, 
-                    companyName, companyAddress, companyBoss, companyCall, companyNumber)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-            curs.execute(sql, data)
-            con.commit()
 
-        finally:
-            con.close()
+def set_agrs(user, data):
+    con = connection()
+
+    try:
+        curs = con.cursor()
+
+
+    finally:
+        con.close()
+
+    return data

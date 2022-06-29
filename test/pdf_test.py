@@ -37,7 +37,7 @@ def parse_obj(lt_objs):
     for obj in lt_objs:
         if isinstance(obj, pdfminer.layout.LTTextBoxHorizontal):
             # d = "%6d, %6d, %s" % (obj.bbox[0], obj.bbox[1], obj.get_text().replace('\n', ''))
-            # data.append(d)
+            # static.append(d)
             data.append(obj.get_text().replace('\n', '_'))
         elif isinstance(obj, pdfminer.layout.LTFigure): parse_obj(obj._objs)
     return data

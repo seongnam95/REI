@@ -10,15 +10,15 @@ import configparser
 from module.mysql import ReadMysqlData
 
 config = configparser.ConfigParser()
-config.read('./data/config.ini')
+config.read('./static/config.ini')
 geometry = config['GEOMETRY']
 
 FROM_CLASS = ''
 if geometry['type'] == 'length':
-    FROM_CLASS = uic.loadUiType('./data/uiMain/ui_widgets_length.ui')[0]
+    FROM_CLASS = uic.loadUiType('./static/uiMain/ui_widgets_length.ui')[0]
 
 elif geometry['type'] == 'width':
-    FROM_CLASS = uic.loadUiType('./data/uiMain/ui_widgets_width.ui')[0]
+    FROM_CLASS = uic.loadUiType('./static/uiMain/ui_widgets_width.ui')[0]
 
 
 class ReiMain(QMainWindow, FROM_CLASS):
@@ -56,15 +56,15 @@ class ReiMain(QMainWindow, FROM_CLASS):
         self.slider.setValue(self.opacity)
         self.slider.valueChanged.connect(self.opacity_slider)
 
-        self.bt_exit.setIcon(QIcon('../../data/img/button/exit.png'))
+        self.bt_exit.setIcon(QIcon('../../static/img/button/exit.png'))
         self.bt_exit.setIconSize(QSize(22, 22))
         self.bt_exit.clicked.connect(self.clicked_exit)
 
-        self.bt_max.setIcon(QIcon('../../data/img/button/maximize.png'))
+        self.bt_max.setIcon(QIcon('../../static/img/button/maximize.png'))
         self.bt_max.setIconSize(QSize(13, 13))
         self.bt_max.clicked.connect(self.clicked_max_mini)
 
-        self.bt_menu.setIcon(QIcon('../../data/img/button/menu_icon.png'))
+        self.bt_menu.setIcon(QIcon('../../static/img/button/menu_icon.png'))
         self.bt_menu.setIconSize(QSize(12, 12))
         self.bt_menu.clicked.connect(self.clicked_menu)
 
@@ -102,7 +102,7 @@ class ReiMain(QMainWindow, FROM_CLASS):
 
     # Exit 버튼
     def clicked_exit(self):
-        with open('../../data/val/config.ini', 'w') as configfile:
+        with open('../../static/val/config.ini', 'w') as configfile:
             config.write(configfile)
         app.exit()
 

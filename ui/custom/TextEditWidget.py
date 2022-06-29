@@ -58,7 +58,7 @@ class TextEditWidget(QWidget):
         }
         
         QComboBox::down-arrow {
-            image: url(../../data/img/system/down_arrow_icon.png);
+            image: url(../../static/img/system/down_arrow_icon.png);
             width: 8px;
             height: 8px;
         }
@@ -106,11 +106,11 @@ class TextEditWidget(QWidget):
         self.btn_bold.setGeometry(QRect(0, 0, 30, 30))
         self.btn_bold.setStyleSheet("""
         #btn_bold {
-            image: url(../../data/img/button/bold_icon.png);
+            image: url(../../static/img/button/bold_icon.png);
         }
         
         #btn_bold:hover {
-            image: url(../../data/img/button/bold_hover_icon.png);
+            image: url(../../static/img/button/bold_hover_icon.png);
         }
         """)
         self.btn_bold.clicked.connect(self.set_bold)
@@ -120,11 +120,11 @@ class TextEditWidget(QWidget):
         self.btn_italic.setGeometry(QRect(30, 0, 30, 30))
         self.btn_italic.setStyleSheet("""
         #btn_italic {
-            image: url(../../data/img/button/italic_icon.png);
+            image: url(../../static/img/button/italic_icon.png);
         }
         
         #btn_italic:hover {
-            image: url(../../data/img/button/italic_hover_icon.png);
+            image: url(../../static/img/button/italic_hover_icon.png);
         }""")
         self.btn_italic.clicked.connect(self.set_italic)
 
@@ -133,11 +133,11 @@ class TextEditWidget(QWidget):
         self.btn_under_line.setGeometry(QRect(60, 0, 30, 30))
         self.btn_under_line.setStyleSheet("""
         #btn_under_line {
-            image: url(../../data/img/button/under_icon.png);
+            image: url(../../static/img/button/under_icon.png);
         }
         
         #btn_under_line:hover {
-            image: url(../../data/img/button/under_hover_icon.png);
+            image: url(../../static/img/button/under_hover_icon.png);
         }""")
         self.btn_under_line.clicked.connect(self.set_underline)
 
@@ -146,11 +146,11 @@ class TextEditWidget(QWidget):
         self.btn_color.setGeometry(QRect(90, 0, 30, 30))
         self.btn_color.setStyleSheet("""
         #btn_under_line {
-            image: url(../../data/img/button/color_icon.png);
+            image: url(../../static/img/button/color_icon.png);
         }
         
         #btn_under_line:hover {
-            image: url(../../data/img/button/color_hover_icon.png);
+            image: url(../../static/img/button/color_hover_icon.png);
         }""")
 
         # 맞춤법 체크 버튼

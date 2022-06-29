@@ -24,7 +24,7 @@ class LoadingBox(QFrame):
         self.frame.setGraphicsEffect(shadow)
 
         # 로딩 이미지
-        self.movie = QMovie("../../data/img/animation/loading.gif")
+        self.movie = QMovie("../../static/img/animation/loading.gif")
         self.loading_img = QLabel(self.frame)
         self.loading_img.setStyleSheet("QLabel { background: rgba(0,0,0,0) }")
         self.loading_img.resize(70, 100)

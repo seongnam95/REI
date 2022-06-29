@@ -1,16 +1,16 @@
 import sys
 import pandas as pd
-import pymysql
+import module.mysql as sql
 
-from ui.dialog.ui_agr_editor import Ui_AgrEditor
-from PySide6.QtWidgets import QWidget, QDialog, QLabel, QHBoxLayout, QListWidgetItem, QMenu, QGraphicsDropShadowEffect, \
-    QPushButton, QMessageBox, QApplication, QLineEdit
-from PySide6.QtCore import Qt, QEvent, QSize, Signal, QPoint, Slot
+from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QColor, QIcon
+from PySide6.QtWidgets import QWidget, QDialog, QLabel, QHBoxLayout, QListWidgetItem, QGraphicsDropShadowEffect, \
+    QMessageBox, QApplication
 
 # from hanspell import spell_checker
 from ui.custom.BlackBoxMsg import BoxMessage
 from ui.custom.TextEditWidget import TextEditWidget
+from ui.dialog.ui_agr_editor import Ui_AgrEditor
 
 
 class AgrEditor(QDialog, Ui_AgrEditor):
@@ -18,19 +18,22 @@ class AgrEditor(QDialog, Ui_AgrEditor):
         super().__init__()
         self.setupUi(self)
 
+        # 변수 선언
         self.agr, self.kind, self.response = agr, kind, None
         self.user_id = 'jsn0509'
+        self.agr = sql.get_agrs(self.user_id)
+        self.contents = None
         self.edit_category, self.new_category, self.remove_category = pd.DataFrame, [], []
 
-        self.conn = pymysql.connect(
-            host='db.snserver.site', user='jsn0509', password='ks05090818@', db='dbjsn0509', charset='utf8')
-
+        self.conn = sql.connection()
         self.cur = self.conn.cursor()
-        self.mysql_select()
+
+        # init
         self._init_ui()
+        self._init_interaction()
+
         self.show_shadows()
         self.show()
-        self._init_interaction()
 
         self.load_category()
 
@@ -50,19 +53,19 @@ class AgrEditor(QDialog, Ui_AgrEditor):
 
         self.editor_back.hide()
 
-        edit_icon = QIcon('../../data/img/button/plus_icon.png')
+        edit_icon = QIcon('../../static/img/button/plus_icon.png')
         self.btn_add_category.setIcon(edit_icon)
         self.btn_add_category.setIconSize(QSize(21, 21))
 
-        edit_icon = QIcon('../../data/img/button/trash_icon.png')
+        edit_icon = QIcon('../../static/img/button/trash_icon.png')
         self.btn_del_category.setIcon(edit_icon)
         self.btn_del_category.setIconSize(QSize(19, 19))
 
-        edit_icon = QIcon('../../data/img/button/plus_icon.png')
+        edit_icon = QIcon('../../static/img/button/plus_icon.png')
         self.btn_add_title.setIcon(edit_icon)
         self.btn_add_title.setIconSize(QSize(21, 21))
 
-        edit_icon = QIcon('../../data/img/button/trash_icon.png')
+        edit_icon = QIcon('../../static/img/button/trash_icon.png')
         self.btn_del_title.setIcon(edit_icon)
         self.btn_del_title.setIconSize(QSize(19, 19))
 
@@ -147,9 +150,6 @@ class AgrEditor(QDialog, Ui_AgrEditor):
 
     # 카테고리 로드
     def load_category(self):
-        try: self.agr = pd.read_csv('../../data/val/agrs.csv', sep="|")
-        except FileNotFoundError: return
-
         self.lst_category.clear()
         self.lst_title.clear()
 
@@ -171,12 +171,17 @@ class AgrEditor(QDialog, Ui_AgrEditor):
         item_widget = self.lst_category.itemWidget(item)
         category = item_widget.lb_category.text()
 
-        title = self.agr.title[self.agr.category == category]
+        rows = self.agr.content[self.agr.category == category]
+        self.contents = pd.DataFrame(columns=['title_num', 'title', 'content'])
 
-        if not title.isnull().values.any():
+        if rows.iloc[0]:
+            rows = rows.iloc[0].split('<SEP>')
+
+            for idx, r in enumerate(rows):
+                self.contents.loc[idx] = r.split('<DRV_LINE>')
+
+            title = self.contents['title'].values.tolist()
             title = list(dict.fromkeys(title))
-            print(type(title), title)
-            if type(title) == list and title[0] == '': return
 
             for i in title:
                 category_item = CategoryItem(i, self.lst_title)
@@ -190,17 +195,15 @@ class AgrEditor(QDialog, Ui_AgrEditor):
         try:
             self.edt_agr.clear()
 
-            item = self.lst_category.item(self.lst_category.currentRow())
-            category_widget = self.lst_category.itemWidget(item)
-            category = self.agr[self.agr.category == category_widget.lb_category.text()]
-
             item = self.lst_title.item(self.lst_title.currentRow())
             title_widget = self.lst_title.itemWidget(item)
-            title = category[category.title == title_widget.lb_category.text()]
+            title = self.contents[self.contents.title == title_widget.lb_category.text()]
+
             content = title.content.iloc[0]
             self.edt_agr.insertHtml(content)
 
-        except: return
+        finally:
+            return
 
     ## 카테고리 편집
     ############################################################################
@@ -248,19 +251,16 @@ class AgrEditor(QDialog, Ui_AgrEditor):
         self.new_category.clear()
 
         crt_category = self.lst_category.currentRow()
-        crt_title = self.lst_title.currentRow()
 
         self.load_category()
-        # self.load_title()
-
         self.lst_category.setCurrentRow(crt_category)
-        self.lst_title.setCurrentRow(crt_title)
 
+    # 아이템 추가
     def add_item(self):
         name = self.edt_name.text().strip()
 
-        if '|' in name:
-            self.msg.show_msg(2000, 'center', "'|' 기호를 포함시킬 수 없습니다.")
+        if '<SEP>' in name or '<DRV_LINE>' in name:
+            self.msg.show_msg(2000, 'center', "'<SEP>' 또는 '<DRV_LINE>' 를 포함시킬 수 없습니다.")
             return
 
         form = 'category' if '카테고리' in self.editor_title.text() else 'title'
@@ -269,41 +269,45 @@ class AgrEditor(QDialog, Ui_AgrEditor):
             for i in range(self.lst_category.count()):
                 item = self.lst_category.item(i)
                 category = self.lst_category.itemWidget(item).lb_category.text()
+
                 if name == category:
                     self.msg.show_msg(2000, 'center', '이미 존재하는 카테고리입니다.')
                     return
 
-            new_category = {'category': [name], 'title': [''], 'content': ['']}
+            new_category = {'category_num': str(self.lst_category.count()), 'category': [name], 'content': ['']}
             new_df = pd.DataFrame(new_category)
 
             self.agr = pd.concat([self.agr, new_df])
             self.agr.reset_index(drop=True, inplace=True)
-            self.agr.to_csv("../../data/val/agrs.csv", sep="|", index=False)
 
         elif form == 'title':
             for i in range(self.lst_title.count()):
                 item = self.lst_title.item(i)
-                category = self.lst_title.itemWidget(item).lb_category.text()
-                if name == category:
-                    self.msg.show_msg(2000, 'center', '이미 존재하는 특약사항 제목입니다.')
+                title = self.lst_title.itemWidget(item).lb_category.text()
+                if name == title:
+                    self.msg.show_msg(2000, 'center', '이미 존재하는 특약사항입니다.')
                     return
 
-            item = self.lst_category.item(self.lst_category.currentRow())
-            category = self.lst_category.itemWidget(item).lb_category.text()
-
-            titles = self.agr[self.agr['category'] == category]['title']
-            if titles.isnull().values.any():
-                self.agr = self.agr.drop(self.agr[self.agr['category'] == category].index, axis=0)
-
-            new_title = {'category': [category], 'title': [name], 'content': ['']}
+            new_title = {'title_num': str(self.lst_title.count()), 'title': [name], 'content': ['']}
             new_df = pd.DataFrame(new_title)
 
-            self.agr = pd.concat([self.agr, new_df])
-            self.agr.reset_index(drop=True, inplace=True)
-            self.agr.to_csv("../../data/val/agrs.csv", sep="|", index=False)
+            self.contents = pd.concat([self.contents, new_df])
+            self.contents.reset_index(drop=True, inplace=True)
+
+            contents = []
+            for idx in self.contents.index:
+                contents.append('<DRV_LINE>'.join(self.contents.loc[idx].values.tolist()))
+
+            item = self.lst_category.item(self.lst_category.currentRow())
+            item_widget = self.lst_category.itemWidget(item)
+            category = item_widget.lb_category.text()
+
+            self.agr.content.loc[self.agr[self.agr['category'] == category].index] = '<SEP>'.join(contents)
+            print(self.agr)
 
         self.hide_item_editor()
 
+    # 아이템 삭제
     def delete_item(self, form):
         if form == 'category':
             row = self.lst_category.currentRow()
@@ -317,7 +321,7 @@ class AgrEditor(QDialog, Ui_AgrEditor):
 
                     self.agr = self.agr.drop(self.agr[self.agr['category'] == category].index, axis=0)
                     self.agr.reset_index(drop=True, inplace=True)
-                    self.agr.to_csv("../../data/val/agrs.csv", sep="|", index=False)
+                    self.agr.to_csv("../../static/val/agrs.csv", sep="|", index=False)
 
                     self.lst_category.takeItem(row)
 
@@ -338,78 +342,14 @@ class AgrEditor(QDialog, Ui_AgrEditor):
 
                     print(self.agr[(self.agr['category'] == category) & (self.agr['title'] == title)])
                     self.agr.reset_index(drop=True, inplace=True)
-                    self.agr.to_csv("../../data/val/agrs.csv", sep="|", index=False)
+                    self.agr.to_csv("../../static/val/agrs.csv", sep="|", index=False)
 
                     self.lst_title.takeItem(row)
-    #
-    # # 카테고리 삭제
-    # def delete_category(self):
-    #     res = self.msg_box()
-    #     if res == 0:
-    #
-    #         # 클릭 아이템 삭제
-    #         widget = self.sender()
-    #         gp = widget.mapToGlobal(QPoint())
-    #         lp = self.lst_edit_category.viewport().mapFromGlobal(gp)
-    #         row = self.lst_edit_category.row(self.lst_edit_category.itemAt(lp))
-    #
-    #         item = self.lst_edit_category.item(row)
-    #         item_widget = self.lst_edit_category.itemWidget(item)
-    #         category = item_widget.lb_category.text()
-    #
-    #         if category in self.new_category:
-    #             self.new_category.remove(category)
-    #
-    #         self.lst_edit_category.model().removeRow(row)
-    #         self.remove_category.append(category)
-    #
-    # # 카테고리 추가
-    # def add_category(self):
-    #     category = self.edt_category.text().strip()
-    #
-    #     categorys = self.agr.category.values.tolist()
-    #     categorys = list(dict.fromkeys(categorys))
-    #
-    #     if '|' in category:
-    #         self.msg.show_msg(2000, 'center', "카테고리명에 '|' 기호를 포함시킬 수 없습니다.")
-    #         return
-    #
-    #     if category in categorys or category in self.new_category:
-    #         self.msg.show_msg(2000, 'center', '이미 존재하는 카테고리입니다.')
-    #
-    #     else:
-    #         new_category = {'category': [category], 'title': [''], 'content': ['']}
-    #         new_df = pd.DataFrame(new_category)
-    #
-    #         self.agr = pd.concat([self.agr, new_df])
-    #         self.new_category.append(category)
-    #
-    #         category_item = CategoryItem(category, True, self.lst_edit_category)
-    #         category_item.btn_delete.clicked.connect(self.delete_category)
-    #
-    #         item = QListWidgetItem()
-    #         item.setSizeHint(QSize(category_item.width(), 30))
-    #         self.lst_edit_category.addItem(item)
-    #         self.lst_edit_category.setItemWidget(item, category_item)
-    #
-    #         self.edt_category.clear()
-    #
-    #     self.edt_category.setFocus()
-    #
-    # # 카테고리 저장
-    # def save_category(self):
-    #     for category in self.remove_category:
-    #         self.agr = self.agr.drop(self.agr[self.agr['category'] == category].index, axis=0)
-    #
-    #     self.agr.reset_index(drop=True, inplace=True)
-    #     self.agr.to_csv("../../data/val/agrs.csv", sep="|", index=False)
-    #
-    #     self.show_add_category(False)
-    #     self.load_category()
 
     ############################################################################
 
     # 다이얼로그 엔터키 막기
+
     def keyPressEvent(self, event):
         if ((not event.modifiers() and
              event.key() == Qt.Key_Return) or
@@ -433,41 +373,6 @@ class AgrEditor(QDialog, Ui_AgrEditor):
         msg_box.addButton("취소", QMessageBox.ActionRole)
 
         return msg_box.exec()
-
-    ## MySql
-    #################################################################################
-    def mysql_insert(self):
-
-        self.cur.execute(f"INSERT INTO contract_condition VALUES(NULL, '{user_id}', '{category}', '매매 기본특약', '가나다라마바사')")
-        self.conn.commit()
-
-    # def mysql_update(self):
-
-    def mysql_select(self):
-        """ select [출력하고자 하는 Column] from [테이블 이름] where [조건] """
-
-        columns = "`category`, `sort_num`, `title`, `content`"
-        sql = f"SELECT {columns} FROM `contract_condition` WHERE `user_id`='{self.user_id}'"
-        self.cur.execute(sql)
-        result = self.cur.fetchall()
-        self.conn.commit()
-
-        agrs = pd.DataFrame(columns=['category', 'sort_num', 'title', 'content'])
-        for row in result:
-            category = row[0]
-            sort_num = list(map(int, row[1].split('{sep}')))
-            titles = row[2].split('{sep}')
-            contents = row[3].split('{sep}')
-
-            items = pd.DataFrame(columns=['category', 'sort_num', 'title', 'content'])
-            for i in range(len(titles)):
-                agr_item = [category, sort_num[i], titles[i], contents[i]]
-                items.loc[i] = agr_item
-
-            items = items.sort_values(by=['sort_num'], axis=0)
-            agrs = pd.concat([agrs, items])
-
-        return agrs
 
 
 # 리스트 아이템

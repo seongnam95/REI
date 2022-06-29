@@ -66,7 +66,7 @@ class Ui_AddRoom(object):
 "}\n"
 "\n"
 "QComboBox::down-arrow {\n"
-"    image: url(../../data/img/system/do"
+"    image: url(../../static/img/system/do"
                         "wn_arrow_icon.png);\n"
 "    width: 8px;\n"
 "    height: 8px;\n"

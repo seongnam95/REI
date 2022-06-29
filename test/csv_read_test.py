@@ -9,5 +9,5 @@ for i in data.columns:
 
 print(cols)
 #
-# for i in np.array_split(data, 10000):
+# for i in np.array_split(static, 10000):
 #     print(i)

@@ -23,7 +23,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
         pd.set_option('display.width', None)
 
         # 특약 불러오기
-        try: self.agrs_data = pd.read_csv('../../data/val/agrs.csv', sep="|")
+        try: self.agrs_data = pd.read_csv('../../static/val/agrs.csv', sep="|")
         except FileNotFoundError: return
 
         self._init_ui()
@@ -90,7 +90,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
         self.edt_sub_2.setValidator(validator)
 
         # 달력 버튼 이미지
-        calendar_icon = QIcon('../../data/img/button/calendar_icon.png')
+        calendar_icon = QIcon('../../static/img/button/calendar_icon.png')
         self.btn_1st_cal.setIcon(calendar_icon)
         self.btn_1st_cal.setIconSize(QSize(22, 22))
         self.btn_2st_cal.setIcon(calendar_icon)
@@ -496,7 +496,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
         #         self.agrs_data = self.agrs_data.append(response)
         #
         #         self.agrs_data.reset_index(drop=True, inplace=True)
-        #         self.agrs_data.to_csv("../../data/val/agrs.csv", sep=",", index=False)
+        #         self.agrs_data.to_csv("../../static/val/agrs.csv", sep=",", index=False)
         #
         #         category = response['category'].iloc[0]
         #         title = response['title'].iloc[0]
@@ -513,7 +513,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
         #         self.agrs_data = self.agrs_data.append(response)
         #
         #         self.agrs_data.reset_index(drop=True, inplace=True)
-        #         self.agrs_data.to_csv("../../data/val/agrs.csv", sep=",", index=False)
+        #         self.agrs_data.to_csv("../../static/val/agrs.csv", sep=",", index=False)
         #
         #         category = response['category'].iloc[0]
         #         title = response['title'].iloc[0]
@@ -553,7 +553,7 @@ class MainLease(QMainWindow, Ui_MainWindow):
             if result.empty: self.lst_category.model().removeRow(self.lst_category.currentRow())
 
         self.agrs_data.reset_index(drop=True, inplace=True)
-        self.agrs_data.to_csv("../../data/val/agrs.csv", sep=",", index=False)
+        self.agrs_data.to_csv("../../static/val/agrs.csv", sep=",", index=False)
 
     ## 계약자 정보 페이지
     ################################################################################################
@@ -599,8 +599,8 @@ class MainLease(QMainWindow, Ui_MainWindow):
             # dialog = func_dialog.Company(key, code[0:5])
             # dialog.exec()
             #
-            # if len(dialog.data) != 0:
-            #     self.company = dialog.data
+            # if len(dialog.static) != 0:
+            #     self.company = dialog.static
             #     self.edt_c_name.setText(self.company[3])
             #     self.edt_c_company.setText(self.company[2])
 

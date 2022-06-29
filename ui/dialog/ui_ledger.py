@@ -103,7 +103,7 @@ class Ui_Ledger(object):
         }
 
         QComboBox::down-arrow {
-            image: url(../../data/img/system/down_arrow_icon.png);
+            image: url(../../static/img/system/down_arrow_icon.png);
             width: 8px;
             height: 8px;
         }
@@ -167,7 +167,7 @@ class Ui_Ledger(object):
         }
 
         QComboBox::down-arrow {
-            image: url(../../data/img/system/down_arrow_icon.png);
+            image: url(../../static/img/system/down_arrow_icon.png);
             width: 8px;
             height: 8px;
         }

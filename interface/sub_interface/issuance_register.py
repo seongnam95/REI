@@ -54,7 +54,7 @@ class IssuanceRegister(QDialog, Ui_Register):
         self.loading.resize_loading()
         self._init_shadow()
 
-        self.btn_search.setIcon(QIcon('../../data/img/button/search_icon.png'))
+        self.btn_search.setIcon(QIcon('../../static/img/button/search_icon.png'))
         self.btn_search.setIconSize(QSize(25, 25))
         self.list_frame.hide()
 

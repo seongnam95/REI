@@ -51,7 +51,7 @@ class AddressDetails(QDialog, Ui_FindAddress):
     def _init_ui(self):
         self.edt_address.setFocus()
 
-        self.btn_search.setIcon(QIcon('../../data/img/button/search_icon.png'))
+        self.btn_search.setIcon(QIcon('../../static/img/button/search_icon.png'))
         self.btn_search.setIconSize(QSize(30, 30))
 
         self.loading = LoadingBox.LoadingBox(self)

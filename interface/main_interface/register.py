@@ -39,9 +39,9 @@ class Register(QMainWindow, Ui_SignUp):
         self.edt_pw.setPlaceholderText("4자리 이상, 20자리 이하")
 
         # UI 아이콘 이미지 설정
-        self.btn_eye.setIcon(QIcon('../../data/img/system/eye.png'))
+        self.btn_eye.setIcon(QIcon('../../static/img/system/eye.png'))
         self.btn_eye.setIconSize(QSize(20, 20))
-        self.btn_eye_re.setIcon(QIcon('../../data/img/system/eye.png'))
+        self.btn_eye_re.setIcon(QIcon('../../static/img/system/eye.png'))
         self.btn_eye_re.setIconSize(QSize(20, 20))
 
     # UI 상호작용 컨넥트

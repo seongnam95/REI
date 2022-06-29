@@ -56,7 +56,7 @@ class IssuanceLedger(QDialog, Ui_Ledger):
         self.set_shadow()
         self.loading_box = LoadingBox(self)
 
-        self.btn_search.setIcon(QIcon('../../data/img/button/search_icon.png'))
+        self.btn_search.setIcon(QIcon('../../static/img/button/search_icon.png'))
         self.btn_search.setIconSize(QSize(25, 25))
 
     # 시그널 세팅

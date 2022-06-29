@@ -183,7 +183,7 @@ class Ui_FindAddress(object):
 "}\n"
 "\n"
 "QComboBox::down-arrow {\n"
-"    image: url(../../data/img/system/down_arrow_icon.png);\n"
+"    image: url(../../static/img/system/down_arrow_icon.png);\n"
 "    width: 8px;\n"
 "    height: 8px;\n"
 "}\n"

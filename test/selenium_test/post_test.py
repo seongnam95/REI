@@ -114,7 +114,7 @@ custom_header = {
 #     print("접속 성공")
 #     stock_data = json.loads(req.text)        #json에 반환된 데이터가 들어가 있다.
 #     print(req.text)
-#     for rank in stock_data['data']:         #stock_data는 'data' key값에 모든 정보가 들어가 있다.
+#     for rank in stock_data['static']:         #stock_data는 'static' key값에 모든 정보가 들어가 있다.
 #         print(rank['rank'], rank['symbolCode'], rank['name'], rank['tradePrice'])
 #
 # with requests.Session() as s:
@@ -130,11 +130,11 @@ custom_header = {
 #         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.104 Whale/3.13.131.36 Safari/537.36"
 #     }
 #
-#     aa = s.post('https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02L01', headers=headers, data=params)
+#     aa = s.post('https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02L01', headers=headers, static=params)
 #
 #     params2 = {"bldrgstSeqno":'100249270',"regstrGbCd":"3","regstrKindCd":"3","mjrfmlyIssueYn":"N","locSigunguCd":"11260","locBjdongCd":"10100","locPlatGbCd":"0","locDetlAddr":"서울특별시 중랑구 면목동 90-27 동명칭 없음","locBldNm":"다원빌","ownrYn":"N","multiUseBildYn":"N","bldrgstCurdiGbCd":"0"}
 #
-#     bbs = s.post('https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02L01', headers=headers, data=params2)
+#     bbs = s.post('https://cloud.eais.go.kr/moct/bci/aaa02/BCIAAA02L01', headers=headers, static=params2)
     #print(bbs.content)
 
     # # 웹 드라이버 쿠키
@@ -144,9 +144,9 @@ custom_header = {
     #     s.cookies.update(c)
 
     #
-    # login_req1 = s.post('http://cloud.eais.go.kr/bci/BCIAAA02R01', data=params)
+    # login_req1 = s.post('http://cloud.eais.go.kr/bci/BCIAAA02R01', static=params)
     #
-    # login_req2 = s.post('http://cloud.eais.go.kr/bci/BCIAAA02R04', data=tt)
+    # login_req2 = s.post('http://cloud.eais.go.kr/bci/BCIAAA02R04', static=tt)
     # for i in login_req2.history:
     #     print(i.text)
     # for i in login_req.history:
