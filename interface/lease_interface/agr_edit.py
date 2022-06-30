@@ -74,8 +74,8 @@ class AgrEditor(QDialog, Ui_AgrEditor):
         self.btn_del_title.setIconSize(QSize(19, 19))
 
     def _init_interaction(self):
-        self.lst_category.itemClicked.connect(self.load_title)
-        self.lst_title.itemClicked.connect(self.load_content)
+        self.lst_category.currentRowChanged.connect(self.load_title)
+        self.lst_title.currentRowChanged.connect(self.load_content)
 
         # 메인
         self.btn_del_category.clicked.connect(lambda: self.delete_item('category'))
@@ -104,12 +104,14 @@ class AgrEditor(QDialog, Ui_AgrEditor):
     ############################################################################
 
     def get_title(self):
-        category = self.agr[self.agr['category'] == self.category]
-        titles = [t.split('<DRV_LINE>') for t in category['content'].iloc[0].split('<SEP>')]
-
         self.contents = pd.DataFrame(columns=['title', 'title_num', 'content'])
-        for i in range(len(titles)):
-            self.contents.loc[i] = titles[i]
+
+        category = self.agr[self.agr['category'] == self.category]
+        content = category['content'].iloc[0]
+        if content:
+            titles = [t.split('<DRV_LINE>') for t in content.split('<SEP>')]
+            for i in range(len(titles)):
+                self.contents.loc[i] = titles[i]
 
     # 카테고리 로드
     def load_category(self):
@@ -130,6 +132,7 @@ class AgrEditor(QDialog, Ui_AgrEditor):
     def load_title(self):
         self.lst_title.clear()
 
+        print(self.lst_category.currentRow())
         item = self.lst_category.item(self.lst_category.currentRow())
         item_widget = self.lst_category.itemWidget(item)
         self.category = item_widget.lb_category.text()
@@ -162,10 +165,6 @@ class AgrEditor(QDialog, Ui_AgrEditor):
 
     # 편집기 활성화
     def show_item_editor(self, form, kind):
-        self.hide_shadows()
-        self.editor_back.show()
-        self.edt_name.clear()
-
         if form == 'category':
             if kind == 'add':
                 self.editor_title.setText('카테고리 추가')
@@ -181,6 +180,8 @@ class AgrEditor(QDialog, Ui_AgrEditor):
                 self.edt_name.setText(item_widget.lb_category.text())
 
         elif form == 'title':
+            if self.lst_category.currentRow() == -1: return
+
             if kind == 'add':
                 self.editor_title.setText('특약사항 추가')
                 self.btn_editor_save.setText('추가')
@@ -193,6 +194,10 @@ class AgrEditor(QDialog, Ui_AgrEditor):
                 item = self.lst_title.item(self.lst_title.currentRow())
                 item_widget = self.lst_title.itemWidget(item)
                 self.edt_name.setText(item_widget.lb_category.text())
+
+        self.hide_shadows()
+        self.editor_back.show()
+        self.edt_name.clear()
 
         self.edt_name.setFocus()
 
@@ -233,6 +238,9 @@ class AgrEditor(QDialog, Ui_AgrEditor):
             self.agr = self.agr.replace({np.nan: None})
             self.agr.reset_index(drop=True, inplace=True)
 
+            self.load_category()
+            self.lst_category.setCurrentRow(self.lst_category.count())
+
         # 특약사항 추가
         else:
 
@@ -262,7 +270,7 @@ class AgrEditor(QDialog, Ui_AgrEditor):
                 contents.append('<DRV_LINE>'.join(self.contents.loc[idx].values.tolist()))
 
             idx = self.agr[self.agr['category'] == category].index
-            self.agr.at[idx, 'content'] = '<SEP>'.join(contents)
+            self.agr.loc[idx, 'content'] = '<SEP>'.join(contents)
 
         self.hide_item_editor()
 
