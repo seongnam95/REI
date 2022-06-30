@@ -1,4 +1,6 @@
 import sys
+
+import numpy as np
 import pandas as pd
 import module.mysql as sql
 
@@ -22,8 +24,10 @@ class AgrEditor(QDialog, Ui_AgrEditor):
         self.agr, self.kind, self.response = agr, kind, None
         self.user_id = 'jsn0509'
         self.agr = sql.get_agrs(self.user_id)
-        self.contents = None
+
         self.edit_category, self.new_category, self.remove_category = pd.DataFrame, [], []
+        self.category, self.title = str, str
+        self.contents = pd.DataFrame
 
         self.conn = sql.connection()
         self.cur = self.conn.cursor()
@@ -88,65 +92,24 @@ class AgrEditor(QDialog, Ui_AgrEditor):
         self.btn_editor_cancel.clicked.connect(self.hide_item_editor)
         self.btn_editor_save.clicked.connect(self.add_item)
 
-    def show_shadows(self):
-        frame_list = [self.category_frame, self.title_frame, self.text_frame]
-        for child in frame_list:
-            shadow = QGraphicsDropShadowEffect(self)
-            shadow.setBlurRadius(15)
-            shadow.setXOffset(1)
-            shadow.setYOffset(1)
-            shadow.setColor(QColor(0, 0, 0, 35))
-            child.setGraphicsEffect(shadow)
-
-    def hide_shadows(self):
-        frame_list = [self.category_frame, self.title_frame, self.text_frame]
-        for child in frame_list:
-            shadow = QGraphicsDropShadowEffect(self)
-            shadow.setEnabled(False)
-            child.setGraphicsEffect(shadow)
-
     ## 상호작용 이벤트
     ############################################################################
 
     # 저장 버튼 클릭
     def clicked_save_btn(self):
-        print(self.edt_agr.toHtml())
-        self.conn.close()
-        return
-        category = self.cbx_category.currentText().strip()
-        title = self.cbx_title.currentText().strip()
-        print(category, title)
+        print(self.agr)
+        sql.set_agrs(self.agr)
 
-        # if not title: self.msg.show_msg(1500, 'center', "특약 제목을 입력해주세요.")
-        # elif not self.lst_content.count(): self.msg.show_msg(1500, 'center', "특약내용 리스트가 비어있습니다.")
-        #
-        # else:
-        #     result = self.agr[self.agr['category'] == category]
-        #
-        #     if title in result['title'].values.tolist():
-        #         current_title = self.agr['title'].iloc[0]
-        #         if title != current_title:
-        #             self.msg.show_msg(1500, 'center', "중복되는 특약 제목입니다.")
-        #             return
-        #
-        # column = ['category', 'title', 'num', 'content']
-        # response = pd.DataFrame(columns=column)
-        #
-        # for i in range(self.lst_content.count()):
-        #     item = self.lst_content.item(i)
-        #     item_widget = self.lst_content.itemWidget(item)
-        #
-        #     item_num = item_widget.lb_num_icon.text()
-        #     item_content = item_widget.lb_content.text()
-        #
-        #     result = pd.DataFrame([[category, title, item_num, item_content]], columns=column)
-        #     response = response.append(result, ignore_index=True)
-        #
-        # self.response = response
-        # self.hide()
-
-    ## 카테고리, 타이틀
+    ## 로드
     ############################################################################
+
+    def get_title(self):
+        category = self.agr[self.agr['category'] == self.category]
+        titles = [t.split('<DRV_LINE>') for t in category['content'].iloc[0].split('<SEP>')]
+
+        self.contents = pd.DataFrame(columns=['title', 'title_num', 'content'])
+        for i in range(len(titles)):
+            self.contents.loc[i] = titles[i]
 
     # 카테고리 로드
     def load_category(self):
@@ -169,43 +132,32 @@ class AgrEditor(QDialog, Ui_AgrEditor):
 
         item = self.lst_category.item(self.lst_category.currentRow())
         item_widget = self.lst_category.itemWidget(item)
-        category = item_widget.lb_category.text()
+        self.category = item_widget.lb_category.text()
 
-        rows = self.agr.content[self.agr.category == category]
-        self.contents = pd.DataFrame(columns=['title_num', 'title', 'content'])
+        self.get_title()
 
-        if rows.iloc[0]:
-            rows = rows.iloc[0].split('<SEP>')
+        title = self.contents.title.values.tolist()
+        title = list(dict.fromkeys(title))
 
-            for idx, r in enumerate(rows):
-                self.contents.loc[idx] = r.split('<DRV_LINE>')
-
-            title = self.contents['title'].values.tolist()
-            title = list(dict.fromkeys(title))
-
-            for i in title:
-                category_item = CategoryItem(i, self.lst_title)
-                item = QListWidgetItem()
-                item.setSizeHint(QSize(category_item.width(), 30))
-                self.lst_title.addItem(item)
-                self.lst_title.setItemWidget(item, category_item)
+        for i in title:
+            category_item = CategoryItem(i, self.lst_title)
+            item = QListWidgetItem()
+            item.setSizeHint(QSize(category_item.width(), 30))
+            self.lst_title.addItem(item)
+            self.lst_title.setItemWidget(item, category_item)
 
     # 특약사항 로드
     def load_content(self):
-        try:
-            self.edt_agr.clear()
+        self.edt_agr.clear()
 
-            item = self.lst_title.item(self.lst_title.currentRow())
-            title_widget = self.lst_title.itemWidget(item)
-            title = self.contents[self.contents.title == title_widget.lb_category.text()]
+        item = self.lst_title.item(self.lst_title.currentRow())
+        item_widget = self.lst_title.itemWidget(item)
+        self.title = item_widget.lb_category.text()
 
-            content = title.content.iloc[0]
-            self.edt_agr.insertHtml(content)
+        content = self.contents[self.contents['title'] == self.title]['content']
+        self.edt_agr.insertHtml(content.iloc[0])
 
-        finally:
-            return
-
-    ## 카테고리 편집
+    ## 편집
     ############################################################################
 
     # 편집기 활성화
@@ -259,28 +211,32 @@ class AgrEditor(QDialog, Ui_AgrEditor):
     def add_item(self):
         name = self.edt_name.text().strip()
 
-        if '<SEP>' in name or '<DRV_LINE>' in name:
-            self.msg.show_msg(2000, 'center', "'<SEP>' 또는 '<DRV_LINE>' 를 포함시킬 수 없습니다.")
-            return
+        # 카테고리 추가
+        if '카테고리' in self.editor_title.text():
 
-        form = 'category' if '카테고리' in self.editor_title.text() else 'title'
-
-        if form == 'category':
+            # 카테고리 중복 체크
             for i in range(self.lst_category.count()):
                 item = self.lst_category.item(i)
                 category = self.lst_category.itemWidget(item).lb_category.text()
-
                 if name == category:
                     self.msg.show_msg(2000, 'center', '이미 존재하는 카테고리입니다.')
                     return
 
-            new_category = {'category_num': str(self.lst_category.count()), 'category': [name], 'content': ['']}
+            # 데이터프레임 생성, 기존 데이터와 합치기
+            new_category = {'user_id': self.user_id,
+                            'category': [name],
+                            'category_num': str(self.lst_category.count())}
+
             new_df = pd.DataFrame(new_category)
 
             self.agr = pd.concat([self.agr, new_df])
+            self.agr = self.agr.replace({np.nan: None})
             self.agr.reset_index(drop=True, inplace=True)
 
-        elif form == 'title':
+        # 특약사항 추가
+        else:
+
+            # 특약사항 중복 체크
             for i in range(self.lst_title.count()):
                 item = self.lst_title.item(i)
                 title = self.lst_title.itemWidget(item).lb_category.text()
@@ -288,22 +244,25 @@ class AgrEditor(QDialog, Ui_AgrEditor):
                     self.msg.show_msg(2000, 'center', '이미 존재하는 특약사항입니다.')
                     return
 
-            new_title = {'title_num': str(self.lst_title.count()), 'title': [name], 'content': ['']}
+            # 데이터프레임 생성, 기존 데이터와 합치기
+            new_title = {'title': [name], 'title_num': str(self.lst_title.count()), 'content': ['']}
             new_df = pd.DataFrame(new_title)
 
             self.contents = pd.concat([self.contents, new_df])
             self.contents.reset_index(drop=True, inplace=True)
 
-            contents = []
-            for idx in self.contents.index:
-                contents.append('<DRV_LINE>'.join(self.contents.loc[idx].values.tolist()))
-
+            # 해당 타이틀 이름 구하기
             item = self.lst_category.item(self.lst_category.currentRow())
             item_widget = self.lst_category.itemWidget(item)
             category = item_widget.lb_category.text()
 
-            self.agr.content.loc[self.agr[self.agr['category'] == category].index] = '<SEP>'.join(contents)
-            print(self.agr)
+            # SQL 저장용 데이터 변경
+            contents = []
+            for idx in self.contents.index:
+                contents.append('<DRV_LINE>'.join(self.contents.loc[idx].values.tolist()))
+
+            idx = self.agr[self.agr['category'] == category].index
+            self.agr.at[idx, 'content'] = '<SEP>'.join(contents)
 
         self.hide_item_editor()
 
@@ -315,13 +274,14 @@ class AgrEditor(QDialog, Ui_AgrEditor):
                 res = self.msg_box('del_category')
                 if res == 0:
 
+                    # 카테고리명 구하기
                     item = self.lst_category.item(row)
                     item_widget = self.lst_category.itemWidget(item)
                     category = item_widget.lb_category.text()
 
+                    # 해당 카테고리 삭제
                     self.agr = self.agr.drop(self.agr[self.agr['category'] == category].index, axis=0)
                     self.agr.reset_index(drop=True, inplace=True)
-                    self.agr.to_csv("../../static/val/agrs.csv", sep="|", index=False)
 
                     self.lst_category.takeItem(row)
 
@@ -330,26 +290,55 @@ class AgrEditor(QDialog, Ui_AgrEditor):
             if row != -1:
                 res = self.msg_box('del_title')
                 if res == 0:
+
+                    # 카테고리명 구하기
                     item = self.lst_category.item(self.lst_category.currentRow())
                     item_widget = self.lst_category.itemWidget(item)
                     category = item_widget.lb_category.text()
 
+                    # 선택한 특약사항 구하기
                     item = self.lst_title.item(row)
                     item_widget = self.lst_title.itemWidget(item)
                     title = item_widget.lb_category.text()
-                    print(category, title)
-                    self.agr = self.agr.drop(self.agr[(self.agr['category'] == category) & (self.agr['title'] == title)].index, axis=0)
 
-                    print(self.agr[(self.agr['category'] == category) & (self.agr['title'] == title)])
+                    # 특약사항 삭제
+                    drop_idx = self.contents[(self.contents['title'] == title)].index
+                    self.contents = self.contents.drop(drop_idx, axis=0)
+
+                    # SQL 저장용 데이터 변경
+                    contents = []
+                    for idx in self.contents.index:
+                        contents.append('<DRV_LINE>'.join(self.contents.loc[idx].values.tolist()))
+                    self.agr.content.loc[self.agr[self.agr['category'] == category].index] = '<SEP>'.join(contents)
                     self.agr.reset_index(drop=True, inplace=True)
-                    self.agr.to_csv("../../static/val/agrs.csv", sep="|", index=False)
+
+                    print(self.agr)
 
                     self.lst_title.takeItem(row)
+
+    ## 쉐도우 설정
+    ############################################################################
+
+    def show_shadows(self):
+        frame_list = [self.category_frame, self.title_frame, self.text_frame]
+        for child in frame_list:
+            shadow = QGraphicsDropShadowEffect(self)
+            shadow.setBlurRadius(15)
+            shadow.setXOffset(1)
+            shadow.setYOffset(1)
+            shadow.setColor(QColor(0, 0, 0, 35))
+            child.setGraphicsEffect(shadow)
+
+    def hide_shadows(self):
+        frame_list = [self.category_frame, self.title_frame, self.text_frame]
+        for child in frame_list:
+            shadow = QGraphicsDropShadowEffect(self)
+            shadow.setEnabled(False)
+            child.setGraphicsEffect(shadow)
 
     ############################################################################
 
     # 다이얼로그 엔터키 막기
-
     def keyPressEvent(self, event):
         if ((not event.modifiers() and
              event.key() == Qt.Key_Return) or
@@ -357,6 +346,7 @@ class AgrEditor(QDialog, Ui_AgrEditor):
             event.accept()
         else: super(AgrEditor, self).keyPressEvent(event)
 
+    # 메세지 박스
     def msg_box(self, msg):
         msg_titles = {'del_category': '카테고리를 삭제하시겠습니까?',
                       'del_title': '특약사항을 삭제하시겠습니까?'}
