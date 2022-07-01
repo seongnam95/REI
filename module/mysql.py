@@ -18,6 +18,10 @@ def get_agrs(user):
         curs.execute(f"SELECT * FROM `contract_condition` WHERE `user_id`=(%s)", user)
 
         data = pd.DataFrame(curs.fetchall())
+
+        if data.empty:
+            data = pd.DataFrame(columns=['pk', 'user_id', 'category', 'category_num', 'content'])
+
         data = data.sort_values(['category_num'], ascending=True)
         data = data.reset_index(drop=True)
         print(data)
@@ -37,7 +41,7 @@ def set_agrs(data):
         for idx in data.index:
             row = data.loc[idx].values.tolist()
             result = list(dict.fromkeys(row)) * 2
-            result = [v.replace("'", "''") if type(v) == str else v for v in result]
+            # result = [v.replace("'", "''") if type(v) == str else v for v in result]
 
             sql = f"INSERT INTO `contract_condition` VALUES (%s, %s, %s, %s, %s) " \
                   f"ON DUPLICATE KEY UPDATE `pk`=%s, `user_id`=%s, `category`=%s, `category_num`=%s, `content`=%s"
@@ -51,7 +55,7 @@ def set_agrs(data):
     return data
 
 
-def del_agrs(data):
+def del_agrs(pk):
     con = connection()
 
     try:
@@ -59,7 +63,7 @@ def del_agrs(data):
 
         sql = "DELETE FROM `contract_condition` WHERE `pk`=%s"
 
-        curs.execute(sql, data.pk)
+        curs.execute(sql, pk)
         con.commit()
 
     finally:
