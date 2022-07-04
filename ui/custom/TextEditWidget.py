@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QWidget, QFrame, QPushButton, QComboBox, QFontComboBox
 from PySide6.QtCore import QRect
-from PySide6.QtGui import QFont, QTextCharFormat
+from PySide6.QtGui import QFont, QTextCharFormat, QTextCursor
 
 
 class TextEditWidget(QWidget):
@@ -181,6 +181,8 @@ class TextEditWidget(QWidget):
 
     # 굵게
     def set_bold(self):
+        cur = QTextCursor()
+        print(cur)
         if self.bold:
             self.edt.setFontWeight(QFont.Normal)
             self.bold = False

@@ -478,6 +478,6 @@ def my_exception_hook(exctype, value, traceback):
 sys._excepthook = sys.excepthook
 sys.excepthook = my_exception_hook
 
-app = QApplication()
-window = AgrEditor('', 'EDIT')
-app.exec()
+# app = QApplication()
+# window = AgrEditor('', 'EDIT')
+# app.exec()
