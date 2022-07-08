@@ -1,5 +1,4 @@
 import sys
-import pdfkit
 
 import numpy as np
 import pandas as pd
@@ -20,7 +19,6 @@ class AgrEditor(QDialog, Ui_AgrEditor):
     def __init__(self, agr, kind):
         super().__init__()
         self.setupUi(self)
-        print(pdfkit.from_url('http://snserver.site/'))
 
         # 변수 선언
         self.agr, self.kind, self.response = agr, kind, None
