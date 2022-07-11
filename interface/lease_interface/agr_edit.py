@@ -22,8 +22,8 @@ class AgrEditor(QDialog, Ui_AgrEditor):
 
         # 변수 선언
         self.agr, self.kind, self.response = agr, kind, None
-        self.user_id = 'jsn0509'
-        self.agr = sql.get_agrs(self.user_id)
+        self.user_pk = '2207112600001'
+        self.agr = sql.get_agrs(self.user_pk)
 
         self.edit_category, self.new_category, self.remove_category = pd.DataFrame, [], []
         self.category, self.title, self.last_txt = str, str, str
@@ -100,27 +100,16 @@ class AgrEditor(QDialog, Ui_AgrEditor):
 
     # 저장 버튼 클릭
     def clicked_save_btn(self):
-        print(self.agr.values)
         for row in self.agr.values:
             if '' in row:
                 category = row[2]
                 self.msg.show_msg(2000, 'center', f"'{category}' 카테고리가 비어있습니다.")
                 return
-
+        print(self.agr)
         sql.set_agrs(self.agr)
 
     ## 로드
     ############################################################################
-
-    def get_title(self):
-        self.contents = pd.DataFrame(columns=['title', 'title_num', 'content'])
-
-        category = self.agr[self.agr['category'] == self.category]
-        content = category['content'].iloc[0]
-        if content:
-            titles = [t.split('<DRV_LINE>') for t in content.split('<SEP>')]
-            for i in range(len(titles)):
-                self.contents.loc[i] = titles[i]
 
     # 카테고리 로드
     def load_category(self, row=None):
@@ -142,22 +131,27 @@ class AgrEditor(QDialog, Ui_AgrEditor):
     # 타이틀 로드
     def load_title(self, row=None):
         self.lst_title.clear()
+        self.edt_agr.clear()
+        if self.edt_agr.isEnabled(): self.edt_agr.setEnabled(False)
 
         item = self.lst_category.item(self.lst_category.currentRow())
         item_widget = self.lst_category.itemWidget(item)
         self.category = item_widget.lb_category.text()
 
-        self.get_title()
+        titles = self.agr[self.agr['category'] == self.category]
+        titles = titles.sort_values(['titleNum'], ascending=True)
+        titles = titles.reset_index(drop=True)
 
-        title = self.contents.title.values.tolist()
+        title = titles['title'].values.tolist()
         title = list(dict.fromkeys(title))
 
         for i in title:
-            category_item = CategoryItem(i, self.lst_title)
-            item = QListWidgetItem()
-            item.setSizeHint(QSize(category_item.width(), 30))
-            self.lst_title.addItem(item)
-            self.lst_title.setItemWidget(item, category_item)
+            if i:
+                category_item = CategoryItem(i, self.lst_title)
+                item = QListWidgetItem()
+                item.setSizeHint(QSize(category_item.width(), 30))
+                self.lst_title.addItem(item)
+                self.lst_title.setItemWidget(item, category_item)
 
         if row == int:
             self.lst_title.setCurrentRow(row)
@@ -173,8 +167,12 @@ class AgrEditor(QDialog, Ui_AgrEditor):
         item_widget = self.lst_title.itemWidget(item)
         self.title = item_widget.lb_category.text()
 
-        content = self.contents[self.contents['title'] == self.title]['content']
-        self.edt_agr.insertHtml(content.iloc[0])
+        category = self.agr[self.agr['category'] == self.category]
+        content = category[category['title'] == self.title]['content']
+        if content.iloc[0]:
+            self.edt_agr.insertHtml(content.iloc[0])
+
+        self.edt_agr.setFocus()
 
     ## 편집
     ############################################################################
@@ -183,16 +181,8 @@ class AgrEditor(QDialog, Ui_AgrEditor):
         if self.last_txt != self.edt_agr.toHtml():
             self.last_txt = self.edt_agr.toHtml()
 
-            idx = self.contents[self.contents['title'] == self.title].index
-            self.contents.loc[idx, 'content'] = self.last_txt
-
-            # SQL 저장용 데이터 변경
-            contents = []
-            for items in self.contents.values:
-                contents.append('<DRV_LINE>'.join(items))
-
-            idx = self.agr[self.agr['category'] == self.category].index
-            self.agr.loc[idx, 'content'] = '<SEP>'.join(contents)
+            idx = self.agr.index[(self.agr['category'] == self.category) & (self.agr['title'] == self.title)]
+            self.agr.loc[idx, 'content'] = self.last_txt
 
     # 편집기 활성화
     def show_item_editor(self, form, kind):
@@ -254,9 +244,9 @@ class AgrEditor(QDialog, Ui_AgrEditor):
                     return
 
             # 데이터프레임 생성, 기존 데이터와 합치기
-            new_category = {'user_id': self.user_id,
+            new_category = {'userPk': self.user_pk,
                             'category': [name],
-                            'category_num': str(self.lst_category.count())}
+                            'categoryNum': self.lst_category.count()}
 
             new_df = pd.DataFrame(new_category)
 
@@ -284,25 +274,24 @@ class AgrEditor(QDialog, Ui_AgrEditor):
                     self.msg.show_msg(2000, 'center', '이미 존재하는 특약사항입니다.')
                     return
 
+            # 현재 카테고리
+            crt_category = self.agr[self.agr['category'] == self.category]
+
             # 데이터프레임 생성, 기존 데이터와 합치기
-            new_title = {'title': [name], 'title_num': str(self.lst_title.count())}
+            num = crt_category['categoryNum'].iloc[0]
+
+            # 카테고리만 있을 경우
+            if len(crt_category) == 1:
+                if not crt_category['title'].iloc[0]:
+                    idx = self.agr.index[self.agr['category'] == self.category]
+                    self.agr = self.agr.drop(index=idx, axis=0)
+
+            new_title = {'userPk': [self.user_pk], 'category': [self.category], 'categoryNum': [num],
+                         'title': [name], 'titleNum': [self.lst_title.count()]}
             new_df = pd.DataFrame(new_title)
-
-            self.contents = pd.concat([self.contents, new_df])
-            self.contents.reset_index(drop=True, inplace=True)
-
-            # 해당 타이틀 이름 구하기
-            item = self.lst_category.item(self.lst_category.currentRow())
-            item_widget = self.lst_category.itemWidget(item)
-            category = item_widget.lb_category.text()
-
-            # SQL 저장용 데이터 변경
-            contents = []
-            for idx in self.contents.index:
-                contents.append('<DRV_LINE>'.join(self.contents.loc[idx].values.tolist()))
-
-            idx = self.agr[self.agr['category'] == category].index
-            self.agr.loc[idx, 'content'] = '<SEP>'.join(contents)
+            self.agr = pd.concat([self.agr, new_df])
+            self.agr = self.agr.replace({np.nan: None})
+            self.agr.reset_index(drop=True, inplace=True)
 
             category_item = CategoryItem(name, self.lst_title)
             item = QListWidgetItem()
@@ -311,6 +300,8 @@ class AgrEditor(QDialog, Ui_AgrEditor):
             self.lst_title.setItemWidget(item, category_item)
 
             self.lst_title.setCurrentRow(self.lst_title.count() - 1)
+
+            self.load_content()
 
         self.hide_item_editor()
 
@@ -322,14 +313,11 @@ class AgrEditor(QDialog, Ui_AgrEditor):
                 res = self.msg_box('del_category')
                 if res == 0:
 
-                    # 해당 카테고리
-                    idx = self.agr[self.agr['category'] == self.category].index
-
                     # DB 삭제
-                    pk = self.agr[self.agr['category'] == self.category]['pk']
-                    sql.del_agrs(pk.iloc[0])
+                    sql.del_agrs([self.user_pk, self.category])
 
                     # 데이터프레임, 리스트 삭제
+                    idx = self.agr.index[self.agr['category'] == self.category]
                     self.agr = self.agr.drop(idx, axis=0)
                     self.agr.reset_index(drop=True, inplace=True)
 
@@ -342,14 +330,11 @@ class AgrEditor(QDialog, Ui_AgrEditor):
                 if res == 0:
 
                     # 특약사항 삭제
-                    drop_idx = self.contents[(self.contents['title'] == self.title)].index
-                    self.contents = self.contents.drop(drop_idx, axis=0)
+                    idx = self.agr.index[(self.agr['category'] == self.category) & (self.agr['title'] == self.title)]
+                    pk = self.agr[(self.agr['category'] == self.category) & (self.agr['title'] == self.title)]
 
-                    # SQL 저장용 데이터 변경
-                    contents = ['<DRV_LINE>'.join(items) for items in self.contents.values]
-
-                    idx = self.agr[self.agr['category'] == self.category].index
-                    self.agr.loc[idx, 'content'] = '<SEP>'.join(contents)
+                    sql.del_agrs(pk.iloc[0]['pk'])
+                    self.agr = self.agr.drop(idx, axis=0)
 
                     self.lst_title.takeItem(row)
 
@@ -478,6 +463,6 @@ def my_exception_hook(exctype, value, traceback):
 sys._excepthook = sys.excepthook
 sys.excepthook = my_exception_hook
 
-# app = QApplication()
-# window = AgrEditor('', 'EDIT')
-# app.exec()
+app = QApplication()
+window = AgrEditor('', 'EDIT')
+app.exec()

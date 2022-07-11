@@ -15,14 +15,14 @@ def get_agrs(user):
 
     try:
         curs = con.cursor()
-        curs.execute(f"SELECT * FROM `contract_condition` WHERE `user_id`=(%s)", user)
+        curs.execute(f"SELECT * FROM `contract_condition` WHERE `userPk`=(%s)", user)
 
         data = pd.DataFrame(curs.fetchall())
 
         if data.empty:
-            data = pd.DataFrame(columns=['pk', 'user_id', 'category', 'category_num', 'content'])
+            data = pd.DataFrame(columns=['pk', 'userPk', 'category', 'categoryNum', 'title', 'titleNum', 'content'])
 
-        data = data.sort_values(['category_num'], ascending=True)
+        data = data.sort_values(['categoryNum'], ascending=True)
         data = data.reset_index(drop=True)
         print(data)
 
@@ -39,12 +39,11 @@ def set_agrs(data):
         curs = con.cursor()
 
         for idx in data.index:
-            row = data.loc[idx].values.tolist()
-            result = list(dict.fromkeys(row)) * 2
-            # result = [v.replace("'", "''") if type(v) == str else v for v in result]
+            result = data.loc[idx].values.tolist() * 2
+            # result = [v.replace("'", "''") if type(v) == str else v for v in row]
 
-            sql = f"INSERT INTO `contract_condition` VALUES (%s, %s, %s, %s, %s) " \
-                  f"ON DUPLICATE KEY UPDATE `pk`=%s, `user_id`=%s, `category`=%s, `category_num`=%s, `content`=%s"
+            sql = f"INSERT INTO `contract_condition` VALUES (%s, %s, %s, %s, %s, %s, %s) " \
+                  f"ON DUPLICATE KEY UPDATE `pk`=%s, `userPk`=%s, `category`=%s, `categoryNum`=%s, `title`=%s, `titleNum`=%s, `content`=%s"
 
             curs.execute(sql, result)
             con.commit()
@@ -61,10 +60,15 @@ def del_agrs(pk):
     try:
         curs = con.cursor()
 
-        sql = "DELETE FROM `contract_condition` WHERE `pk`=%s"
+        if type(pk) == list:
+            sql = "DELETE FROM `contract_condition` WHERE `userPk`=%s AND `category`=%s"
+        else:
+            sql = "DELETE FROM `contract_condition` WHERE `pk`=%s"
 
         curs.execute(sql, pk)
         con.commit()
+    except Exception as e:
+        print('err: ', e)
 
     finally:
         con.close()
