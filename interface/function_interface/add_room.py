@@ -5,7 +5,7 @@ from PySide6.QtWidgets import QMainWindow, QApplication, QGraphicsDropShadowEffe
 from PySide6.QtGui import QColor, QIntValidator, QDoubleValidator
 from PySide6.QtCore import QPoint
 
-from interface.sub_interface import find_address_details
+from interface.public import get_address
 from ui.main.ui_add_room import Ui_AddRoom
 
 
@@ -107,7 +107,7 @@ class AddRoom(QMainWindow, Ui_AddRoom):
 
     # 소재지 찾기 에디트 클릭
     def clicked_address_edit(self, e=None):
-        dialog = find_address_details.AddressDetails(self.edt_address.text())
+        dialog = get_address.AddressDetails(self.edt_address.text())
         dialog.exec()
 
         if dialog.result:
